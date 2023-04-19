@@ -33,8 +33,8 @@ LICENSE
 
 // Package datastore offers common datastore API with multiple store implementations:
 //
-//  - CloudStore is Google datastore implementation.
-//  - FileStore is a simple file-based store implementation.
+//   - CloudStore is Google datastore implementation.
+//   - FileStore is a simple file-based store implementation.
 package datastore
 
 import (
@@ -48,6 +48,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 
 	"cloud.google.com/go/datastore"
 	"cloud.google.com/go/storage"
@@ -78,6 +79,7 @@ var (
 	ErrInvalidValue    = errors.New("invalid value")
 	ErrOperatorMissing = errors.New("operator missing")
 	ErrNoSuchEntity    = errors.New("no such entity")
+	ErrEntityExists    = errors.New("entity exists")
 )
 
 // We reuse some Google Datastore types.
@@ -101,13 +103,15 @@ var newEntity = map[string]func() Entity{}
 //
 // See also https://godoc.org/cloud.google.com/go.
 type Store interface {
-	IDKey(kind string, id int64) *Key                                     // Returns an ID key.
-	NameKey(kind, name string) *Key                                       // Returns a name key.
-	NewQuery(kind string, keysOnly bool, keyParts ...string) Query        // Returns a new query.
-	Get(ctx context.Context, key *Key, dst Entity) error                  // Gets a single entity by its key.
-	GetAll(ctx context.Context, q Query, dst interface{}) ([]*Key, error) // Runs a query and returns all matching entities.
-	Put(ctx context.Context, key *Key, src Entity) (*Key, error)          // Puts a single entity by its key.
-	DeleteMulti(ctx context.Context, keys []*Key) error                   // Deletes multiple entities by their keys.
+	IDKey(kind string, id int64) *Key                                        // Returns an ID key.
+	NameKey(kind, name string) *Key                                          // Returns a name key.
+	NewQuery(kind string, keysOnly bool, keyParts ...string) Query           // Returns a new query.
+	Get(ctx context.Context, key *Key, dst Entity) error                     // Gets a single entity by its key.
+	GetAll(ctx context.Context, q Query, dst interface{}) ([]*Key, error)    // Runs a query and returns all matching entities.
+	Create(ctx context.Context, key *Key, src Entity) error                  // Creates a single entity by its key.
+	Put(ctx context.Context, key *Key, src Entity) (*Key, error)             // Put or creates a single entity by its key.
+	Update(ctx context.Context, key *Key, fn func(Entity), dst Entity) error // Atomically updates a single entity by its key.
+	DeleteMulti(ctx context.Context, keys []*Key) error                      // Deletes multiple entities by their keys.
 }
 
 // Query defines the query interface, which is a subset of Google
@@ -252,8 +256,36 @@ func (s *CloudStore) GetAll(ctx context.Context, query Query, dst interface{}) (
 	return s.client.GetAll(ctx, q.query, dst)
 }
 
+func (s *CloudStore) Create(ctx context.Context, key *Key, src Entity) error {
+	_, err := s.client.RunInTransaction(ctx, func(tx *datastore.Transaction) error {
+		err := tx.Get(key, src)
+		if err == nil {
+			return ErrEntityExists
+		}
+		if err != datastore.ErrNoSuchEntity {
+			return err
+		}
+		_, err = tx.Put(key, src)
+		return err
+	})
+	return err
+}
+
 func (s *CloudStore) Put(ctx context.Context, key *Key, src Entity) (*Key, error) {
 	return s.client.Put(ctx, key, src)
+}
+
+func (s *CloudStore) Update(ctx context.Context, key *Key, fn func(Entity), dst Entity) error {
+	_, err := s.client.RunInTransaction(ctx, func(tx *datastore.Transaction) error {
+		err := tx.Get(key, dst)
+		if err != nil {
+			return err
+		}
+		fn(dst)
+		_, err = tx.Put(key, dst)
+		return err
+	})
+	return err
 }
 
 func (s *CloudStore) DeleteMulti(ctx context.Context, keys []*Key) error {
@@ -332,6 +364,7 @@ func (q *CloudQuery) Limit(limit int) {
 // separated by a period and the keyParts in NewQuery must reflect
 // this.
 type FileStore struct {
+	mu  sync.Mutex
 	id  string
 	dir string
 }
@@ -528,6 +561,20 @@ func extractID(name string) int64 {
 	return int64(msb<<32 | lsb&0xffffffff)
 }
 
+func (s *FileStore) Create(ctx context.Context, key *Key, src Entity) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	err := s.Get(ctx, key, src)
+	if err == nil {
+		return ErrEntityExists
+	}
+	if err != ErrNoSuchEntity {
+		return err
+	}
+	_, err = s.Put(ctx, key, src)
+	return err
+}
+
 func (s *FileStore) Put(ctx context.Context, key *Key, src Entity) (*Key, error) {
 	bytes := src.Encode()
 	err := ioutil.WriteFile(filepath.Join(s.dir, s.id, key.Kind, key.Name), bytes, 0777)
@@ -535,6 +582,18 @@ func (s *FileStore) Put(ctx context.Context, key *Key, src Entity) (*Key, error)
 		return nil, err
 	}
 	return key, nil
+}
+
+func (s *FileStore) Update(ctx context.Context, key *Key, fn func(Entity), dst Entity) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	err := s.Get(ctx, key, dst)
+	if err != nil {
+		return err
+	}
+	fn(dst)
+	_, err = s.Put(ctx, key, dst)
+	return err
 }
 
 func (s *FileStore) DeleteMulti(ctx context.Context, keys []*Key) error {
