@@ -46,8 +46,8 @@ const typeKeyValue = "KeyValue" // KeyValue datastore type.
 
 // KeyValue represents a key/value pair.
 type KeyValue struct {
-	Key   string // KeyValue name.
-	Value string // KeyValue value.
+	Key   string
+	Value string
 }
 
 // Encode serializes a KeyValue into tab-separated values.
@@ -66,6 +66,13 @@ func (v *KeyValue) Decode(b []byte) error {
 	return nil
 }
 
+// CreateKeyValue creates a KeyValue.
+func CreateKeyValue(ctx context.Context, store Store, key, value string) error {
+	k := store.NameKey(typeKeyValue, key)
+	v := &KeyValue{Key: key, Value: value}
+	return store.Create(ctx, k, v)
+}
+
 // PutKeyValue creates or updates a KeyValue.
 func PutKeyValue(ctx context.Context, store Store, key, value string) error {
 	k := store.NameKey(typeKeyValue, key)
@@ -79,6 +86,13 @@ func GetKeyValue(ctx context.Context, store Store, key string) (*KeyValue, error
 	k := store.NameKey(typeKeyValue, key)
 	v := new(KeyValue)
 	return v, store.Get(ctx, k, v)
+}
+
+// UpdateKeyValue updates a KeyValue by applying the given function.
+func UpdateKeyValue(ctx context.Context, store Store, key string, fn func(Entity)) (*KeyValue, error) {
+	k := store.NameKey(typeKeyValue, key)
+	v := new(KeyValue)
+	return v, store.Update(ctx, k, fn, v)
 }
 
 // DeleteKeyValue deletes a KeyValue.
@@ -137,6 +151,10 @@ func testKeyValue(t *testing.T, kind string) {
 		if err != nil {
 			t.Errorf("PutKeyValue %d failed with error: %v", i, err)
 		}
+		err = CreateKeyValue(ctx, store, test.key, test.value)
+		if err != ErrEntityExists {
+			t.Errorf("CreateKeyValue %d failed with unexpected error: %v", i, err)
+		}
 		v, err := GetKeyValue(ctx, store, test.key)
 		if err != nil {
 			t.Errorf("GetKeyValue %d failed with error: %v", i, err)
@@ -144,9 +162,24 @@ func testKeyValue(t *testing.T, kind string) {
 		if v.Value != test.value {
 			t.Errorf("GetKeyValue %d returned wrong value; expected %s, got %s", i, test.value, v.Value)
 		}
+		v, err = UpdateKeyValue(ctx, store, test.key, clearValue)
+		if err != nil {
+			t.Errorf("UpdateKeyValue %d failed with error: %v", i, err)
+		}
+		if v.Value != "" {
+			t.Errorf("GetKeyValue %d returned wrong value; expected empty string, got %s", i, v.Value)
+		}
 		err = DeleteKeyValue(ctx, store, test.key)
 		if err != nil {
 			t.Errorf("DeleteKeyValue %d failed with error: %v", i, err)
 		}
+	}
+}
+
+// clearValue clears the value of a KeyValue.
+func clearValue(e Entity) {
+	v, ok := e.(*KeyValue)
+	if ok {
+		v.Value = ""
 	}
 }
