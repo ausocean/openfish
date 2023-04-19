@@ -33,7 +33,7 @@ LICENSE
 
 // Package datastore offers common datastore API with multiple store implementations:
 //
-//   - CloudStore is Google datastore implementation.
+//   - CloudStore is a Google datastore implementation.
 //   - FileStore is a simple file-based store implementation.
 package datastore
 
