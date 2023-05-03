@@ -31,50 +31,31 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package main
+package ds_client
 
 import (
-	"github.com/ausocean/openfish/api/ds_client"
-	"github.com/ausocean/openfish/api/handlers"
+	"context"
 
-	"flag"
-	"fmt"
-
-	"github.com/gofiber/fiber/v2"
+	"github.com/ausocean/openfish/api/model"
+	"github.com/ausocean/openfish/datastore"
 )
 
-func RegisterAPIRoutes(app *fiber.App) {
+var store datastore.Store
 
-	v1 := app.Group("/api/v1")
-
-	// Capture sources.
-	v1.Get("/capturesources/:id", handlers.GetCaptureSourceByID)
-	v1.Get("/capturesources", handlers.GetCaptureSources)
-	v1.Post("/capturesources", handlers.CreateCaptureSource)
-
-	// Video streams.
-	v1.Get("/videostreams/:id", handlers.GetVideoStreamByID)
-	v1.Get("/videostreams", handlers.GetVideoStreams)
-
-	// Annotations.
-	v1.Get("/annotations/:id", handlers.GetAnnotationByID)
-	v1.Get("/annotations", handlers.GetAnnotations)
-	v1.Post("/annotations", handlers.CreateAnnotation)
-
+func Get() datastore.Store {
+	return store
 }
 
-func main() {
-	local := flag.Bool("local", false, "Run in local mode")
-
-	flag.Parse()
-
-	// Datastore setup.
-	fmt.Println("Creating datastore (local mode: ", *local, ")")
-	ds_client.Init(*local)
-
-	// Start web server.
-	fmt.Println("Starting webserver")
-	app := fiber.New()
-	RegisterAPIRoutes(app)
-	app.Listen(":3000")
+func Init(local bool) {
+	ctx := context.Background()
+	var err error
+	if local {
+		store, err = datastore.NewStore(ctx, "file", "openfish", "./store")
+	} else {
+		store, err = datastore.NewStore(ctx, "cloud", "openfish-dev", "")
+	}
+	if err != nil {
+		panic(err)
+	}
+	datastore.RegisterEntity("capturesource", func() datastore.Entity { return new(model.CaptureSource) })
 }

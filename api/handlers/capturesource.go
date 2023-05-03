@@ -34,24 +34,67 @@ LICENSE
 package handlers
 
 import (
+	"context"
 	"fmt"
+	"strconv"
+	"strings"
 
+	"cloud.google.com/go/datastore"
+	"github.com/ausocean/openfish/api/ds_client"
+	"github.com/ausocean/openfish/api/model"
 	"github.com/ausocean/openfish/api/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 type CaptureSourceResult struct {
-	ID       *int    `json:"id,omitempty"`
-	Name     *string `json:"name,omitempty"`
-	Location *string `json:"location,omitempty"`
+	ID             *int    `json:"id,omitempty"`
+	Name           *string `json:"name,omitempty"`
+	Location       *string `json:"location,omitempty"`
+	CameraHardware *string `json:"camera_hardware,omitempty"`
+}
+
+type CaptureSourcePost struct {
+	Name           string `json:"name"`
+	Location       string `json:"location"`
+	CameraHardware string `json:"camera_hardware"`
 }
 
 func GetCaptureSourceByID(ctx *fiber.Ctx) error {
-	// TODO: implement handler
+	// Parse URL.
+	format := utils.GetFormat(ctx)
+	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
+	if err != nil {
+		return utils.InvalidRequestUrl(ctx)
+	}
 
-	// id, _ := ctx.ParamsInt("id", 1)
-	return ctx.JSON("TODO")
+	// Fetch data from the datastore.
+	store := ds_client.Get()
+	key := store.IDKey("CaptureSource", id)
+	var captureSource model.CaptureSource
+	if store.Get(context.Background(), key, &captureSource) != nil {
+		return utils.DatastoreReadFailure(ctx)
+	}
+
+	// Format result.
+	var result CaptureSourceResult
+
+	if format.Requires("id") {
+		id := int(id)
+		result.ID = &id
+	}
+	if format.Requires("name") {
+		result.Name = &captureSource.Name
+	}
+	if format.Requires("location") {
+		location := fmt.Sprintf("%f,%f", captureSource.Location.Lat, captureSource.Location.Lng)
+		result.Location = &location
+	}
+	if format.Requires("camera_hardware") {
+		result.CameraHardware = &captureSource.CameraHardware
+	}
+
+	return ctx.JSON(result)
 }
 
 func GetCaptureSources(ctx *fiber.Ctx) error {
@@ -61,16 +104,87 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 	format := utils.GetFormat(ctx)
 	limit, offset := utils.GetLimitAndOffset(ctx, 20)
 
-	// Debugging info.
-	fmt.Println(name, location, format, limit, offset)
+	// Fetch data from the datastore.
+	store := ds_client.Get()
+	query := store.NewQuery("CaptureSource", false)
 
-	// Placeholder code: returns an empty result.
-	// TODO: implement fetching from datastore.
-	result := utils.Result[CaptureSourceResult]{
-		Results: []CaptureSourceResult{},
+	if name != "" {
+		query.FilterField("Name", "=", name)
+	}
+
+	// TODO: implement filtering based on location
+	_ = location
+
+	query.Limit(limit)
+	query.Offset(offset)
+
+	var captureSources []model.CaptureSource
+	keys, err := store.GetAll(context.Background(), query, &captureSources)
+	if err != nil {
+		return utils.DatastoreReadFailure(ctx)
+	}
+
+	// Format results.
+	results := make([]CaptureSourceResult, len(captureSources))
+	for i := range captureSources {
+		if format.Requires("id") {
+			id := int(keys[i].ID)
+			results[i].ID = &id
+		}
+		if format.Requires("name") {
+			results[i].Name = &captureSources[i].Name
+		}
+		if format.Requires("location") {
+			location := fmt.Sprintf("%f,%f", captureSources[i].Location.Lat, captureSources[i].Location.Lng)
+			results[i].Location = &location
+		}
+		if format.Requires("camera_hardware") {
+			results[i].CameraHardware = &captureSources[i].CameraHardware
+		}
+	}
+
+	return ctx.JSON(utils.Result[CaptureSourceResult]{
+		Results: results,
 		Offset:  offset,
 		Limit:   limit,
-		Total:   0,
+		Total:   len(results),
+	})
+}
+
+func CreateCaptureSource(ctx *fiber.Ctx) error {
+	var body CaptureSourcePost
+
+	err := ctx.BodyParser(&body)
+	if err != nil {
+		return utils.InvalidRequestJSON(ctx)
 	}
-	return ctx.JSON(result)
+
+	// Parse location.
+	parts := strings.Split(body.Location, ",")
+	lat, _ := strconv.ParseFloat(parts[0], 64)
+	long, _ := strconv.ParseFloat(parts[1], 64)
+
+	// Get a unique ID for the new capturesource.
+	store := ds_client.Get()
+	key := store.IncompleteKey("CaptureSource")
+
+	// Create capture source entity and add to the datastore.
+	cs := model.CaptureSource{
+		Name:           body.Name,
+		Location:       datastore.GeoPoint{Lat: lat, Lng: long},
+		CameraHardware: body.CameraHardware,
+	}
+
+	// Add to datastore.
+	key, err = store.Put(context.Background(), key, &cs)
+	if err != nil {
+		print(err.Error())
+		return utils.DatastoreWriteFailure(ctx)
+	}
+
+	// Return ID of created capture source.
+	id := int(key.ID)
+	return ctx.JSON(CaptureSourceResult{
+		ID: &id,
+	})
 }

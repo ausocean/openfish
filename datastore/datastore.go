@@ -1,6 +1,7 @@
 /*
 AUTHORS
   Alan Noble <alan@ausocean.org>
+  Scott Barnard <scott@ausocean.org>
 
 LICENSE
   Copyright (c) 2023, The OpenFish Contributors.
@@ -42,6 +43,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -105,6 +107,7 @@ var newEntity = map[string]func() Entity{}
 type Store interface {
 	IDKey(kind string, id int64) *Key                                        // Returns an ID key.
 	NameKey(kind, name string) *Key                                          // Returns a name key.
+	IncompleteKey(kind string) *Key                                          // Returns an incomplete key.
 	NewQuery(kind string, keysOnly bool, keyParts ...string) Query           // Returns a new query.
 	Get(ctx context.Context, key *Key, dst Entity) error                     // Gets a single entity by its key.
 	GetAll(ctx context.Context, q Query, dst interface{}) ([]*Key, error)    // Runs a query and returns all matching entities.
@@ -121,9 +124,11 @@ type Store interface {
 //
 // See also Google Cloud datastore.Query.Filter and datastore.Query.Order.
 type Query interface {
-	Filter(filterStr string, value interface{}) error // Filters a query.
-	Order(fieldName string)                           // Orders a query.
-	Limit(limit int)                                  // Limits the number of results returned.
+	Filter(filterStr string, value interface{}) error                       // Filters a query (depreciated).
+	FilterField(fieldName string, operator string, value interface{}) error // Filters a query.
+	Order(fieldName string)                                                 // Orders a query.
+	Limit(limit int)                                                        // Limits the number of results returned.
+	Offset(offset int)                                                      // How many keys to skip before returning results.
 }
 
 // RegisterEntity registers a new kind of entity and its constructor.
@@ -145,7 +150,6 @@ func NewStore(ctx context.Context, kind, id, url string) (s Store, err error) {
 	default:
 		return nil, errors.New("unexpected kind: " + kind)
 	}
-	return
 }
 
 // CloudStore implements Store for the Google Cloud Datastore.
@@ -228,6 +232,11 @@ func (s *CloudStore) NameKey(kind, name string) *Key {
 	return datastore.NameKey(kind, name, nil)
 }
 
+// IncompleteKey returs an incomplete key given a kind.
+func (s *CloudStore) IncompleteKey(kind string) *Key {
+	return datastore.IncompleteKey(kind, nil)
+}
+
 // NewQuery returns a new CloudQuery and is a wrapper for
 // datastore.NewQuery. If keysOnly is true the query is set to keys
 // only, but keyParts are ignored.
@@ -305,12 +314,24 @@ func (q *CloudQuery) Filter(filterStr string, value interface{}) error {
 	return nil
 }
 
+func (q *CloudQuery) FilterField(fieldName string, operator string, value interface{}) error {
+	if value == nil {
+		return nil
+	}
+	q.query = q.query.FilterField(fieldName, operator, value)
+	return nil
+}
+
 func (q *CloudQuery) Order(fieldName string) {
 	q.query = q.query.Order(fieldName)
 }
 
 func (q *CloudQuery) Limit(limit int) {
 	q.query = q.query.Limit(limit)
+}
+
+func (q *CloudQuery) Offset(offset int) {
+	q.query = q.query.Offset(offset)
 }
 
 // FileStore implements Store for file storage. Each entity is
@@ -415,6 +436,27 @@ func (s *FileStore) NameKey(kind, name string) *Key {
 		os.MkdirAll(dir, 0766)
 	}
 	return &Key{Kind: kind, Name: name}
+}
+
+// IncompleteKey returs an incomplete key given a kind.
+func (s *FileStore) IncompleteKey(kind string) *Key {
+	var id int64
+	var name string
+
+	// Continue selecting an id until we find one not used.
+	for {
+		id = rand.Int63()
+		if id < 1<<32 {
+			name = strconv.FormatInt(id, 10)
+		} else {
+			name = strconv.FormatInt(id>>32, 10) + "." + strconv.FormatInt(id&0xffffffff, 10)
+		}
+		path := filepath.Join(s.dir, s.id, kind, name)
+		_, err := os.Stat(path)
+		if os.IsNotExist(err) {
+			return &Key{Kind: kind, ID: id, Name: name}
+		}
+	}
 }
 
 // NewQuery creates and returns a new FileQuery.
@@ -709,6 +751,11 @@ func (q *FileQuery) Filter(filterStr string, value interface{}) error {
 	return ErrInvalidValue
 }
 
+// FilterField replaces Filter.
+func (q *FileQuery) FilterField(fieldName string, operator string, value interface{}) error {
+	return q.Filter(fieldName+" "+operator, value)
+}
+
 // toInt64 converts a string to an int64, or returns 0.
 func toInt64(s string) int64 {
 	i, _ := strconv.ParseInt(s, 10, 64)
@@ -720,7 +767,10 @@ func (q *FileQuery) Order(fieldName string) {
 }
 
 // NOTE: Limit has not been implemented for file stores.
-func (q *FileQuery) Limit(limit int) {}
+func (q *FileQuery) Limit(limit int) {} // TODO: Implement.
+
+// NOTE: Offset has not been implemented for file stores.
+func (q *FileQuery) Offset(offset int) {} // TODO: Implement.
 
 // IDKey makes a datastore ID key by combining an ID, a Unix timestamp
 // and an optional subtime (st). The latter is used to
