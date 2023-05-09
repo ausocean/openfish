@@ -31,31 +31,23 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package main
+package ds_client
 
 import (
-	"api/handlers"
+	"context"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/ausocean/openfish/api/model"
+	"github.com/ausocean/openfish/datastore"
 )
 
-const api = "/api/v1"
+var store datastore.Store
 
-func main() {
-	app := fiber.New()
+func Get() datastore.Store {
+	return store
+}
 
-	// Capture sources.
-	app.Get(api+"/capturesources/:id", handlers.GetCaptureSourceByID)
-	app.Get(api+"/capturesources", handlers.GetCaptureSources)
-
-	// Video streams.
-	app.Get(api+"/videostreams/:id", handlers.GetVideoStreamByID)
-	app.Get(api+"/videostreams", handlers.GetVideoStreams)
-
-	// Annotations.
-	app.Get(api+"/annotations/:id", handlers.GetAnnotationByID)
-	app.Get(api+"/annotations", handlers.GetAnnotations)
-	app.Post(api+"/annotations", handlers.CreateAnnotation)
-
-	app.Listen(":3000")
+func Init() {
+	ctx := context.Background()
+	store, _ = datastore.NewStore(ctx, "file", "openfish", "./store")
+	datastore.RegisterEntity("capturesource", func() datastore.Entity { return new(model.CaptureSource) })
 }

@@ -51,15 +51,15 @@ type BoundingBox struct {
 }
 
 type AnnotationResult struct {
-	Id            *int               `json:"id,omitempty"`
-	VideoStreamId *int               `json:"videostreamId,omitempty"`
+	ID            *int               `json:"id,omitempty"`
+	VideoStreamID *int               `json:"videostreamId,omitempty"`
 	TimeSpan      *TimeSpan          `json:"timespan,omitempty"`
 	BoundingBox   *BoundingBox       `json:"boundingBox,omitempty"`
 	Observer      *string            `json:"observer,omitempty"`
 	Observation   *map[string]string `json:"observation,omitempty"`
 }
 
-func GetAnnotationById(ctx *fiber.Ctx) error {
+func GetAnnotationByID(ctx *fiber.Ctx) error {
 	// TODO: implement handler
 
 	// id, _ := ctx.ParamsInt("id", 1)

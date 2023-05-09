@@ -42,12 +42,12 @@ import (
 )
 
 type CaptureSourceResult struct {
-	Id       *int    `json:"id,omitempty"`
+	ID       *int    `json:"id,omitempty"`
 	Name     *string `json:"name,omitempty"`
 	Location *string `json:"location,omitempty"`
 }
 
-func GetCaptureSourceById(ctx *fiber.Ctx) error {
+func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 	// TODO: implement handler
 
 	// id, _ := ctx.ParamsInt("id", 1)

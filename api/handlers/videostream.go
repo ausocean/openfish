@@ -42,13 +42,13 @@ import (
 )
 
 type VideoStreamResult struct {
-	Id        *int           `json:"id,omitempty"`
+	ID        *int           `json:"id,omitempty"`
 	Datetime  *time.Time     `json:"datetime,omitempty"`
 	Duration  *time.Duration `json:"duration,omitempty"`
 	StreamUrl *string        `json:"streamUrl,omitempty"`
 }
 
-func GetVideoStreamById(ctx *fiber.Ctx) error {
+func GetVideoStreamByID(ctx *fiber.Ctx) error {
 	// TODO: implement handler
 
 	// id, _ := ctx.ParamsInt("id", 1)
