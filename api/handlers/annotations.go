@@ -52,12 +52,12 @@ type BoundingBox struct {
 }
 
 type AnnotationResult struct {
-	ID            *int               `json:"id,omitempty"`
-	VideoStreamID *int               `json:"videostreamId,omitempty"`
-	TimeSpan      *TimeSpan          `json:"timespan,omitempty"`
-	BoundingBox   *BoundingBox       `json:"boundingBox,omitempty"`
-	Observer      *string            `json:"observer,omitempty"`
-	Observation   *map[string]string `json:"observation,omitempty"`
+	ID            *int              `json:"id,omitempty"`
+	VideoStreamID *int              `json:"videostreamId,omitempty"`
+	TimeSpan      *TimeSpan         `json:"timespan,omitempty"`
+	BoundingBox   *BoundingBox      `json:"boundingBox,omitempty"`
+	Observer      *string           `json:"observer,omitempty"`
+	Observation   map[string]string `json:"observation,omitempty"`
 }
 
 func GetAnnotationByID(ctx *fiber.Ctx) error {
