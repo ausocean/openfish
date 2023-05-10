@@ -79,7 +79,7 @@ func GetAnnotations(ctx *fiber.Ctx) error {
 
 	// Placeholder code: returns an empty result.
 	// TODO: implement fetching from datastore.
-	result := utils.ApiResult[AnnotationResult]{
+	result := utils.Result[AnnotationResult]{
 		Results: []AnnotationResult{},
 		Offset:  offset,
 		Limit:   limit,

@@ -66,7 +66,7 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 
 	// Placeholder code: returns an empty result.
 	// TODO: implement fetching from datastore.
-	result := utils.ApiResult[CaptureSourceResult]{
+	result := utils.Result[CaptureSourceResult]{
 		Results: []CaptureSourceResult{},
 		Offset:  offset,
 		Limit:   limit,

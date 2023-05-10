@@ -67,7 +67,7 @@ func GetVideoStreams(ctx *fiber.Ctx) error {
 
 	// Placeholder code: returns an empty result.
 	// TODO: implement fetching from datastore.
-	result := utils.ApiResult[VideoStreamResult]{
+	result := utils.Result[VideoStreamResult]{
 		Results: []VideoStreamResult{},
 		Offset:  offset,
 		Limit:   limit,

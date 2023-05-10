@@ -33,7 +33,7 @@ LICENSE
 
 package utils
 
-type ApiResult[T any] struct {
+type Result[T any] struct {
 	Results []T `json:"results"`
 	Offset  int `json:"offset"`
 	Limit   int `json:"limit"`
@@ -41,5 +41,5 @@ type ApiResult[T any] struct {
 }
 
 // TODO: decide on json format for reporting failures
-type ApiFailure struct {
+type Failure struct {
 }
