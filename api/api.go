@@ -39,23 +39,22 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-const api = "/api/v1"
-
 func main() {
 	app := fiber.New()
+	v1 := app.Group("/api/v1")
 
 	// Capture sources.
-	app.Get(api+"/capturesources/:id", handlers.GetCaptureSourceByID)
-	app.Get(api+"/capturesources", handlers.GetCaptureSources)
+	v1.Get("/capturesources/:id", handlers.GetCaptureSourceByID)
+	v1.Get("/capturesources", handlers.GetCaptureSources)
 
 	// Video streams.
-	app.Get(api+"/videostreams/:id", handlers.GetVideoStreamByID)
-	app.Get(api+"/videostreams", handlers.GetVideoStreams)
+	v1.Get("/videostreams/:id", handlers.GetVideoStreamByID)
+	v1.Get("/videostreams", handlers.GetVideoStreams)
 
 	// Annotations.
-	app.Get(api+"/annotations/:id", handlers.GetAnnotationByID)
-	app.Get(api+"/annotations", handlers.GetAnnotations)
-	app.Post(api+"/annotations", handlers.CreateAnnotation)
+	v1.Get("/annotations/:id", handlers.GetAnnotationByID)
+	v1.Get("/annotations", handlers.GetAnnotations)
+	v1.Post("/annotations", handlers.CreateAnnotation)
 
 	app.Listen(":3000")
 }
