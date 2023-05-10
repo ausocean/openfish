@@ -36,7 +36,7 @@ package handlers
 import (
 	"fmt"
 
-	"api/utils"
+	"github.com/ausocean/openfish/api/utils"
 
 	"github.com/gofiber/fiber/v2"
 )

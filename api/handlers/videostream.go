@@ -34,9 +34,10 @@ LICENSE
 package handlers
 
 import (
-	"api/utils"
 	"fmt"
 	"time"
+
+	"github.com/ausocean/openfish/api/utils"
 
 	"github.com/gofiber/fiber/v2"
 )

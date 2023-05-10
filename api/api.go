@@ -34,7 +34,7 @@ LICENSE
 package main
 
 import (
-	"api/handlers"
+	"github.com/ausocean/openfish/api/handlers"
 
 	"github.com/gofiber/fiber/v2"
 )
