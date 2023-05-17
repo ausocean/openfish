@@ -1,2 +1,0 @@
-GET http://localhost:3000/api/v1/capturesources?name=Camera 1&limit=2&offset=0&format=id,name,location HTTP/1.1
-
