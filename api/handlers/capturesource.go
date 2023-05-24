@@ -72,7 +72,7 @@ type CreateCaptureSourceBody struct {
 	CameraHardware string `json:"camera_hardware"`
 }
 
-// Gets a capture source when provided with an ID.
+// GetCaptureSourceByID gets a capture source when provided with an ID.
 func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 	// Parse URL.
 	format := new(api.Format)
@@ -115,7 +115,7 @@ func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 	return ctx.JSON(result)
 }
 
-// Gets a list of capture sources, filtering by name, location if specified.
+// GetCaptureSources gets a list of capture sources, filtering by name, location if specified.
 func GetCaptureSources(ctx *fiber.Ctx) error {
 	// Parse URL.
 	qry := new(GetCaptureSourcesQuery)
@@ -176,7 +176,7 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 	})
 }
 
-// Creates a new capture source.
+// CreateCaptureSource creates a new capture source.
 func CreateCaptureSource(ctx *fiber.Ctx) error {
 	var body CreateCaptureSourceBody
 

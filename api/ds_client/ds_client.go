@@ -42,10 +42,12 @@ import (
 
 var store datastore.Store
 
+// Get returns the datastore global variable.
 func Get() datastore.Store {
 	return store
 }
 
+// Init initializes the datastore global variable and datastore client.
 func Init(local bool) {
 	ctx := context.Background()
 	var err error

@@ -33,10 +33,12 @@ LICENSE
 
 package api
 
+// Format describes the Query parameter for specifying the output format.
 type Format struct {
 	Keys []string `query:"format"`
 }
 
+// Requires returns whether the given key has been requested to be included in the response.
 func (f Format) Requires(key string) bool {
 	for _, k := range f.Keys {
 		if k == key {
@@ -46,11 +48,13 @@ func (f Format) Requires(key string) bool {
 	return len(f.Keys) == 0
 }
 
+// LimitAndOffset describes the Query parameter for specifying the limit and offset.
 type LimitAndOffset struct {
 	Limit  int `query:"limit"`
 	Offset int `query:"offset"`
 }
 
+// SetLimit sets the default value for the limit parameter, used if not supplied in the request.
 func (l *LimitAndOffset) SetLimit() {
 	l.Limit = 20
 }

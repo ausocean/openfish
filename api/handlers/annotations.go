@@ -41,11 +41,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// TimeSpan is the json format for a pair of timestamps - start time and end time.
 type TimeSpan struct {
 	From time.Time `json:"from"`
 	To   time.Time `json:"to"`
 }
 
+// BoundingBox is the json format for a rectange enclosing something interesting in a video.
+// It is represeted using two x y coordinates, top left corner and bottom right corner of the rectange.
 type BoundingBox struct {
 	x1, x2, y1, y2 int
 }
@@ -70,6 +73,7 @@ type GetAnnotationsQuery struct {
 	api.Format
 }
 
+// GetAnnotationByID gets an annotation when provided with an ID.
 func GetAnnotationByID(ctx *fiber.Ctx) error {
 	// TODO: implement handler
 
@@ -77,6 +81,7 @@ func GetAnnotationByID(ctx *fiber.Ctx) error {
 	return ctx.JSON("TODO")
 }
 
+// GetAnnotations gets a list of annotations, filtering by timespan, capturesource, species if specified.
 func GetAnnotations(ctx *fiber.Ctx) error {
 	qry := new(GetAnnotationsQuery)
 	qry.SetLimit()
@@ -96,6 +101,7 @@ func GetAnnotations(ctx *fiber.Ctx) error {
 	return ctx.JSON(result)
 }
 
+// CreateAnnotation creates a new annotation.
 func CreateAnnotation(ctx *fiber.Ctx) error {
 	// TODO: implement handler
 	return ctx.JSON("TODO")

@@ -58,6 +58,7 @@ type GetVideoStreamsQuery struct {
 	api.Format
 }
 
+// GetVideoStreamByID gets a video stream when provided with an ID.
 func GetVideoStreamByID(ctx *fiber.Ctx) error {
 	// TODO: implement handler
 
@@ -65,6 +66,7 @@ func GetVideoStreamByID(ctx *fiber.Ctx) error {
 	return ctx.JSON("TODO")
 }
 
+// GetVideoStreams gets a list of video streams, filtering by timespan, capture source if specified.
 func GetVideoStreams(ctx *fiber.Ctx) error {
 	qry := new(GetVideoStreamsQuery)
 	qry.SetLimit()
