@@ -37,6 +37,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ausocean/openfish/api/api"
 	"github.com/ausocean/openfish/api/utils"
 
 	"github.com/gofiber/fiber/v2"
@@ -79,7 +80,7 @@ func GetAnnotations(ctx *fiber.Ctx) error {
 
 	// Placeholder code: returns an empty result.
 	// TODO: implement fetching from datastore.
-	result := utils.Result[AnnotationResult]{
+	result := api.Result[AnnotationResult]{
 		Results: []AnnotationResult{},
 		Offset:  offset,
 		Limit:   limit,

@@ -40,6 +40,7 @@ import (
 	"strings"
 
 	"cloud.google.com/go/datastore"
+	"github.com/ausocean/openfish/api/api"
 	"github.com/ausocean/openfish/api/ds_client"
 	"github.com/ausocean/openfish/api/model"
 	"github.com/ausocean/openfish/api/utils"
@@ -65,7 +66,7 @@ func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 	format := utils.GetFormat(ctx)
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 	if err != nil {
-		return utils.InvalidRequestUrl(ctx)
+		return api.InvalidRequestURL(ctx)
 	}
 
 	// Fetch data from the datastore.
@@ -73,7 +74,7 @@ func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 	key := store.IDKey("CaptureSource", id)
 	var captureSource model.CaptureSource
 	if store.Get(context.Background(), key, &captureSource) != nil {
-		return utils.DatastoreReadFailure(ctx)
+		return api.DatastoreReadFailure(ctx)
 	}
 
 	// Format result.
@@ -121,7 +122,7 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 	var captureSources []model.CaptureSource
 	keys, err := store.GetAll(context.Background(), query, &captureSources)
 	if err != nil {
-		return utils.DatastoreReadFailure(ctx)
+		return api.DatastoreReadFailure(ctx)
 	}
 
 	// Format results.
@@ -143,7 +144,7 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 		}
 	}
 
-	return ctx.JSON(utils.Result[CaptureSourceResult]{
+	return ctx.JSON(api.Result[CaptureSourceResult]{
 		Results: results,
 		Offset:  offset,
 		Limit:   limit,
@@ -156,7 +157,7 @@ func CreateCaptureSource(ctx *fiber.Ctx) error {
 
 	err := ctx.BodyParser(&body)
 	if err != nil {
-		return utils.InvalidRequestJSON(ctx)
+		return api.InvalidRequestJSON(ctx)
 	}
 
 	// Parse location.
@@ -179,7 +180,7 @@ func CreateCaptureSource(ctx *fiber.Ctx) error {
 	key, err = store.Put(context.Background(), key, &cs)
 	if err != nil {
 		print(err.Error())
-		return utils.DatastoreWriteFailure(ctx)
+		return api.DatastoreWriteFailure(ctx)
 	}
 
 	// Return ID of created capture source.

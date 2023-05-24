@@ -37,6 +37,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ausocean/openfish/api/api"
 	"github.com/ausocean/openfish/api/utils"
 
 	"github.com/gofiber/fiber/v2"
@@ -67,7 +68,7 @@ func GetVideoStreams(ctx *fiber.Ctx) error {
 
 	// Placeholder code: returns an empty result.
 	// TODO: implement fetching from datastore.
-	result := utils.Result[VideoStreamResult]{
+	result := api.Result[VideoStreamResult]{
 		Results: []VideoStreamResult{},
 		Offset:  offset,
 		Limit:   limit,

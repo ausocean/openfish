@@ -124,7 +124,7 @@ type Store interface {
 //
 // See also Google Cloud datastore.Query.Filter and datastore.Query.Order.
 type Query interface {
-	Filter(filterStr string, value interface{}) error                       // Filters a query (depreciated).
+	Filter(filterStr string, value interface{}) error                       // Filters a query (deprecated).
 	FilterField(fieldName string, operator string, value interface{}) error // Filters a query.
 	Order(fieldName string)                                                 // Orders a query.
 	Limit(limit int)                                                        // Limits the number of results returned.
@@ -440,21 +440,20 @@ func (s *FileStore) NameKey(kind, name string) *Key {
 
 // IncompleteKey returs an incomplete key given a kind.
 func (s *FileStore) IncompleteKey(kind string) *Key {
-	var id int64
-	var name string
 
-	// Continue selecting an id until we find one not used.
+	// Continue selecting an ID until we find one not used.
 	for {
-		id = rand.Int63()
-		if id < 1<<32 {
-			name = strconv.FormatInt(id, 10)
+		var name string
+		ID := rand.Int63()
+		if ID < 1<<32 {
+			name = strconv.FormatInt(ID, 10)
 		} else {
-			name = strconv.FormatInt(id>>32, 10) + "." + strconv.FormatInt(id&0xffffffff, 10)
+			name = strconv.FormatInt(ID>>32, 10) + "." + strconv.FormatInt(ID&0xffffffff, 10)
 		}
 		path := filepath.Join(s.dir, s.id, kind, name)
 		_, err := os.Stat(path)
 		if os.IsNotExist(err) {
-			return &Key{Kind: kind, ID: id, Name: name}
+			return &Key{Kind: kind, ID: ID, Name: name}
 		}
 	}
 }

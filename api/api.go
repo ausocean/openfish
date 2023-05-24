@@ -69,11 +69,11 @@ func main() {
 	flag.Parse()
 
 	// Datastore setup.
-	fmt.Println("Creating datastore (local mode: ", *local, ")")
+	fmt.Println("creating datastore (local mode: ", *local, ")")
 	ds_client.Init(*local)
 
 	// Start web server.
-	fmt.Println("Starting webserver")
+	fmt.Println("starting webserver")
 	app := fiber.New()
 	RegisterAPIRoutes(app)
 	app.Listen(":3000")

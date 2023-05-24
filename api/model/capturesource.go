@@ -39,18 +39,21 @@ import (
 	"cloud.google.com/go/datastore"
 )
 
+// A CaptureSource holds the information about where a video stream came from.
+// A single capture source will produce multiple video streams (typically one per day).
 type CaptureSource struct {
 	Name           string
 	Location       datastore.GeoPoint
 	CameraHardware string
 }
 
-// Implement Entity interface.
+// Encode serializes Capture source. Implements Entity interface. Used for FileStore datastore.
 func (cs *CaptureSource) Encode() []byte {
 	bytes, _ := json.Marshal(cs)
 	return bytes
 }
 
+// Encode deserializes Capture source. Implements Entity interface. Used for FileStore datastore.
 func (cs *CaptureSource) Decode(b []byte) error {
 	return json.Unmarshal(b, cs)
 }

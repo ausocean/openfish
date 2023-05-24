@@ -31,10 +31,11 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package utils
+package api
 
 import "github.com/gofiber/fiber/v2"
 
+// JSON format of the response body for a list of results.
 type Result[T any] struct {
 	Results []T `json:"results"`
 	Offset  int `json:"offset"`
@@ -42,30 +43,34 @@ type Result[T any] struct {
 	Total   int `json:"total"`
 }
 
+// JSON format of the response body for a failure.
 type Failure struct {
 	Message string `json:"message"`
 }
 
-// Errors
+// HTTP status code and JSON for datastore read failure.
 func DatastoreReadFailure(ctx *fiber.Ctx) error {
 	return ctx.
 		Status(fiber.StatusInternalServerError).
 		JSON(Failure{Message: "could not read from datastore"})
 }
 
+// HTTP status code and JSON for datastore write failure.
 func DatastoreWriteFailure(ctx *fiber.Ctx) error {
 	return ctx.
 		Status(fiber.StatusInternalServerError).
 		JSON(Failure{Message: "could not write to datastore"})
 }
 
+// HTTP status code and JSON for invalid request JSON.
 func InvalidRequestJSON(ctx *fiber.Ctx) error {
 	return ctx.
 		Status(fiber.StatusBadRequest).
 		JSON(Failure{Message: "invalid json in request"})
 }
 
-func InvalidRequestUrl(ctx *fiber.Ctx) error {
+// HTTP status code and JSON for invalid request URL.
+func InvalidRequestURL(ctx *fiber.Ctx) error {
 	return ctx.
 		Status(fiber.StatusBadRequest).
 		JSON(Failure{Message: "invalid URL in request"})
