@@ -57,6 +57,28 @@ type CaptureSourceResult struct {
 	SiteID         *int64  `json:"site_id,omitempty"`
 }
 
+// FromCaptureSource creates a CaptureSourceResult from a model.CaptureSource and key, formatting it according to the requested format.
+func FromCaptureSource(captureSource *model.CaptureSource, id int, format *api.Format) CaptureSourceResult {
+	var result CaptureSourceResult
+	if format.Requires("id") {
+		result.ID = &id
+	}
+	if format.Requires("name") {
+		result.Name = &captureSource.Name
+	}
+	if format.Requires("location") {
+		location := fmt.Sprintf("%f,%f", captureSource.Location.Lat, captureSource.Location.Lng)
+		result.Location = &location
+	}
+	if format.Requires("camera_hardware") {
+		result.CameraHardware = &captureSource.CameraHardware
+	}
+	if format.Requires("site_id") {
+		result.SiteID = captureSource.SiteID
+	}
+	return result
+}
+
 // GetCaptureSourcesQuery describes the URL query parameters required for the GetCaptureSources endpoint.
 type GetCaptureSourcesQuery struct {
 	Name     *string `query:"name"`     // Optional.
@@ -97,25 +119,7 @@ func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 	}
 
 	// Format result.
-	var result CaptureSourceResult
-
-	if format.Requires("id") {
-		id := int(id)
-		result.ID = &id
-	}
-	if format.Requires("name") {
-		result.Name = &captureSource.Name
-	}
-	if format.Requires("location") {
-		location := fmt.Sprintf("%f,%f", captureSource.Location.Lat, captureSource.Location.Lng)
-		result.Location = &location
-	}
-	if format.Requires("camera_hardware") {
-		result.CameraHardware = &captureSource.CameraHardware
-	}
-	if format.Requires("site_id") {
-		result.SiteID = captureSource.SiteID
-	}
+	result := FromCaptureSource(&captureSource, int(id), format)
 
 	return ctx.JSON(result)
 }
@@ -157,23 +161,7 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 	// Format results.
 	results := make([]CaptureSourceResult, len(captureSources))
 	for i := range captureSources {
-		if format.Requires("id") {
-			id := int(keys[i].ID)
-			results[i].ID = &id
-		}
-		if format.Requires("name") {
-			results[i].Name = &captureSources[i].Name
-		}
-		if format.Requires("location") {
-			location := fmt.Sprintf("%f,%f", captureSources[i].Location.Lat, captureSources[i].Location.Lng)
-			results[i].Location = &location
-		}
-		if format.Requires("camera_hardware") {
-			results[i].CameraHardware = &captureSources[i].CameraHardware
-		}
-		if format.Requires("site_id") {
-			results[i].SiteID = captureSources[i].SiteID
-		}
+		results[i] = FromCaptureSource(&captureSources[i], int(keys[i].ID), format)
 	}
 
 	return ctx.JSON(api.Result[CaptureSourceResult]{
