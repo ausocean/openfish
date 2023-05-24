@@ -232,7 +232,7 @@ func (s *CloudStore) NameKey(kind, name string) *Key {
 	return datastore.NameKey(kind, name, nil)
 }
 
-// IncompleteKey returs an incomplete key given a kind.
+// IncompleteKey returns an incomplete key given a kind.
 func (s *CloudStore) IncompleteKey(kind string) *Key {
 	return datastore.IncompleteKey(kind, nil)
 }
