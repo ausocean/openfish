@@ -45,6 +45,7 @@ type CaptureSource struct {
 	Name           string
 	Location       datastore.GeoPoint
 	CameraHardware string
+	SiteID         *int64 // Optional.
 }
 
 // Encode serializes Capture source. Implements Entity interface. Used for FileStore datastore.

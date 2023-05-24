@@ -54,6 +54,7 @@ type CaptureSourceResult struct {
 	Name           *string `json:"name,omitempty"`
 	Location       *string `json:"location,omitempty"`
 	CameraHardware *string `json:"camera_hardware,omitempty"`
+	SiteID         *int64  `json:"site_id,omitempty"`
 }
 
 // GetCaptureSourcesQuery describes the URL query parameters required for the GetCaptureSources endpoint.
@@ -70,6 +71,7 @@ type CreateCaptureSourceBody struct {
 	Name           string `json:"name"`
 	Location       string `json:"location"`
 	CameraHardware string `json:"camera_hardware"`
+	SiteID         *int64 `json:"site_id"` // Optional.
 }
 
 // GetCaptureSourceByID gets a capture source when provided with an ID.
@@ -110,6 +112,9 @@ func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 	}
 	if format.Requires("camera_hardware") {
 		result.CameraHardware = &captureSource.CameraHardware
+	}
+	if format.Requires("site_id") {
+		result.SiteID = captureSource.SiteID
 	}
 
 	return ctx.JSON(result)
@@ -166,6 +171,9 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 		if format.Requires("camera_hardware") {
 			results[i].CameraHardware = &captureSources[i].CameraHardware
 		}
+		if format.Requires("site_id") {
+			results[i].SiteID = captureSources[i].SiteID
+		}
 	}
 
 	return ctx.JSON(api.Result[CaptureSourceResult]{
@@ -199,6 +207,7 @@ func CreateCaptureSource(ctx *fiber.Ctx) error {
 		Name:           body.Name,
 		Location:       datastore.GeoPoint{Lat: lat, Lng: long},
 		CameraHardware: body.CameraHardware,
+		SiteID:         body.SiteID,
 	}
 
 	// Add to datastore.
