@@ -48,6 +48,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// CaptureSourceResult describes the JSON format for capture sources in API responses.
+// Fields use pointers because they are optional (this is what the format URL param is for).
 type CaptureSourceResult struct {
 	ID             *int    `json:"id,omitempty"`
 	Name           *string `json:"name,omitempty"`
@@ -55,12 +57,15 @@ type CaptureSourceResult struct {
 	CameraHardware *string `json:"camera_hardware,omitempty"`
 }
 
+// CaptureSourcePost describes the JSON format required to create a capture source.
+// ID is omitted because it is chosen automatically. All other fields are required.
 type CaptureSourcePost struct {
 	Name           string `json:"name"`
 	Location       string `json:"location"`
 	CameraHardware string `json:"camera_hardware"`
 }
 
+// Gets a capture source when provided with an ID.
 func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 	// Parse URL.
 	format := utils.GetFormat(ctx)
@@ -98,6 +103,7 @@ func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 	return ctx.JSON(result)
 }
 
+// Gets a list of capture sources, filtering by name, location if specified.
 func GetCaptureSources(ctx *fiber.Ctx) error {
 	// Parse URL.
 	name := ctx.Query("name")
@@ -152,6 +158,7 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 	})
 }
 
+// Creates a new capture source.
 func CreateCaptureSource(ctx *fiber.Ctx) error {
 	var body CaptureSourcePost
 
