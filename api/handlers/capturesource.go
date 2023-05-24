@@ -43,7 +43,6 @@ import (
 	"github.com/ausocean/openfish/api/api"
 	"github.com/ausocean/openfish/api/ds_client"
 	"github.com/ausocean/openfish/api/model"
-	"github.com/ausocean/openfish/api/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -57,9 +56,17 @@ type CaptureSourceResult struct {
 	CameraHardware *string `json:"camera_hardware,omitempty"`
 }
 
-// CaptureSourcePost describes the JSON format required to create a capture source.
+// GetCaptureSourcesQuery describes the URL query parameters required for the GetCaptureSources endpoint.
+type GetCaptureSourcesQuery struct {
+	Name     *string `query:"name"`     // Optional.
+	Location *string `query:"location"` // Optional.
+	api.LimitAndOffset
+	// TODO: Code could be simplified if api.Format could be embedded here. Testing shows it cannot, reason unknown.
+}
+
+// CreateCaptureSourceBody describes the JSON format required for the CreateCaptureSource endpoint.
 // ID is omitted because it is chosen automatically. All other fields are required.
-type CaptureSourcePost struct {
+type CreateCaptureSourceBody struct {
 	Name           string `json:"name"`
 	Location       string `json:"location"`
 	CameraHardware string `json:"camera_hardware"`
@@ -68,7 +75,12 @@ type CaptureSourcePost struct {
 // Gets a capture source when provided with an ID.
 func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 	// Parse URL.
-	format := utils.GetFormat(ctx)
+	format := new(api.Format)
+
+	if err := ctx.QueryParser(format); err != nil {
+		return api.InvalidRequestURL(ctx)
+	}
+
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 	if err != nil {
 		return api.InvalidRequestURL(ctx)
@@ -106,24 +118,30 @@ func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 // Gets a list of capture sources, filtering by name, location if specified.
 func GetCaptureSources(ctx *fiber.Ctx) error {
 	// Parse URL.
-	name := ctx.Query("name")
-	location := ctx.Query("location")
-	format := utils.GetFormat(ctx)
-	limit, offset := utils.GetLimitAndOffset(ctx, 20)
+	qry := new(GetCaptureSourcesQuery)
+	qry.SetLimit()
+
+	if err := ctx.QueryParser(qry); err != nil {
+		return api.InvalidRequestURL(ctx)
+	}
+
+	format := new(api.Format)
+	if err := ctx.QueryParser(format); err != nil {
+		return api.InvalidRequestURL(ctx)
+	}
 
 	// Fetch data from the datastore.
 	store := ds_client.Get()
 	query := store.NewQuery("CaptureSource", false)
 
-	if name != "" {
-		query.FilterField("Name", "=", name)
+	if qry.Name != nil {
+		query.FilterField("Name", "=", qry.Name)
 	}
 
 	// TODO: implement filtering based on location
-	_ = location
 
-	query.Limit(limit)
-	query.Offset(offset)
+	query.Limit(qry.Limit)
+	query.Offset(qry.Offset)
 
 	var captureSources []model.CaptureSource
 	keys, err := store.GetAll(context.Background(), query, &captureSources)
@@ -152,15 +170,15 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(api.Result[CaptureSourceResult]{
 		Results: results,
-		Offset:  offset,
-		Limit:   limit,
+		Offset:  qry.Offset,
+		Limit:   qry.Limit,
 		Total:   len(results),
 	})
 }
 
 // Creates a new capture source.
 func CreateCaptureSource(ctx *fiber.Ctx) error {
-	var body CaptureSourcePost
+	var body CreateCaptureSourceBody
 
 	err := ctx.BodyParser(&body)
 	if err != nil {

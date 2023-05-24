@@ -31,37 +31,26 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package utils
+package api
 
-import (
-	"strings"
-
-	"github.com/gofiber/fiber/v2"
-)
-
-type Format map[string]struct{}
+type Format struct {
+	Keys []string `query:"format"`
+}
 
 func (f Format) Requires(key string) bool {
-	_, ok := f[key]
-	return ok || len(f) == 0
-}
-
-func GetFormat(ctx *fiber.Ctx) Format {
-	formatstr := ctx.Query("format")
-	format := make(Format)
-
-	if formatstr != "" {
-		for _, key := range strings.Split(formatstr, ",") {
-			format[key] = struct{}{}
+	for _, k := range f.Keys {
+		if k == key {
+			return true
 		}
 	}
-
-	return format
+	return len(f.Keys) == 0
 }
 
-func GetLimitAndOffset(ctx *fiber.Ctx, defaultLimit int) (int, int) {
-	limit := ctx.QueryInt("limit", defaultLimit)
-	offset := ctx.QueryInt("offset", 0)
+type LimitAndOffset struct {
+	Limit  int `query:"limit"`
+	Offset int `query:"offset"`
+}
 
-	return limit, offset
+func (l *LimitAndOffset) SetLimit() {
+	l.Limit = 20
 }

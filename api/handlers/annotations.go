@@ -34,11 +34,9 @@ LICENSE
 package handlers
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/ausocean/openfish/api/api"
-	"github.com/ausocean/openfish/api/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -52,6 +50,8 @@ type BoundingBox struct {
 	x1, x2, y1, y2 int
 }
 
+// AnnotationResult describes the JSON format for annotations in API responses.
+// Fields use pointers because they are optional (this is what the format URL param is for).
 type AnnotationResult struct {
 	ID            *int              `json:"id,omitempty"`
 	VideoStreamID *int              `json:"videostreamId,omitempty"`
@@ -59,6 +59,15 @@ type AnnotationResult struct {
 	BoundingBox   *BoundingBox      `json:"boundingBox,omitempty"`
 	Observer      *string           `json:"observer,omitempty"`
 	Observation   map[string]string `json:"observation,omitempty"`
+}
+
+// GetAnnotationsQuery describes the URL query parameters required for the GetAnnotations endpoint.
+type GetAnnotationsQuery struct {
+	TimeSpan      *string `query:"timespan"`             // Optional. TODO: choose more appropriate type.
+	CaptureSource *int64  `query:"capture_source"`       // Optional.
+	Species       *string `query:"observation[species]"` // Optional.
+	api.LimitAndOffset
+	api.Format
 }
 
 func GetAnnotationByID(ctx *fiber.Ctx) error {
@@ -69,21 +78,19 @@ func GetAnnotationByID(ctx *fiber.Ctx) error {
 }
 
 func GetAnnotations(ctx *fiber.Ctx) error {
-	timespan := ctx.Query("timespan")
-	captureSource := ctx.Query("capturesource")
-	species := ctx.Query("observation[species]")
-	format := utils.GetFormat(ctx)
-	limit, offset := utils.GetLimitAndOffset(ctx, 20)
+	qry := new(GetAnnotationsQuery)
+	qry.SetLimit()
 
-	// Debugging info.
-	fmt.Println(species, timespan, captureSource, format, limit, offset)
+	if err := ctx.QueryParser(qry); err != nil {
+		return api.InvalidRequestURL(ctx)
+	}
 
 	// Placeholder code: returns an empty result.
 	// TODO: implement fetching from datastore.
 	result := api.Result[AnnotationResult]{
 		Results: []AnnotationResult{},
-		Offset:  offset,
-		Limit:   limit,
+		Offset:  qry.Offset,
+		Limit:   qry.Limit,
 		Total:   0,
 	}
 	return ctx.JSON(result)

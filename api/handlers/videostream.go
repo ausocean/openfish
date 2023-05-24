@@ -34,20 +34,28 @@ LICENSE
 package handlers
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/ausocean/openfish/api/api"
-	"github.com/ausocean/openfish/api/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
 
+// VideoStreamResult  describes the JSON format for video streams in API responses.
+// Fields use pointers because they are optional (this is what the format URL param is for).
 type VideoStreamResult struct {
 	ID        *int           `json:"id,omitempty"`
 	Datetime  *time.Time     `json:"datetime,omitempty"`
 	Duration  *time.Duration `json:"duration,omitempty"`
 	StreamUrl *string        `json:"streamUrl,omitempty"`
+}
+
+// GetAnnotationsQuery describes the URL query parameters required for the GetAnnotations endpoint.
+type GetVideoStreamsQuery struct {
+	TimeSpan      *string `query:"timespan"`       // Optional. TODO: choose more appropriate type.
+	CaptureSource *int64  `query:"capture_source"` // Optional.
+	api.LimitAndOffset
+	api.Format
 }
 
 func GetVideoStreamByID(ctx *fiber.Ctx) error {
@@ -58,20 +66,19 @@ func GetVideoStreamByID(ctx *fiber.Ctx) error {
 }
 
 func GetVideoStreams(ctx *fiber.Ctx) error {
-	timespan := ctx.Query("timespan")
-	captureSource := ctx.Query("capturesource")
-	format := utils.GetFormat(ctx)
-	limit, offset := utils.GetLimitAndOffset(ctx, 20)
+	qry := new(GetVideoStreamsQuery)
+	qry.SetLimit()
 
-	// Debugging info.
-	fmt.Println(timespan, captureSource, format, limit, offset)
+	if err := ctx.QueryParser(qry); err != nil {
+		return api.InvalidRequestURL(ctx)
+	}
 
 	// Placeholder code: returns an empty result.
 	// TODO: implement fetching from datastore.
 	result := api.Result[VideoStreamResult]{
 		Results: []VideoStreamResult{},
-		Offset:  offset,
-		Limit:   limit,
+		Offset:  qry.Offset,
+		Limit:   qry.Limit,
 		Total:   0,
 	}
 	return ctx.JSON(result)
