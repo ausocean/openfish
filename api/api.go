@@ -74,7 +74,7 @@ func main() {
 	ds_client.Init(*local)
 
 	// Start web server.
-	fmt.Println("starting webserver")
+	fmt.Println("starting web server")
 	app := fiber.New()
 	RegisterAPIRoutes(app)
 	app.Listen(":3000")
