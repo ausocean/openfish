@@ -31,6 +31,7 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// handlers package handles HTTP requests.
 package handlers
 
 import (

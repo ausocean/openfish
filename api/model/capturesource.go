@@ -31,6 +31,7 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// model package has the data types of data we keep in the datastore.
 package model
 
 import (

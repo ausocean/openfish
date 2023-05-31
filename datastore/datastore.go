@@ -314,6 +314,7 @@ func (q *CloudQuery) Filter(filterStr string, value interface{}) error {
 	return nil
 }
 
+// FilterField filters a query.
 func (q *CloudQuery) FilterField(fieldName string, operator string, value interface{}) error {
 	if value == nil {
 		return nil
@@ -330,6 +331,7 @@ func (q *CloudQuery) Limit(limit int) {
 	q.query = q.query.Limit(limit)
 }
 
+// Offset sets the number of keys to skip before returning results.
 func (q *CloudQuery) Offset(offset int) {
 	q.query = q.query.Offset(offset)
 }
@@ -438,9 +440,8 @@ func (s *FileStore) NameKey(kind, name string) *Key {
 	return &Key{Kind: kind, Name: name}
 }
 
-// IncompleteKey returs an incomplete key given a kind.
+// IncompleteKey returns an incomplete key given a kind.
 func (s *FileStore) IncompleteKey(kind string) *Key {
-
 	// Continue selecting an ID until we find one not used.
 	for {
 		var name string
@@ -750,7 +751,7 @@ func (q *FileQuery) Filter(filterStr string, value interface{}) error {
 	return ErrInvalidValue
 }
 
-// FilterField replaces Filter.
+// FilterField filters a query.
 func (q *FileQuery) FilterField(fieldName string, operator string, value interface{}) error {
 	return q.Filter(fieldName+" "+operator, value)
 }

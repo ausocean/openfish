@@ -31,6 +31,7 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// handlers package handles HTTP requests.
 package handlers
 
 import (
@@ -41,14 +42,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// TimeSpan is the json format for a pair of timestamps - start time and end time.
+// TimeSpan is the JSON format for a pair of timestamps - start time and end time.
 type TimeSpan struct {
 	From time.Time `json:"from"`
 	To   time.Time `json:"to"`
 }
 
-// BoundingBox is the json format for a rectange enclosing something interesting in a video.
-// It is represeted using two x y coordinates, top left corner and bottom right corner of the rectange.
+// BoundingBox is the json format for a rectangle enclosing something interesting in a video.
+// It is represented using two x y coordinates, top left corner and bottom right corner of the rectangle.
 type BoundingBox struct {
 	x1, x2, y1, y2 int
 }

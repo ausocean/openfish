@@ -43,7 +43,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// RegisterAPIRoutes registers all handler funcitons to their routes.
+// RegisterAPIRoutes registers all handler functions to their routes.
 func RegisterAPIRoutes(app *fiber.App) {
 
 	v1 := app.Group("/api/v1")

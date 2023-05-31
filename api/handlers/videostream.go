@@ -31,6 +31,7 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// handlers package handles HTTP requests.
 package handlers
 
 import (
@@ -50,7 +51,7 @@ type VideoStreamResult struct {
 	StreamUrl *string        `json:"streamUrl,omitempty"`
 }
 
-// GetAnnotationsQuery describes the URL query parameters required for the GetAnnotations endpoint.
+// GetVideoStreamsQuery describes the URL query parameters required for the GetVideoStreams endpoint.
 type GetVideoStreamsQuery struct {
 	TimeSpan      *string `query:"timespan"`       // Optional. TODO: choose more appropriate type.
 	CaptureSource *int64  `query:"capture_source"` // Optional.
