@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ausocean/openfish/api/api"
 	"github.com/ausocean/openfish/api/ds_client"
 	"github.com/ausocean/openfish/api/handlers"
-	"github.com/ausocean/openfish/api/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -24,7 +24,12 @@ func TestCreateCaptureSource(t *testing.T) {
 	req := httptest.NewRequest("POST", "/api/v1/capturesources", body)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, _ := app.Test(req)
+	resp, err := app.Test(req, -1)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+		return
+	}
 
 	// Check response.
 	if resp.StatusCode != fiber.StatusOK {
@@ -44,11 +49,16 @@ func TestGetCaptureSources(t *testing.T) {
 	req := httptest.NewRequest("POST", "/api/v1/capturesources", body)
 	req.Header.Set("Content-Type", "application/json")
 
-	app.Test(req)
+	app.Test(req, -1)
 
 	// Send request
 	req = httptest.NewRequest("GET", "/api/v1/capturesources?limit=1&offset=0", nil)
-	resp, _ := app.Test(req)
+	resp, err := app.Test(req)
+	if err != nil {
+		t.Log(err.Error())
+		t.Fail()
+		return
+	}
 
 	// Check response.
 	valid := true
@@ -60,7 +70,7 @@ func TestGetCaptureSources(t *testing.T) {
 
 	// Unmarshal response.
 	respBody, _ := ioutil.ReadAll(resp.Body)
-	var result utils.Result[handlers.CaptureSourceResult]
+	var result api.Result[handlers.CaptureSourceResult]
 	json.Unmarshal(respBody, &result)
 	t.Log("json response: ", string(respBody))
 
