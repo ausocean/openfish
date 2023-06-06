@@ -31,6 +31,7 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Package api provides common functionality for implementing the API.
 package api
 
 // Format describes the Query parameter for specifying the output format.

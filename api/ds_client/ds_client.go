@@ -31,7 +31,7 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// ds_client initializes the datastore and makes it available to other packages through the use of Get().
+// Package ds_client initializes the datastore and makes it available to other packages through the use of Get().
 package ds_client
 
 import (
