@@ -31,26 +31,31 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// handlers package handles HTTP requests.
 package handlers
 
 import (
-	"fmt"
 	"time"
 
-	"github.com/ausocean/openfish/api/utils"
+	"github.com/ausocean/openfish/api/api"
 
 	"github.com/gofiber/fiber/v2"
 )
 
+// TimeSpan is the JSON format for a pair of timestamps - start time and end time.
 type TimeSpan struct {
 	From time.Time `json:"from"`
 	To   time.Time `json:"to"`
 }
 
+// BoundingBox is the json format for a rectangle enclosing something interesting in a video.
+// It is represented using two x y coordinates, top left corner and bottom right corner of the rectangle.
 type BoundingBox struct {
 	x1, x2, y1, y2 int
 }
 
+// AnnotationResult describes the JSON format for annotations in API responses.
+// Fields use pointers because they are optional (this is what the format URL param is for).
 type AnnotationResult struct {
 	ID            *int              `json:"id,omitempty"`
 	VideoStreamID *int              `json:"videostreamId,omitempty"`
@@ -60,6 +65,16 @@ type AnnotationResult struct {
 	Observation   map[string]string `json:"observation,omitempty"`
 }
 
+// GetAnnotationsQuery describes the URL query parameters required for the GetAnnotations endpoint.
+type GetAnnotationsQuery struct {
+	TimeSpan      *string `query:"timespan"`             // Optional. TODO: choose more appropriate type.
+	CaptureSource *int64  `query:"capture_source"`       // Optional.
+	Species       *string `query:"observation[species]"` // Optional.
+	api.LimitAndOffset
+	api.Format
+}
+
+// GetAnnotationByID gets an annotation when provided with an ID.
 func GetAnnotationByID(ctx *fiber.Ctx) error {
 	// TODO: implement handler
 
@@ -67,27 +82,27 @@ func GetAnnotationByID(ctx *fiber.Ctx) error {
 	return ctx.JSON("TODO")
 }
 
+// GetAnnotations gets a list of annotations, filtering by timespan, capturesource, species if specified.
 func GetAnnotations(ctx *fiber.Ctx) error {
-	timespan := ctx.Query("timespan")
-	captureSource := ctx.Query("capturesource")
-	species := ctx.Query("observation[species]")
-	format := utils.GetFormat(ctx)
-	limit, offset := utils.GetLimitAndOffset(ctx, 20)
+	qry := new(GetAnnotationsQuery)
+	qry.SetLimit()
 
-	// Debugging info.
-	fmt.Println(species, timespan, captureSource, format, limit, offset)
+	if err := ctx.QueryParser(qry); err != nil {
+		return api.InvalidRequestURL(ctx)
+	}
 
 	// Placeholder code: returns an empty result.
 	// TODO: implement fetching from datastore.
-	result := utils.Result[AnnotationResult]{
+	result := api.Result[AnnotationResult]{
 		Results: []AnnotationResult{},
-		Offset:  offset,
-		Limit:   limit,
+		Offset:  qry.Offset,
+		Limit:   qry.Limit,
 		Total:   0,
 	}
 	return ctx.JSON(result)
 }
 
+// CreateAnnotation creates a new annotation.
 func CreateAnnotation(ctx *fiber.Ctx) error {
 	// TODO: implement handler
 	return ctx.JSON("TODO")

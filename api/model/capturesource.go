@@ -31,15 +31,31 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package utils
+// model package has the data types of data we keep in the datastore.
+package model
 
-type Result[T any] struct {
-	Results []T `json:"results"`
-	Offset  int `json:"offset"`
-	Limit   int `json:"limit"`
-	Total   int `json:"total"`
+import (
+	"encoding/json"
+
+	"cloud.google.com/go/datastore"
+)
+
+// A CaptureSource holds the information about where a video stream came from.
+// A single capture source will produce multiple video streams (typically one per day).
+type CaptureSource struct {
+	Name           string
+	Location       datastore.GeoPoint
+	CameraHardware string
+	SiteID         *int64 // Optional.
 }
 
-// TODO: decide on json format for reporting failures
-type Failure struct {
+// Encode serializes Capture source. Implements Entity interface. Used for FileStore datastore.
+func (cs *CaptureSource) Encode() []byte {
+	bytes, _ := json.Marshal(cs)
+	return bytes
+}
+
+// Encode deserializes Capture source. Implements Entity interface. Used for FileStore datastore.
+func (cs *CaptureSource) Decode(b []byte) error {
+	return json.Unmarshal(b, cs)
 }

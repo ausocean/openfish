@@ -31,17 +31,19 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// handlers package handles HTTP requests.
 package handlers
 
 import (
-	"fmt"
 	"time"
 
-	"github.com/ausocean/openfish/api/utils"
+	"github.com/ausocean/openfish/api/api"
 
 	"github.com/gofiber/fiber/v2"
 )
 
+// VideoStreamResult  describes the JSON format for video streams in API responses.
+// Fields use pointers because they are optional (this is what the format URL param is for).
 type VideoStreamResult struct {
 	ID        *int           `json:"id,omitempty"`
 	Datetime  *time.Time     `json:"datetime,omitempty"`
@@ -49,6 +51,15 @@ type VideoStreamResult struct {
 	StreamUrl *string        `json:"streamUrl,omitempty"`
 }
 
+// GetVideoStreamsQuery describes the URL query parameters required for the GetVideoStreams endpoint.
+type GetVideoStreamsQuery struct {
+	TimeSpan      *string `query:"timespan"`       // Optional. TODO: choose more appropriate type.
+	CaptureSource *int64  `query:"capture_source"` // Optional.
+	api.LimitAndOffset
+	api.Format
+}
+
+// GetVideoStreamByID gets a video stream when provided with an ID.
 func GetVideoStreamByID(ctx *fiber.Ctx) error {
 	// TODO: implement handler
 
@@ -56,21 +67,21 @@ func GetVideoStreamByID(ctx *fiber.Ctx) error {
 	return ctx.JSON("TODO")
 }
 
+// GetVideoStreams gets a list of video streams, filtering by timespan, capture source if specified.
 func GetVideoStreams(ctx *fiber.Ctx) error {
-	timespan := ctx.Query("timespan")
-	captureSource := ctx.Query("capturesource")
-	format := utils.GetFormat(ctx)
-	limit, offset := utils.GetLimitAndOffset(ctx, 20)
+	qry := new(GetVideoStreamsQuery)
+	qry.SetLimit()
 
-	// Debugging info.
-	fmt.Println(timespan, captureSource, format, limit, offset)
+	if err := ctx.QueryParser(qry); err != nil {
+		return api.InvalidRequestURL(ctx)
+	}
 
 	// Placeholder code: returns an empty result.
 	// TODO: implement fetching from datastore.
-	result := utils.Result[VideoStreamResult]{
+	result := api.Result[VideoStreamResult]{
 		Results: []VideoStreamResult{},
-		Offset:  offset,
-		Limit:   limit,
+		Offset:  qry.Offset,
+		Limit:   qry.Limit,
 		Total:   0,
 	}
 	return ctx.JSON(result)

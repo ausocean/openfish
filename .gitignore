@@ -1,0 +1,4 @@
+/api/store/**
+go.work
+**.http
+.vscode/*

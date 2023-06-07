@@ -31,37 +31,31 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package utils
+// Package api provides common functionality for implementing the API.
+package api
 
-import (
-	"strings"
-
-	"github.com/gofiber/fiber/v2"
-)
-
-type Format map[string]struct{}
-
-func (f Format) Requires(key string) bool {
-	_, ok := f[key]
-	return ok || len(f) == 0
+// Format describes the Query parameter for specifying the output format.
+type Format struct {
+	Keys []string `query:"format"`
 }
 
-func GetFormat(ctx *fiber.Ctx) Format {
-	formatstr := ctx.Query("format")
-	format := make(Format)
-
-	if formatstr != "" {
-		for _, key := range strings.Split(formatstr, ",") {
-			format[key] = struct{}{}
+// Requires returns whether the given key has been requested to be included in the response.
+func (f Format) Requires(key string) bool {
+	for _, k := range f.Keys {
+		if k == key {
+			return true
 		}
 	}
-
-	return format
+	return len(f.Keys) == 0
 }
 
-func GetLimitAndOffset(ctx *fiber.Ctx, defaultLimit int) (int, int) {
-	limit := ctx.QueryInt("limit", defaultLimit)
-	offset := ctx.QueryInt("offset", 0)
+// LimitAndOffset describes the Query parameter for specifying the limit and offset.
+type LimitAndOffset struct {
+	Limit  int `query:"limit"`
+	Offset int `query:"offset"`
+}
 
-	return limit, offset
+// SetLimit sets the default value for the limit parameter, used if not supplied in the request.
+func (l *LimitAndOffset) SetLimit() {
+	l.Limit = 20
 }

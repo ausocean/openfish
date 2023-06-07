@@ -31,51 +31,48 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package main
+package api
 
-import (
-	"github.com/ausocean/openfish/api/ds_client"
-	"github.com/ausocean/openfish/api/handlers"
+import "github.com/gofiber/fiber/v2"
 
-	"flag"
-	"fmt"
-
-	"github.com/gofiber/fiber/v2"
-)
-
-// RegisterAPIRoutes registers all handler functions to their routes.
-func RegisterAPIRoutes(app *fiber.App) {
-
-	v1 := app.Group("/api/v1")
-
-	// Capture sources.
-	v1.Get("/capturesources/:id", handlers.GetCaptureSourceByID)
-	v1.Get("/capturesources", handlers.GetCaptureSources)
-	v1.Post("/capturesources", handlers.CreateCaptureSource)
-
-	// Video streams.
-	v1.Get("/videostreams/:id", handlers.GetVideoStreamByID)
-	v1.Get("/videostreams", handlers.GetVideoStreams)
-
-	// Annotations.
-	v1.Get("/annotations/:id", handlers.GetAnnotationByID)
-	v1.Get("/annotations", handlers.GetAnnotations)
-	v1.Post("/annotations", handlers.CreateAnnotation)
-
+// Result is the JSON format to use in response bodies for returning a list of results.
+type Result[T any] struct {
+	Results []T `json:"results"`
+	Offset  int `json:"offset"`
+	Limit   int `json:"limit"`
+	Total   int `json:"total"`
 }
 
-func main() {
-	local := flag.Bool("local", false, "Run in local mode")
+// Failure is the JSON format to use in response bodies for returning errors.
+// TODO: Add second field with additional details, to help with debugging.
+type Failure struct {
+	Message string `json:"message"`
+}
 
-	flag.Parse()
+// DatastoreReadFailure sets HTTP status code and JSON for datastore read failure.
+func DatastoreReadFailure(ctx *fiber.Ctx) error {
+	return ctx.
+		Status(fiber.StatusInternalServerError).
+		JSON(Failure{Message: "could not read from datastore"})
+}
 
-	// Datastore setup.
-	fmt.Println("creating datastore (local mode: ", *local, ")")
-	ds_client.Init(*local)
+// DatastoreWriteFailure sets HTTP status code and JSON for datastore write failure.
+func DatastoreWriteFailure(ctx *fiber.Ctx) error {
+	return ctx.
+		Status(fiber.StatusInternalServerError).
+		JSON(Failure{Message: "could not write to datastore"})
+}
 
-	// Start web server.
-	fmt.Println("starting web server")
-	app := fiber.New()
-	RegisterAPIRoutes(app)
-	app.Listen(":3000")
+// InvalidRequestJSON sets HTTP status code and JSON for requests with invalid JSON.
+func InvalidRequestJSON(ctx *fiber.Ctx) error {
+	return ctx.
+		Status(fiber.StatusBadRequest).
+		JSON(Failure{Message: "invalid json in request"})
+}
+
+// InvalidRequestURL sets HTTP status code and JSON for requests with invalid URLs.
+func InvalidRequestURL(ctx *fiber.Ctx) error {
+	return ctx.
+		Status(fiber.StatusBadRequest).
+		JSON(Failure{Message: "invalid URL in request"})
 }
