@@ -44,8 +44,8 @@ import (
 
 // TimeSpan is the JSON format for a pair of timestamps - start time and end time.
 type TimeSpan struct {
-	From time.Time `json:"from"`
-	To   time.Time `json:"to"`
+	Start time.Time `json:"start" query:"start"`
+	End   time.Time `json:"end" query:"end"`
 }
 
 // BoundingBox is the json format for a rectangle enclosing something interesting in a video.
