@@ -73,7 +73,7 @@ func GetVideoStreams(ctx *fiber.Ctx) error {
 	qry.SetLimit()
 
 	if err := ctx.QueryParser(qry); err != nil {
-		return api.InvalidRequestURL(ctx)
+		return api.InvalidRequestURL(err)
 	}
 
 	// Placeholder code: returns an empty result.

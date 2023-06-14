@@ -33,7 +33,11 @@ LICENSE
 
 package api
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"fmt"
+
+	"github.com/gofiber/fiber/v2"
+)
 
 // Result is the JSON format to use in response bodies for returning a list of results.
 type Result[T any] struct {
@@ -44,35 +48,26 @@ type Result[T any] struct {
 }
 
 // Failure is the JSON format to use in response bodies for returning errors.
-// TODO: Add second field with additional details, to help with debugging.
 type Failure struct {
 	Message string `json:"message"`
 }
 
-// DatastoreReadFailure sets HTTP status code and JSON for datastore read failure.
-func DatastoreReadFailure(ctx *fiber.Ctx) error {
-	return ctx.
-		Status(fiber.StatusInternalServerError).
-		JSON(Failure{Message: "could not read from datastore"})
+// DatastoreReadFailure returns an error for datastore read failures.
+func DatastoreReadFailure(err error) error {
+	return fiber.NewError(500, fmt.Errorf("could not read from datastore: %w", err).Error())
 }
 
-// DatastoreWriteFailure sets HTTP status code and JSON for datastore write failure.
-func DatastoreWriteFailure(ctx *fiber.Ctx) error {
-	return ctx.
-		Status(fiber.StatusInternalServerError).
-		JSON(Failure{Message: "could not write to datastore"})
+// DatastoreWriteFailure returns an error for datastore write failures.
+func DatastoreWriteFailure(err error) error {
+	return fiber.NewError(500, fmt.Errorf("could not write to datastore: %w", err).Error())
 }
 
-// InvalidRequestJSON sets HTTP status code and JSON for requests with invalid JSON.
-func InvalidRequestJSON(ctx *fiber.Ctx) error {
-	return ctx.
-		Status(fiber.StatusBadRequest).
-		JSON(Failure{Message: "invalid json in request"})
+// InvalidRequestJSON returns an error for requests with invalid JSON.
+func InvalidRequestJSON(err error) error {
+	return fiber.NewError(400, fmt.Errorf("invalid JSON in request: %w", err).Error())
 }
 
-// InvalidRequestURL sets HTTP status code and JSON for requests with invalid URLs.
-func InvalidRequestURL(ctx *fiber.Ctx) error {
-	return ctx.
-		Status(fiber.StatusBadRequest).
-		JSON(Failure{Message: "invalid URL in request"})
+// InvalidRequestURL returns an error for requests with invalid URLs.
+func InvalidRequestURL(err error) error {
+	return fiber.NewError(400, fmt.Errorf("invalid URL in request: %w", err).Error())
 }
