@@ -103,12 +103,12 @@ func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 	format := new(api.Format)
 
 	if err := ctx.QueryParser(format); err != nil {
-		return api.InvalidRequestURL(ctx)
+		return api.InvalidRequestURL(err)
 	}
 
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 	if err != nil {
-		return api.InvalidRequestURL(ctx)
+		return api.InvalidRequestURL(err)
 	}
 
 	// Fetch data from the datastore.
@@ -116,7 +116,7 @@ func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 	key := store.IDKey("CaptureSource", id)
 	var captureSource model.CaptureSource
 	if store.Get(context.Background(), key, &captureSource) != nil {
-		return api.DatastoreReadFailure(ctx)
+		return api.DatastoreReadFailure(err)
 	}
 
 	// Format result.
@@ -132,12 +132,12 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 	qry.SetLimit()
 
 	if err := ctx.QueryParser(qry); err != nil {
-		return api.InvalidRequestURL(ctx)
+		return api.InvalidRequestURL(err)
 	}
 
 	format := new(api.Format)
 	if err := ctx.QueryParser(format); err != nil {
-		return api.InvalidRequestURL(ctx)
+		return api.InvalidRequestURL(err)
 	}
 
 	// Fetch data from the datastore.
@@ -156,7 +156,7 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 	var captureSources []model.CaptureSource
 	keys, err := store.GetAll(context.Background(), query, &captureSources)
 	if err != nil {
-		return api.DatastoreReadFailure(ctx)
+		return api.DatastoreReadFailure(err)
 	}
 
 	// Format results.
@@ -179,7 +179,7 @@ func CreateCaptureSource(ctx *fiber.Ctx) error {
 
 	err := ctx.BodyParser(&body)
 	if err != nil {
-		return api.InvalidRequestJSON(ctx)
+		return api.InvalidRequestJSON(err)
 	}
 
 	// Parse location.
@@ -203,7 +203,7 @@ func CreateCaptureSource(ctx *fiber.Ctx) error {
 	key, err = store.Put(context.Background(), key, &cs)
 	if err != nil {
 		print(err.Error())
-		return api.DatastoreWriteFailure(ctx)
+		return api.DatastoreWriteFailure(err)
 	}
 
 	// Return ID of created capture source.

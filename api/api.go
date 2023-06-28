@@ -34,6 +34,9 @@ LICENSE
 package main
 
 import (
+	"errors"
+
+	"github.com/ausocean/openfish/api/api"
 	"github.com/ausocean/openfish/api/ds_client"
 	"github.com/ausocean/openfish/api/handlers"
 
@@ -64,6 +67,23 @@ func RegisterAPIRoutes(app *fiber.App) {
 
 }
 
+// errorHandler creates a HTTP response with the given status code or 500 by default.
+// The response body is JSON: {"message": "<error message here>"}
+func errorHandler(ctx *fiber.Ctx, err error) error {
+	// Status code defaults to 500.
+	code := fiber.StatusInternalServerError
+
+	// Retrieve the custom status code if it's a *fiber.Error.
+	var e *fiber.Error
+	if errors.As(err, &e) {
+		code = e.Code
+	}
+
+	// Send JSON response.
+	ctx.Status(code).JSON(api.Failure{Message: err.Error()})
+	return nil
+}
+
 func main() {
 	local := flag.Bool("local", false, "Run in local mode")
 
@@ -75,7 +95,7 @@ func main() {
 
 	// Start web server.
 	fmt.Println("starting web server")
-	app := fiber.New()
+	app := fiber.New(fiber.Config{ErrorHandler: errorHandler})
 	RegisterAPIRoutes(app)
 	app.Listen(":3000")
 }
