@@ -217,7 +217,7 @@ func CreateCaptureSource(ctx *fiber.Ctx) error {
 	// Create capture source entity and add to the datastore.
 	gp, err := parseGeoPoint(body.Location)
 	if err != nil {
-		return api.InvalidRequestJSON(ctx)
+		return api.InvalidRequestJSON(err)
 	}
 	cs := model.CaptureSource{
 		Name:           body.Name,
@@ -245,18 +245,18 @@ func UpdateCaptureSource(ctx *fiber.Ctx) error {
 	// Parse URL.
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 	if err != nil {
-		return api.InvalidRequestURL(ctx)
+		return api.InvalidRequestURL(err)
 	}
 
 	// Parse body.
 	var body UpdateCaptureSourceBody
 	if ctx.BodyParser(&body) != nil {
-		return api.InvalidRequestJSON(ctx)
+		return api.InvalidRequestJSON(err)
 	}
 
 	gp, err := parseGeoPoint(*body.Location)
 	if err != nil {
-		return api.InvalidRequestJSON(ctx)
+		return api.InvalidRequestJSON(err)
 	}
 
 	// Check that capture source has no video streams associated with it.
@@ -286,7 +286,7 @@ func UpdateCaptureSource(ctx *fiber.Ctx) error {
 	}, &captureSource)
 
 	if err != nil {
-		return api.DatastoreWriteFailure(ctx)
+		return api.DatastoreWriteFailure(err)
 	}
 
 	return nil
@@ -297,7 +297,7 @@ func DeleteCaptureSource(ctx *fiber.Ctx) error {
 	// Parse URL.
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 	if err != nil {
-		return api.InvalidRequestURL(ctx)
+		return api.InvalidRequestURL(err)
 	}
 
 	// Check that capture source has no video streams associated with it.
@@ -308,7 +308,7 @@ func DeleteCaptureSource(ctx *fiber.Ctx) error {
 	key := store.IDKey("CaptureSource", id)
 
 	if store.Delete(context.Background(), key) != nil {
-		return api.DatastoreWriteFailure(ctx)
+		return api.DatastoreWriteFailure(err)
 	}
 
 	return nil
