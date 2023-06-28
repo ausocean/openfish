@@ -81,8 +81,8 @@ func FromVideoStream(videoStream *model.VideoStream, id int64, format *api.Forma
 
 // GetVideoStreamsQuery describes the URL query parameters required for the GetVideoStreams endpoint.
 type GetVideoStreamsQuery struct {
-	CaptureSource *int64    `query:"capturesource"` // Optional.
-	TimeSpan      *TimeSpan `query:"timespan"`      // Optional.
+	CaptureSource *int64          `query:"capturesource"` // Optional.
+	TimeSpan      *model.TimeSpan `query:"timespan"`      // Optional.
 	api.LimitAndOffset
 }
 
