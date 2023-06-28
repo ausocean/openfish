@@ -55,6 +55,8 @@ func RegisterAPIRoutes(app *fiber.App) {
 	v1.Get("/capturesources/:id", handlers.GetCaptureSourceByID)
 	v1.Get("/capturesources", handlers.GetCaptureSources)
 	v1.Post("/capturesources", handlers.CreateCaptureSource)
+	v1.Patch("/capturesources/:id", handlers.UpdateCaptureSource)
+	v1.Delete("/capturesources/:id", handlers.DeleteCaptureSource)
 
 	// Video streams.
 	v1.Get("/videostreams/:id", handlers.GetVideoStreamByID)

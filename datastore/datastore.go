@@ -114,6 +114,7 @@ type Store interface {
 	Create(ctx context.Context, key *Key, src Entity) error                  // Creates a single entity by its key.
 	Put(ctx context.Context, key *Key, src Entity) (*Key, error)             // Put or creates a single entity by its key.
 	Update(ctx context.Context, key *Key, fn func(Entity), dst Entity) error // Atomically updates a single entity by its key.
+	Delete(ctx context.Context, key *Key) error                              // Deletes a single entity by its key.
 	DeleteMulti(ctx context.Context, keys []*Key) error                      // Deletes multiple entities by their keys.
 }
 
@@ -299,6 +300,10 @@ func (s *CloudStore) Update(ctx context.Context, key *Key, fn func(Entity), dst 
 
 func (s *CloudStore) DeleteMulti(ctx context.Context, keys []*Key) error {
 	return s.client.DeleteMulti(ctx, keys)
+}
+
+func (s *CloudStore) Delete(ctx context.Context, key *Key) error {
+	return s.client.Delete(ctx, key)
 }
 
 // CloudQuery implements Query for the Google Cloud Datastore.
@@ -636,6 +641,10 @@ func (s *FileStore) Update(ctx context.Context, key *Key, fn func(Entity), dst E
 	fn(dst)
 	_, err = s.Put(ctx, key, dst)
 	return err
+}
+
+func (s *FileStore) Delete(ctx context.Context, key *Key) error {
+	return os.Remove(filepath.Join(s.dir, s.id, key.Kind, key.Name))
 }
 
 func (s *FileStore) DeleteMulti(ctx context.Context, keys []*Key) error {
