@@ -46,8 +46,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// RegisterAPIRoutes registers all handler functions to their routes.
-func RegisterAPIRoutes(app *fiber.App) {
+// registerAPIRoutes registers all handler functions to their routes.
+func registerAPIRoutes(app *fiber.App) {
 
 	v1 := app.Group("/api/v1")
 
@@ -61,6 +61,11 @@ func RegisterAPIRoutes(app *fiber.App) {
 	// Video streams.
 	v1.Get("/videostreams/:id", handlers.GetVideoStreamByID)
 	v1.Get("/videostreams", handlers.GetVideoStreams)
+	v1.Post("/videostreams/live", handlers.StartVideoStream)
+	v1.Patch("/videostreams/:id/live", handlers.EndVideoStream)
+	v1.Post("/videostreams", handlers.CreateVideoStream)
+	v1.Patch("/videostreams/:id", handlers.UpdateVideoStream)
+	v1.Delete("/videostreams/:id", handlers.DeleteVideoStream)
 
 	// Annotations.
 	v1.Get("/annotations/:id", handlers.GetAnnotationByID)
@@ -98,6 +103,6 @@ func main() {
 	// Start web server.
 	fmt.Println("starting web server")
 	app := fiber.New(fiber.Config{ErrorHandler: errorHandler})
-	RegisterAPIRoutes(app)
+	registerAPIRoutes(app)
 	app.Listen(":3000")
 }

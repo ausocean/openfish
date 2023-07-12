@@ -68,8 +68,8 @@ func TestCreateCaptureSource(t *testing.T) {
 
 	// Initialize app.
 	ds_client.Init(false)
-	app := fiber.New()
-	RegisterAPIRoutes(app)
+	app := fiber.New(fiber.Config{ErrorHandler: errorHandler})
+	registerAPIRoutes(app)
 
 	for i, testcase := range testcases {
 		// Send test request.
@@ -92,8 +92,8 @@ func TestGetCaptureSourcesWithLimitAndOffset(t *testing.T) {
 
 	// Initialize app.
 	ds_client.Init(false)
-	app := fiber.New()
-	RegisterAPIRoutes(app)
+	app := fiber.New(fiber.Config{ErrorHandler: errorHandler})
+	registerAPIRoutes(app)
 
 	// Populate datastore with test data.
 	for _, body := range []string{

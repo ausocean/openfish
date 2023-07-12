@@ -15,8 +15,8 @@ import (
 func setup(t *testing.T) (*fiber.App, int64) {
 	// Initialize app.
 	ds_client.Init(false)
-	app := fiber.New()
-	RegisterAPIRoutes(app)
+	app := fiber.New(fiber.Config{ErrorHandler: errorHandler})
+	registerAPIRoutes(app)
 
 	// Populate datastore with capturesource for testing.
 	// Send test request.
