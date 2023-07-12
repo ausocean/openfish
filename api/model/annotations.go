@@ -53,7 +53,6 @@ type BoundingBox struct {
 
 // An Annotation holds information about observations at a particular moment and region within a video stream.
 type Annotation struct {
-	VideoStreamID    int
 	TimeSpan         TimeSpan
 	BoundingBox      *BoundingBox // Optional.
 	Observer         string

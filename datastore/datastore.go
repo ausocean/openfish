@@ -105,9 +105,9 @@ var newEntity = map[string]func() Entity{}
 //
 // See also https://godoc.org/cloud.google.com/go.
 type Store interface {
-	IDKey(kind string, id int64) *Key                                        // Returns an ID key.
-	NameKey(kind, name string) *Key                                          // Returns a name key.
-	IncompleteKey(kind string) *Key                                          // Returns an incomplete key.
+	IDKey(kind string, id int64, parent *Key) *Key                           // Returns an ID key.
+	NameKey(kind, name string, parent *Key) *Key                             // Returns a name key.
+	IncompleteKey(kind string, parent *Key) *Key                             // Returns an incomplete key.
 	NewQuery(kind string, keysOnly bool, keyParts ...string) Query           // Returns a new query.
 	Get(ctx context.Context, key *Key, dst Entity) error                     // Gets a single entity by its key.
 	GetAll(ctx context.Context, q Query, dst interface{}) ([]*Key, error)    // Runs a query and returns all matching entities.
@@ -130,6 +130,7 @@ type Query interface {
 	Order(fieldName string)                                                 // Orders a query.
 	Limit(limit int)                                                        // Limits the number of results returned.
 	Offset(offset int)                                                      // How many keys to skip before returning results.
+	Ancestor(ancestor *Key)
 }
 
 // RegisterEntity registers a new kind of entity and its constructor.
@@ -224,18 +225,18 @@ func newCloudStore(ctx context.Context, id, url string) (*CloudStore, error) {
 }
 
 // IDKey returns an ID key given a kind and an int64 ID.
-func (s *CloudStore) IDKey(kind string, id int64) *Key {
-	return datastore.IDKey(kind, id, nil)
+func (s *CloudStore) IDKey(kind string, id int64, parent *Key) *Key {
+	return datastore.IDKey(kind, id, parent)
 }
 
 // NameKey returns an name key given a kind and a (string) name.
-func (s *CloudStore) NameKey(kind, name string) *Key {
-	return datastore.NameKey(kind, name, nil)
+func (s *CloudStore) NameKey(kind, name string, parent *Key) *Key {
+	return datastore.NameKey(kind, name, parent)
 }
 
 // IncompleteKey returns an incomplete key given a kind.
-func (s *CloudStore) IncompleteKey(kind string) *Key {
-	return datastore.IncompleteKey(kind, nil)
+func (s *CloudStore) IncompleteKey(kind string, parent *Key) *Key {
+	return datastore.IncompleteKey(kind, parent)
 }
 
 // NewQuery returns a new CloudQuery and is a wrapper for
@@ -341,6 +342,10 @@ func (q *CloudQuery) Offset(offset int) {
 	q.query = q.query.Offset(offset)
 }
 
+func (q *CloudQuery) Ancestor(ancestor *Key) {
+	q.query = q.query.Ancestor(ancestor)
+}
+
 // FileStore implements Store for file storage. Each entity is
 // represented as a file named <key> under the directory
 // <dir>/<id>/<kind>, where <kind> and <key> are the entity kind and
@@ -419,7 +424,7 @@ func newFileStore(ctx context.Context, id, dir string) (*FileStore, error) {
 // IDKey returns a FileStore ID key for the given kind, setting Name
 // to the file name. A 64-bit ID is represented as two 32-bit unsigned
 // integers separated by a period.
-func (s *FileStore) IDKey(kind string, id int64) *Key {
+func (s *FileStore) IDKey(kind string, id int64, parent *Key) *Key {
 	dir := filepath.Join(s.dir, s.id, kind)
 	_, err := os.Stat(dir)
 	if os.IsNotExist(err) {
@@ -436,7 +441,7 @@ func (s *FileStore) IDKey(kind string, id int64) *Key {
 }
 
 // NameKey returns a FileStore name key for the given kind, setting Name to the file name.
-func (s *FileStore) NameKey(kind, name string) *Key {
+func (s *FileStore) NameKey(kind, name string, parent *Key) *Key {
 	dir := filepath.Join(s.dir, s.id, kind)
 	_, err := os.Stat(dir)
 	if os.IsNotExist(err) {
@@ -446,7 +451,7 @@ func (s *FileStore) NameKey(kind, name string) *Key {
 }
 
 // IncompleteKey returns an incomplete key given a kind.
-func (s *FileStore) IncompleteKey(kind string) *Key {
+func (s *FileStore) IncompleteKey(kind string, parent *Key) *Key {
 	// Continue selecting an ID until we find one not used.
 	for {
 		var name string
@@ -780,6 +785,9 @@ func (q *FileQuery) Limit(limit int) {} // TODO: Implement.
 
 // NOTE: Offset has not been implemented for file stores.
 func (q *FileQuery) Offset(offset int) {} // TODO: Implement.
+
+// NOTE: Ancestor has not been implemented for file stores.
+func (q *FileQuery) Ancestor(ancestor *Key) {}
 
 // IDKey makes a datastore ID key by combining an ID, a Unix timestamp
 // and an optional subtime (st). The latter is used to

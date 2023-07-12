@@ -43,10 +43,9 @@ import (
 // the end time (unless it is still ongoing), and the ID of its capture source.
 // In the future, it will also contain data about how to retrieve the video data from the cloud.
 type VideoStream struct {
-	StartTime     time.Time
-	EndTime       *time.Time // Optional.
-	StreamUrl     string
-	CaptureSource int64
+	StartTime time.Time
+	EndTime   *time.Time // Optional.
+	StreamUrl string
 	// TODO: Add cloud storage location.
 }
 

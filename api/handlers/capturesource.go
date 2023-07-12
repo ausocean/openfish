@@ -52,7 +52,7 @@ import (
 // CaptureSourceResult describes the JSON format for capture sources in API responses.
 // Fields use pointers because they are optional (this is what the format URL param is for).
 type CaptureSourceResult struct {
-	ID             *int    `json:"id,omitempty"`
+	ID             *int64  `json:"id,omitempty"`
 	Name           *string `json:"name,omitempty"`
 	Location       *string `json:"location,omitempty"`
 	CameraHardware *string `json:"camera_hardware,omitempty"`
@@ -60,10 +60,10 @@ type CaptureSourceResult struct {
 }
 
 // FromCaptureSource creates a CaptureSourceResult from a model.CaptureSource and key, formatting it according to the requested format.
-func FromCaptureSource(captureSource *model.CaptureSource, id int, format *api.Format) CaptureSourceResult {
+func FromCaptureSource(captureSource *model.CaptureSource, key *datastore.Key, format *api.Format) CaptureSourceResult {
 	var result CaptureSourceResult
 	if format.Requires("id") {
-		result.ID = &id
+		result.ID = &key.ID
 	}
 	if format.Requires("name") {
 		result.Name = &captureSource.Name
@@ -122,14 +122,14 @@ func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 
 	// Fetch data from the datastore.
 	store := ds_client.Get()
-	key := store.IDKey("CaptureSource", id)
+	key := store.IDKey("CaptureSource", id, nil)
 	var captureSource model.CaptureSource
 	if store.Get(context.Background(), key, &captureSource) != nil {
 		return api.DatastoreReadFailure(err)
 	}
 
 	// Format result.
-	result := FromCaptureSource(&captureSource, int(id), format)
+	result := FromCaptureSource(&captureSource, key, format)
 
 	return ctx.JSON(result)
 }
@@ -171,7 +171,7 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 	// Format results.
 	results := make([]CaptureSourceResult, len(captureSources))
 	for i := range captureSources {
-		results[i] = FromCaptureSource(&captureSources[i], int(keys[i].ID), format)
+		results[i] = FromCaptureSource(&captureSources[i], keys[i], format)
 	}
 
 	return ctx.JSON(api.Result[CaptureSourceResult]{
@@ -212,7 +212,7 @@ func CreateCaptureSource(ctx *fiber.Ctx) error {
 
 	// Get a unique ID for the new capturesource.
 	store := ds_client.Get()
-	key := store.IncompleteKey("CaptureSource")
+	key := store.IncompleteKey("CaptureSource", nil)
 
 	// Create capture source entity and add to the datastore.
 	gp, err := parseGeoPoint(body.Location)
@@ -234,9 +234,8 @@ func CreateCaptureSource(ctx *fiber.Ctx) error {
 	}
 
 	// Return ID of created capture source.
-	id := int(key.ID)
 	return ctx.JSON(CaptureSourceResult{
-		ID: &id,
+		ID: &key.ID,
 	})
 }
 
@@ -264,7 +263,7 @@ func UpdateCaptureSource(ctx *fiber.Ctx) error {
 
 	// Update data in the datastore.
 	store := ds_client.Get()
-	key := store.IDKey("CaptureSource", id)
+	key := store.IDKey("CaptureSource", id, nil)
 	var captureSource model.CaptureSource
 
 	err = store.Update(context.Background(), key, func(e datastore.Entity) {
@@ -305,7 +304,7 @@ func DeleteCaptureSource(ctx *fiber.Ctx) error {
 
 	// Delete entity.
 	store := ds_client.Get()
-	key := store.IDKey("CaptureSource", id)
+	key := store.IDKey("CaptureSource", id, nil)
 
 	if store.Delete(context.Background(), key) != nil {
 		return api.DatastoreWriteFailure(err)
