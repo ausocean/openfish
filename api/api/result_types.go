@@ -71,3 +71,8 @@ func InvalidRequestJSON(err error) error {
 func InvalidRequestURL(err error) error {
 	return fiber.NewError(400, fmt.Errorf("invalid URL in request: %w", err).Error())
 }
+
+// NotImplemented returns an error for server code that has not been implemented yet.
+func NotImplemented() error {
+	return fiber.NewError(501, "API not implemented")
+}

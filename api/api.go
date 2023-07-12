@@ -39,6 +39,7 @@ import (
 	"github.com/ausocean/openfish/api/api"
 	"github.com/ausocean/openfish/api/ds_client"
 	"github.com/ausocean/openfish/api/handlers"
+	"github.com/ausocean/openfish/api/plugins"
 
 	"flag"
 	"fmt"
@@ -61,6 +62,7 @@ func registerAPIRoutes(app *fiber.App) {
 	// Video streams.
 	v1.Get("/videostreams/:id", handlers.GetVideoStreamByID)
 	v1.Get("/videostreams", handlers.GetVideoStreams)
+	v1.Get("/videostreams/:id/media", handlers.GetVideoStreamMedia)
 	v1.Post("/videostreams/live", handlers.StartVideoStream)
 	v1.Patch("/videostreams/:id/live", handlers.EndVideoStream)
 	v1.Post("/videostreams", handlers.CreateVideoStream)
@@ -99,6 +101,9 @@ func main() {
 	// Datastore setup.
 	fmt.Println("creating datastore (local mode: ", *local, ")")
 	ds_client.Init(*local)
+
+	// Plugin setup.
+	plugins.Init()
 
 	// Start web server.
 	fmt.Println("starting web server")

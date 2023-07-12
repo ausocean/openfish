@@ -37,12 +37,15 @@ package handlers
 import (
 	"context"
 	"errors"
+	"fmt"
+	"net/url"
 	"strconv"
 	"time"
 
 	"github.com/ausocean/openfish/api/api"
 	"github.com/ausocean/openfish/api/ds_client"
 	"github.com/ausocean/openfish/api/model"
+	"github.com/ausocean/openfish/api/plugins"
 	"github.com/ausocean/openfish/datastore"
 
 	"github.com/gofiber/fiber/v2"
@@ -84,6 +87,11 @@ type GetVideoStreamsQuery struct {
 	CaptureSource *int64          `query:"capturesource"` // Optional.
 	TimeSpan      *model.TimeSpan `query:"timespan"`      // Optional.
 	api.LimitAndOffset
+}
+
+// GetVideoStreamMediaQuery describes the URL query parameters required for the GetVideoStreamMedia endpoint.
+type GetVideoStreamMediaQuery struct {
+	TimeSpan model.TimeSpan `query:"timespan"`
 }
 
 // CreateVideoStreamBody describes the JSON format required for the CreateVideoStream endpoint.
@@ -132,7 +140,7 @@ func GetVideoStreamByID(ctx *fiber.Ctx) error {
 	store := ds_client.Get()
 	key := store.IDKey("VideoStream", id)
 	var videoStream model.VideoStream
-	if store.Get(context.Background(), key, &videoStream) != nil {
+	if err = store.Get(context.Background(), key, &videoStream); err != nil {
 		return api.DatastoreReadFailure(err)
 	}
 
@@ -140,6 +148,46 @@ func GetVideoStreamByID(ctx *fiber.Ctx) error {
 	result := FromVideoStream(&videoStream, id, format)
 
 	return ctx.JSON(result)
+}
+
+func GetVideoStreamMedia(ctx *fiber.Ctx) error {
+	// Parse URL.
+	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
+	if err != nil {
+		return api.InvalidRequestURL(err)
+	}
+
+	qry := new(GetVideoStreamMediaQuery)
+	if err = ctx.QueryParser(qry); err != nil {
+		return api.InvalidRequestURL(err)
+	}
+
+	// Validate timespan
+	if qry.TimeSpan.Start.After(qry.TimeSpan.End) {
+		return api.InvalidRequestURL(errors.New("start time not before end time"))
+	}
+
+	// Fetch data from the datastore.
+	store := ds_client.Get()
+	key := store.IDKey("VideoStream", id)
+	var videoStream model.VideoStream
+	err = store.Get(context.Background(), key, &videoStream)
+	if err != nil {
+		return api.DatastoreReadFailure(err)
+	}
+
+	// Parse stream URL.
+	url, err := url.Parse(videoStream.StreamUrl)
+	if err != nil {
+		return fiber.NewError(500, fmt.Sprintf("invalid stream URL in the datastore: '%s'", videoStream.StreamUrl))
+	}
+
+	// Pass data to plugin.
+	plugin, ok := plugins.VideoProviderPlugins[url.Hostname()]
+	if !ok {
+		return fiber.NewError(500, fmt.Sprintf("no plugin exists to handle /media requests for streams from the domain: '%s'", url.Hostname()))
+	}
+	return plugin.Get(ctx, url, qry.TimeSpan)
 }
 
 // GetVideoStreams gets a list of video streams, filtering by timespan, capture source if specified.

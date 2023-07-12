@@ -88,6 +88,12 @@ func FromAnnotation(annotation *model.Annotation, id int, format *api.Format) An
 	return result
 }
 
+// BoundingBox is the json format for a rectangle enclosing something interesting in a video.
+// It is represented using two x y coordinates, top left corner and bottom right corner of the rectangle.
+type BoundingBox struct {
+	x1, x2, y1, y2 int
+}
+
 // GetAnnotationsQuery describes the URL query parameters required for the GetAnnotations endpoint.
 type GetAnnotationsQuery struct {
 	TimeSpan      *string           `query:"timespan"`       // Optional. TODO: choose more appropriate type.
