@@ -35,54 +35,111 @@ LICENSE
 package handlers
 
 import (
-	"time"
+	"context"
+	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/ausocean/openfish/api/api"
+	"github.com/ausocean/openfish/api/ds_client"
+	"github.com/ausocean/openfish/api/model"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-// TimeSpan is the JSON format for a pair of timestamps - start time and end time.
-type TimeSpan struct {
-	Start time.Time `json:"start" query:"start"`
-	End   time.Time `json:"end" query:"end"`
-}
-
-// BoundingBox is the json format for a rectangle enclosing something interesting in a video.
-// It is represented using two x y coordinates, top left corner and bottom right corner of the rectangle.
-type BoundingBox struct {
-	x1, x2, y1, y2 int
-}
-
 // AnnotationResult describes the JSON format for annotations in API responses.
 // Fields use pointers because they are optional (this is what the format URL param is for).
 type AnnotationResult struct {
-	ID            *int              `json:"id,omitempty"`
-	VideoStreamID *int              `json:"videostreamId,omitempty"`
-	TimeSpan      *TimeSpan         `json:"timespan,omitempty"`
-	BoundingBox   *BoundingBox      `json:"boundingBox,omitempty"`
-	Observer      *string           `json:"observer,omitempty"`
-	Observation   map[string]string `json:"observation,omitempty"`
+	ID            *int               `json:"id,omitempty"`
+	VideoStreamID *int               `json:"videostreamId,omitempty"`
+	TimeSpan      *model.TimeSpan    `json:"timespan,omitempty"`
+	BoundingBox   *model.BoundingBox `json:"boundingBox,omitempty"`
+	Observer      *string            `json:"observer,omitempty"`
+	Observation   map[string]string  `json:"observation,omitempty"`
+}
+
+// FromAnnotation creates an AnnotationResult from a model.Annotation and key, formatting it according to the requested format.
+func FromAnnotation(annotation *model.Annotation, id int, format *api.Format) AnnotationResult {
+	var result AnnotationResult
+	if format.Requires("id") {
+		result.ID = &id
+	}
+	if format.Requires("videostream_id") {
+		result.VideoStreamID = &annotation.VideoStreamID
+	}
+	if format.Requires("timespan") {
+		result.TimeSpan = &annotation.TimeSpan
+	}
+	if format.Requires("bounding_box") {
+		result.BoundingBox = annotation.BoundingBox
+	}
+	if format.Requires("observer") {
+		result.Observer = &annotation.Observer
+	}
+	if format.Requires("observation") {
+		observation := make(map[string]string)
+		for _, o := range annotation.ObservationPairs {
+			parts := strings.Split(o, ":")
+			observation[parts[0]] = parts[1]
+		}
+		result.Observation = observation
+	}
+
+	return result
 }
 
 // GetAnnotationsQuery describes the URL query parameters required for the GetAnnotations endpoint.
 type GetAnnotationsQuery struct {
-	TimeSpan      *string `query:"timespan"`             // Optional. TODO: choose more appropriate type.
-	CaptureSource *int64  `query:"capture_source"`       // Optional.
-	Species       *string `query:"observation[species]"` // Optional.
+	TimeSpan      *string           `query:"timespan"`       // Optional. TODO: choose more appropriate type.
+	CaptureSource *int64            `query:"capture_source"` // Optional.
+	Observer      *string           `query:"observer"`       // Optional.
+	Observation   map[string]string `query:"observation"`    // Optional.
 	api.LimitAndOffset
 	api.Format
 }
 
-// GetAnnotationByID gets an annotation when provided with an ID.
-func GetAnnotationByID(ctx *fiber.Ctx) error {
-	// TODO: implement handler
-
-	// id, _ := ctx.ParamsInt("id", 1)
-	return ctx.JSON("TODO")
+// CreateAnnotationBody describes the JSON format required for the CreateAnnotation endpoint.
+//
+// ID is omitted because it is chosen automatically.
+// BoundingBox is optional because some annotations might not be described by a rectangular area.
+type CreateAnnotationBody struct {
+	VideoStreamID int                `json:"videostreamId"`
+	TimeSpan      model.TimeSpan     `json:"timespan"`
+	BoundingBox   *model.BoundingBox `json:"boundingBox"` // Optional.
+	Observer      string             `json:"observer"`
+	Observation   map[string]string  `json:"observation"`
 }
 
-// GetAnnotations gets a list of annotations, filtering by timespan, capturesource, species if specified.
+// GetAnnotationByID gets an annotation when provided with an ID.
+func GetAnnotationByID(ctx *fiber.Ctx) error {
+	// Parse URL.
+	format := new(api.Format)
+
+	if err := ctx.QueryParser(format); err != nil {
+		return api.InvalidRequestURL(err)
+	}
+
+	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
+	if err != nil {
+		return api.InvalidRequestURL(err)
+	}
+
+	// Fetch data from the datastore.
+	store := ds_client.Get()
+	key := store.IDKey("Annotation", id)
+	var annotation model.Annotation
+	err = store.Get(context.Background(), key, &annotation)
+	if err != nil {
+		return api.DatastoreReadFailure(err)
+	}
+
+	// Format result.
+	result := FromAnnotation(&annotation, int(id), format)
+
+	return ctx.JSON(result)
+}
+
+// GetAnnotations gets a list of annotations, filtering by timespan, capturesource, observer & observation if specified.
 func GetAnnotations(ctx *fiber.Ctx) error {
 	qry := new(GetAnnotationsQuery)
 	qry.SetLimit()
@@ -91,19 +148,110 @@ func GetAnnotations(ctx *fiber.Ctx) error {
 		return api.InvalidRequestURL(err)
 	}
 
-	// Placeholder code: returns an empty result.
-	// TODO: implement fetching from datastore.
-	result := api.Result[AnnotationResult]{
-		Results: []AnnotationResult{},
+	format := new(api.Format)
+	if err := ctx.QueryParser(format); err != nil {
+		return api.InvalidRequestURL(err)
+	}
+
+	// NOTE: fiber's QueryParser does not handle map[string]string so we need to parse the query manually.
+	// This can be revisited if PR https://github.com/gofiber/fiber/issues/2524 is merged.
+	qry.Observation = make(map[string]string)
+	for k, v := range ctx.Queries() {
+		if strings.HasPrefix(k, "observation[") && strings.HasSuffix(k, "]") {
+			k = strings.TrimPrefix(k, "observation[")
+			k = strings.TrimSuffix(k, "]")
+			qry.Observation[k] = v
+		}
+	}
+
+	// Fetch data from the datastore.
+	store := ds_client.Get()
+	query := store.NewQuery("Annotation", false)
+
+	// Filter by observer.
+	if qry.Observer != nil {
+		query.FilterField("Observer", "=", *qry.Observer)
+	}
+
+	// Filter by observation records.
+	for k, v := range qry.Observation {
+		if v == "*" {
+			query.FilterField("ObservationKeys", "=", k)
+		} else {
+			query.FilterField("ObservationPairs", "=", fmt.Sprintf("%s:%s", k, v))
+		}
+	}
+
+	// TODO: support filtering by timespan, capturesource, locations.
+
+	query.Limit(qry.Limit)
+	query.Offset(qry.Offset)
+
+	var annotations []model.Annotation
+	keys, err := store.GetAll(context.Background(), query, &annotations)
+	if err != nil {
+		return api.DatastoreReadFailure(err)
+	}
+
+	// Format results.
+	results := make([]AnnotationResult, len(annotations))
+	for i := range annotations {
+		results[i] = FromAnnotation(&annotations[i], int(keys[i].ID), format)
+	}
+
+	return ctx.JSON(api.Result[AnnotationResult]{
+		Results: results,
 		Offset:  qry.Offset,
 		Limit:   qry.Limit,
-		Total:   0,
-	}
-	return ctx.JSON(result)
+		Total:   len(results),
+	})
 }
 
 // CreateAnnotation creates a new annotation.
 func CreateAnnotation(ctx *fiber.Ctx) error {
-	// TODO: implement handler
-	return ctx.JSON("TODO")
+	var body CreateAnnotationBody
+	err := ctx.BodyParser(&body)
+	if err != nil {
+		return api.InvalidRequestJSON(err)
+	}
+
+	// Convert observation map into a format the datastore can take.
+	obsKeys := make([]string, 0, len(body.Observation))
+	obsPairs := make([]string, 0, len(body.Observation))
+
+	for k, v := range body.Observation {
+		obsKeys = append(obsKeys, k)
+		obsPairs = append(obsPairs, fmt.Sprintf("%s:%s", k, v))
+	}
+
+	// Create annotation entity and add to the datastore.
+	an := model.Annotation{
+		VideoStreamID:    body.VideoStreamID,
+		TimeSpan:         body.TimeSpan,
+		BoundingBox:      body.BoundingBox,
+		Observer:         body.Observer,
+		ObservationPairs: obsPairs,
+		ObservationKeys:  obsKeys,
+	}
+
+	// Verify VideoStream exists.
+	store := ds_client.Get()
+	key := store.IDKey("VideoStream", int64(an.VideoStreamID))
+	var videoStream model.VideoStream
+	if store.Get(context.Background(), key, &videoStream) != nil {
+		return api.DatastoreReadFailure(err)
+	}
+
+	// Get a unique ID for the new annotation.
+	key = store.IncompleteKey("Annotation")
+	key, err = store.Put(context.Background(), key, &an)
+	if err != nil {
+		return api.DatastoreWriteFailure(err)
+	}
+
+	// Return ID of created video stream.
+	id := int(key.ID)
+	return ctx.JSON(AnnotationResult{
+		ID: &id,
+	})
 }
