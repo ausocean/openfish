@@ -38,48 +38,114 @@ import (
 	"sync"
 )
 
-// Cache represents a cache with a generic key and any value.
-type Cache[K comparable, V any] struct {
-	data  map[K]V
-	mutex sync.RWMutex
+// Type Cache defines the (optional) caching interface used by Entity.
+type Cache interface {
+	Set(key *Key, value Entity)   // Set adds or updates a value to the cache.
+	Get(key *Key) (Entity, error) // Get retrieves a value from the cache, or returns ErrcacheMiss.
+	Delete(key *Key)              // Delete removes a value from the cache.
+	Reset()                       // Reset resets (clears) the cache.
 }
 
-// NewCache constructs a new Cache.
-func NewCache[K comparable, V any]() *Cache[K, V] {
-	return &Cache[K, V]{data: make(map[K]V)}
+// Type genericCache represents a generic cache for holding datastore entities.
+// The key K is either an int64 or a string.
+type genericCache[K comparable] struct {
+	data  map[K]Entity
+	mutex sync.RWMutex
 }
 
 // ErrCacheMiss is the error returned when a value is not found in the cache.
 var ErrCacheMiss = errors.New("cache miss")
 
 // Set adds or updates a value to the cache.
-func (c *Cache[K, V]) Set(key K, value V) {
+func (c *genericCache[K]) Set(key K, value Entity) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
+	if c.data == nil {
+		c.data = map[K]Entity{}
+	}
 	c.data[key] = value
 }
 
-// Get retrieves a value from the cache, or returns ErrCacheMiss.
-func (c *Cache[K, V]) Get(key K) (V, error) {
+// Get retrieves a value from the cache, or returns ErrcacheMiss.
+func (c *genericCache[K]) Get(key K) (Entity, error) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
+	if c.data == nil {
+		c.data = map[K]Entity{}
+	}
 	value, ok := c.data[key]
 	if !ok {
-		return value, ErrCacheMiss
+		return nil, ErrCacheMiss
 	}
 	return value, nil
 }
 
 // Delete removes a value from the cache.
-func (c *Cache[K, V]) Delete(key K) {
+func (c *genericCache[K]) Delete(key K) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
+	if c.data == nil {
+		c.data = map[K]Entity{}
+	}
 	delete(c.data, key)
 }
 
 // Reset resets (clears) the cache.
-func (c *Cache[K, V]) Reset() {
+func (c *genericCache[K]) Reset() {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
-	c.data = map[K]V{}
+	c.data = map[K]Entity{}
+}
+
+// Below we define two implementations of the Cache interface, which
+// are thin wrappers of genericCache.
+
+// Type IDcache caches entities by (int64) ID keys.
+type IDCache struct {
+	cache genericCache[int64]
+}
+
+// Set adds or updates a value to the cache.
+func (c *IDCache) Set(key *Key, value Entity) {
+	c.cache.Set(key.ID, value)
+}
+
+// Get retrieves a value from the cache, or returns ErrcacheMiss.
+func (c *IDCache) Get(key *Key) (Entity, error) {
+	return c.cache.Get(key.ID)
+}
+
+// Delete removes a value from the cache.
+func (c *IDCache) Delete(key *Key) {
+	c.cache.Delete(key.ID)
+}
+
+// Reset resets (clears) the cache.
+func (c *IDCache) Reset() {
+	c.cache.Reset()
+}
+
+// Type Namecache caches entities by (string) name keys.
+type NameCache struct {
+	cache genericCache[string]
+}
+
+// Set adds or updates a value to the cache.
+func (c *NameCache) Set(key *Key, value Entity) {
+	c.cache.Set(key.Name, value)
+}
+
+// Get retrieves a value from the cache, or returns ErrcacheMiss.
+func (c *NameCache) Get(key *Key) (Entity, error) {
+	return c.cache.Get(key.Name)
+}
+
+// Delete removes a value from the cache.
+func (c *NameCache) Delete(key *Key) {
+	c.cache.Delete(key.Name)
+}
+
+// Reset resets (clears) the cache.
+func (c *NameCache) Reset() {
+	c.cache.Reset()
 }

@@ -44,7 +44,6 @@ func Test(t *testing.T) {
 		value  string
 		want   string
 		err    error
-
 	}{
 		{
 			action: "get",
@@ -92,27 +91,39 @@ func Test(t *testing.T) {
 		},
 	}
 
-	cache := NewCache[string, string]()
+	var cache Cache
+	cache = &NameCache{} // NameCache implements Cache!
 
 	for _, test := range tests {
+		var k Key = Key{Name: test.key}
+
 		switch test.action {
 		case "get":
-			val, err := cache.Get(test.key)
-			if test.err == nil && test.want != val {
-				t.Errorf("Get(%s) returned wrong value: %s", test.key, val)
+			ent, err := cache.Get(&k)
+			if err == nil {
+
 			}
-			if test.err != nil && test.err != err {
+			if test.err != err {
 				t.Errorf("Get(%s) returned wrong error: %v", test.key, err)
+			}
+			if test.err != nil {
+				continue // Got the expected error.
+			}
+			kv := ent.(*KeyValue)
+			if test.want != kv.Value {
+				t.Errorf("Get(%s) returned wrong value: %s", test.key, kv.Value)
 			}
 
 		case "set":
-			cache.Set(test.key, test.value)
+			kv := KeyValue{Key: test.key, Value: test.value}
+			cache.Set(&k, &kv)
 
 		case "delete":
-			cache.Delete(test.key)
+			cache.Delete(&k)
 
 		case "reset":
 			cache.Reset()
 		}
+
 	}
 }
