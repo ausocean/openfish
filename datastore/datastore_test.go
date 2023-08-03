@@ -50,6 +50,8 @@ type KeyValue struct {
 	Value string
 }
 
+var keyValueCache Cache // KeyValue cache.
+
 // Encode serializes a KeyValue into tab-separated values.
 func (v *KeyValue) Encode() []byte {
 	return []byte(fmt.Sprintf("%s\t%s", v.Key, v.Value))
@@ -64,6 +66,11 @@ func (v *KeyValue) Decode(b []byte) error {
 	v.Key = p[0]
 	v.Value = p[1]
 	return nil
+}
+
+// GetCache returns the KeyValue cache
+func (v *KeyValue) GetCache() Cache {
+	return keyValueCache
 }
 
 // CreateKeyValue creates a KeyValue.
@@ -117,6 +124,12 @@ func TestCloud(t *testing.T) {
 		t.Skip("OPENFISH_TEST_CREDENTIALS")
 	}
 	testKeyValue(t, "cloud")
+}
+
+// TestCaching tests caching with the file store.
+func TestCaching(t *testing.T) {
+	keyValueCache = &NameCache{}
+	testKeyValue(t, "file")
 }
 
 // testKeyValue tests getting and settings KeyValue objects.

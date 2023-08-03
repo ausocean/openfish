@@ -94,6 +94,7 @@ type (
 type Entity interface {
 	Encode() []byte      // Encode entity into bytes.
 	Decode([]byte) error // Decode bytes into entity.
+	GetCache() Cache     // Returns cache, or nil for no caching.
 }
 
 // newEntity maps entity type names to their respective constructor function.
