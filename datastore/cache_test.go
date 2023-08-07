@@ -88,7 +88,7 @@ func Test(t *testing.T) {
 		},
 	}
 
-	var cache Cache = &EntityCache{}
+	var cache Cache = NewEntityCache()
 
 	for _, test := range tests {
 		var k Key = Key{Name: test.key}
@@ -96,13 +96,10 @@ func Test(t *testing.T) {
 		switch test.action {
 		case "get":
 			ent, err := cache.Get(&k)
-			if err == nil {
-
-			}
 			if test.err != err {
 				t.Errorf("Get(%s) returned wrong error: %v", test.key, err)
 			}
-			if test.err != nil {
+			if err != nil {
 				continue // Got the expected error.
 			}
 			kv := ent.(*KeyValue)

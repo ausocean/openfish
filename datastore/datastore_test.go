@@ -118,17 +118,15 @@ func TestFile(t *testing.T) {
 	testKeyValue(t, "file")
 }
 
-// TestCloud tests the cloud store if OPENFISH_TEST_CREDENTIALS are supplied.
+// TestCloud tests the cloud store if OPENFISH_CREDENTIALS are supplied.
 func TestCloud(t *testing.T) {
-	if os.Getenv("OPENFISH_TEST_CREDENTIALS") == "" {
-		t.Skip("OPENFISH_TEST_CREDENTIALS")
+	if os.Getenv("OPENFISH_CREDENTIALS") == "" {
+		t.Skip("OPENFISH_CREDENTIALS")
 	}
+	// Without cache.
 	testKeyValue(t, "cloud")
-}
-
-// TestCaching tests caching with the file store.
-func TestCaching(t *testing.T) {
-	keyValueCache = &EntityCache{}
+	// With cache.
+	keyValueCache = NewEntityCache()
 	testKeyValue(t, "file")
 }
 
@@ -136,9 +134,9 @@ func TestCaching(t *testing.T) {
 func testKeyValue(t *testing.T, kind string) {
 	ctx := context.Background()
 
-	store, err := NewStore(ctx, kind, "openfish_test", "")
+	store, err := NewStore(ctx, kind, "openfish", "")
 	if err != nil {
-		t.Errorf("NewStore(%s, openfish_test) failed with error: %v", kind, err)
+		t.Errorf("NewStore(%s, openfish) failed with error: %v", kind, err)
 	}
 
 	tests := []struct {

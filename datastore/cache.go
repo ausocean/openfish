@@ -41,7 +41,7 @@ import (
 // Cache defines the (optional) caching interface used by Entity.
 type Cache interface {
 	Set(key *Key, value Entity)   // Set adds or updates a value to the cache.
-	Get(key *Key) (Entity, error) // Get retrieves a value from the cache, or returns ErrcacheMiss.
+	Get(key *Key) (Entity, error) // Get retrieves a value from the cache, or returns ErrCacheMiss.
 	Delete(key *Key)              // Delete removes a value from the cache.
 	Reset()                       // Reset resets (clears) the cache.
 }
@@ -56,13 +56,15 @@ type EntityCache struct {
 // ErrCacheMiss is the error returned when a value is not found in the cache.
 var ErrCacheMiss = errors.New("cache miss")
 
+// NewEntityCache returns a new EntityCache.
+func NewEntityCache() *EntityCache {
+	return &EntityCache{data: make(map[Key]Entity)}
+}
+
 // Set adds or updates a value to the cache.
 func (c *EntityCache) Set(key *Key, value Entity) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
-	if c.data == nil {
-		c.data = map[Key]Entity{}
-	}
 	c.data[*key] = value
 }
 
@@ -70,9 +72,6 @@ func (c *EntityCache) Set(key *Key, value Entity) {
 func (c *EntityCache) Get(key *Key) (Entity, error) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
-	if c.data == nil {
-		c.data = map[Key]Entity{}
-	}
 	value, ok := c.data[*key]
 	if !ok {
 		return nil, ErrCacheMiss
@@ -84,9 +83,6 @@ func (c *EntityCache) Get(key *Key) (Entity, error) {
 func (c *EntityCache) Delete(key *Key) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
-	if c.data == nil {
-		c.data = map[Key]Entity{}
-	}
 	delete(c.data, *key)
 }
 
@@ -95,4 +91,9 @@ func (c *EntityCache) Reset() {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	c.data = map[Key]Entity{}
+}
+
+// NilCache returns a nil Cache, denoting no caching.
+func NilCache() Cache {
+	return nil
 }
