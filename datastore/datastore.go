@@ -252,6 +252,13 @@ func (s *CloudStore) NewQuery(kind string, keysOnly bool, keyParts ...string) Qu
 }
 
 func (s *CloudStore) Get(ctx context.Context, key *Key, dst Entity) error {
+	if cache := dst.GetCache(); cache != nil {
+		var err error
+		dst, err = cache.Get(key)
+		if err == nil {
+			return nil
+		}
+	}
 	err := s.client.Get(ctx, key, dst)
 	if err == datastore.ErrNoSuchEntity {
 		return ErrNoSuchEntity
@@ -283,7 +290,13 @@ func (s *CloudStore) Create(ctx context.Context, key *Key, src Entity) error {
 }
 
 func (s *CloudStore) Put(ctx context.Context, key *Key, src Entity) (*Key, error) {
-	return s.client.Put(ctx, key, src)
+	key, err := s.client.Put(ctx, key, src)
+	if err == nil {
+		if cache := src.GetCache(); cache != nil {
+			cache.Set(key, src)
+		}
+	}
+	return key, err
 }
 
 func (s *CloudStore) Update(ctx context.Context, key *Key, fn func(Entity), dst Entity) error {
@@ -304,7 +317,13 @@ func (s *CloudStore) DeleteMulti(ctx context.Context, keys []*Key) error {
 }
 
 func (s *CloudStore) Delete(ctx context.Context, key *Key) error {
-	return s.client.Delete(ctx, key)
+	err := s.client.Delete(ctx, key)
+	if err == nil {
+		if cache := getCacheFromKind(key.Kind); cache != nil {
+			cache.Delete(key)
+		}
+	}
+	return err
 }
 
 // CloudQuery implements Query for the Google Cloud Datastore.
@@ -819,4 +838,14 @@ func DeleteMulti(ctx context.Context, store Store, keys []*Key) (int, error) {
 		keys = keys[sz:]
 	}
 	return n, nil
+}
+
+// getCacheFromKind returns a cache corresponding to given kind,
+// or returns nil otherwise.
+func getCacheFromKind(kind string) Cache {
+	entity := newEntity[kind]
+	if entity == nil {
+		return nil
+	}
+	return entity().GetCache()
 }
