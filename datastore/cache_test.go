@@ -39,11 +39,8 @@ import (
 
 func Test(t *testing.T) {
 	tests := []struct {
-		action string
-		key    string
-		value  string
-		want   string
-		err    error
+		action, key, value, want string
+		err                      error
 	}{
 		{
 			action: "get",
@@ -91,8 +88,7 @@ func Test(t *testing.T) {
 		},
 	}
 
-	var cache Cache
-	cache = &NameCache{} // NameCache implements Cache!
+	var cache Cache = &EntityCache{}
 
 	for _, test := range tests {
 		var k Key = Key{Name: test.key}
@@ -123,6 +119,9 @@ func Test(t *testing.T) {
 
 		case "reset":
 			cache.Reset()
+
+		default:
+			panic("unexpected test action: " + test.action)
 		}
 
 	}
