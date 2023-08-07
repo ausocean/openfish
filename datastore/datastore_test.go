@@ -128,7 +128,7 @@ func TestCloud(t *testing.T) {
 
 // TestCaching tests caching with the file store.
 func TestCaching(t *testing.T) {
-	keyValueCache = &NameCache{}
+	keyValueCache = &EntityCache{}
 	testKeyValue(t, "file")
 }
 
