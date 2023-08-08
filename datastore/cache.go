@@ -34,7 +34,7 @@ LICENSE
 package datastore
 
 import (
-	"errors"
+	"fmt"
 	"sync"
 )
 
@@ -53,8 +53,15 @@ type EntityCache struct {
 	mutex sync.RWMutex
 }
 
-// ErrCacheMiss is the error returned when a value is not found in the cache.
-var ErrCacheMiss = errors.New("cache miss")
+// ErrCacheMiss is the type of error returned when a key is not found in the cache.
+type ErrCacheMiss struct {
+	key Key
+}
+
+// Errror returns and error string for errors of type ErrCacheMiss.
+func (e ErrCacheMiss) Error() string {
+	return fmt.Sprintf("cache miss for key: %v", e.key)
+}
 
 // NewEntityCache returns a new EntityCache.
 func NewEntityCache() *EntityCache {
@@ -74,7 +81,7 @@ func (c *EntityCache) Get(key *Key) (Entity, error) {
 	defer c.mutex.Unlock()
 	value, ok := c.data[*key]
 	if !ok {
-		return nil, ErrCacheMiss
+		return nil, ErrCacheMiss{*key}
 	}
 	return value, nil
 }
@@ -93,7 +100,7 @@ func (c *EntityCache) Reset() {
 	c.data = map[Key]Entity{}
 }
 
-// NilCache returns a nil Cache, denoting no caching.
+// NilCache returns a nil Cache, which denotes no caching.
 func NilCache() Cache {
 	return nil
 }

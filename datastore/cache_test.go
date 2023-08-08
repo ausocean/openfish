@@ -34,18 +34,19 @@ LICENSE
 package datastore
 
 import (
+	"errors"
 	"testing"
 )
 
 func Test(t *testing.T) {
 	tests := []struct {
 		action, key, value, want string
-		err                      error
+		ok                       bool // true if action returns an error and is expected to succeed.
 	}{
 		{
 			action: "get",
 			key:    "a",
-			err:    ErrCacheMiss,
+			ok:     false,
 		},
 		{
 			action: "set",
@@ -56,7 +57,7 @@ func Test(t *testing.T) {
 			action: "get",
 			key:    "a",
 			want:   "aa",
-			err:    nil,
+			ok:     true,
 		},
 		{
 			action: "set",
@@ -70,13 +71,13 @@ func Test(t *testing.T) {
 		{
 			action: "get",
 			key:    "a",
-			err:    ErrCacheMiss,
+			ok:     false,
 		},
 		{
 			action: "get",
 			key:    "b",
 			want:   "bb",
-			err:    nil,
+			ok:     true,
 		},
 		{
 			action: "reset",
@@ -84,27 +85,34 @@ func Test(t *testing.T) {
 		{
 			action: "get",
 			key:    "b",
-			err:    ErrCacheMiss,
+			ok:     false,
 		},
 	}
 
 	var cache Cache = NewEntityCache()
 
-	for _, test := range tests {
+	for i, test := range tests {
 		var k Key = Key{Name: test.key}
 
 		switch test.action {
 		case "get":
-			ent, err := cache.Get(&k)
-			if test.err != err {
-				t.Errorf("Get(%s) returned wrong error: %v", test.key, err)
-			}
+			v, err := cache.Get(&k)
 			if err != nil {
-				continue // Got the expected error.
+				if test.ok {
+					t.Errorf("Test %d: Get(%s) returned unexpected error: %v", i, test.key, err)
+				}
+				var errCacheMiss ErrCacheMiss
+				if !errors.As(err, &errCacheMiss) {
+					t.Errorf("Test %d: Get(%s) returned wrong error: %v", i, test.key, err)
+				}
+				continue // Got expected type of error.
 			}
-			kv := ent.(*KeyValue)
+			if !test.ok {
+				t.Errorf("Test %d: Get(%s) did not return error", i, test.key)
+			}
+			kv := v.(*KeyValue)
 			if test.want != kv.Value {
-				t.Errorf("Get(%s) returned wrong value: %s", test.key, kv.Value)
+				t.Errorf("Test %d: Get(%s) returned wrong value: %s", i, test.key, kv.Value)
 			}
 
 		case "set":
