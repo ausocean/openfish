@@ -58,7 +58,7 @@ type ErrCacheMiss struct {
 	key Key
 }
 
-// Errror returns and error string for errors of type ErrCacheMiss.
+// Error returns an error string for errors of type ErrCacheMiss.
 func (e ErrCacheMiss) Error() string {
 	return fmt.Sprintf("cache miss for key: %v", e.key)
 }

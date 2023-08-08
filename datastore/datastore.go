@@ -92,7 +92,6 @@ type (
 )
 
 // Entity defines the common interface for our datastore entities.
-
 type Entity interface {
 	Encode() []byte      // Encode entity into bytes.
 	Decode([]byte) error // Decode bytes into entity.
