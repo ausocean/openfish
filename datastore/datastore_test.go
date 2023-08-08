@@ -68,7 +68,16 @@ func (v *KeyValue) Decode(b []byte) error {
 	return nil
 }
 
-// GetCache returns the KeyValue cache
+// Copy copies another entity representing a KeyValue onto self.
+func (v *KeyValue) Copy(other Entity) error {
+	if kv, ok := other.(*KeyValue); ok {
+		*v = *kv
+		return nil
+	}
+	return ErrWrongType
+}
+
+// GetCache returns the KeyValue cache.
 func (v *KeyValue) GetCache() Cache {
 	return keyValueCache
 }
@@ -123,11 +132,12 @@ func TestCloud(t *testing.T) {
 	if os.Getenv("OPENFISH_CREDENTIALS") == "" {
 		t.Skip("OPENFISH_CREDENTIALS")
 	}
-	// Without cache.
+	t.Log("without caching")
 	testKeyValue(t, "cloud")
-	// With cache.
+
+	t.Log("with caching")
 	keyValueCache = NewEntityCache()
-	testKeyValue(t, "file")
+	testKeyValue(t, "cloud")
 }
 
 // testKeyValue tests getting and settings KeyValue objects.
