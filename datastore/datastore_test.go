@@ -48,9 +48,8 @@ const typeKeyValue = "KeyValue" // KeyValue datastore type.
 type KeyValue struct {
 	Key   string
 	Value string
+	cache Cache
 }
-
-var keyValueCache Cache // KeyValue cache.
 
 // Encode serializes a KeyValue into tab-separated values.
 func (v *KeyValue) Encode() []byte {
@@ -84,7 +83,7 @@ func (v *KeyValue) Copy(other Entity) (Entity, error) {
 
 // GetCache returns the KeyValue cache.
 func (v *KeyValue) GetCache() Cache {
-	return keyValueCache
+	return v.cache
 }
 
 // CreateKeyValue creates a KeyValue.
@@ -129,24 +128,29 @@ func init() {
 
 // TestFile tests the file store.
 func TestFile(t *testing.T) {
-	testKeyValue(t, "file")
+	testKeyValue(t, "file", nil)
 }
 
-// TestCloud tests the cloud store if OPENFISH_CREDENTIALS are supplied.
+// TestCloud tests the cloud store without caching.
+// OPENFISH_CREDENTIALS must be supplied.
 func TestCloud(t *testing.T) {
 	if os.Getenv("OPENFISH_CREDENTIALS") == "" {
 		t.Skip("OPENFISH_CREDENTIALS")
 	}
-	t.Log("without caching")
-	testKeyValue(t, "cloud")
-
-	t.Log("with caching")
-	keyValueCache = NewEntityCache()
-	testKeyValue(t, "cloud")
+	testKeyValue(t, "cloud", nil)
 }
 
-// testKeyValue tests getting and settings KeyValue objects.
-func testKeyValue(t *testing.T, kind string) {
+// TestCloudCaching tests the cloud store with caching.
+// OPENFISH_CREDENTIALS must be supplied.
+func TestCloudCaching(t *testing.T) {
+	if os.Getenv("OPENFISH_CREDENTIALS") == "" {
+		t.Skip("OPENFISH_CREDENTIALS")
+	}
+	testKeyValue(t, "cloud", NewEntityCache())
+}
+
+// testKeyValue tests various KeyValue methods.
+func testKeyValue(t *testing.T, kind string, cache Cache) {
 	ctx := context.Background()
 
 	store, err := NewStore(ctx, kind, "openfish", "")
@@ -157,18 +161,22 @@ func testKeyValue(t *testing.T, kind string) {
 	tests := []struct {
 		key   string
 		value string
+		cache Cache
 	}{
 		{
 			key:   "foo",
 			value: "bar1",
+			cache: cache,
 		},
 		{
 			key:   "_foo",
 			value: "bar2",
+			cache: cache,
 		},
 		{
 			key:   "dev.foo",
 			value: "bar3",
+			cache: cache,
 		},
 	}
 
