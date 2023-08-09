@@ -68,13 +68,18 @@ func (v *KeyValue) Decode(b []byte) error {
 	return nil
 }
 
-// Copy copies another entity representing a KeyValue onto self.
-func (v *KeyValue) Copy(other Entity) error {
+// Copy copies another KeyValue entity onto self, or clones self when other is nil.
+func (v *KeyValue) Copy(other Entity) (Entity, error) {
+	if other == nil {
+		kv := new(KeyValue)
+		*kv = *v
+		return kv, nil
+	}
 	if kv, ok := other.(*KeyValue); ok {
 		*v = *kv
-		return nil
+		return v, nil
 	}
-	return ErrWrongType
+	return nil, ErrWrongType
 }
 
 // GetCache returns the KeyValue cache.

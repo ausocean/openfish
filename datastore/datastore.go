@@ -93,10 +93,10 @@ type (
 
 // Entity defines the common interface for our datastore entities.
 type Entity interface {
-	Encode() []byte      // Encode entity into bytes.
-	Decode([]byte) error // Decode bytes into entity.
-	Copy(Entity) error   // Copy an entity.
-	GetCache() Cache     // Returns cache, or nil for no caching.
+	Encode() []byte                    // Encode an entity into bytes.
+	Decode([]byte) error               // Decode bytes into an entity.
+	Copy(other Entity) (Entity, error) // Copy other onto self, or return a copy of self when other is nil.
+	GetCache() Cache                   // Returns a cache, or nil for no caching.
 }
 
 // newEntity maps entity type names to their respective constructor function.
@@ -255,9 +255,9 @@ func (s *CloudStore) NewQuery(kind string, keysOnly bool, keyParts ...string) Qu
 
 func (s *CloudStore) Get(ctx context.Context, key *Key, dst Entity) error {
 	if cache := dst.GetCache(); cache != nil {
-		v, err := cache.Get(key)
+		err := cache.Get(key, dst)
 		if err == nil {
-			return dst.Copy(v)
+			return nil
 		}
 	}
 	err := s.client.Get(ctx, key, dst)
@@ -323,7 +323,7 @@ func (s *CloudStore) Delete(ctx context.Context, key *Key) error {
 	if err != nil {
 		return err
 	}
-	if cache := getCacheFromKind(key.Kind); cache != nil {
+	if cache := GetCache(key.Kind); cache != nil {
 		cache.Delete(key)
 	}
 	return nil
@@ -843,9 +843,8 @@ func DeleteMulti(ctx context.Context, store Store, keys []*Key) (int, error) {
 	return n, nil
 }
 
-// getCacheFromKind returns a cache corresponding to given kind,
-// or returns nil otherwise.
-func getCacheFromKind(kind string) Cache {
+// GetCache returns a cache corresponding to a given kind, or nil otherwise.
+func GetCache(kind string) Cache {
 	entity := newEntity[kind]
 	if entity == nil {
 		return nil

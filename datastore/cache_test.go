@@ -96,7 +96,8 @@ func Test(t *testing.T) {
 
 		switch test.action {
 		case "get":
-			v, err := cache.Get(&k)
+			var kv KeyValue
+			err := cache.Get(&k, &kv)
 			if err != nil {
 				if test.ok {
 					t.Errorf("Test %d: Get(%s) returned unexpected error: %v", i, test.key, err)
@@ -110,14 +111,16 @@ func Test(t *testing.T) {
 			if !test.ok {
 				t.Errorf("Test %d: Get(%s) did not return error", i, test.key)
 			}
-			kv := v.(*KeyValue)
 			if test.want != kv.Value {
 				t.Errorf("Test %d: Get(%s) returned wrong value: %s", i, test.key, kv.Value)
 			}
 
 		case "set":
 			kv := KeyValue{Key: test.key, Value: test.value}
-			cache.Set(&k, &kv)
+			err := cache.Set(&k, &kv)
+			if err != nil {
+				t.Errorf("Test %d: Set(%s,%s) returned unexpected error: %v", i, test.key, test.value, err)
+			}
 
 		case "delete":
 			cache.Delete(&k)

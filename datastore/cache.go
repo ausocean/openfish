@@ -40,10 +40,10 @@ import (
 
 // Cache defines the (optional) caching interface used by Entity.
 type Cache interface {
-	Set(key *Key, value Entity)   // Set adds or updates a value to the cache.
-	Get(key *Key) (Entity, error) // Get retrieves a value from the cache, or returns ErrCacheMiss.
-	Delete(key *Key)              // Delete removes a value from the cache.
-	Reset()                       // Reset resets (clears) the cache.
+	Set(key *Key, src Entity) error // Set adds or updates a value to the cache.
+	Get(key *Key, dst Entity) error // Get retrieves a value from the cache, or returns ErrCacheMiss.
+	Delete(key *Key)                // Delete removes a value from the cache.
+	Reset()                         // Reset resets (clears) the cache.
 }
 
 // EntityCache, which implements Cache, represents a cache for holding
@@ -69,21 +69,27 @@ func NewEntityCache() *EntityCache {
 }
 
 // Set adds or updates a value to the cache.
-func (c *EntityCache) Set(key *Key, value Entity) {
+func (c *EntityCache) Set(key *Key, src Entity) error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
-	c.data[*key] = value
+	v, err := src.Copy(nil)
+	if err != nil {
+		return err
+	}
+	c.data[*key] = v
+	return nil
 }
 
 // Get retrieves a value from the cache, or returns ErrcacheMiss.
-func (c *EntityCache) Get(key *Key) (Entity, error) {
+func (c *EntityCache) Get(key *Key, dst Entity) error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
-	value, ok := c.data[*key]
+	v, ok := c.data[*key]
 	if !ok {
-		return nil, ErrCacheMiss{*key}
+		return ErrCacheMiss{*key}
 	}
-	return value, nil
+	_, err := dst.Copy(v)
+	return err
 }
 
 // Delete removes a value from the cache.
