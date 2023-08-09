@@ -70,14 +70,14 @@ func (v *KeyValue) Decode(b []byte) error {
 // Copy copies a KeyValue to dst, or returns a copy of the KeyValue when dst is nil.
 func (v *KeyValue) Copy(dst Entity) (Entity, error) {
 	var kv *KeyValue
-	var ok bool
 	if dst == nil {
-		kv, ok = new(KeyValue), true
+		kv = new(KeyValue)
 	} else {
+		var ok bool
 		kv, ok = dst.(*KeyValue)
-	}
-	if !ok {
-		return nil, ErrWrongType
+		if !ok {
+			return nil, ErrWrongType
+		}
 	}
 	*kv = *v
 	return kv, nil
