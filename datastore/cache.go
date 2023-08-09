@@ -88,7 +88,7 @@ func (c *EntityCache) Get(key *Key, dst Entity) error {
 	if !ok {
 		return ErrCacheMiss{*key}
 	}
-	_, err := dst.Copy(v)
+	_, err := v.Copy(dst)
 	return err
 }
 

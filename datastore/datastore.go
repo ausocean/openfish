@@ -93,10 +93,10 @@ type (
 
 // Entity defines the common interface for our datastore entities.
 type Entity interface {
-	Encode() []byte                    // Encode an entity into bytes.
-	Decode([]byte) error               // Decode bytes into an entity.
-	Copy(other Entity) (Entity, error) // Copy other onto self, or return a copy of self when other is nil.
-	GetCache() Cache                   // Returns a cache, or nil for no caching.
+	Encode() []byte                  // Encode an entity into bytes.
+	Decode([]byte) error             // Decode bytes into an entity.
+	Copy(dst Entity) (Entity, error) // Copy an entity to dst, or return a copy of the entity when dst is nil.
+	GetCache() Cache                 // Returns a cache, or nil for no caching.
 }
 
 // newEntity maps entity type names to their respective constructor function.
