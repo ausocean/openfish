@@ -82,6 +82,7 @@ var (
 	ErrOperatorMissing = errors.New("operator missing")
 	ErrNoSuchEntity    = errors.New("no such entity")
 	ErrEntityExists    = errors.New("entity exists")
+	ErrWrongType       = errors.New("wrong type")
 )
 
 // We reuse some Google Datastore types.
@@ -92,8 +93,10 @@ type (
 
 // Entity defines the common interface for our datastore entities.
 type Entity interface {
-	Encode() []byte      // Encode entity into bytes.
-	Decode([]byte) error // Decode bytes into entity.
+	Encode() []byte                  // Encode an entity into bytes.
+	Decode([]byte) error             // Decode bytes into an entity.
+	Copy(dst Entity) (Entity, error) // Copy an entity to dst, or return a copy of the entity when dst is nil.
+	GetCache() Cache                 // Returns a cache, or nil for no caching.
 }
 
 // newEntity maps entity type names to their respective constructor function.
@@ -251,6 +254,12 @@ func (s *CloudStore) NewQuery(kind string, keysOnly bool, keyParts ...string) Qu
 }
 
 func (s *CloudStore) Get(ctx context.Context, key *Key, dst Entity) error {
+	if cache := dst.GetCache(); cache != nil {
+		err := cache.Get(key, dst)
+		if err == nil {
+			return nil
+		}
+	}
 	err := s.client.Get(ctx, key, dst)
 	if err == datastore.ErrNoSuchEntity {
 		return ErrNoSuchEntity
@@ -282,7 +291,14 @@ func (s *CloudStore) Create(ctx context.Context, key *Key, src Entity) error {
 }
 
 func (s *CloudStore) Put(ctx context.Context, key *Key, src Entity) (*Key, error) {
-	return s.client.Put(ctx, key, src)
+	key, err := s.client.Put(ctx, key, src)
+	if err != nil {
+		return key, err
+	}
+	if cache := src.GetCache(); cache != nil {
+		cache.Set(key, src)
+	}
+	return key, err
 }
 
 func (s *CloudStore) Update(ctx context.Context, key *Key, fn func(Entity), dst Entity) error {
@@ -303,7 +319,14 @@ func (s *CloudStore) DeleteMulti(ctx context.Context, keys []*Key) error {
 }
 
 func (s *CloudStore) Delete(ctx context.Context, key *Key) error {
-	return s.client.Delete(ctx, key)
+	err := s.client.Delete(ctx, key)
+	if err != nil {
+		return err
+	}
+	if cache := GetCache(key.Kind); cache != nil {
+		cache.Delete(key)
+	}
+	return nil
 }
 
 // CloudQuery implements Query for the Google Cloud Datastore.
@@ -818,4 +841,13 @@ func DeleteMulti(ctx context.Context, store Store, keys []*Key) (int, error) {
 		keys = keys[sz:]
 	}
 	return n, nil
+}
+
+// GetCache returns a cache corresponding to a given kind, or nil otherwise.
+func GetCache(kind string) Cache {
+	entity := newEntity[kind]
+	if entity == nil {
+		return nil
+	}
+	return entity().GetCache()
 }
