@@ -39,6 +39,7 @@ LICENSE
 package datastore
 
 import (
+	"context"
 	"errors"
 	"io/ioutil"
 	"log"
@@ -54,7 +55,6 @@ import (
 
 	"cloud.google.com/go/datastore"
 	"cloud.google.com/go/storage"
-	"golang.org/x/net/context"
 	"google.golang.org/api/option"
 )
 
@@ -315,7 +315,16 @@ func (s *CloudStore) Update(ctx context.Context, key *Key, fn func(Entity), dst 
 }
 
 func (s *CloudStore) DeleteMulti(ctx context.Context, keys []*Key) error {
-	return s.client.DeleteMulti(ctx, keys)
+	err := s.client.DeleteMulti(ctx, keys)
+	if err != nil {
+		return err
+	}
+	for _, k := range keys {
+		if cache := GetCache(k.Kind); cache != nil {
+			cache.Delete(k)
+		}
+	}
+	return nil
 }
 
 func (s *CloudStore) Delete(ctx context.Context, key *Key) error {
