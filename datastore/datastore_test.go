@@ -34,12 +34,12 @@ LICENSE
 package datastore
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
 	"testing"
-
-	"golang.org/x/net/context"
 )
 
 const typeKeyValue = "KeyValue" // KeyValue datastore type.
@@ -208,6 +208,19 @@ func testKeyValue(t *testing.T, kind string, cache Cache) {
 		err = DeleteKeyValue(ctx, store, test.key)
 		if err != nil {
 			t.Errorf("DeleteKeyValue %d failed with error: %v", i, err)
+		}
+		if test.cache != nil {
+			// Check that the value was cleared from the cache.
+			k := store.NameKey(typeKeyValue, test.key)
+			var v KeyValue
+			err := cache.Get(k, &v)
+			if err == nil {
+				t.Errorf("cache.Get %d returned no error", i)
+			}
+			var errCacheMiss ErrCacheMiss
+			if !errors.As(err, &errCacheMiss) {
+				t.Errorf("cache.Get %d returned wrong error: %v", i, err)
+			}
 		}
 	}
 }
