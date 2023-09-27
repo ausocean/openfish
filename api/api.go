@@ -44,6 +44,7 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 // registerAPIRoutes registers all handler functions to their routes.
@@ -103,6 +104,10 @@ func main() {
 	// Start web server.
 	fmt.Println("starting web server")
 	app := fiber.New(fiber.Config{ErrorHandler: errorHandler})
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+	}))
 	registerAPIRoutes(app)
 	app.Listen(":3000")
 }
