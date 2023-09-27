@@ -41,14 +41,17 @@ import (
 
 // TimeSpan is a pair of timestamps - start time and end time.
 type TimeSpan struct {
-	Start time.Time
-	End   time.Time
+	Start time.Time `json:"start"`
+	End   time.Time `json:"end"`
 }
 
 // BoundingBox is a rectangle enclosing something interesting in a video.
 // It is represented using two x y coordinates, top left corner and bottom right corner of the rectangle.
 type BoundingBox struct {
-	X1, X2, Y1, Y2 int
+	X1 int `json:"x1"`
+	X2 int `json:"x2"`
+	Y1 int `json:"y1"`
+	Y2 int `json:"y2"`
 }
 
 // An Annotation holds information about observations at a particular moment and region within a video stream.
