@@ -1,11 +1,32 @@
 :root {
+  /* CSS variables */
+  --bg: #ffffff;
+  --content: #1E293B;
+  --gray0: #f0f0f0;
+  --gray1: #e0e0e0;
+  --gray2: #a4aaae;
+  --gray3: #616265;
+
+
+  --primary: #103f79;
+  --secondary: #3f9fff; /*#0CA5E9;*/
+
+  --success: #2dd491;
+  --success: #056245;
+  --warning: #F4BF50;
+  --warning-content: #584314;
+  --error: #fb6e77;
+  --error-content: #3b1a1c;
+
+  /* Base styles */
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: var(--content);
+  background-color: var(--bg);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -14,26 +35,36 @@
   -webkit-text-size-adjust: 100%;
 }
 
+/* CSS reset */
+body, h1, h2, h3, h4, h5, h6, p, ol, ul {
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+}
+
+html, *, *:before, *:after {
+  box-sizing: inherit;
+}
+
+/* Link styling */
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--secondary);
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: var(--secondary);
 }
 
+/* Page layout */
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  display: flex; 
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
+openfish-app {
+  width: min(100vw, 95rem);
+  height: 100vh;
 }
