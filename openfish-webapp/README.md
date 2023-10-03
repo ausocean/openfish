@@ -1,6 +1,18 @@
 # Openfish Webapp
 Openfish Webapp is a web interface for interacting with the Openfish API.
 
+## Deploying openfish
+1) Build and run the web app using docker:
+   ```bash
+   docker build ./openfish-webapp -t openfish
+   docker run -p 80:80 openfish 
+   ```
+2) Start go server:
+   ```bash
+   go run ./api/ 
+   ```
+3) Open the browser and visit http://localhost.
+
 ## Development guide
 #### Getting started
 
@@ -25,14 +37,6 @@ Have the following prerequisites installed on your system:
    pnpm dev
    ```
    Visit http://localhost:5173/. Changes are updated live.
-
-#### Using docker
-The webapp can be deployed to nginx using docker
-```bash
-cd openfish-webapp
-docker build . -t openfish
-docker run -p 80:80 openfish 
-```
 
 #### Linting / formatting
 - `pnpm fmt` to format code.
