@@ -64,7 +64,7 @@ body {
   height: 100vh;
 }
 
-openfish-app {
+.main {
   width: min(100vw, 95rem);
   height: 100vh;
 }

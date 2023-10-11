@@ -5,11 +5,8 @@ import { repeat } from 'lit/directives/repeat.js'
 import { videotimeToDatetime } from '../utils/datetime'
 import { resetcss } from '../css/reset.css'
 
-@customElement('openfish-app')
-export class App extends LitElement {
-  @property({ type: String })
-  videostreamId = ''
-
+@customElement('stream-viewer')
+export class StreamViewer extends LitElement {
   @property({ type: Object })
   videostream: VideoStream | null = null
 
@@ -39,12 +36,10 @@ export class App extends LitElement {
     this.playing = false
   }
 
-  async onSelectVideoStream(event: SubmitEvent) {
-    event.preventDefault()
-
+  async selectVideoStream(videostreamId: number) {
     try {
       // Fetch video stream with ID.
-      const res = await fetch(`http://localhost:3000/api/v1/videostreams/${this.videostreamId}`)
+      const res = await fetch(`http://localhost:3000/api/v1/videostreams/${videostreamId}`)
       const videostream = (await res.json()) as VideoStream
 
       this.videostream = videostream
@@ -56,7 +51,7 @@ export class App extends LitElement {
       // TODO: We should only fetch a small portion of the annotations near the current playback position.
       //       When the user plays the video we can fetch in more as needed.
       const res = await fetch(
-        `http://localhost:3000/api/v1/annotations?videostream=${this.videostreamId}`
+        `http://localhost:3000/api/v1/annotations?videostream=${videostreamId}`
       )
       const json = await res.json()
       const annotations = json.results as Annotation[]
@@ -96,17 +91,6 @@ export class App extends LitElement {
       <div class="grid">
         <header>
           <h1>Video Playback</h1>
-
-          <form @submit=${this.onSelectVideoStream}> 
-            <input 
-              type="text" 
-              placeholder="Video stream ID" 
-              name="videostream_id" 
-              @input=${(e: InputEvent & { target: HTMLInputElement }) =>
-                (this.videostreamId = e.target.value)}
-            />
-            <button type="submit">Load Video Stream</button>    
-          </form>
         </header>
 
         <main>
@@ -211,6 +195,6 @@ export class App extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'openfish-app': App
+    'stream-viewer': StreamViewer
   }
 }

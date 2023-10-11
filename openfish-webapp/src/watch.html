@@ -6,14 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OpenFish</title>
     <link rel="stylesheet" href="css/index.css" />
-    <script type="module" src="components/app.ts"></script>
+    <script type="module" src="components/stream-viewer.ts"></script>
     <script type="module" src="components/annotation-card.ts"></script>
     <script type="module" src="components/video-player.ts"></script>
     <script type="module" src="components/playback-controls.ts"></script>
     <script type="module" src="components/youtube-player.ts"></script>
+    <script type="module">
+      window.onload = () => {
+        const urlParams = new URLSearchParams(window.location.search)
+        const streamID = urlParams.get('id')
+        document.querySelector('#viewer').selectVideoStream(streamID)
+      }
+    </script>
   </head>
   <body>
-    <openfish-app/>
+    <stream-viewer id="viewer" class="main"/>
   </body>
 </html>
 
