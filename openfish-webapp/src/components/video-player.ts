@@ -1,8 +1,8 @@
 import { LitElement, css, html, svg } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { Annotation, VideoStream } from './api.types.ts'
+import { Annotation, VideoStream } from '../utils/api.types.ts'
 import { repeat } from 'lit/directives/repeat.js'
-import { resetcss } from './reset.css.ts'
+import { resetcss } from '../css/reset.css.ts'
 
 @customElement('video-player')
 export class VideoPlayer extends LitElement {

@@ -1,9 +1,9 @@
 import { LitElement, css, html, svg } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { Annotation, VideoStream } from './api.types'
+import { Annotation, VideoStream } from '../utils/api.types'
 import { repeat } from 'lit/directives/repeat.js'
-import { datetimeDifference, datetimeToVideoTime } from './datetime'
-import { resetcss } from './reset.css'
+import { datetimeDifference, datetimeToVideoTime } from '../utils/datetime'
+import { resetcss } from '../css/reset.css'
 
 @customElement('playback-controls')
 export class PlaybackControls extends LitElement {

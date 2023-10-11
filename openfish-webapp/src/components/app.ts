@@ -1,9 +1,9 @@
 import { LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { Annotation, VideoStream } from './api.types'
+import { Annotation, VideoStream } from '../utils/api.types'
 import { repeat } from 'lit/directives/repeat.js'
-import { videotimeToDatetime } from './datetime'
-import { resetcss } from './reset.css'
+import { videotimeToDatetime } from '../utils/datetime'
+import { resetcss } from '../css/reset.css'
 
 @customElement('openfish-app')
 export class App extends LitElement {
