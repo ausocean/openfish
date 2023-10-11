@@ -132,7 +132,8 @@ func GetVideoStreamByID(ctx *fiber.Ctx) error {
 	store := ds_client.Get()
 	key := store.IDKey("VideoStream", id)
 	var videoStream model.VideoStream
-	if store.Get(context.Background(), key, &videoStream) != nil {
+	err = store.Get(context.Background(), key, &videoStream)
+	if err != nil {
 		return api.DatastoreReadFailure(err)
 	}
 
