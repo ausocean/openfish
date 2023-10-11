@@ -30,3 +30,10 @@ export interface VideoStream {
   startTime: string
   endTime: string
 }
+
+export interface Result<T> {
+  results: T[]
+  offset: number
+  limit: number
+  total: number
+}
