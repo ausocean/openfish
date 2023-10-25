@@ -68,8 +68,7 @@ const (
 const (
 	EpochStart  = 1483228800    // Start of the AusOcean epoch, namely 2017-01-01 00:00:00+Z.
 	EpochEnd    = math.MaxInt64 // End of the epoch.
-	subTimeBits = 3             // Sub-second time bits.
-	subTimeMask = 0x7           // Mask least-significant 3 bits.
+	SubTimeBits = 3             // Sub-second time bits.
 )
 
 var (
@@ -769,7 +768,7 @@ func (q *FileQuery) Filter(filterStr string, value interface{}) error {
 		case "ID", "MID":
 			n &= 0xffffffff
 		case "Timestamp":
-			n = (n - EpochStart) << subTimeBits
+			n = (n - EpochStart) << SubTimeBits
 		}
 		q.value[idx] = append(q.value[idx], strconv.FormatInt(n, 10))
 		switch filterStr[i:] {
@@ -825,13 +824,13 @@ func IDKey(id, ts, st int64) int64 {
 	if ts < 0 {
 		ts = 0
 	}
-	return id<<32 | ts<<subTimeBits | st&subTimeMask
+	return id<<32 | ts<<SubTimeBits | st&((1<<SubTimeBits)-1)
 }
 
 // SplitIDKey is the inverse of IDKey and splits an ID key into
 // its parts. See IDKey.
 func SplitIDKey(id int64) (int64, int64, int64) {
-	return id >> 32, ((id & 0xffffffff) >> subTimeBits) + EpochStart, id & subTimeMask
+	return int64(uint64(id) >> 32), ((id & 0xffffffff) >> SubTimeBits) + EpochStart, id & ((1 << SubTimeBits) - 1)
 }
 
 // DeleteMulti is a wrapper for store.DeleteMulti which returns the
