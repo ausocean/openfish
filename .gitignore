@@ -2,3 +2,6 @@
 go.work
 **.http
 .vscode/*
+node_modules/
+docs/.vitepress/dist/
+docs/.vitepress/cache/
