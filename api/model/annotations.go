@@ -37,6 +37,8 @@ package model
 import (
 	"encoding/json"
 	"time"
+
+	"github.com/ausocean/openfish/datastore"
 )
 
 // TimeSpan is a pair of timestamps - start time and end time.
@@ -73,4 +75,25 @@ func (an *Annotation) Encode() []byte {
 // Encode deserializes Annotation. Implements Entity interface. Used for FileStore datastore.
 func (an *Annotation) Decode(b []byte) error {
 	return json.Unmarshal(b, an)
+}
+
+// Implements Copy from the Entity interface.
+func (an *Annotation) Copy(dst datastore.Entity) (datastore.Entity, error) {
+	var a *Annotation
+	if dst == nil {
+		a = new(Annotation)
+	} else {
+		var ok bool
+		a, ok = dst.(*Annotation)
+		if !ok {
+			return nil, datastore.ErrWrongType
+		}
+	}
+	*a = *an
+	return a, nil
+}
+
+// No caching is used.
+func (an *Annotation) GetCache() datastore.Cache {
+	return nil
 }

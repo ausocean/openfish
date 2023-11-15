@@ -37,7 +37,6 @@ package ds_client
 import (
 	"context"
 
-	"github.com/ausocean/openfish/api/model"
 	"github.com/ausocean/openfish/datastore"
 )
 
@@ -60,5 +59,4 @@ func Init(local bool) {
 	if err != nil {
 		panic(err)
 	}
-	datastore.RegisterEntity("capturesource", func() datastore.Entity { return new(model.CaptureSource) })
 }
