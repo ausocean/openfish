@@ -1,17 +1,20 @@
+# API Usage
+**Authors:** Scott Barnard
+
 OpenFish's API uses URLs with a resource type and resource ID for fetching single resources:
 
-**Request**
-```
+#### Request
+```http
 GET /api/v1/<resource>/<resource ID>
 ```
 For a list of resources, use the following where offset is the number of items to skip and limit is the total number of items to fetch:
 
-**Request**
-```
+#### Request
+```http
 GET /api/v1/<resource>?offset=0&limit=20
 ```
-**Response (JSON, HTTP 200)**
-```js
+#### Response (JSON, HTTP 200)
+```json
 {
   "results": [
     /* result 1 */
@@ -26,10 +29,12 @@ GET /api/v1/<resource>?offset=0&limit=20
 
 To select only the data you need, use format to specify what keys from the JSON you need:
 
-**Request**
-```
+#### Request
+```http
 GET /api/v1/<resource>/<resource ID>?format=key 1, key 2
-or
+```
+**or**
+```http
 GET /api/v1/<resource>?offset=0&limit=20&format=key 1, key 2
 ```
 
