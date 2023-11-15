@@ -16,10 +16,10 @@ export class VideoPlayer extends LitElement {
   videostream: VideoStream | null = null
 
   @property({ type: Number })
-  currentTime: number = 0
+  currentTime = 0
 
   @property({ type: Boolean })
-  playing: boolean = false
+  playing = false
 
   @property({ type: Number })
   seekTo: number | null = null

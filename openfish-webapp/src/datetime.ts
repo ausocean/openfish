@@ -1,6 +1,6 @@
 // Convert a video time in seconds to a datetime.
 export function videotimeToDatetime(streamStart: string, time: number): Date {
-  let playbackDatetime = new Date(streamStart)
+  const playbackDatetime = new Date(streamStart)
   playbackDatetime.setSeconds(playbackDatetime.getSeconds() + time)
   return playbackDatetime
 }

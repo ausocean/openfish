@@ -16,9 +16,9 @@ export class YouTubePlayerElement extends LitElement {
   set playing(val: boolean) {
     this._playing = val
     if (val) {
-      this._player!.playVideo()
+      this._player?.playVideo()
     } else {
-      this._player!.pauseVideo()
+      this._player?.pauseVideo()
     }
   }
 
@@ -26,7 +26,7 @@ export class YouTubePlayerElement extends LitElement {
   private _element: HTMLElement | null = null
 
   seek(time: number) {
-    this._player!.seekTo(time, true)
+    this._player?.seekTo(time, true)
   }
 
   @property()
@@ -35,7 +35,7 @@ export class YouTubePlayerElement extends LitElement {
   }
   set seekTo(time: number | null) {
     if (time != null) {
-      this._player!.seekTo(time, true)
+      this._player?.seekTo(time, true)
     }
   }
 
@@ -63,7 +63,7 @@ export class YouTubePlayerElement extends LitElement {
 
     // Emit play, pause and durationchange events on stateChange events.
     this._player.on('stateChange', async (e) => {
-      if (e.data == 1) {
+      if (e.data === 1) {
         const duration = (await this._player?.getDuration()) ?? 0
         this.dispatchEvent(new CustomEvent('durationchange', { detail: duration }))
         this.dispatchEvent(new Event('loadeddata'))
@@ -79,8 +79,8 @@ export class YouTubePlayerElement extends LitElement {
 
     // Play video.
     if (videoID !== null) {
-      this._player!.loadVideoById(videoID)
-      this._player!.playVideo()
+      this._player?.loadVideoById(videoID)
+      this._player?.playVideo()
     }
 
     return this._element
