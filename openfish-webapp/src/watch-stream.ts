@@ -17,13 +17,13 @@ export class WatchStream extends LitElement {
   activeId: number | null = null
 
   @property({ type: Number })
-  currentTime: number = 0
+  currentTime = 0
 
   @property({ type: Boolean })
-  playing: boolean = false
+  playing = false
 
   @property({ type: Number })
-  duration: number = 0
+  duration = 0
 
   @property({ type: Number })
   seekTo: number | null = null
@@ -41,7 +41,9 @@ export class WatchStream extends LitElement {
     const url = new URL(document.location.href)
     const id = url.searchParams.get('id')
 
-    this.fetchData(id!)
+    if (id) {
+      this.fetchData(id)
+    }
   }
 
   async fetchData(id: string) {
@@ -68,7 +70,7 @@ export class WatchStream extends LitElement {
     let filteredAnnotations: Annotation[] = []
     if (this.videostream != null) {
       // Convert playback time in seconds to a datetime.
-      const playbackDatetime = videotimeToDatetime(this.videostream!.startTime, this.currentTime)
+      const playbackDatetime = videotimeToDatetime(this.videostream?.startTime, this.currentTime)
 
       // Filter annotations to only show those spanning the current playback time/position.
       filteredAnnotations = this.annotations.filter(

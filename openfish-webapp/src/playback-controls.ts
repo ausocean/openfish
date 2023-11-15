@@ -8,7 +8,7 @@ import { resetcss } from './reset.css'
 @customElement('playback-controls')
 export class PlaybackControls extends LitElement {
   @property({ type: Number })
-  duration: number = 0
+  duration = 0
 
   @property({ type: Array })
   annotations: Annotation[] = []
@@ -17,10 +17,10 @@ export class PlaybackControls extends LitElement {
   videostream: VideoStream | null = null
 
   @property({ type: Number })
-  currentTime: number = 0
+  currentTime = 0
 
   @property({ type: Boolean })
-  playing: boolean = false
+  playing = false
 
   // Play / pause the video when the user clicks the button.
   private togglePlayback() {
@@ -40,10 +40,10 @@ export class PlaybackControls extends LitElement {
   // Jump to when the next annotation occurs in the video.
   private next() {
     const nextAnnotation = this.annotations.find(
-      (a) => datetimeToVideoTime(this.videostream!.startTime, a.timespan.start) > this.currentTime
+      (a) => datetimeToVideoTime(this.videostream?.startTime, a.timespan.start) > this.currentTime
     )
-    if (nextAnnotation != undefined) {
-      const seekTo = datetimeToVideoTime(this.videostream!.startTime, nextAnnotation.timespan.start)
+    if (nextAnnotation !== undefined) {
+      const seekTo = datetimeToVideoTime(this.videostream?.startTime, nextAnnotation.timespan.start)
       this.dispatchEvent(new CustomEvent('seek', { detail: seekTo }))
     }
   }
@@ -51,18 +51,18 @@ export class PlaybackControls extends LitElement {
   // Jump to when the previous annotation occurs in the video.
   private prev() {
     const idx = this.annotations.findLastIndex(
-      (a) => datetimeToVideoTime(this.videostream!.startTime, a.timespan.start) < this.currentTime
+      (a) => datetimeToVideoTime(this.videostream?.startTime, a.timespan.start) < this.currentTime
     )
     if (idx > 0) {
       const prevAnnotation = this.annotations[idx - 1]
-      const seekTo = datetimeToVideoTime(this.videostream!.startTime, prevAnnotation.timespan.start)
+      const seekTo = datetimeToVideoTime(this.videostream?.startTime, prevAnnotation.timespan.start)
       this.dispatchEvent(new CustomEvent('seek', { detail: seekTo }))
     }
   }
 
   render() {
     const heatmap = repeat(this.annotations, (annotation) => {
-      const start = datetimeToVideoTime(this.videostream!.startTime, annotation.timespan.start)
+      const start = datetimeToVideoTime(this.videostream?.startTime, annotation.timespan.start)
       const duration = datetimeDifference(annotation.timespan.end, annotation.timespan.start)
 
       const x = (start / this.duration) * 100

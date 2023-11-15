@@ -55,7 +55,7 @@ export class AnnotationCard extends LitElement {
     }).format(end)
 
     const rangeFormatted =
-      startDate == endDate
+      startDate === endDate
         ? html`<em>${startDate}</em>, from <em>${startTime}</em> until <em>${endTime}</em>`
         : html`From <em>${startDate}, ${startTime}</em> until <em>${endDate}, ${endTime}</em>`
 
