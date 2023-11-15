@@ -38,6 +38,9 @@ import (
 	"time"
 )
 
+// Kind of entity to store / fetch from the datastore.
+const VIDEOSTREAM_KIND = "VideoStream"
+
 // VideoStream holds the information about a single video stream.
 // VideoStream contains the url for a live or completed stream off of youtube, the start time,
 // the end time (unless it is still ongoing), and the ID of its capture source.

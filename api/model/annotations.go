@@ -39,6 +39,9 @@ import (
 	"time"
 )
 
+// Kind of entity to store / fetch from the datastore.
+const ANNOTATION_KIND = "Annotation"
+
 // TimeSpan is a pair of timestamps - start time and end time.
 type TimeSpan struct {
 	Start time.Time `json:"start"`

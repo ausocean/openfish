@@ -40,6 +40,9 @@ import (
 	"cloud.google.com/go/datastore"
 )
 
+// Kind of entity to store / fetch from the datastore.
+const CAPTURESOURCE_KIND = "CaptureSource"
+
 // A CaptureSource holds the information about where a video stream came from.
 // A single capture source will produce multiple video streams (typically one per day).
 type CaptureSource struct {

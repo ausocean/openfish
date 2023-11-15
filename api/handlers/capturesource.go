@@ -122,7 +122,7 @@ func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 
 	// Fetch data from the datastore.
 	store := ds_client.Get()
-	key := store.IDKey("CaptureSource", id)
+	key := store.IDKey(model.CAPTURESOURCE_KIND, id)
 	var captureSource model.CaptureSource
 	if store.Get(context.Background(), key, &captureSource) != nil {
 		return api.DatastoreReadFailure(err)
@@ -151,7 +151,7 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 
 	// Fetch data from the datastore.
 	store := ds_client.Get()
-	query := store.NewQuery("CaptureSource", false)
+	query := store.NewQuery(model.CAPTURESOURCE_KIND, false)
 
 	if qry.Name != nil {
 		query.FilterField("Name", "=", qry.Name)
@@ -212,7 +212,7 @@ func CreateCaptureSource(ctx *fiber.Ctx) error {
 
 	// Get a unique ID for the new capturesource.
 	store := ds_client.Get()
-	key := store.IncompleteKey("CaptureSource")
+	key := store.IncompleteKey(model.CAPTURESOURCE_KIND)
 
 	// Create capture source entity and add to the datastore.
 	gp, err := parseGeoPoint(body.Location)
@@ -264,7 +264,7 @@ func UpdateCaptureSource(ctx *fiber.Ctx) error {
 
 	// Update data in the datastore.
 	store := ds_client.Get()
-	key := store.IDKey("CaptureSource", id)
+	key := store.IDKey(model.CAPTURESOURCE_KIND, id)
 	var captureSource model.CaptureSource
 
 	err = store.Update(context.Background(), key, func(e datastore.Entity) {
@@ -305,7 +305,7 @@ func DeleteCaptureSource(ctx *fiber.Ctx) error {
 
 	// Delete entity.
 	store := ds_client.Get()
-	key := store.IDKey("CaptureSource", id)
+	key := store.IDKey(model.CAPTURESOURCE_KIND, id)
 
 	if store.Delete(context.Background(), key) != nil {
 		return api.DatastoreWriteFailure(err)
