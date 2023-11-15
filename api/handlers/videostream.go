@@ -130,7 +130,7 @@ func GetVideoStreamByID(ctx *fiber.Ctx) error {
 
 	// Fetch data from the datastore.
 	store := ds_client.Get()
-	key := store.IDKey("VideoStream", id)
+	key := store.IDKey(model.VIDEOSTREAM_KIND, id)
 	var videoStream model.VideoStream
 	err = store.Get(context.Background(), key, &videoStream)
 	if err != nil {
@@ -160,7 +160,7 @@ func GetVideoStreams(ctx *fiber.Ctx) error {
 
 	// Fetch data from the datastore.
 	store := ds_client.Get()
-	query := store.NewQuery("VideoStream", false)
+	query := store.NewQuery(model.VIDEOSTREAM_KIND, false)
 
 	// Filter by timespan (database side).
 	if qry.TimeSpan != nil {
@@ -207,7 +207,7 @@ func GetVideoStreams(ctx *fiber.Ctx) error {
 func putVideoStream(ctx *fiber.Ctx, vs model.VideoStream) (int64, error) {
 	// Verify CaptureSource exists.
 	store := ds_client.Get()
-	key := store.IDKey("CaptureSource", vs.CaptureSource)
+	key := store.IDKey(model.CAPTURESOURCE_KIND, vs.CaptureSource)
 	var captureSource model.CaptureSource
 
 	err := store.Get(context.Background(), key, &captureSource)
@@ -216,7 +216,7 @@ func putVideoStream(ctx *fiber.Ctx, vs model.VideoStream) (int64, error) {
 	}
 
 	// Get a unique ID for the new video stream.
-	key = store.IncompleteKey("VideoStream")
+	key = store.IncompleteKey(model.VIDEOSTREAM_KIND)
 
 	key, err = store.Put(context.Background(), key, &vs)
 	if err != nil {
@@ -296,7 +296,7 @@ func EndVideoStream(ctx *fiber.Ctx) error {
 
 	// Update data in the datastore.
 	store := ds_client.Get()
-	key := store.IDKey("VideoStream", id)
+	key := store.IDKey(model.VIDEOSTREAM_KIND, id)
 	var videoStream model.VideoStream
 
 	err = store.Update(context.Background(), key, func(e datastore.Entity) {
@@ -328,7 +328,7 @@ func UpdateVideoStream(ctx *fiber.Ctx) error {
 
 	// Update data in the datastore.
 	store := ds_client.Get()
-	key := store.IDKey("VideoStream", id)
+	key := store.IDKey(model.VIDEOSTREAM_KIND, id)
 	var videoStream model.VideoStream
 
 	err = store.Update(context.Background(), key, func(e datastore.Entity) {
@@ -367,7 +367,7 @@ func DeleteVideoStream(ctx *fiber.Ctx) error {
 
 	// Delete entity.
 	store := ds_client.Get()
-	key := store.IDKey("VideoStream", id)
+	key := store.IDKey(model.VIDEOSTREAM_KIND, id)
 
 	if store.Delete(context.Background(), key) != nil {
 		return api.DatastoreWriteFailure(err)

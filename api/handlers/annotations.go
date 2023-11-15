@@ -126,7 +126,7 @@ func GetAnnotationByID(ctx *fiber.Ctx) error {
 
 	// Fetch data from the datastore.
 	store := ds_client.Get()
-	key := store.IDKey("Annotation", id)
+	key := store.IDKey(model.ANNOTATION_KIND, id)
 	var annotation model.Annotation
 	err = store.Get(context.Background(), key, &annotation)
 	if err != nil {
@@ -166,7 +166,7 @@ func GetAnnotations(ctx *fiber.Ctx) error {
 
 	// Fetch data from the datastore.
 	store := ds_client.Get()
-	query := store.NewQuery("Annotation", false)
+	query := store.NewQuery(model.ANNOTATION_KIND, false)
 
 	// Filter by observer.
 	if qry.Observer != nil {
@@ -236,14 +236,14 @@ func CreateAnnotation(ctx *fiber.Ctx) error {
 
 	// Verify VideoStream exists.
 	store := ds_client.Get()
-	key := store.IDKey("VideoStream", int64(an.VideoStreamID))
+	key := store.IDKey(model.VIDEOSTREAM_KIND, int64(an.VideoStreamID))
 	var videoStream model.VideoStream
 	if store.Get(context.Background(), key, &videoStream) != nil {
 		return api.DatastoreReadFailure(err)
 	}
 
 	// Get a unique ID for the new annotation.
-	key = store.IncompleteKey("Annotation")
+	key = store.IncompleteKey(model.ANNOTATION_KIND)
 	key, err = store.Put(context.Background(), key, &an)
 	if err != nil {
 		return api.DatastoreWriteFailure(err)
