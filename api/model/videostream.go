@@ -36,6 +36,8 @@ package model
 import (
 	"encoding/json"
 	"time"
+
+	"github.com/ausocean/openfish/datastore"
 )
 
 // Kind of entity to store / fetch from the datastore.
@@ -62,4 +64,25 @@ func (vs *VideoStream) Encode() []byte {
 // Encode deserializes VideoStream. Implements Entity interface. Used for FileStore datastore.
 func (vs *VideoStream) Decode(b []byte) error {
 	return json.Unmarshal(b, vs)
+}
+
+// Implements Copy from the Entity interface.
+func (vs *VideoStream) Copy(dst datastore.Entity) (datastore.Entity, error) {
+	var v *VideoStream
+	if dst == nil {
+		v = new(VideoStream)
+	} else {
+		var ok bool
+		v, ok = dst.(*VideoStream)
+		if !ok {
+			return nil, datastore.ErrWrongType
+		}
+	}
+	*v = *vs
+	return v, nil
+}
+
+// No caching is used.
+func (vs *VideoStream) GetCache() datastore.Cache {
+	return nil
 }

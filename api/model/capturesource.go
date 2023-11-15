@@ -37,7 +37,9 @@ package model
 import (
 	"encoding/json"
 
-	"cloud.google.com/go/datastore"
+	googlestore "cloud.google.com/go/datastore"
+
+	"github.com/ausocean/openfish/datastore"
 )
 
 // Kind of entity to store / fetch from the datastore.
@@ -47,7 +49,7 @@ const CAPTURESOURCE_KIND = "CaptureSource"
 // A single capture source will produce multiple video streams (typically one per day).
 type CaptureSource struct {
 	Name           string
-	Location       datastore.GeoPoint
+	Location       googlestore.GeoPoint
 	CameraHardware string
 	SiteID         *int64 // Optional.
 }
@@ -61,4 +63,25 @@ func (cs *CaptureSource) Encode() []byte {
 // Encode deserializes Capture source. Implements Entity interface. Used for FileStore datastore.
 func (cs *CaptureSource) Decode(b []byte) error {
 	return json.Unmarshal(b, cs)
+}
+
+// Implements Copy from the Entity interface.
+func (cs *CaptureSource) Copy(dst datastore.Entity) (datastore.Entity, error) {
+	var c *CaptureSource
+	if dst == nil {
+		c = new(CaptureSource)
+	} else {
+		var ok bool
+		c, ok = dst.(*CaptureSource)
+		if !ok {
+			return nil, datastore.ErrWrongType
+		}
+	}
+	*c = *cs
+	return c, nil
+}
+
+// No caching is used.
+func (cs *CaptureSource) GetCache() datastore.Cache {
+	return nil
 }
