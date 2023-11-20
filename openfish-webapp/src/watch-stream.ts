@@ -5,11 +5,8 @@ import { repeat } from 'lit/directives/repeat.js'
 import { videotimeToDatetime } from './datetime'
 import { resetcss } from './reset.css'
 
-@customElement('openfish-app')
-export class App extends LitElement {
-  @property({ type: String })
-  videostreamId = ''
-
+@customElement('watch-stream')
+export class WatchStream extends LitElement {
   @property({ type: Object })
   videostream: VideoStream | null = null
 
@@ -39,15 +36,19 @@ export class App extends LitElement {
     this.playing = false
   }
 
-  async onSelectVideoStream(event: SubmitEvent) {
-    event.preventDefault()
+  connectedCallback() {
+    super.connectedCallback()
+    const url = new URL(document.location.href)
+    const id = url.searchParams.get('id')
 
+    this.fetchData(id!)
+  }
+
+  async fetchData(id: string) {
     try {
       // Fetch video stream with ID.
-      const res = await fetch(`http://localhost:3000/api/v1/videostreams/${this.videostreamId}`)
-      const videostream = (await res.json()) as VideoStream
-
-      this.videostream = videostream
+      const res = await fetch(`http://localhost:3000/api/v1/videostreams/${id}`)
+      this.videostream = (await res.json()) as VideoStream
     } catch (error) {
       console.error(error) // TODO: handle errors.
     }
@@ -55,13 +56,9 @@ export class App extends LitElement {
       // Fetch annotations for this video stream.
       // TODO: We should only fetch a small portion of the annotations near the current playback position.
       //       When the user plays the video we can fetch in more as needed.
-      const res = await fetch(
-        `http://localhost:3000/api/v1/annotations?videostream=${this.videostreamId}`
-      )
+      const res = await fetch(`http://localhost:3000/api/v1/annotations?videostream=${id}`)
       const json = await res.json()
-      const annotations = json.results as Annotation[]
-
-      this.annotations = annotations
+      this.annotations = json.results as Annotation[]
     } catch (error) {
       console.error(error) // TODO: handle errors.
     }
@@ -95,18 +92,7 @@ export class App extends LitElement {
     return html`
       <div class="grid">
         <header>
-          <h1>Video Playback</h1>
-
-          <form @submit=${this.onSelectVideoStream}> 
-            <input 
-              type="text" 
-              placeholder="Video stream ID" 
-              name="videostream_id" 
-              @input=${(e: InputEvent & { target: HTMLInputElement }) =>
-                (this.videostreamId = e.target.value)}
-            />
-            <button type="submit">Load Video Stream</button>    
-          </form>
+          <h1>Video Playback: ${this.videostream?.id ?? ''}</h1>
         </header>
 
         <main>
@@ -149,6 +135,11 @@ export class App extends LitElement {
   static styles = css`
     ${resetcss}
 
+    :host {
+      width: min(100vw, 95rem);
+      height: 100vh;
+    }
+
     .grid {
       padding: 2rem;
       height: 100%; 
@@ -164,7 +155,7 @@ export class App extends LitElement {
     }
 
     h1 {
-      margin-top: 0;
+      margin: 0;
       padding: .25rem .5rem; 
       border-bottom: 1px solid var(--gray1);
     }
@@ -211,6 +202,6 @@ export class App extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'openfish-app': App
+    'watch-stream': WatchStream
   }
 }
