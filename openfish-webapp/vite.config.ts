@@ -8,6 +8,7 @@ export default defineConfig({
       input: {
         index: resolve(__dirname, 'index.html'),
         watch: resolve(__dirname, 'watch.html'),
+        streams: resolve(__dirname, 'streams.html'),
       },
     },
   },

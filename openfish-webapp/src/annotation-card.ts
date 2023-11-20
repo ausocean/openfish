@@ -2,6 +2,7 @@ import { LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { Annotation } from './api.types.ts'
 import { repeat } from 'lit/directives/repeat.js'
+import { formatAsDate, formatAsTime, formatAsTimeZone } from './datetime.ts'
 
 /**
  * TODO: write component documentation
@@ -27,32 +28,12 @@ export class AnnotationCard extends LitElement {
     const start = new Date(this.annotation.timespan.start)
     const end = new Date(this.annotation.timespan.end)
     const duration = (end.getTime() - start.getTime()) / 1000
-    const tz = new Intl.DateTimeFormat('en-AU', { day: '2-digit', timeZoneName: 'short' })
-      .format(start)
-      .slice(4)
+    const tz = formatAsTimeZone(start)
 
-    const startDate = new Intl.DateTimeFormat('en-AU', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit',
-    }).format(start)
-    const startTime = new Intl.DateTimeFormat('en-AU', {
-      hour: 'numeric',
-      minute: 'numeric',
-      second: 'numeric',
-    }).format(start)
-    const endDate = new Intl.DateTimeFormat('en-AU', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit',
-    }).format(end)
-    const endTime = new Intl.DateTimeFormat('en-AU', {
-      hour: 'numeric',
-      minute: 'numeric',
-      second: 'numeric',
-    }).format(end)
+    const startDate = formatAsDate(start)
+    const startTime = formatAsTime(start)
+    const endDate = formatAsDate(end)
+    const endTime = formatAsTime(end)
 
     const rangeFormatted =
       startDate === endDate
