@@ -14,7 +14,7 @@ jobs:
         go-version: '1.21'
 
     - name: Build
-      run: go build -v -o ./ ./api
+      run: go build -v -o ./openfish-api ./api
 
     - name: Check formatting
       run: test -z $(gofmt -l .)
