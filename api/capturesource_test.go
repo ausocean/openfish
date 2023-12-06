@@ -15,6 +15,9 @@ import (
 )
 
 func TestCreateCaptureSource(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping testing in short mode")
+	}
 
 	testcases := []struct {
 		reqBody   string
@@ -89,6 +92,9 @@ func TestCreateCaptureSource(t *testing.T) {
 }
 
 func TestGetCaptureSourcesWithLimitAndOffset(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping testing in short mode")
+	}
 
 	// Initialize app.
 	ds_client.Init(false)
