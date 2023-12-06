@@ -13,6 +13,10 @@ import (
 )
 
 func setup(t *testing.T) (*fiber.App, int64) {
+	if testing.Short() {
+		t.Skip("skipping testing in short mode")
+	}
+
 	// Initialize app.
 	ds_client.Init(false)
 	app := fiber.New(fiber.Config{ErrorHandler: errorHandler})
