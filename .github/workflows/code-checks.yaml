@@ -47,3 +47,6 @@ jobs:
 
     - name: Lint
       run: pnpm biome ci --linter-enabled=true .
+
+    - name: Test
+      run: pnpm test
