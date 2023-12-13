@@ -86,3 +86,7 @@ func (vs *VideoStream) Copy(dst datastore.Entity) (datastore.Entity, error) {
 func (vs *VideoStream) GetCache() datastore.Cache {
 	return nil
 }
+
+func NewVideoStream() datastore.Entity {
+	return &VideoStream{}
+}

@@ -85,3 +85,7 @@ func (cs *CaptureSource) Copy(dst datastore.Entity) (datastore.Entity, error) {
 func (cs *CaptureSource) GetCache() datastore.Cache {
 	return nil
 }
+
+func NewCaptureSource() datastore.Entity {
+	return &CaptureSource{}
+}

@@ -100,3 +100,7 @@ func (an *Annotation) Copy(dst datastore.Entity) (datastore.Entity, error) {
 func (an *Annotation) GetCache() datastore.Cache {
 	return nil
 }
+
+func NewAnnotation() datastore.Entity {
+	return &Annotation{}
+}
