@@ -37,6 +37,7 @@ package ds_client
 import (
 	"context"
 
+	"github.com/ausocean/openfish/api/model"
 	"github.com/ausocean/openfish/datastore"
 )
 
@@ -59,4 +60,8 @@ func Init(local bool) {
 	if err != nil {
 		panic(err)
 	}
+
+	datastore.RegisterEntity(model.CAPTURESOURCE_KIND, model.NewCaptureSource)
+	datastore.RegisterEntity(model.VIDEOSTREAM_KIND, model.NewVideoStream)
+	datastore.RegisterEntity(model.ANNOTATION_KIND, model.NewAnnotation)
 }
