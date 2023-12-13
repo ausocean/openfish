@@ -363,6 +363,7 @@ func (q *CloudQuery) Order(fieldName string) {
 	q.query = q.query.Order(fieldName)
 }
 
+// Limit limits the number of results returned.
 func (q *CloudQuery) Limit(limit int) {
 	q.query = q.query.Limit(limit)
 }
@@ -583,6 +584,13 @@ func (s *FileStore) GetAll(ctx context.Context, query Query, dst interface{}) ([
 		})
 	}
 
+	// Apply query's limit and offset to the keys.
+	if q.offset+q.limit > len(keys) {
+		keys = keys[q.offset:]
+	} else {
+		keys = keys[q.offset:(q.offset + q.limit)]
+	}
+
 	if q.keysOnly {
 		return keys, nil
 	}
@@ -697,6 +705,8 @@ type FileQuery struct {
 	keyParts []string                      // Defines the parts of the key.
 	value    [][]string                    // Filter value(s).
 	cmp      [][]func(string, string) bool // Filter comparison function(s).
+	limit    int                           // Limits the number of results returned.
+	offset   int                           // How many keys to skip before returning results.
 }
 
 // Filter implements FileQuery matching against key parts.
@@ -806,11 +816,15 @@ func (q *FileQuery) Order(fieldName string) {
 	q.order = true
 }
 
-// NOTE: Limit has not been implemented for file stores.
-func (q *FileQuery) Limit(limit int) {} // TODO: Implement.
+// Limit limits the number of results returned.
+func (q *FileQuery) Limit(limit int) {
+	q.limit = limit
+}
 
-// NOTE: Offset has not been implemented for file stores.
-func (q *FileQuery) Offset(offset int) {} // TODO: Implement.
+// Offset sets the number of keys to skip before returning results.
+func (q *FileQuery) Offset(offset int) {
+	q.offset = offset
+}
 
 // IDKey makes a datastore ID key by combining an ID, a Unix timestamp
 // and an optional subtime (st). The latter is used to
