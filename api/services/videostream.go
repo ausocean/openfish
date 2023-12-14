@@ -157,7 +157,6 @@ func UpdateVideoStream(id int64, streamURL *string, captureSource *int64, startT
 // DeleteCaptureSource deletes a capture source.
 func DeleteVideoStream(id int64) error {
 	// TODO: Check that video stream has no annotations associated with it.
-	// TODO: Check that video stream exists.
 
 	// Delete entity.
 	store := ds_client.Get()
