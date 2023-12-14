@@ -35,16 +35,13 @@ LICENSE
 package handlers
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 	"strings"
 
-	googlystore "cloud.google.com/go/datastore"
 	"github.com/ausocean/openfish/api/api"
-	"github.com/ausocean/openfish/api/ds_client"
 	"github.com/ausocean/openfish/api/model"
-	"github.com/ausocean/openfish/datastore"
+	"github.com/ausocean/openfish/api/services"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -52,7 +49,7 @@ import (
 // CaptureSourceResult describes the JSON format for capture sources in API responses.
 // Fields use pointers because they are optional (this is what the format URL param is for).
 type CaptureSourceResult struct {
-	ID             *int    `json:"id,omitempty"`
+	ID             *int64  `json:"id,omitempty"`
 	Name           *string `json:"name,omitempty"`
 	Location       *string `json:"location,omitempty"`
 	CameraHardware *string `json:"camera_hardware,omitempty"`
@@ -60,7 +57,7 @@ type CaptureSourceResult struct {
 }
 
 // FromCaptureSource creates a CaptureSourceResult from a model.CaptureSource and key, formatting it according to the requested format.
-func FromCaptureSource(captureSource *model.CaptureSource, id int, format *api.Format) CaptureSourceResult {
+func FromCaptureSource(captureSource *model.CaptureSource, id int64, format *api.Format) CaptureSourceResult {
 	var result CaptureSourceResult
 	if format.Requires("id") {
 		result.ID = &id
@@ -106,6 +103,25 @@ type UpdateCaptureSourceBody struct {
 	SiteID         *int64  `json:"site_id"`         // Optional.
 }
 
+// parseGeoPoint converts a string containing two comma-separated values into a GeoPoint.
+func parseGeoPoint(location string) (float64, float64, error) {
+	errMsg := "invalid location string: %w"
+
+	parts := strings.Split(location, ",")
+	if len(parts) != 2 {
+		return 0, 0, fmt.Errorf(errMsg, "string split failed")
+	}
+	lat, err := strconv.ParseFloat(parts[0], 64)
+	if err != nil {
+		return 0, 0, fmt.Errorf(errMsg, err)
+	}
+	long, err := strconv.ParseFloat(parts[1], 64)
+	if err != nil {
+		return 0, 0, fmt.Errorf(errMsg, err)
+	}
+	return lat, long, nil
+}
+
 // GetCaptureSourceByID gets a capture source when provided with an ID.
 func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 	// Parse URL.
@@ -121,16 +137,10 @@ func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 	}
 
 	// Fetch data from the datastore.
-	store := ds_client.Get()
-	key := store.IDKey(model.CAPTURESOURCE_KIND, id)
-	var captureSource model.CaptureSource
-	if store.Get(context.Background(), key, &captureSource) != nil {
-		return api.DatastoreReadFailure(err)
-	}
+	captureSource, err := services.GetCaptureSourceByID(id)
 
 	// Format result.
-	result := FromCaptureSource(&captureSource, int(id), format)
-
+	result := FromCaptureSource(captureSource, id, format)
 	return ctx.JSON(result)
 }
 
@@ -150,20 +160,7 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 	}
 
 	// Fetch data from the datastore.
-	store := ds_client.Get()
-	query := store.NewQuery(model.CAPTURESOURCE_KIND, false)
-
-	if qry.Name != nil {
-		query.FilterField("Name", "=", qry.Name)
-	}
-
-	// TODO: implement filtering based on location
-
-	query.Limit(qry.Limit)
-	query.Offset(qry.Offset)
-
-	var captureSources []model.CaptureSource
-	keys, err := store.GetAll(context.Background(), query, &captureSources)
+	captureSources, ids, err := services.GetCaptureSources(qry.Limit, qry.Offset, qry.Name)
 	if err != nil {
 		return api.DatastoreReadFailure(err)
 	}
@@ -171,7 +168,7 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 	// Format results.
 	results := make([]CaptureSourceResult, len(captureSources))
 	for i := range captureSources {
-		results[i] = FromCaptureSource(&captureSources[i], int(keys[i].ID), format)
+		results[i] = FromCaptureSource(&captureSources[i], ids[i], format)
 	}
 
 	return ctx.JSON(api.Result[CaptureSourceResult]{
@@ -182,27 +179,9 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 	})
 }
 
-// parseGeoPoint converts a string containing two comma-separated values into a GeoPoint.
-func parseGeoPoint(location string) (*googlystore.GeoPoint, error) {
-	errMsg := "invalid location string: %w"
-
-	parts := strings.Split(location, ",")
-	if len(parts) != 2 {
-		return nil, fmt.Errorf(errMsg, "string split failed")
-	}
-	lat, err := strconv.ParseFloat(parts[0], 64)
-	if err != nil {
-		return nil, fmt.Errorf(errMsg, err)
-	}
-	long, err := strconv.ParseFloat(parts[1], 64)
-	if err != nil {
-		return nil, fmt.Errorf(errMsg, err)
-	}
-	return &googlystore.GeoPoint{Lat: lat, Lng: long}, nil
-}
-
 // CreateCaptureSource creates a new capture source.
 func CreateCaptureSource(ctx *fiber.Ctx) error {
+	// Parse body.
 	var body CreateCaptureSourceBody
 
 	err := ctx.BodyParser(&body)
@@ -210,31 +189,15 @@ func CreateCaptureSource(ctx *fiber.Ctx) error {
 		return api.InvalidRequestJSON(err)
 	}
 
-	// Get a unique ID for the new capturesource.
-	store := ds_client.Get()
-	key := store.IncompleteKey(model.CAPTURESOURCE_KIND)
-
-	// Create capture source entity and add to the datastore.
-	gp, err := parseGeoPoint(body.Location)
+	lat, long, err := parseGeoPoint(body.Location)
 	if err != nil {
 		return api.InvalidRequestJSON(err)
 	}
-	cs := model.CaptureSource{
-		Name:           body.Name,
-		Location:       *gp,
-		CameraHardware: body.CameraHardware,
-		SiteID:         body.SiteID,
-	}
 
-	// Add to datastore.
-	key, err = store.Put(context.Background(), key, &cs)
-	if err != nil {
-		print(err.Error())
-		return api.DatastoreWriteFailure(err)
-	}
+	// Create capture source entity and add to the datastore.
+	id, err := services.CreateCaptureSource(body.Name, lat, long, body.CameraHardware, body.SiteID)
 
 	// Return ID of created capture source.
-	id := int(key.ID)
 	return ctx.JSON(CaptureSourceResult{
 		ID: &id,
 	})
@@ -254,37 +217,16 @@ func UpdateCaptureSource(ctx *fiber.Ctx) error {
 		return api.InvalidRequestJSON(err)
 	}
 
-	gp, err := parseGeoPoint(*body.Location)
-	if err != nil {
-		return api.InvalidRequestJSON(err)
+	var lat, long *float64
+	if body.Location != nil {
+		*lat, *long, err = parseGeoPoint(*body.Location)
+		if err != nil {
+			return api.InvalidRequestJSON(err)
+		}
 	}
 
-	// Check that capture source has no video streams associated with it.
-	// TODO: Implement this.
-
 	// Update data in the datastore.
-	store := ds_client.Get()
-	key := store.IDKey(model.CAPTURESOURCE_KIND, id)
-	var captureSource model.CaptureSource
-
-	err = store.Update(context.Background(), key, func(e datastore.Entity) {
-		v, ok := e.(*model.CaptureSource)
-		if ok {
-			if body.Name != nil {
-				v.Name = *body.Name
-			}
-			if body.Location != nil {
-				v.Location = *gp
-			}
-			if body.CameraHardware != nil {
-				v.CameraHardware = *body.CameraHardware
-			}
-			if body.SiteID != nil {
-				v.SiteID = body.SiteID
-			}
-		}
-	}, &captureSource)
-
+	err = services.UpdateCaptureSource(id, body.Name, lat, long, body.CameraHardware, body.SiteID)
 	if err != nil {
 		return api.DatastoreWriteFailure(err)
 	}
@@ -300,17 +242,11 @@ func DeleteCaptureSource(ctx *fiber.Ctx) error {
 		return api.InvalidRequestURL(err)
 	}
 
-	// Check that capture source has no video streams associated with it.
-	// TODO: Implement this.
-
-	// Delete entity.
-	store := ds_client.Get()
-	key := store.IDKey(model.CAPTURESOURCE_KIND, id)
-
-	if store.Delete(context.Background(), key) != nil {
+	// Delete capture source.
+	err = services.DeleteCaptureSource(id)
+	if err != nil {
 		return api.DatastoreWriteFailure(err)
 	}
 
 	return nil
-
 }

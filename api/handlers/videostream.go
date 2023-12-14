@@ -35,15 +35,13 @@ LICENSE
 package handlers
 
 import (
-	"context"
 	"errors"
 	"strconv"
 	"time"
 
 	"github.com/ausocean/openfish/api/api"
-	"github.com/ausocean/openfish/api/ds_client"
 	"github.com/ausocean/openfish/api/model"
-	"github.com/ausocean/openfish/datastore"
+	"github.com/ausocean/openfish/api/services"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -129,17 +127,13 @@ func GetVideoStreamByID(ctx *fiber.Ctx) error {
 	}
 
 	// Fetch data from the datastore.
-	store := ds_client.Get()
-	key := store.IDKey(model.VIDEOSTREAM_KIND, id)
-	var videoStream model.VideoStream
-	err = store.Get(context.Background(), key, &videoStream)
+	videoStream, err := services.GetVideoStreamByID(id)
 	if err != nil {
 		return api.DatastoreReadFailure(err)
 	}
 
 	// Format result.
-	result := FromVideoStream(&videoStream, id, format)
-
+	result := FromVideoStream(videoStream, id, format)
 	return ctx.JSON(result)
 }
 
@@ -158,33 +152,15 @@ func GetVideoStreams(ctx *fiber.Ctx) error {
 		return api.InvalidRequestURL(err)
 	}
 
-	// Fetch data from the datastore.
-	store := ds_client.Get()
-	query := store.NewQuery(model.VIDEOSTREAM_KIND, false)
-
-	// Filter by timespan (database side).
+	// Validate timespan
 	if qry.TimeSpan != nil {
-		// Validate timespan
 		if qry.TimeSpan.Start.After(qry.TimeSpan.End) {
 			return api.InvalidRequestURL(errors.New("start time not before end time"))
 		}
-
-		// BUG: Because of a limitation of google cloud's datastore, we can only use inequality filters on one
-		// field at a time. This query needs to filter out videostreams that started after the specified range.
-		// https://github.com/ausocean/openfish/issues/23
-		query.FilterField("EndTime", ">=", qry.TimeSpan.Start)
 	}
 
-	// Filter by capture source.
-	if qry.CaptureSource != nil {
-		query.FilterField("CaptureSource", "=", *qry.CaptureSource)
-	}
-
-	query.Limit(qry.Limit)
-	query.Offset(qry.Offset)
-
-	var videoStreams []model.VideoStream
-	keys, err := store.GetAll(context.Background(), query, &videoStreams)
+	// Fetch data from the datastore.
+	videoStreams, ids, err := services.GetVideoStreams(qry.Limit, qry.Offset, qry.TimeSpan, qry.CaptureSource)
 	if err != nil {
 		return api.DatastoreReadFailure(err)
 	}
@@ -192,7 +168,7 @@ func GetVideoStreams(ctx *fiber.Ctx) error {
 	// Format results.
 	results := make([]VideoStreamResult, len(videoStreams))
 	for i := range videoStreams {
-		results[i] = FromVideoStream(&videoStreams[i], keys[i].ID, format)
+		results[i] = FromVideoStream(&videoStreams[i], int64(ids[i]), format)
 	}
 
 	return ctx.JSON(api.Result[VideoStreamResult]{
@@ -203,36 +179,11 @@ func GetVideoStreams(ctx *fiber.Ctx) error {
 	})
 }
 
-// putVideoStream puts a video stream in the datastore, checking if the capture source exists.
-func putVideoStream(ctx *fiber.Ctx, vs model.VideoStream) (int64, error) {
-	// Verify CaptureSource exists.
-	store := ds_client.Get()
-	key := store.IDKey(model.CAPTURESOURCE_KIND, vs.CaptureSource)
-	var captureSource model.CaptureSource
-
-	err := store.Get(context.Background(), key, &captureSource)
-	if err != nil {
-		return 0, api.DatastoreReadFailure(err)
-	}
-
-	// Get a unique ID for the new video stream.
-	key = store.IncompleteKey(model.VIDEOSTREAM_KIND)
-
-	key, err = store.Put(context.Background(), key, &vs)
-	if err != nil {
-		print(err.Error())
-		return 0, api.DatastoreWriteFailure(err)
-	}
-
-	// Return ID of created video stream.
-	return key.ID, nil
-
-}
-
 // CreateVideoStream creates a new video stream.
 // BUG: start and end time are required but this is not being enforced.
 // https://github.com/ausocean/openfish/issues/18
 func CreateVideoStream(ctx *fiber.Ctx) error {
+	// Parse body.
 	var body CreateVideoStreamBody
 	err := ctx.BodyParser(&body)
 	if err != nil {
@@ -240,15 +191,9 @@ func CreateVideoStream(ctx *fiber.Ctx) error {
 	}
 
 	// Create video stream entity and add to the datastore.
-	vs := model.VideoStream{
-		StartTime:     body.StartTime,
-		EndTime:       &body.EndTime,
-		StreamUrl:     body.StreamUrl,
-		CaptureSource: body.CaptureSource,
-	}
-	id, err := putVideoStream(ctx, vs)
+	id, err := services.CreateVideoStream(body.StreamUrl, body.CaptureSource, body.StartTime, &body.EndTime)
 	if err != nil {
-		return err
+		return api.DatastoreWriteFailure(err)
 	}
 
 	// Return ID of created video stream.
@@ -259,8 +204,7 @@ func CreateVideoStream(ctx *fiber.Ctx) error {
 
 // StartVideoStream creates a new video stream at the current time.
 func StartVideoStream(ctx *fiber.Ctx) error {
-	now := time.Now()
-
+	// Parse body.
 	var body StartVideoStreamBody
 	err := ctx.BodyParser(&body)
 	if err != nil {
@@ -268,14 +212,9 @@ func StartVideoStream(ctx *fiber.Ctx) error {
 	}
 
 	// Create video stream entity and add to the datastore.
-	vs := model.VideoStream{
-		StartTime:     now,
-		StreamUrl:     body.StreamUrl,
-		CaptureSource: body.CaptureSource,
-	}
-	id, err := putVideoStream(ctx, vs)
+	id, err := services.CreateVideoStream(body.StreamUrl, body.CaptureSource, time.Now(), nil)
 	if err != nil {
-		return err
+		return api.DatastoreWriteFailure(err)
 	}
 
 	// Return ID of created video stream.
@@ -295,18 +234,9 @@ func EndVideoStream(ctx *fiber.Ctx) error {
 	}
 
 	// Update data in the datastore.
-	store := ds_client.Get()
-	key := store.IDKey(model.VIDEOSTREAM_KIND, id)
-	var videoStream model.VideoStream
-
-	err = store.Update(context.Background(), key, func(e datastore.Entity) {
-		v, ok := e.(*model.VideoStream)
-		if ok {
-			v.EndTime = &now
-		}
-	}, &videoStream)
+	err = services.UpdateVideoStream(id, nil, nil, nil, &now)
 	if err != nil {
-		return api.DatastoreReadFailure(err)
+		return api.DatastoreWriteFailure(err)
 	}
 
 	return nil
@@ -327,29 +257,9 @@ func UpdateVideoStream(ctx *fiber.Ctx) error {
 	}
 
 	// Update data in the datastore.
-	store := ds_client.Get()
-	key := store.IDKey(model.VIDEOSTREAM_KIND, id)
-	var videoStream model.VideoStream
-
-	err = store.Update(context.Background(), key, func(e datastore.Entity) {
-		v, ok := e.(*model.VideoStream)
-		if ok {
-			if body.StartTime != nil {
-				v.StartTime = *body.StartTime
-			}
-			if body.EndTime != nil {
-				v.EndTime = body.EndTime
-			}
-			if body.CaptureSource != nil {
-				v.CaptureSource = *body.CaptureSource
-			}
-			if body.StreamUrl != nil {
-				v.StreamUrl = *body.StreamUrl
-			}
-		}
-	}, &videoStream)
+	err = services.UpdateVideoStream(id, body.StreamUrl, body.CaptureSource, body.StartTime, body.EndTime)
 	if err != nil {
-		return api.DatastoreReadFailure(err)
+		return api.DatastoreWriteFailure(err)
 	}
 
 	return nil
@@ -366,13 +276,10 @@ func DeleteVideoStream(ctx *fiber.Ctx) error {
 	}
 
 	// Delete entity.
-	store := ds_client.Get()
-	key := store.IDKey(model.VIDEOSTREAM_KIND, id)
-
-	if store.Delete(context.Background(), key) != nil {
+	err = services.DeleteVideoStream(id)
+	if err != nil {
 		return api.DatastoreWriteFailure(err)
 	}
 
 	return nil
-
 }
