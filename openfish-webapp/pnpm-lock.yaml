@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@fooloomanzoo/datetime-picker':
+    specifier: ^3.0.9
+    version: 3.0.9
   lit:
     specifier: ^3.1.0
     version: 3.1.0
@@ -297,6 +300,46 @@ packages:
     dev: true
     optional: true
 
+  /@fooloomanzoo/datetime-input@3.0.4:
+    resolution: {integrity: sha512-oBUMvte2vRVgVjQMHdBl2ieeD32T6VhEXj77s66LFpvAz4nX44PgDUIi3MJmzaBvzXliqml57KKTW7WhgFc28w==}
+    dependencies:
+      '@fooloomanzoo/input-picker-pattern': 3.0.10
+      '@fooloomanzoo/number-input': 3.0.10
+      '@fooloomanzoo/property-mixins': 3.0.10
+      '@polymer/polymer': 3.5.1
+    dev: false
+
+  /@fooloomanzoo/datetime-picker@3.0.9:
+    resolution: {integrity: sha512-4VfrNQCQOFjeOb7UuG06k2om17FMYfm12lFBhCHkHlNnjgafXwrz3ygx4aSFpWCZSz91VR2aIYBYaczU9HkSdA==}
+    dependencies:
+      '@fooloomanzoo/datetime-input': 3.0.4
+      '@fooloomanzoo/input-picker-pattern': 3.0.10
+      '@fooloomanzoo/number-input': 3.0.10
+      '@fooloomanzoo/property-mixins': 3.0.10
+      '@polymer/polymer': 3.5.1
+    dev: false
+
+  /@fooloomanzoo/input-picker-pattern@3.0.10:
+    resolution: {integrity: sha512-jEzJNEXoPsuSTZ51euxJHCfs95v4fX3tl+KCZD81xLVlJXHhfMK40iaUoY2+pE02+m54aQuFH8hxL7c6QQvjSA==}
+    dependencies:
+      '@polymer/iron-overlay-behavior': 3.0.3
+      '@polymer/polymer': 3.5.1
+    dev: false
+
+  /@fooloomanzoo/number-input@3.0.10:
+    resolution: {integrity: sha512-Da5ONp6q4TiksMI2mJ6fsnoDNlghL7uag22Pcd8VJq8NOuLZ0BepGV6DQsCwcjmPJbX2yh5BFuwc+08HYi+nFA==}
+    dependencies:
+      '@fooloomanzoo/input-picker-pattern': 3.0.10
+      '@fooloomanzoo/property-mixins': 3.0.10
+      '@polymer/polymer': 3.5.1
+    dev: false
+
+  /@fooloomanzoo/property-mixins@3.0.10:
+    resolution: {integrity: sha512-V6mO7u0Nzbbgj8eu2U7ReEeuzxO9YgE9VAR4khO7lqCu8+nbiOagv5rSmkMxqVjAfZR1XRt19lEZ7zOx2wrasQ==}
+    dependencies:
+      '@polymer/polymer': 3.5.1
+    dev: false
+
   /@jest/schemas@29.6.3:
     resolution: {integrity: sha512-mo5j5X+jIZmJQveBKeS/clAueipV7KgiX1vMgCxam1RNYiqE1w62n0/tJJnHtjW8ZHcQco5gY85jA3mi0L+nSA==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
@@ -316,6 +359,39 @@ packages:
     resolution: {integrity: sha512-SVOwLAWUQg3Ji1egtOt1UiFe4zdDpnWHyc5qctSceJ5XIu0Uc76YmGpIjZgx9YJ0XtdW0Jm507sDvjOu+HnB8w==}
     dependencies:
       '@lit-labs/ssr-dom-shim': 1.1.2
+    dev: false
+
+  /@polymer/iron-a11y-keys-behavior@3.0.1:
+    resolution: {integrity: sha512-lnrjKq3ysbBPT/74l0Fj0U9H9C35Tpw2C/tpJ8a+5g8Y3YJs1WSZYnEl1yOkw6sEyaxOq/1DkzH0+60gGu5/PQ==}
+    dependencies:
+      '@polymer/polymer': 3.5.1
+    dev: false
+
+  /@polymer/iron-fit-behavior@3.1.0:
+    resolution: {integrity: sha512-ABcgIYqrjhmUT8tiuolqeGttF/8pd3sEymUDrO1vXbZu4FWIvoLNndrMDFvs++AGd12Mjf5pYy84NJc6dB8Vig==}
+    dependencies:
+      '@polymer/polymer': 3.5.1
+    dev: false
+
+  /@polymer/iron-overlay-behavior@3.0.3:
+    resolution: {integrity: sha512-Q/Fp0+uOQQ145ebZ7T8Cxl4m1tUKYjyymkjcL2rXUm+aDQGb1wA1M1LYxUF5YBqd+9lipE0PTIiYwA2ZL/sznA==}
+    dependencies:
+      '@polymer/iron-a11y-keys-behavior': 3.0.1
+      '@polymer/iron-fit-behavior': 3.1.0
+      '@polymer/iron-resizable-behavior': 3.0.1
+      '@polymer/polymer': 3.5.1
+    dev: false
+
+  /@polymer/iron-resizable-behavior@3.0.1:
+    resolution: {integrity: sha512-FyHxRxFspVoRaeZSWpT3y0C9awomb4tXXolIJcZ7RvXhMP632V5lez+ch5G5SwK0LpnAPkg35eB0LPMFv+YMMQ==}
+    dependencies:
+      '@polymer/polymer': 3.5.1
+    dev: false
+
+  /@polymer/polymer@3.5.1:
+    resolution: {integrity: sha512-JlAHuy+1qIC6hL1ojEUfIVD58fzTpJAoCxFwV5yr0mYTXV1H8bz5zy0+rC963Cgr9iNXQ4T9ncSjC2fkF9BQfw==}
+    dependencies:
+      '@webcomponents/shadycss': 1.11.2
     dev: false
 
   /@rollup/rollup-android-arm-eabi@4.5.0:
@@ -463,6 +539,10 @@ packages:
       loupe: 2.3.7
       pretty-format: 29.7.0
     dev: true
+
+  /@webcomponents/shadycss@1.11.2:
+    resolution: {integrity: sha512-vRq+GniJAYSBmTRnhCYPAPq6THYqovJ/gzGThWbgEZUQaBccndGTi1hdiUP15HzEco0I6t4RCtXyX0rsSmwgPw==}
+    dev: false
 
   /acorn-walk@8.3.0:
     resolution: {integrity: sha512-FS7hV565M5l1R08MXqo8odwMTB02C2UqzB17RVgu9EyuYFBqJZ3/ZY97sQD5FewVu1UyDFc1yztUDrAwT0EypA==}

@@ -12,6 +12,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@fooloomanzoo/datetime-picker": "^3.0.9",
     "lit": "^3.1.0",
     "youtube-player": "^5.6.0"
   },
