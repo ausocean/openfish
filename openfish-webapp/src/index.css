@@ -2,11 +2,13 @@
   /* CSS variables */
   --bg: #ffffff;
   --content: #1E293B;
-  --gray0: #f0f0f0;
-  --gray1: #e0e0e0;
-  --gray2: #a4aaae;
-  --gray3: #616265;
 
+  --gray0: #f6f6f7;
+  --gray1: #eff0f3;
+  --gray2: #e2e2e3;
+  --gray3: #c2c2c4;
+  --gray4: #a4aaae;
+  --gray5: #616265;
 
   --primary: #103f79;
   --secondary: #3f9fff; /*#0CA5E9;*/
@@ -58,8 +60,31 @@ a:hover {
 
 /* Page layout */
 body {
-  display: flex; 
-  justify-content: center;
   width: 100vw;
   height: 100vh;
+}
+
+body.grid-layout {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: [fullwidth-start] 1fr [page-start left-aside-start] 16rem [content-start left-aside-end] minmax(auto, 50rem) [content-end right-aside-start] 16rem [page-end right-aside-end] 1fr [fullwidth-end];
+  grid-template-rows: [header-start] 4rem [header-end content-start] 1fr [content-end];
+}
+
+header {
+  grid-column: fullwidth;
+  grid-row-start: 1;
+  grid-row-end: 2;
+  border-bottom: 1px solid var(--gray2);
+  display: grid;
+  grid-template-columns: subgrid;
+  padding: 1rem 0;
+}
+
+header > h1 {
+  grid-column-start: page-start;
+  grid-column-end: content-start;
+  font-size: 1.25rem;
+  font-weight: 600;
+  align-self: end;
 }

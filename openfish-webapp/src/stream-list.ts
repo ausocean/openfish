@@ -1,54 +1,65 @@
 import { LitElement, css, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { Result, VideoStream } from './api.types.ts'
 import { repeat } from 'lit/directives/repeat.js'
 import { resetcss } from './reset.css.ts'
 import { datetimeDifference, formatAsDatetime, formatDuration } from './datetime.ts'
+import { Filter } from './stream-filter.ts'
 
 @customElement('stream-list')
 export class StreamList extends LitElement {
-  @property({ type: Number })
-  page = 1
-
-  @property({ type: Array })
-  items: VideoStream[] = []
-
-  @property({ type: Number })
-  totalPages = 0
-
-  attributeChangedCallback() {
-    this.fetchData(this.page)
+  @property({ type: Object })
+  set filter(val: Filter) {
+    this._filter = val
+    this.fetchData()
   }
+
+  @state()
+  protected _page = 1
+
+  @state()
+  protected _items: VideoStream[] = []
+
+  @state()
+  protected _totalPages = 0
+
+  @state()
+  protected _filter: Filter = {}
 
   connectedCallback() {
     super.connectedCallback()
-    this.fetchData(this.page)
+    this.fetchData()
   }
 
-  async fetchData(page: number) {
+  async fetchData() {
     const perPage = 10
 
     try {
-      const res = await fetch(
-        `http://localhost:3000/api/v1/videostreams?limit=10&offset=${(page - 1) * perPage}`
-      )
+      const params = new URLSearchParams()
+      params.set('limit', String(10))
+      params.set('offset', String((this._page - 1) * perPage))
+
+      for (const key in this._filter) {
+        params.set(key, String(this._filter[key as keyof Filter]))
+      }
+
+      const res = await fetch(`http://localhost:3000/api/v1/videostreams?${params.toString()}`)
       const data = (await res.json()) as Result<VideoStream>
-      this.items = data.results
-      this.totalPages = Math.floor(data.total / perPage)
-      console.log(this.totalPages)
+      this._items = data.results
+      this._totalPages = Math.floor(data.total / perPage)
     } catch (error) {
       console.error(error)
     }
   }
 
   prev() {
-    this.page += 1
-    this.fetchData(this.page)
+    this._page += 1
+    this.fetchData()
   }
 
   next() {
-    this.page -= 1
-    this.fetchData(this.page)
+    this._page -= 1
+    this.fetchData()
   }
 
   render() {
@@ -69,9 +80,9 @@ export class StreamList extends LitElement {
     `
 
     const pagination = html`   
-    <span class="mr-1">Page ${this.page} of ${this.totalPages}</span>
-    <button @click="${this.next}" .disabled=${this.page === 1}>Prev</button>
-    <button @click="${this.prev}" .disabled=${this.page === this.totalPages}>Next</button>
+    <span class="mr-1">Page ${this._page} of ${this._totalPages}</span>
+    <button @click="${this.next}" .disabled=${this._page === 1}>Prev</button>
+    <button @click="${this.prev}" .disabled=${this._page === this._totalPages}>Next</button>
     `
 
     return html`
@@ -80,7 +91,7 @@ export class StreamList extends LitElement {
       ${header}
     </thead>
     <tbody>
-      ${repeat(this.items, rows)}
+      ${repeat(this._items, rows)}
     </tbody>
     <tfoot>
       ${pagination}
@@ -91,10 +102,6 @@ export class StreamList extends LitElement {
 
   static styles = css`
     ${resetcss}
-
-    :host {
-      width: min(100vw, 80rem);
-    }
 
     table {
       display: grid;  

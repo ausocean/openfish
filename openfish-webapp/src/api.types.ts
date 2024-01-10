@@ -37,3 +37,11 @@ export interface VideoStream {
   startTime: string
   endTime: string
 }
+
+export interface CaptureSource {
+  id: number
+  name: string
+  location: `${number},${number}`
+  camera_hardware: string
+  site_id?: number
+}

@@ -6,9 +6,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OpenFish</title>
     <link rel="stylesheet" href="./src/index.css" />
+
     <script type="module" src="./src/stream-list.ts"></script>
+    <script type="module" src="./src/stream-filter.ts"></script>
+    <script type="module" src="./src/capture-source-dropdown.ts"></script>
+
+    <style>
+      stream-filter {
+        grid-row: content;
+        grid-column: left-aside;
+        height: min-content;
+      }
+      stream-list {
+        grid-row: content;
+        grid-column-start: content-start;
+        grid-column-end: page-end;
+      }
+    </style>
+
+    <script type="module">
+      window.onload = () => {
+        const streamFilter = document.querySelector('stream-filter')
+        const streamList = document.querySelector('stream-list')
+
+        streamFilter?.addEventListener('filterupdate', (event) => {
+          streamList.filter = event.detail
+          streamList.requestUpdate()
+        })
+      }
+    </script>
   </head>
-  <body>
-    <stream-list />
+  <body class="grid-layout">
+    <header>
+      <h1>OpenFish WebApp</h1>
+    </header>
+    <stream-filter></stream-filter>
+    <stream-list></stream-list>
   </body>
 </html>

@@ -87,7 +87,7 @@ export class AnnotationCard extends LitElement {
   static styles = css`
   .card {
     background-color: var(--gray0);
-    border: 1px solid var(--gray2);
+    border: 1px solid var(--gray3);
     padding: 1rem;
     border-radius: .5rem;
     box-shadow:  0 0.25rem 0.25rem -0.25rem #00000040;
@@ -102,7 +102,7 @@ export class AnnotationCard extends LitElement {
     justify-content: space-between;
     align-items: baseline;
     width: 100%;
-    border-bottom: 1px solid var(--gray1);
+    border-bottom: 1px solid var(--gray2);
     padding-bottom: 0.5rem;
   }
 
@@ -119,7 +119,7 @@ export class AnnotationCard extends LitElement {
   }
 
   .observer {
-    background-color: var(--gray1);
+    background-color: var(--gray2);
     font-size: 0.8rem;
     padding: 0.125rem 0.75rem;
     border-radius: 0.5rem;
@@ -129,7 +129,7 @@ export class AnnotationCard extends LitElement {
     padding: 0.5rem 0;
     width: 100%;
     font-size: 0.8rem;
-    color: var(--gray3);
+    color: var(--gray5);
   }
   .timestamps>div>:nth-child(1) {
     display: inline-block;
@@ -149,7 +149,7 @@ export class AnnotationCard extends LitElement {
   }
   table th {
     text-align: left;
-    border-bottom: 1px solid var(--gray1);
+    border-bottom: 1px solid var(--gray2);
   }
   table th, table td {
     padding: 0.25rem;
