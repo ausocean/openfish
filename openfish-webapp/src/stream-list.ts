@@ -107,7 +107,7 @@ export class StreamList extends LitElement {
       display: grid;  
       grid-template-columns: 1fr 20rem 10rem;
       border-radius: 0.25rem;
-      border: 1px solid var(--gray1);
+      border: 1px solid var(--gray-100);
     }
 
     thead, tbody, tr {
@@ -116,24 +116,24 @@ export class StreamList extends LitElement {
 
     tbody td {
       padding: 0.5rem 1rem;
-      border-bottom: 1px solid var(--gray1);
+      border-bottom: 1px solid var(--gray-100);
     }
     tr {
       cursor: pointer
     }
     tr:hover td {
-      background-color: var(--gray0);
+      background-color: var(--gray-50);
       color: var(--primary)
     }
 
     thead th {
-      background-color: var(--gray0);
-      border-bottom: 1px solid var(--gray1);
+      background-color: var(--gray-50);
+      border-bottom: 1px solid var(--gray-100);
       padding: 0.5em 0;
     }
 
      tfoot {
-      background-color: var(--gray0);
+      background-color: var(--gray-50);
       padding: 0.5em 0;
       grid-column: 1/ span 3;
       display: flex;

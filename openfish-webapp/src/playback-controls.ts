@@ -99,9 +99,7 @@ export class PlaybackControls extends LitElement {
       align-items: center;
       padding: 0.5rem 1rem;
       gap: 0.5rem;
-      background-color: var(--gray1);
-      border-radius: 0.25rem;
-      border: 1px solid var(--gray2);
+      background-color: var(--gray-300);
     }
     input {
       width: 100%;
@@ -119,7 +117,7 @@ export class PlaybackControls extends LitElement {
     }
     #rangecontrols {
       height: 2rem;
-      background-color: var(--gray0);
+      background-color: var(--gray-50);
       position: relative;
       z-index: 0;
     }

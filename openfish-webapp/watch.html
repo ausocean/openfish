@@ -11,9 +11,83 @@
     <script type="module" src="/src/video-player.ts"></script>
     <script type="module" src="/src/playback-controls.ts"></script>
     <script type="module" src="/src/youtube-player.ts"></script>
+
+    <style>
+      main {
+        grid-row: content;
+        grid-column: page;
+        height: min-content;
+        
+      }
+
+      watch-stream {
+        box-shadow: var(--shadow-md);
+      }
+
+      body {
+        background-color: var(--blue-dull-800);
+      }
+
+      header {
+        background-color: var(--blue-dull-700);
+        border-color: var(--blue-dull-300);
+        color: var(--blue-dull-50);
+      }
+
+      .title {
+        color: var(--blue-dull-100);
+        font-size: 2rem;
+        margin: 1rem 0;
+        font-weight: 400;
+      }
+
+      .stream-id {
+        color: var(--blue-dull-50);
+        font-weight: 700  ;
+      }
+
+      .back-button {
+        font-size: 0.8rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+
+        background-color: transparent;
+        border: 1px solid var(--blue-dull-600);
+        color: var(--blue-dull-100);
+
+        &:hover {
+          border-color: var(--blue-dull-300);
+          color: var(--blue-dull-50);
+        }
+      }
+    </style>
+
+    <script type="module">
+       window.onload = () => {
+          const url = new URL(document.location.href)
+          const id = url.searchParams.get('id')
+
+          const watchStream = document.querySelector('watch-stream')
+          watchStream.streamID = Number(id)
+
+          const streamID = document.querySelector('.stream-id')
+          streamID.textContent = `#${id}`
+       }
+    </script>
   </head>
-  <body>
-    <watch-stream />
+  <body class="grid-layout">
+    <header class="dark">
+      <h1>OpenFish WebApp</h1>
+    </header>
+    <main>
+      <a class="back-button" href="/streams.html">
+        &leftarrow; Back to video streams
+      </a>
+      <h2 class="title">Watching stream: <span class="stream-id">-</span> </h2>
+      <watch-stream></watch-stream>    
+    </main>
+
   </body>
 </html>
 

@@ -8,7 +8,7 @@ export type SelectCaptureSourceEvent = CustomEvent<number | null>
 @customElement('capture-source-dropdown')
 export class CaptureSourceDropdown extends LitElement {
   @state()
-  _items: CaptureSource[] = []
+  private _items: CaptureSource[] = []
 
   connectedCallback() {
     super.connectedCallback()

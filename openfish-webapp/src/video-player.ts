@@ -93,7 +93,7 @@ export class VideoPlayer extends LitElement {
     .video-container {
       width: 100%;
       aspect-ratio: 4 / 3;  
-      background-color: var(--gray3);
+      background-color: var(--gray-300);
       position: relative
     }
     .annotation-overlay {
