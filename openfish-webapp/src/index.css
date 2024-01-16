@@ -3,15 +3,8 @@
   --bg: #ffffff;
   --content: #1E293B;
 
-  --gray0: #f6f6f7;
-  --gray1: #eff0f3;
-  --gray2: #e2e2e3;
-  --gray3: #c2c2c4;
-  --gray4: #a4aaae;
-  --gray5: #616265;
-
   --primary: #103f79;
-  --secondary: #3f9fff; /*#0CA5E9;*/
+  --secondary: #3f9fff;
 
   --success: #2dd491;
   --success: #056245;
@@ -19,6 +12,38 @@
   --warning-content: #584314;
   --error: #fb6e77;
   --error-content: #3b1a1c;
+
+  /* Colour ranges */
+  --gray-50: #f9fafb;
+  --gray-100: #f2f5f5;
+  --gray-200: #e7ebed;
+  --gray-300: #d3dcdf;
+  --gray-400: #b7c4c9;
+  --gray-500: #91a4ac;
+  --gray-600: #80949d;
+  --gray-700: #6b7d85;
+  --gray-800: #5a696f;
+  --gray-900: #49555a;
+  --gray-950: #2e383d;
+
+
+  --blue-dull-50: #f4f7fb;
+  --blue-dull-100: #e7eef7;
+  --blue-dull-200: #cadaed;
+  --blue-dull-300: #9bbbde;
+  --blue-dull-400: #6599cb;
+  --blue-dull-500: #427bb5;
+  --blue-dull-600: #316298;
+  --blue-dull-700: #284e7c;
+  --blue-dull-800: #244265;
+  --blue-dull-900: #233a57;
+  --blue-dull-950: #17253a;
+  
+
+  /* Shadows */
+  --shadow-sm: 0 0.25rem 0.25rem -0.25rem var(--gray-950);
+  --shadow-md: 0 0.5rem 0.5rem -0.5rem var(--gray-950);
+  --shadow-lg: 0 1rem 3rem -1rem var(--gray-950);
 
   /* Base styles */
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -75,10 +100,10 @@ header {
   grid-column: fullwidth;
   grid-row-start: 1;
   grid-row-end: 2;
-  border-bottom: 1px solid var(--gray2);
   display: grid;
   grid-template-columns: subgrid;
   padding: 1rem 0;
+  border-bottom: 1px solid;
 }
 
 header > h1 {

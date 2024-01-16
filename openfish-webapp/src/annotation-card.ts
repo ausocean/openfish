@@ -86,23 +86,24 @@ export class AnnotationCard extends LitElement {
 
   static styles = css`
   .card {
-    background-color: var(--gray0);
-    border: 1px solid var(--gray3);
+    background-color: var(--gray-50);
+    border: 2px solid var(--blue-dull-300);
     padding: 1rem;
     border-radius: .5rem;
-    box-shadow:  0 0.25rem 0.25rem -0.25rem #00000040;
+    box-shadow:  var(--shadow-sm);
     transition: box-shadow 0.25s;
   }
   .card.outline {
-    border: 1px solid var(--secondary);
-    box-shadow:  0 1rem 3rem -1rem #00000080;
+    border: 2px solid var(--secondary);
+    box-shadow:  var(--shadow-lg), 0px 0px 10px 2px color-mix(in srgb, var(--secondary) 80%, transparent);
+    ;
   }
   .header {
     display: flex; 
     justify-content: space-between;
     align-items: baseline;
     width: 100%;
-    border-bottom: 1px solid var(--gray2);
+    border-bottom: 1px solid var(--gray-200);
     padding-bottom: 0.5rem;
   }
 
@@ -119,7 +120,7 @@ export class AnnotationCard extends LitElement {
   }
 
   .observer {
-    background-color: var(--gray2);
+    background-color: var(--gray-200);
     font-size: 0.8rem;
     padding: 0.125rem 0.75rem;
     border-radius: 0.5rem;
@@ -129,7 +130,7 @@ export class AnnotationCard extends LitElement {
     padding: 0.5rem 0;
     width: 100%;
     font-size: 0.8rem;
-    color: var(--gray5);
+    color: var(--gray-800);
   }
   .timestamps>div>:nth-child(1) {
     display: inline-block;
@@ -149,13 +150,13 @@ export class AnnotationCard extends LitElement {
   }
   table th {
     text-align: left;
-    border-bottom: 1px solid var(--gray2);
+    border-bottom: 1px solid var(--gray-200);
   }
   table th, table td {
     padding: 0.25rem;
   }
   table tbody tr:hover {
-    background-color: var(--gray0)
+    background-color: var(--gray-50)
   }
   `
 }

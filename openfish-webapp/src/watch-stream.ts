@@ -1,5 +1,5 @@
 import { LitElement, css, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { Annotation, VideoStream } from './api.types'
 import { repeat } from 'lit/directives/repeat.js'
 import { videotimeToDatetime } from './datetime'
@@ -7,50 +7,45 @@ import { resetcss } from './reset.css'
 
 @customElement('watch-stream')
 export class WatchStream extends LitElement {
-  @property({ type: Object })
-  videostream: VideoStream | null = null
-
-  @property({ type: Array })
-  annotations: Annotation[] = []
-
   @property({ type: Number })
-  activeId: number | null = null
+  set streamID(val: number) {
+    this.fetchData(val)
+  }
 
-  @property({ type: Number })
-  currentTime = 0
+  @state()
+  private _videostream: VideoStream | null = null
 
-  @property({ type: Boolean })
-  playing = false
+  @state()
+  private _annotations: Annotation[] = []
 
-  @property({ type: Number })
-  duration = 0
+  @state()
+  private _activeId: number | null = null
 
-  @property({ type: Number })
-  seekTo: number | null = null
+  @state()
+  private _currentTime = 0
+
+  @state()
+  private _playing = false
+
+  @state()
+  private _duration = 0
+
+  @state()
+  private _seekTo: number | null = null
 
   private play() {
-    this.playing = true
+    this._playing = true
   }
 
   private pause() {
-    this.playing = false
+    this._playing = false
   }
 
-  connectedCallback() {
-    super.connectedCallback()
-    const url = new URL(document.location.href)
-    const id = url.searchParams.get('id')
-
-    if (id) {
-      this.fetchData(id)
-    }
-  }
-
-  async fetchData(id: string) {
+  async fetchData(id: number) {
     try {
       // Fetch video stream with ID.
       const res = await fetch(`http://localhost:3000/api/v1/videostreams/${id}`)
-      this.videostream = (await res.json()) as VideoStream
+      this._videostream = (await res.json()) as VideoStream
     } catch (error) {
       console.error(error) // TODO: handle errors.
     }
@@ -60,7 +55,7 @@ export class WatchStream extends LitElement {
       //       When the user plays the video we can fetch in more as needed.
       const res = await fetch(`http://localhost:3000/api/v1/annotations?videostream=${id}`)
       const json = await res.json()
-      this.annotations = json.results as Annotation[]
+      this._annotations = json.results as Annotation[]
     } catch (error) {
       console.error(error) // TODO: handle errors.
     }
@@ -68,12 +63,12 @@ export class WatchStream extends LitElement {
 
   render() {
     let filteredAnnotations: Annotation[] = []
-    if (this.videostream != null) {
+    if (this._videostream != null) {
       // Convert playback time in seconds to a datetime.
-      const playbackDatetime = videotimeToDatetime(this.videostream?.startTime, this.currentTime)
+      const playbackDatetime = videotimeToDatetime(this._videostream?.startTime, this._currentTime)
 
       // Filter annotations to only show those spanning the current playback time/position.
-      filteredAnnotations = this.annotations.filter(
+      filteredAnnotations = this._annotations.filter(
         (an: Annotation) =>
           new Date(an.timespan.start).getTime() <= playbackDatetime.getTime() &&
           playbackDatetime.getTime() <= new Date(an.timespan.end).getTime()
@@ -84,109 +79,89 @@ export class WatchStream extends LitElement {
       return html`
       <div>
         <annotation-card 
-          @mouseover-annotation=${(e: CustomEvent) => (this.activeId = e.detail)} 
+          @mouseover-annotation=${(e: CustomEvent) => (this._activeId = e.detail)} 
           .annotation=${annotation} 
-          .outline=${this.activeId === annotation.id}
+          .outline=${this._activeId === annotation.id}
         />
       </div>`
     })
 
     return html`
-      <div class="grid">
-        <header>
-          <h1>Video Playback: ${this.videostream?.id ?? ''}</h1>
-        </header>
-
-        <main>
+      <div class="root">
           <video-player 
-            .videostream=${this.videostream}
+            .videostream=${this._videostream}
             .annotations=${filteredAnnotations}
-            .activeAnnotation=${this.activeId}
-            .seekTo=${this.seekTo}
-            .playing=${this.playing}
-            @mouseover-annotation=${(e: CustomEvent) => (this.activeId = e.detail)}
-            @timeupdate=${(e: CustomEvent) => (this.currentTime = e.detail)} 
-            @durationchange=${(e: CustomEvent) => (this.duration = e.detail)}
-            @loadeddata=${() => (this.playing = true)}
+            .activeAnnotation=${this._activeId}
+            .seekTo=${this._seekTo}
+            .playing=${this._playing}
+            @mouseover-annotation=${(e: CustomEvent) => (this._activeId = e.detail)}
+            @timeupdate=${(e: CustomEvent) => (this._currentTime = e.detail)} 
+            @durationchange=${(e: CustomEvent) => (this._duration = e.detail)}
+            @loadeddata=${() => (this._playing = true)}
             >
           </video-player>
-        </main>
 
         <aside>
-          <h2>Annotations</h2>
+          <h3>Annotations</h3>
           <div class="annotation-list">
             ${annotationList}
           </div>
         </aside>
 
-        <footer>
           <playback-controls 
-            .playing=${this.playing} 
-            .duration=${this.duration} 
-            .currentTime=${this.currentTime}
-            .annotations=${this.annotations}
-            .videostream=${this.videostream}
+            .playing=${this._playing} 
+            .duration=${this._duration} 
+            .currentTime=${this._currentTime}
+            .annotations=${this._annotations}
+            .videostream=${this._videostream}
             @play=${this.play} 
             @pause=${this.pause}
-            @seek=${(e: CustomEvent) => (this.seekTo = e.detail)}
+            @seek=${(e: CustomEvent) => (this._seekTo = e.detail)}
           />
-        </footer>
       </div>`
   }
 
   static styles = css`
     ${resetcss}
 
-    :host {
-      width: min(100vw, 95rem);
-      height: 100vh;
-    }
-
-    .grid {
-      padding: 2rem;
-      height: 100%; 
-      width: 100%; 
+    .root {
+      border-radius: 0.5rem;
+      overflow: hidden;
       display: grid;
       grid-template-rows: min-content 1fr min-content;
-      grid-template-columns: 1fr 32rem;
+      grid-template-columns: 1fr 28rem;
       grid-template-areas:
-        "header header"
         "video-player annotations"
         "controls controls";
-      gap: 2rem;
     }
 
-    h1 {
+    h2 {
       margin: 0;
       padding: .25rem .5rem; 
-      border-bottom: 1px solid var(--gray1);
+      border-bottom: 1px solid var(--gray-100);
     }
     span.subtitle {
-      color: var(--gray3);
+      color: var(--gray-300);
       font-weight: normal;
-    }
-    header {
-      grid-area: header;
     }
     aside {
       grid-area: annotations;
       overflow-y: hidden;
-      background-color: var(--gray1);
-      border-radius: 0.25rem;
-      border: 1px solid var(--gray2);
+      background-color: var(--blue-dull-700);
+      padding: 0 1rem;
     }
-    main {
+    video-player {
       grid-area: video-player;
     }
-    footer {
+    playback-controls  {
       grid-area: controls;
     }
-    h2 {
+    h3 {
       margin-top: 0;
       margin-bottom: 0;
-      padding: .5rem 1.5rem; 
-      background-color: var(--gray0);
-      border-bottom: 1px solid var(--gray2);
+      padding: .5rem .5rem; 
+      border-bottom: 1px solid var(--blue-dull-200);
+      color: var(--blue-dull-50)
     }
     .annotation-list {
       height: 100%;
@@ -194,7 +169,8 @@ export class WatchStream extends LitElement {
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      padding: 1rem;
+      padding: 1rem 0;
+      overflow: visible; 
     }
     annotation-card.active {
         border: 1px solid var(--secondary)

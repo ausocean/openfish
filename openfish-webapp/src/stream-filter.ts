@@ -87,17 +87,17 @@ export class StreamFilter extends LitElement {
   static styles = css`
     ${resetcss}
     aside {
-      background-color: var(--gray0);
+      background-color: var(--gray-50);
       border-radius: 0.25rem;
-      border: 1px solid var(--gray2);
+      border: 1px solid var(--gray-200);
     }
 
     h3 {
         margin-top: 0;
         margin-bottom: 0;
         padding: .5rem 1.5rem; 
-        background-color: var(--gray0);
-        border-bottom: 1px solid var(--gray2);
+        background-color: var(--gray-50);
+        border-bottom: 1px solid var(--gray-200);
     }
 
     form {
