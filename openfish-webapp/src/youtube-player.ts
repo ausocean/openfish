@@ -3,6 +3,10 @@ import { customElement, property } from 'lit/decorators.js'
 import useYoutubePlayer from 'youtube-player'
 import type { YouTubePlayer } from 'youtube-player/dist/types'
 
+export type TimeUpdateEvent = CustomEvent<number>
+export type DurationChangeEvent = CustomEvent<number>
+export type LoadedEvent = Event
+
 @customElement('youtube-player')
 export class YouTubePlayerElement extends LitElement {
   @property({ type: String })

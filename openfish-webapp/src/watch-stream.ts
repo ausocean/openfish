@@ -5,6 +5,13 @@ import { repeat } from 'lit/directives/repeat.js'
 import { videotimeToDatetime } from './datetime'
 import { resetcss } from './reset.css'
 
+import './annotation-overlay'
+import './youtube-player'
+import './annotation-card'
+import './playback-controls'
+import { MouseoverAnnotationEvent } from './annotation-overlay'
+import { DurationChangeEvent, TimeUpdateEvent } from './youtube-player'
+
 @customElement('watch-stream')
 export class WatchStream extends LitElement {
   @property({ type: Number })
@@ -77,31 +84,38 @@ export class WatchStream extends LitElement {
 
     const annotationList = repeat(filteredAnnotations, (annotation: Annotation) => {
       return html`
-      <div>
-        <annotation-card 
-          @mouseover-annotation=${(e: CustomEvent) => (this._activeId = e.detail)} 
-          .annotation=${annotation} 
-          .outline=${this._activeId === annotation.id}
-        />
-      </div>`
+        <div>
+          <annotation-card 
+            @mouseover-annotation=${(e: CustomEvent) => (this._activeId = e.detail)} 
+            .annotation=${annotation} 
+            .outline=${this._activeId === annotation.id}
+          />
+        </div>`
     })
 
+    const video =
+      this._videostream == null
+        ? html``
+        : html`
+        <youtube-player 
+          .url=${this._videostream?.stream_url}
+          .seekTo=${this._seekTo}
+          .playing=${this._playing}
+          @timeupdate=${(e: TimeUpdateEvent) => (this._currentTime = e.detail)} 
+          @durationchange=${(e: DurationChangeEvent) => (this._duration = e.detail)}
+          @loadeddata=${() => (this._playing = true)}
+          >
+        </video-player>`
+
     return html`
-      
       <div class="root">
-      
-          <video-player 
-            .videostream=${this._videostream}
-            .annotations=${filteredAnnotations}
-            .activeAnnotation=${this._activeId}
-            .seekTo=${this._seekTo}
-            .playing=${this._playing}
-            @mouseover-annotation=${(e: CustomEvent) => (this._activeId = e.detail)}
-            @timeupdate=${(e: CustomEvent) => (this._currentTime = e.detail)} 
-            @durationchange=${(e: CustomEvent) => (this._duration = e.detail)}
-            @loadeddata=${() => (this._playing = true)}
-            >
-          </video-player>
+        ${video}
+
+        <annotation-overlay
+          .annotations=${filteredAnnotations}
+          .activeAnnotation=${this._activeId}
+          @mouseover-annotation=${(e: MouseoverAnnotationEvent) => (this._activeId = e.detail)}
+        ></annotation-overlay>
 
         <aside>
           <header>
@@ -113,18 +127,17 @@ export class WatchStream extends LitElement {
           </div>
         </aside>
 
-          <playback-controls 
-            .playing=${this._playing} 
-            .duration=${this._duration} 
-            .currentTime=${this._currentTime}
-            .annotations=${this._annotations}
-            .videostream=${this._videostream}
-            @play=${this.play} 
-            @pause=${this.pause}
-            @seek=${(e: CustomEvent) => (this._seekTo = e.detail)}
-          >
-          </playback-controls>
-          
+        <playback-controls 
+          .playing=${this._playing} 
+          .duration=${this._duration} 
+          .currentTime=${this._currentTime}
+          .annotations=${this._annotations}
+          .videostream=${this._videostream}
+          @play=${this.play} 
+          @pause=${this.pause}
+          @seek=${(e: CustomEvent) => (this._seekTo = e.detail)}
+        ></playback-controls>
+
       </div>`
   }
 
@@ -157,8 +170,14 @@ export class WatchStream extends LitElement {
       background-color: var(--blue-700);
       padding: 0 1rem;
     }
-    video-player {
+   youtube-player {
       grid-area: video-player;
+      aspect-ratio: 4 / 3;  
+      height: 100%
+    }
+    annotation-overlay {
+      grid-area: video-player;
+      z-index: 100;
     }
     playback-controls  {
       grid-area: controls;
