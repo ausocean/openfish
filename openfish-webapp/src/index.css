@@ -1,19 +1,15 @@
 :root {
   /* CSS variables */
-  --bg: #ffffff;
-  --content: #1E293B;
 
-  --primary: #103f79;
-  --secondary: #3f9fff;
+  /* 
+  Colours
 
-  --success: #2dd491;
-  --success: #056245;
-  --warning: #F4BF50;
-  --warning-content: #584314;
-  --error: #fb6e77;
-  --error-content: #3b1a1c;
+  These have been generated using:
+  https://uicolors.app
 
-  /* Colour ranges */
+  Each has a range of shades we can use.
+  
+  */
   --gray-50: #f9fafb;
   --gray-100: #f2f5f5;
   --gray-200: #e7ebed;
@@ -27,18 +23,68 @@
   --gray-950: #2e383d;
 
 
-  --blue-dull-50: #f4f7fb;
-  --blue-dull-100: #e7eef7;
-  --blue-dull-200: #cadaed;
-  --blue-dull-300: #9bbbde;
-  --blue-dull-400: #6599cb;
-  --blue-dull-500: #427bb5;
-  --blue-dull-600: #316298;
-  --blue-dull-700: #284e7c;
-  --blue-dull-800: #244265;
-  --blue-dull-900: #233a57;
-  --blue-dull-950: #17253a;
+  --blue-50: #f4f7fb;
+  --blue-100: #e7eef7;
+  --blue-200: #cadaed;
+  --blue-300: #9bbbde;
+  --blue-400: #6599cb;
+  --blue-500: #427bb5;
+  --blue-600: #316298;
+  --blue-700: #284e7c;
+  --blue-800: #244265;
+  --blue-900: #233a57;
+  --blue-950: #17253a;
+
+  --bright-blue-50: #eef8ff;
+  --bright-blue-100: #d9efff;
+  --bright-blue-200: #bce3ff;
+  --bright-blue-300: #8ed3ff;
+  --bright-blue-400: #59b8ff;
+  --bright-blue-500: #3f9fff;
+  --bright-blue-600: #1b79f5;
+  --bright-blue-700: #1463e1;
+  --bright-blue-800: #174fb6;
+  --bright-blue-900: #19458f;
+  --bright-blue-950: #142b57;
   
+  --green-50: #ecfdf4;
+  --green-100: #d0fbe3;
+  --green-200: #a6f4cd;
+  --green-300: #6ce9b2;
+  --green-400: #2dd491;
+  --green-500: #0ebb7c;
+  --green-600: #039865;
+  --green-700: #037954;
+  --green-800: #056043;
+  --green-900: #054f38;
+  --green-950: #012d20;
+
+  --orange-50: #fffaeb;
+  --orange-100: #fef0c7;
+  --orange-200: #fedf89;
+  --orange-300: #fdc84c;
+  --orange-400: #fcae17;
+  --orange-500: #f68f0a;
+  --orange-600: #da6a05;
+  --orange-700: #b54808;
+  --orange-800: #93380d;
+  --orange-900: #792e0e;
+  --orange-950: #451603;
+
+  --red-50: #fef2f3;
+  --red-100: #ffe1e3;
+  --red-200: #ffc9cc;
+  --red-300: #fea3a9;
+  --red-400: #fb6e77;
+  --red-500: #f3404b;
+  --red-600: #e0222e;
+  --red-700: #bc1923;
+  --red-800: #9c1820;
+  --red-900: #811b22;
+  --red-950: #46090d;
+
+  --bg: #ffffff;
+  --content: var(--gray-950);
 
   /* Shadows */
   --shadow-sm: 0 0.25rem 0.25rem -0.25rem var(--gray-950);
@@ -50,7 +96,6 @@
   line-height: 1.5;
   font-weight: 400;
   
-
   color-scheme: light dark;
   color: var(--content);
   background-color: var(--bg);
@@ -76,11 +121,11 @@ html, *, *:before, *:after {
 /* Link styling */
 a {
   font-weight: 500;
-  color: var(--secondary);
+  color: var(--bright-blue-400);
   text-decoration: inherit;
 }
 a:hover {
-  color: var(--secondary);
+  color: var(--bright-blue-500);
 }
 
 /* Page layout */

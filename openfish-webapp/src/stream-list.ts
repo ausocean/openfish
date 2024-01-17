@@ -123,7 +123,7 @@ export class StreamList extends LitElement {
     }
     tr:hover td {
       background-color: var(--gray-50);
-      color: var(--primary)
+      color: var(--blue-700)
     }
 
     thead th {

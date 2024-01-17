@@ -87,15 +87,15 @@ export class AnnotationCard extends LitElement {
   static styles = css`
   .card {
     background-color: var(--gray-50);
-    border: 2px solid var(--blue-dull-300);
+    border: 2px solid var(--blue-300);
     padding: 1rem;
     border-radius: .5rem;
     box-shadow:  var(--shadow-sm);
     transition: box-shadow 0.25s;
   }
   .card.outline {
-    border: 2px solid var(--secondary);
-    box-shadow:  var(--shadow-lg), 0px 0px 10px 2px color-mix(in srgb, var(--secondary) 80%, transparent);
+    border: 2px solid var(--bright-blue-400);
+    box-shadow:  var(--shadow-lg), 0px 0px 10px 2px color-mix(in srgb, var(--bright-blue-400) 80%, transparent);
     ;
   }
   .header {
