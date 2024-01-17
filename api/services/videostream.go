@@ -39,15 +39,15 @@ import (
 	"time"
 
 	"github.com/ausocean/openfish/api/ds_client"
-	"github.com/ausocean/openfish/api/model"
+	"github.com/ausocean/openfish/api/entities"
 	"github.com/ausocean/openfish/datastore"
 )
 
 // GetVideoStreamByID gets a video stream when provided with an ID.
-func GetVideoStreamByID(id int64) (*model.VideoStream, error) {
+func GetVideoStreamByID(id int64) (*entities.VideoStream, error) {
 	store := ds_client.Get()
-	key := store.IDKey(model.VIDEOSTREAM_KIND, id)
-	var videoStream model.VideoStream
+	key := store.IDKey(entities.VIDEOSTREAM_KIND, id)
+	var videoStream entities.VideoStream
 	err := store.Get(context.Background(), key, &videoStream)
 	if err != nil {
 		return nil, err
@@ -58,17 +58,17 @@ func GetVideoStreamByID(id int64) (*model.VideoStream, error) {
 
 func VideoStreamExists(id int64) bool {
 	store := ds_client.Get()
-	key := store.IDKey(model.VIDEOSTREAM_KIND, id)
-	var videoStream model.VideoStream
+	key := store.IDKey(entities.VIDEOSTREAM_KIND, id)
+	var videoStream entities.VideoStream
 	err := store.Get(context.Background(), key, &videoStream)
 	return err == nil
 }
 
 // GetVideoStreams gets a list of video streams, filtering by timespan, capturesource if specified.
-func GetVideoStreams(limit int, offset int, timespan *model.TimeSpan, captureSource *int64) ([]model.VideoStream, []int64, error) {
+func GetVideoStreams(limit int, offset int, timespan *entities.TimeSpan, captureSource *int64) ([]entities.VideoStream, []int64, error) {
 	// Fetch data from the datastore.
 	store := ds_client.Get()
-	query := store.NewQuery(model.VIDEOSTREAM_KIND, false)
+	query := store.NewQuery(entities.VIDEOSTREAM_KIND, false)
 
 	if captureSource != nil {
 		query.FilterField("CaptureSource", "=", captureSource)
@@ -86,10 +86,10 @@ func GetVideoStreams(limit int, offset int, timespan *model.TimeSpan, captureSou
 	query.Limit(limit)
 	query.Offset(offset)
 
-	var videoStreams []model.VideoStream
+	var videoStreams []entities.VideoStream
 	keys, err := store.GetAll(context.Background(), query, &videoStreams)
 	if err != nil {
-		return []model.VideoStream{}, []int64{}, err
+		return []entities.VideoStream{}, []int64{}, err
 	}
 	ids := make([]int64, len(videoStreams))
 	for i, k := range keys {
@@ -109,9 +109,9 @@ func CreateVideoStream(streamURL string, captureSource int64, startTime time.Tim
 
 	// Create VideoStream entity.
 	store := ds_client.Get()
-	key := store.IncompleteKey(model.VIDEOSTREAM_KIND)
+	key := store.IncompleteKey(entities.VIDEOSTREAM_KIND)
 
-	vs := model.VideoStream{
+	vs := entities.VideoStream{
 		StreamUrl:     streamURL,
 		CaptureSource: captureSource,
 		StartTime:     startTime,
@@ -131,11 +131,11 @@ func UpdateVideoStream(id int64, streamURL *string, captureSource *int64, startT
 
 	// Update data in the datastore.
 	store := ds_client.Get()
-	key := store.IDKey(model.VIDEOSTREAM_KIND, id)
-	var videoStream model.VideoStream
+	key := store.IDKey(entities.VIDEOSTREAM_KIND, id)
+	var videoStream entities.VideoStream
 
 	return store.Update(context.Background(), key, func(e datastore.Entity) {
-		v, ok := e.(*model.VideoStream)
+		v, ok := e.(*entities.VideoStream)
 		if ok {
 			if streamURL != nil {
 				v.StreamUrl = *streamURL
@@ -160,6 +160,6 @@ func DeleteVideoStream(id int64) error {
 
 	// Delete entity.
 	store := ds_client.Get()
-	key := store.IDKey(model.VIDEOSTREAM_KIND, id)
+	key := store.IDKey(entities.VIDEOSTREAM_KIND, id)
 	return store.Delete(context.Background(), key)
 }

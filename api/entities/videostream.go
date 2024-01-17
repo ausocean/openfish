@@ -31,61 +31,62 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// model package has the data types of data we keep in the datastore.
-package model
+package entities
 
 import (
 	"encoding/json"
-
-	googlestore "cloud.google.com/go/datastore"
+	"time"
 
 	"github.com/ausocean/openfish/datastore"
 )
 
 // Kind of entity to store / fetch from the datastore.
-const CAPTURESOURCE_KIND = "CaptureSource"
+const VIDEOSTREAM_KIND = "VideoStream"
 
-// A CaptureSource holds the information about where a video stream came from.
-// A single capture source will produce multiple video streams (typically one per day).
-type CaptureSource struct {
-	Name           string
-	Location       googlestore.GeoPoint
-	CameraHardware string
-	SiteID         *int64 // Optional.
+// VideoStream holds the information about a single video stream.
+// VideoStream contains the url for a live or completed stream off of youtube, the start time,
+// the end time (unless it is still ongoing), and the ID of its capture source.
+// In the future, it will also contain data about how to retrieve the video data from the cloud.
+type VideoStream struct {
+	StartTime     time.Time
+	EndTime       *time.Time // Optional.
+	StreamUrl     string
+	CaptureSource int64
+	// TODO: Add cloud storage location.
 }
 
-// Encode serializes Capture source. Implements Entity interface. Used for FileStore datastore.
-func (cs *CaptureSource) Encode() []byte {
-	bytes, _ := json.Marshal(cs)
+// Encode serializes VideoStream. Implements Entity interface. Used for FileStore datastore.
+func (vs *VideoStream) Encode() []byte {
+	bytes, _ := json.Marshal(vs)
 	return bytes
 }
 
-// Encode deserializes Capture source. Implements Entity interface. Used for FileStore datastore.
-func (cs *CaptureSource) Decode(b []byte) error {
-	return json.Unmarshal(b, cs)
+// Encode deserializes VideoStream. Implements Entity interface. Used for FileStore datastore.
+func (vs *VideoStream) Decode(b []byte) error {
+	return json.Unmarshal(b, vs)
 }
 
 // Implements Copy from the Entity interface.
-func (cs *CaptureSource) Copy(dst datastore.Entity) (datastore.Entity, error) {
-	var c *CaptureSource
+func (vs *VideoStream) Copy(dst datastore.Entity) (datastore.Entity, error) {
+	var v *VideoStream
 	if dst == nil {
-		c = new(CaptureSource)
+		v = new(VideoStream)
 	} else {
 		var ok bool
-		c, ok = dst.(*CaptureSource)
+		v, ok = dst.(*VideoStream)
 		if !ok {
 			return nil, datastore.ErrWrongType
 		}
 	}
-	*c = *cs
-	return c, nil
+	*v = *vs
+	return v, nil
 }
 
 // No caching is used.
-func (cs *CaptureSource) GetCache() datastore.Cache {
+func (vs *VideoStream) GetCache() datastore.Cache {
 	return nil
 }
 
-func NewCaptureSource() datastore.Entity {
-	return &CaptureSource{}
+func NewVideoStream() datastore.Entity {
+	return &VideoStream{}
 }

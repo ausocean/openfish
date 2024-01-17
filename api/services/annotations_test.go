@@ -36,7 +36,7 @@ package services_test
 import (
 	"testing"
 
-	"github.com/ausocean/openfish/api/model"
+	"github.com/ausocean/openfish/api/entities"
 	"github.com/ausocean/openfish/api/services"
 )
 
@@ -47,7 +47,7 @@ func TestCreateAnnotation(t *testing.T) {
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm)
 	_, err := services.CreateAnnotation(vs,
-		model.TimeSpan{Start: _8am, End: _9am},
+		entities.TimeSpan{Start: _8am, End: _9am},
 		nil, "scott@ausocean.org",
 		map[string]string{"species": "Sepia Apama"})
 
@@ -63,7 +63,7 @@ func TestAnnotationExists(t *testing.T) {
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm)
 	id, _ := services.CreateAnnotation(vs,
-		model.TimeSpan{Start: _8am, End: _9am},
+		entities.TimeSpan{Start: _8am, End: _9am},
 		nil, "scott@ausocean.org",
 		map[string]string{"species": "Sepia Apama"})
 
@@ -90,7 +90,7 @@ func TestGetAnnotationByID(t *testing.T) {
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm)
 	id, _ := services.CreateAnnotation(vs,
-		model.TimeSpan{Start: _8am, End: _9am},
+		entities.TimeSpan{Start: _8am, End: _9am},
 		nil, "scott@ausocean.org",
 		map[string]string{"species": "Sepia Apama"})
 
@@ -121,7 +121,7 @@ func TestDeleteAnnotation(t *testing.T) {
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm)
 	id, _ := services.CreateAnnotation(vs,
-		model.TimeSpan{Start: _8am, End: _9am},
+		entities.TimeSpan{Start: _8am, End: _9am},
 		nil, "scott@ausocean.org",
 		map[string]string{"species": "Sepia Apama"})
 
