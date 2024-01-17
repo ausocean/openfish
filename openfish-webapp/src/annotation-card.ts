@@ -16,10 +16,6 @@ export class AnnotationCard extends LitElement {
   @property({ type: Boolean })
   outline = false
 
-  hoverAnnotation(id: number | null) {
-    this.dispatchEvent(new CustomEvent('mouseover-annotation', { detail: id }))
-  }
-
   render() {
     if (this.annotation === undefined) {
       return html`<div class="card"></div>`
@@ -51,9 +47,7 @@ export class AnnotationCard extends LitElement {
     )
 
     return html`
-    <div class="card ${this.outline ? 'outline' : ''}" @mouseover="${() =>
-      this.hoverAnnotation(this.annotation?.id ?? null)}" @mouseout=${() =>
-      this.hoverAnnotation(null)}>
+    <div class="card ${this.outline ? 'outline' : ''}">
     <div class="header">
       <span class="title">Annotation #${this.annotation.id}</span>
       <span class="observer">${this.annotation.observer}</span>
