@@ -1,9 +1,10 @@
 import { LitElement, css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { Annotation, VideoStream } from './api.types'
-import { repeat } from 'lit/directives/repeat.js'
 import { videotimeToDatetime } from './datetime'
 import { resetcss } from './reset.css'
+import './annotation-list'
+import { MouseoverAnnotationEvent } from './annotation-list'
 
 import './annotation-overlay'
 import './youtube-player'
@@ -82,17 +83,6 @@ export class WatchStream extends LitElement {
       )
     }
 
-    const annotationList = repeat(filteredAnnotations, (annotation: Annotation) => {
-      return html`
-        <div>
-          <annotation-card 
-            @mouseover-annotation=${(e: CustomEvent) => (this._activeId = e.detail)} 
-            .annotation=${annotation} 
-            .outline=${this._activeId === annotation.id}
-          />
-        </div>`
-    })
-
     const video =
       this._videostream == null
         ? html``
@@ -122,9 +112,12 @@ export class WatchStream extends LitElement {
             <h3>Annotations</h3>
             <button class="add-btn" @click=${() => console.error('Not implemented')}>+ Add annotation</button>
           </header>
-          <div class="annotation-list">
-            ${annotationList}
-          </div>
+          <annotation-list
+            .annotations=${filteredAnnotations}
+            .activeAnnotation=${this._activeId}
+            @mouseover-annotation=${(e: MouseoverAnnotationEvent) => (this._activeId = e.detail)}
+            >
+          </annotation-list>
         </aside>
 
         <playback-controls 
@@ -194,18 +187,6 @@ export class WatchStream extends LitElement {
       margin-bottom: 0;
       margin-left: 0.5rem;
       color: var(--blue-50)
-    }
-    .annotation-list {
-      height: 100%;
-      overflow-y: scroll;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      padding: 1rem 0;
-      overflow: visible; 
-    }
-    annotation-card.active {
-        border: 1px solid var(--bright-blue-400)
     }
 
     .add-btn {
