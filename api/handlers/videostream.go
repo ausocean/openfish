@@ -40,7 +40,7 @@ import (
 	"time"
 
 	"github.com/ausocean/openfish/api/api"
-	"github.com/ausocean/openfish/api/model"
+	"github.com/ausocean/openfish/api/entities"
 	"github.com/ausocean/openfish/api/services"
 
 	"github.com/gofiber/fiber/v2"
@@ -56,8 +56,8 @@ type VideoStreamResult struct {
 	CaptureSource *int64     `json:"capturesource,omitempty"`
 }
 
-// FromVideoStream creates a VideoStreamResult from a model.VideoStream and key, formatting it according to the requested format.
-func FromVideoStream(videoStream *model.VideoStream, id int64, format *api.Format) VideoStreamResult {
+// FromVideoStream creates a VideoStreamResult from a entities.VideoStream and key, formatting it according to the requested format.
+func FromVideoStream(videoStream *entities.VideoStream, id int64, format *api.Format) VideoStreamResult {
 	var result VideoStreamResult
 	if format.Requires("id") {
 		result.ID = &id
@@ -79,8 +79,8 @@ func FromVideoStream(videoStream *model.VideoStream, id int64, format *api.Forma
 
 // GetVideoStreamsQuery describes the URL query parameters required for the GetVideoStreams endpoint.
 type GetVideoStreamsQuery struct {
-	CaptureSource *int64          `query:"capturesource"` // Optional.
-	TimeSpan      *model.TimeSpan `query:"timespan"`      // Optional.
+	CaptureSource *int64             `query:"capturesource"` // Optional.
+	TimeSpan      *entities.TimeSpan `query:"timespan"`      // Optional.
 	api.LimitAndOffset
 }
 

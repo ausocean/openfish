@@ -31,76 +31,61 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// model package has the data types of data we keep in the datastore.
-package model
+// entities package has the data types of data we keep in the datastore.
+package entities
 
 import (
 	"encoding/json"
-	"time"
+
+	googlestore "cloud.google.com/go/datastore"
 
 	"github.com/ausocean/openfish/datastore"
 )
 
 // Kind of entity to store / fetch from the datastore.
-const ANNOTATION_KIND = "Annotation"
+const CAPTURESOURCE_KIND = "CaptureSource"
 
-// TimeSpan is a pair of timestamps - start time and end time.
-type TimeSpan struct {
-	Start time.Time `json:"start"`
-	End   time.Time `json:"end"`
+// A CaptureSource holds the information about where a video stream came from.
+// A single capture source will produce multiple video streams (typically one per day).
+type CaptureSource struct {
+	Name           string
+	Location       googlestore.GeoPoint
+	CameraHardware string
+	SiteID         *int64 // Optional.
 }
 
-// BoundingBox is a rectangle enclosing something interesting in a video.
-// It is represented using two x y coordinates, top left corner and bottom right corner of the rectangle.
-type BoundingBox struct {
-	X1 int `json:"x1"`
-	X2 int `json:"x2"`
-	Y1 int `json:"y1"`
-	Y2 int `json:"y2"`
-}
-
-// An Annotation holds information about observations at a particular moment and region within a video stream.
-type Annotation struct {
-	VideoStreamID    int64
-	TimeSpan         TimeSpan
-	BoundingBox      *BoundingBox // Optional.
-	Observer         string
-	ObservationPairs []string
-	ObservationKeys  []string // A copy of the map's keys are stored separately, so we can quickly query for annotations with a given key present.
-}
-
-// Encode serializes Annotation. Implements Entity interface. Used for FileStore datastore.
-func (an *Annotation) Encode() []byte {
-	bytes, _ := json.Marshal(an)
+// Encode serializes Capture source. Implements Entity interface. Used for FileStore datastore.
+func (cs *CaptureSource) Encode() []byte {
+	bytes, _ := json.Marshal(cs)
 	return bytes
 }
 
-// Encode deserializes Annotation. Implements Entity interface. Used for FileStore datastore.
-func (an *Annotation) Decode(b []byte) error {
-	return json.Unmarshal(b, an)
+// Encode deserializes Capture source. Implements Entity interface. Used for FileStore datastore.
+func (cs *CaptureSource) Decode(b []byte) error {
+	return json.Unmarshal(b, cs)
 }
 
 // Implements Copy from the Entity interface.
-func (an *Annotation) Copy(dst datastore.Entity) (datastore.Entity, error) {
-	var a *Annotation
+func (cs *CaptureSource) Copy(dst datastore.Entity) (datastore.Entity, error) {
+	var c *CaptureSource
 	if dst == nil {
-		a = new(Annotation)
+		c = new(CaptureSource)
 	} else {
 		var ok bool
-		a, ok = dst.(*Annotation)
+		c, ok = dst.(*CaptureSource)
 		if !ok {
 			return nil, datastore.ErrWrongType
 		}
 	}
-	*a = *an
-	return a, nil
+	*c = *cs
+	return c, nil
 }
 
 // No caching is used.
-func (an *Annotation) GetCache() datastore.Cache {
+func (cs *CaptureSource) GetCache() datastore.Cache {
 	return nil
 }
 
-func NewAnnotation() datastore.Entity {
-	return &Annotation{}
+func NewCaptureSource() datastore.Entity {
+	return &CaptureSource{}
 }
