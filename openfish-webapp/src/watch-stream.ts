@@ -87,7 +87,9 @@ export class WatchStream extends LitElement {
     })
 
     return html`
+      
       <div class="root">
+      
           <video-player 
             .videostream=${this._videostream}
             .annotations=${filteredAnnotations}
@@ -102,7 +104,10 @@ export class WatchStream extends LitElement {
           </video-player>
 
         <aside>
-          <h3>Annotations</h3>
+          <header>
+            <h3>Annotations</h3>
+            <button class="add-btn" @click=${() => console.error('Not implemented')}>+ Add annotation</button>
+          </header>
           <div class="annotation-list">
             ${annotationList}
           </div>
@@ -117,7 +122,9 @@ export class WatchStream extends LitElement {
             @play=${this.play} 
             @pause=${this.pause}
             @seek=${(e: CustomEvent) => (this._seekTo = e.detail)}
-          />
+          >
+          </playback-controls>
+          
       </div>`
   }
 
@@ -156,11 +163,17 @@ export class WatchStream extends LitElement {
     playback-controls  {
       grid-area: controls;
     }
+    aside header {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--blue-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
     h3 {
       margin-top: 0;
       margin-bottom: 0;
-      padding: .5rem .5rem; 
-      border-bottom: 1px solid var(--blue-200);
+      margin-left: 0.5rem;
       color: var(--blue-50)
     }
     .annotation-list {
@@ -175,6 +188,25 @@ export class WatchStream extends LitElement {
     annotation-card.active {
         border: 1px solid var(--bright-blue-400)
     }
+
+    .add-btn {
+      width: min-content;
+      height: 2.5rem;
+      border-radius: 999px;
+      font-size: 1rem;
+      padding: 0 1rem;
+      white-space: nowrap;
+      border: none;
+      cursor: pointer;
+      
+      background-color: var(--orange-400);
+      color: var(--orange-800);
+
+      &:hover {
+        background-color: var(--orange-500);
+      }
+    }
+
   `
 }
 
