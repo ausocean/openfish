@@ -1,28 +1,18 @@
 import { LitElement, css, html, svg } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { Annotation, VideoStream } from './api.types.ts'
+import { Annotation } from './api.types.ts'
 import { repeat } from 'lit/directives/repeat.js'
 import { resetcss } from './reset.css.ts'
 
-@customElement('video-player')
-export class VideoPlayer extends LitElement {
+export type MouseoverAnnotationEvent = CustomEvent<number | null>
+
+@customElement('annotation-overlay')
+export class AnnotationOverlay extends LitElement {
   @property({ type: Array })
   annotations: Annotation[] = []
 
   @property({ type: Number })
   activeAnnotation: number | null = null
-
-  @property({ type: Object })
-  videostream: VideoStream | null = null
-
-  @property({ type: Number })
-  currentTime = 0
-
-  @property({ type: Boolean })
-  playing = false
-
-  @property({ type: Number })
-  seekTo: number | null = null
 
   hoverAnnotation(id: number | null) {
     this.dispatchEvent(new CustomEvent('mouseover-annotation', { detail: id }))
@@ -52,62 +42,17 @@ export class VideoPlayer extends LitElement {
         </g>`
     })
 
-    let video = html``
-    if (this.videostream?.stream_url != null) {
-      video = html`
-        <youtube-player 
-          id="yt" 
-          .url=${this.videostream.stream_url} 
-          .playing=${this.playing}
-          .seekTo=${this.seekTo}
-          @timeupdate=${(e: CustomEvent) => {
-            this.currentTime = e.detail
-            this.seekTo = null
-            this.dispatchEvent(new CustomEvent('timeupdate', { detail: e.detail }))
-          }}
-          @durationchange=${(e: CustomEvent) => {
-            this.dispatchEvent(new CustomEvent('durationchange', { detail: e.detail }))
-          }}
-          @loadeddata=${() => this.dispatchEvent(new Event('loadeddata'))}
-        />`
-    }
-
     return html`
-      <div class="video-container">
-        ${video}
-        <div class="annotation-overlay">
           <svg width="100%" height="100%">
             ${rects}
-          </svg>
-        </div>
-      </div>`
+          </svg>`
   }
 
   static styles = css`
     ${resetcss}
 
-    .no-video {
-      font-weight: bold;
-      color: var(--bg);
-    }
-    .video-container {
-      width: 100%;
-      aspect-ratio: 4 / 3;  
-      background-color: var(--gray-300);
-      position: relative
-    }
-    .annotation-overlay {
+    svg {
       pointer-events: none;
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      z-index: 3;
-    }
-    youtube-player {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      z-index: 2;
     }
     .annotation-rect {
       transition: fill 0.25s;
@@ -126,6 +71,6 @@ export class VideoPlayer extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'video-player': VideoPlayer
+    'annotation-overlay': AnnotationOverlay
   }
 }
