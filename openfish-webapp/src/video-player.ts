@@ -111,7 +111,7 @@ export class VideoPlayer extends LitElement {
     }
     .annotation-rect {
       transition: fill 0.25s;
-      stroke: var(--secondary);
+      stroke: var(--bright-blue-400);
     }
     .annotation-rect.active {
       fill: #CCEEEE20;
@@ -119,7 +119,7 @@ export class VideoPlayer extends LitElement {
     .annotation-label {
       font-size: 0.75rem;
       padding: 0.4rem 0.5rem;
-      background-color: var(--secondary);
+      background-color: var(--bright-blue-400);
       color: var(--content);
     }`
 }

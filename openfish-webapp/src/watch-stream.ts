@@ -147,7 +147,7 @@ export class WatchStream extends LitElement {
     aside {
       grid-area: annotations;
       overflow-y: hidden;
-      background-color: var(--blue-dull-700);
+      background-color: var(--blue-700);
       padding: 0 1rem;
     }
     video-player {
@@ -160,8 +160,8 @@ export class WatchStream extends LitElement {
       margin-top: 0;
       margin-bottom: 0;
       padding: .5rem .5rem; 
-      border-bottom: 1px solid var(--blue-dull-200);
-      color: var(--blue-dull-50)
+      border-bottom: 1px solid var(--blue-200);
+      color: var(--blue-50)
     }
     .annotation-list {
       height: 100%;
@@ -173,7 +173,7 @@ export class WatchStream extends LitElement {
       overflow: visible; 
     }
     annotation-card.active {
-        border: 1px solid var(--secondary)
+        border: 1px solid var(--bright-blue-400)
     }
   `
 }

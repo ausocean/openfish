@@ -132,7 +132,7 @@ export class PlaybackControls extends LitElement {
       pointer-events: none;
     }
     svg rect {
-      fill: var(--success);
+      fill: var(--green-600);
       opacity: 0.5;
     }
     input[type="range"] {
@@ -146,7 +146,7 @@ export class PlaybackControls extends LitElement {
       -webkit-appearance: none;
     }
     input[type="range"]::-moz-range-thumb {
-      background-color: var(--error);
+      background-color: var(--red-400);
       width: 2px;
       border: none;
       height: 2rem;
@@ -156,7 +156,7 @@ export class PlaybackControls extends LitElement {
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
       box-sizing: content-box;
-      background-color: var(--error);
+      background-color: var(--red-400);
       width: 2px;
       border: none;
       height: 2rem;
