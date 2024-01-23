@@ -6,18 +6,20 @@ import { resetcss } from './reset.css.ts'
 
 export type MouseoverAnnotationEvent = CustomEvent<number | null>
 
-@customElement('annotation-overlay')
-export class AnnotationOverlay extends LitElement {
+abstract class AnnotationDisplayer extends LitElement {
   @property({ type: Array })
   annotations: Annotation[] = []
 
   @property({ type: Number })
   activeAnnotation: number | null = null
 
-  hoverAnnotation(id: number | null) {
+  dispatchMouseOverAnnotation(id: number | null) {
     this.dispatchEvent(new CustomEvent('mouseover-annotation', { detail: id }))
   }
+}
 
+@customElement('annotation-overlay')
+export class AnnotationOverlay extends AnnotationDisplayer {
   render() {
     const rects = repeat(this.annotations, (annotation: Annotation) => {
       const x1 = annotation.boundingBox?.x1 ?? 0
@@ -28,8 +30,8 @@ export class AnnotationOverlay extends LitElement {
 
       return svg`
         <g 
-          @mouseover="${() => this.hoverAnnotation(annotation.id)}" 
-          @mouseout=${() => this.hoverAnnotation(null)}
+          @mouseover="${() => this.dispatchMouseOverAnnotation(annotation.id)}" 
+          @mouseout=${() => this.dispatchMouseOverAnnotation(null)}
         > 
           <rect 
             class="annotation-rect ${annotation.id === this.activeAnnotation ? 'active' : ''}" 
@@ -69,8 +71,48 @@ export class AnnotationOverlay extends LitElement {
     }`
 }
 
+@customElement('annotation-list')
+export class AnnotationList extends AnnotationDisplayer {
+  render() {
+    const items = repeat(
+      this.annotations,
+      (annotation: Annotation) => html`
+    <annotation-card
+      .annotation=${annotation}
+      .outline=${this.activeAnnotation === annotation.id}
+      @mouseover=${() => this.dispatchMouseOverAnnotation(annotation.id)}
+      @mouseout=${() => this.dispatchMouseOverAnnotation(null)}
+    />`
+    )
+
+    return html`
+    <div>
+        ${items}
+    </div>
+    `
+  }
+
+  static styles = css`
+    ${resetcss}
+    div {
+      height: 100%;
+      overflow-y: scroll;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1rem 0;
+      overflow: visible; 
+    }
+
+    annotation-card.active {
+      border: 1px solid var(--bright-blue-400)
+    }
+    `
+}
+
 declare global {
   interface HTMLElementTagNameMap {
+    'annotation-list': AnnotationList
     'annotation-overlay': AnnotationOverlay
   }
 }

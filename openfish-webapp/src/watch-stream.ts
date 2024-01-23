@@ -3,14 +3,12 @@ import { customElement, property, state } from 'lit/decorators.js'
 import { Annotation, VideoStream } from './api.types'
 import { videotimeToDatetime } from './datetime'
 import { resetcss } from './reset.css'
-import './annotation-list'
-import { MouseoverAnnotationEvent } from './annotation-list'
 
-import './annotation-overlay'
+import './annotation-displayer'
 import './youtube-player'
 import './annotation-card'
 import './playback-controls'
-import { MouseoverAnnotationEvent } from './annotation-overlay'
+import { MouseoverAnnotationEvent } from './annotation-displayer'
 import { DurationChangeEvent, TimeUpdateEvent } from './youtube-player'
 
 @customElement('watch-stream')
