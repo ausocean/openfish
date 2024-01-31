@@ -1,0 +1,16 @@
+# Build stage.
+FROM golang:1.21-alpine as build-stage
+WORKDIR /src
+
+COPY api ./api
+COPY datastore ./datastore
+COPY go.mod go.sum ./
+
+RUN go build -o ./openfish-api ./api
+
+# Production container.
+FROM alpine:3.14 as production-stage
+WORKDIR /app
+COPY --from=build-stage /src/openfish-api ./
+EXPOSE 3000
+ENTRYPOINT [ "/app/openfish-api" ] 
