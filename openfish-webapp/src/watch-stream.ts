@@ -50,7 +50,7 @@ export class WatchStream extends LitElement {
   async fetchData(id: number) {
     try {
       // Fetch video stream with ID.
-      const res = await fetch(`http://localhost:3000/api/v1/videostreams/${id}`)
+      const res = await fetch(`${import.meta.env.VITE_API_HOST}/api/v1/videostreams/${id}`)
       this._videostream = (await res.json()) as VideoStream
     } catch (error) {
       console.error(error) // TODO: handle errors.
@@ -59,7 +59,9 @@ export class WatchStream extends LitElement {
       // Fetch annotations for this video stream.
       // TODO: We should only fetch a small portion of the annotations near the current playback position.
       //       When the user plays the video we can fetch in more as needed.
-      const res = await fetch(`http://localhost:3000/api/v1/annotations?videostream=${id}`)
+      const res = await fetch(
+        `${import.meta.env.VITE_API_HOST}/api/v1/annotations?videostream=${id}`
+      )
       const json = await res.json()
       this._annotations = json.results as Annotation[]
     } catch (error) {

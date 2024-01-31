@@ -1,0 +1,18 @@
+# Only include what we specify
+*
+
+# Configuration files.
+!app.yaml
+
+# Go code.
+!go.mod
+!go.sum
+!api/
+!datastore/
+
+
+# Vite output directory.
+# Include only openfish-webapp/dist, but nothing else from openfish-webapp.
+!openfish-webapp
+openfish-webapp/*
+!openfish-webapp/dist

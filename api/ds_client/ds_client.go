@@ -55,7 +55,7 @@ func Init(local bool) {
 	if local {
 		store, err = datastore.NewStore(ctx, "file", "openfish", "./store")
 	} else {
-		store, err = datastore.NewStore(ctx, "cloud", "openfish-dev", "")
+		store, err = datastore.NewStore(ctx, "cloud", "openfish", "")
 	}
 	if err != nil {
 		panic(err)

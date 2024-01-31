@@ -1,0 +1,22 @@
+runtime: go120
+
+env_variables:
+  OPENFISH_CREDENTIALS: gs://ausocean/OpenFish-a197b0443246.json
+
+main: ./api/main.go
+
+handlers:
+
+  - url: /api/.*
+    script: auto
+  
+  # Serve index.html as /
+  - url: /
+    static_files: openfish-webapp/dist/index.html  
+    upload: openfish-webapp/dist/index.html
+
+  # TODO: Serve watch.html and streams.html from /watch and /streams urls.
+  
+  # Serve all files in dist.
+  - url: /
+    static_dir: openfish-webapp/dist
