@@ -9,6 +9,8 @@
     "preview": "vite preview",
     "fmt": "biome format . --write",
     "check": "biome check .",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "ci:fmt": "biome ci --formatter-enabled=true .",
+    "ci:check": "biome ci --linter-enabled=true ."
   }
 }
