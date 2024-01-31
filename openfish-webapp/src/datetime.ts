@@ -36,17 +36,15 @@ export function formatAsTime(dt: DateLike): string {
 }
 
 export function formatAsDatetime(dt: DateLike): string {
-  return (
-    new Intl.DateTimeFormat('en-AU', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit',
-      hour: 'numeric',
-      minute: 'numeric',
-      second: 'numeric',
-    }).format(new Date(dt)) + ` [${formatAsTimeZone(new Date(dt))}]`
-  )
+  return `${new Intl.DateTimeFormat('en-AU', {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+  }).format(new Date(dt))} [${formatAsTimeZone(new Date(dt))}]`
 }
 
 export function formatAsTimeZone(dt: DateLike): string {

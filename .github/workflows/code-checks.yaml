@@ -24,9 +24,6 @@ jobs:
 
   webapp:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./openfish-webapp
     steps:
     - uses: actions/checkout@v3
 
@@ -40,13 +37,13 @@ jobs:
         run_install: true
       
     - name: Build
-      run: pnpm build
+      run: pnpm --filter ./openfish-webapp build
     
     - name: Check formatting
-      run: pnpm biome ci --formatter-enabled=true .
+      run: pnpm --filter ./openfish-webapp ci:check
 
     - name: Lint
-      run: pnpm biome ci --linter-enabled=true .
+      run: pnpm --filter ./openfish-webapp ci:fmt
 
     - name: Test
-      run: pnpm test
+      run: pnpm --filter ./openfish-webapp test
