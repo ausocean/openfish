@@ -19,7 +19,7 @@ You will need installed:
 
 2) Run both containers:
    ```bash
-   docker run -p 3000:3000 openfish-api          
+   docker run -p 8080:8080 openfish-api          
    docker run -p 80:80 openfish-webapp
    ```
 3) Open the browser and visit http://localhost.
