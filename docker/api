@@ -12,5 +12,5 @@ RUN go build -o ./openfish-api ./api
 FROM alpine:3.14 as production-stage
 WORKDIR /app
 COPY --from=build-stage /src/openfish-api ./
-EXPOSE 3000
+EXPOSE 8080
 ENTRYPOINT [ "/app/openfish-api" ] 

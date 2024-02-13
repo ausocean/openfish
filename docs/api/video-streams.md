@@ -86,7 +86,7 @@ Stream 5: | •---•   :              :
 ## Creating a video stream
 ::: code-group
 ```http [Request]
-POST http://localhost:3000/api/v1/videostreams
+POST http://localhost:8080/api/v1/videostreams
 Content-Type: application/json
 
 {
