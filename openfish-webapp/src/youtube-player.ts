@@ -12,13 +12,8 @@ export class YouTubePlayerElement extends LitElement {
   @property({ type: String })
   url = ''
 
-  private _playing = false
   @property()
-  get playing() {
-    return this._playing
-  }
   set playing(val: boolean) {
-    this._playing = val
     if (val) {
       this._player?.playVideo()
     } else {
