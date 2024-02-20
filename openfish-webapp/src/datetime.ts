@@ -59,3 +59,9 @@ export function formatDuration(duration: number): string {
   const s = duration - h * 3600 - m * 60
   return `${h}h ${m}m ${s}s `
 }
+
+export function formatVideoTime(seconds: number): string {
+  const date = new Date(0)
+  date.setSeconds(seconds)
+  return date.toISOString().substring(11, 19)
+}

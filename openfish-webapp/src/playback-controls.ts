@@ -2,7 +2,7 @@ import { LitElement, css, html, svg } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { Annotation, VideoStream } from './api.types'
 import { repeat } from 'lit/directives/repeat.js'
-import { datetimeDifference, datetimeToVideoTime } from './datetime'
+import { datetimeDifference, datetimeToVideoTime, formatVideoTime } from './datetime'
 import { resetcss } from './reset.css'
 
 @customElement('playback-controls')
@@ -87,7 +87,7 @@ export class PlaybackControls extends LitElement {
             @input="${this.seek}" 
           />
         </div>
-        <span>${Math.floor(this.currentTime)} / ${Math.floor(this.duration)}</span>
+        <span>${formatVideoTime(this.currentTime)} / ${formatVideoTime(this.duration)}</span>
       </div>`
   }
 
@@ -112,8 +112,8 @@ export class PlaybackControls extends LitElement {
     span {
       white-space: nowrap;
       padding: 0.25rem;
-      width: 8rem;
-      text-align: center;
+      width: 15rem;
+      text-align: right;
     }
     #rangecontrols {
       height: 2rem;
