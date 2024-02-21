@@ -1,9 +1,9 @@
 # Video Streams
 **Authors:** Scott Barnard
 
-Video streams are captured videos and have a start time, end time, stream URL and linked capture source. 
+The video stream API provides the metadata for video streams. A video stream has a start time, end time, stream URL and linked capture source. 
 
-A stream URL specifies where the video data is stored, so that clients can play back that video. 
+Using the video stream API we can register our video streams with OpenFish so it can annotate and play back that stream. The stream URL specifies where the video data is stored. 
 
 Examples:
 - `http://vidgrind.ausocean.org/get?id=1`
@@ -83,7 +83,7 @@ Stream 5: | •---•   :              :
 ```
 :::
 
-## Creating a video stream
+## Registering a video stream
 ::: code-group
 ```http [Request]
 POST http://localhost:8080/api/v1/videostreams
@@ -105,9 +105,9 @@ Content-Type: application/json
 :::
 
 ## Working with live streams
-Live streams are different to uploading an existing video. This is because we don't know the end time when we start it. The API has the `/api/v1/videostreams/live` endpoint for handling these scenarios.
+Live streams are different to registering an existing video. This is because we don't know the end time when we start it. The API has the `/api/v1/videostreams/live` endpoint for handling these scenarios.
 
-To start a stream use POST. It takes the current time as the start time.
+To register a stream when it starts use POST. It takes the current time as the start time.
 
 ::: code-group
 ```http [Request]
