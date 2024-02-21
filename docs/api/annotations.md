@@ -54,7 +54,7 @@ Content-Type: application/json
 
 {
   "videostreamId": 4586454965551104,
-  "timespan": { "start_time": "2023-06-07T16:30:00.00", "end_time": "2023-06-07T16:30:02.00" },
+  "timespan": { "start": "2023-06-07T16:30:00.00Z", "end": "2023-06-07T16:30:02.00Z" },
   "boundingBox": {"x1": 84, "y1": 160, "x2": 205, "y2": 295},
   "observer": "scott@ausocean.com",
   "observation": {
