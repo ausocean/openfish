@@ -18,6 +18,7 @@ export default defineConfig({
     sidebar: [  
       { text: 'Project Overview', link: '/project-overview' },
       { text: 'Getting Started', link: '/getting-started' },
+      { text: 'Contributing', link: '/contributing' },
       {
         text: 'API Documentation',
         items: [
@@ -30,7 +31,7 @@ export default defineConfig({
           ]},
 
         ]
-      }
+      },
     ],
 
     socialLinks: [
