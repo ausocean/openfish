@@ -3,7 +3,9 @@ import { customElement, property } from 'lit/decorators.js'
 import { Annotation, VideoStream } from './api.types'
 import { repeat } from 'lit/directives/repeat.js'
 import { datetimeDifference, datetimeToVideoTime, formatVideoTime } from './datetime'
-import { resetcss } from './reset.css'
+import { resetcss, buttonStyles } from './reset.css'
+
+export type SeekEvent = CustomEvent<number>
 
 @customElement('playback-controls')
 export class PlaybackControls extends LitElement {
@@ -31,10 +33,24 @@ export class PlaybackControls extends LitElement {
     }
   }
 
+  dispatchSeekEvent(time: number) {
+    this.dispatchEvent(new CustomEvent('seek', { detail: time }) as SeekEvent)
+  }
+
   // Emit seek events when user drags the slider.
   private seek(e: InputEvent & { target: HTMLInputElement }) {
     this.currentTime = Number(e.target.value)
-    this.dispatchEvent(new CustomEvent('seek', { detail: Number(e.target.value) }))
+    this.dispatchSeekEvent(Number(e.target.value))
+  }
+
+  private fwd(seconds: number) {
+    this.currentTime = Math.min(this.duration, this.currentTime + seconds)
+    this.dispatchSeekEvent(this.currentTime)
+  }
+
+  private bwd(seconds: number) {
+    this.currentTime = Math.max(0, this.currentTime - seconds)
+    this.dispatchSeekEvent(this.currentTime)
   }
 
   // Jump to when the next annotation occurs in the video.
@@ -44,7 +60,7 @@ export class PlaybackControls extends LitElement {
     )
     if (nextAnnotation !== undefined) {
       const seekTo = datetimeToVideoTime(this.videostream!.startTime, nextAnnotation.timespan.start)
-      this.dispatchEvent(new CustomEvent('seek', { detail: seekTo }))
+      this.dispatchSeekEvent(seekTo)
     }
   }
 
@@ -56,7 +72,7 @@ export class PlaybackControls extends LitElement {
     if (idx > 0) {
       const prevAnnotation = this.annotations[idx - 1]
       const seekTo = datetimeToVideoTime(this.videostream!.startTime, prevAnnotation.timespan.start)
-      this.dispatchEvent(new CustomEvent('seek', { detail: seekTo }))
+      this.dispatchSeekEvent(seekTo)
     }
   }
 
@@ -72,11 +88,17 @@ export class PlaybackControls extends LitElement {
     })
 
     return html`
-      <div>
-        <button @click="${this.togglePlayback}">${this.playing ? 'Pause' : 'Play'}</button>
-        <button @click="${this.prev}">&lt;&nbsp;Prev</button>
-        <button @click="${this.next}">Next&nbsp;&gt;</button>
-        <div id="rangecontrols">
+      <div class="root">
+        <button class="btn-sm btn-orange btn-wide" @click="${this.togglePlayback}">${
+          this.playing ? 'Pause' : 'Play'
+        }</button>
+        
+        <button class="btn-sm btn-blue" @click="${() => this.bwd(5)}">-5s</button>
+        <button class="btn-sm btn-blue" @click="${() => this.bwd(1)}">-1s</button>
+        <button class="btn-sm btn-blue" @click="${() => this.fwd(1)}">+1s</button>
+        <button class="btn-sm btn-blue" @click="${() => this.fwd(5)}">+5s</button>
+        
+        <div class="rangecontrols">
           <svg>
           ${heatmap}
           </svg>
@@ -87,27 +109,30 @@ export class PlaybackControls extends LitElement {
             @input="${this.seek}" 
           />
         </div>
+        <button class="btn-sm btn-blue btn-wide" @click="${this.prev}">&lt;&nbsp;Prev</button>
+        <button class="btn-sm btn-blue btn-wide" @click="${this.next}">Next&nbsp;&gt;</button>
         <span>${formatVideoTime(this.currentTime)} / ${formatVideoTime(this.duration)}</span>
       </div>`
   }
 
   static styles = css`
     ${resetcss}
-    div {
+    ${buttonStyles}
+    .root {
       display: flex;
       width: 100%;
       align-items: center;
       padding: 0.5rem 1rem;
       gap: 0.5rem;
-      background-color: var(--gray-300);
+      background-color: var(--blue-600);
+      color: var(--gray-50);
     }
     input {
       width: 100%;
       height: 100%;
     }
-    button {
-      width: 4.5rem;
-      text-align: center;
+    .btn-wide {
+      width: 12ch;
     }
     span {
       white-space: nowrap;
@@ -115,7 +140,12 @@ export class PlaybackControls extends LitElement {
       width: 15rem;
       text-align: right;
     }
-    #rangecontrols {
+    .rangecontrols {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      gap: 0.5rem;
       height: 2rem;
       background-color: var(--gray-50);
       position: relative;

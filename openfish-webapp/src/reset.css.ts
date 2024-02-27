@@ -58,6 +58,18 @@ export const buttonStyles = css`
   }
 }
 
+.btn-blue {
+  background-color: var(--blue-800);
+  color: var(--gray-100);
+  border-color: var(--blue-800);
+
+  &:hover {
+    background-color: var(--blue-900);
+    border-color: var(--blue-900);
+  }
+
+}
+
 .btn-outline {
   background-color: transparent;
   color: var(--gray-50);

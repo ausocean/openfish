@@ -160,7 +160,10 @@ export class WatchStream extends LitElement {
       .videostream=${this._videostream}
       @play=${this.play} 
       @pause=${this.pause}
-      @seek=${(e: CustomEvent) => (this._seekTo = e.detail)}
+      @seek=${(e: CustomEvent) => {
+        console.log(e)
+        this._seekTo = e.detail
+      }}
     ></playback-controls>`
 
     const observationEditor = html`
