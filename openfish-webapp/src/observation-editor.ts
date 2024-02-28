@@ -51,8 +51,10 @@ export class SpeciesSelection extends ObservationEditor {
   private async fetchGuide() {
     try {
       // TODO: fetch list from an API.
-      const res = await fetch('/species-guide.json')
-      this._speciesList = await res.json()
+      const res = await fetch(
+        `${import.meta.env.VITE_API_HOST}/api/v1/species/recommended?limit=999`
+      )
+      this._speciesList = (await res.json()).results
     } catch (error) {
       console.error(error)
     }
