@@ -72,7 +72,13 @@ func registerAPIRoutes(app *fiber.App) {
 	v1.Get("/annotations/:id", handlers.GetAnnotationByID)
 	v1.Get("/annotations", handlers.GetAnnotations)
 	v1.Post("/annotations", handlers.CreateAnnotation)
-	v1.Delete("/annotations/:id", handlers.DeleteVideoStream)
+	v1.Delete("/annotations/:id", handlers.DeleteAnnotation)
+
+	// Species.
+	v1.Get("/species/recommended", handlers.GetRecommendedSpecies)
+	v1.Get("/species/:id", handlers.GetSpeciesByID)
+	v1.Post("/species", handlers.CreateSpecies)
+	v1.Delete("/species/:id", handlers.DeleteSpecies)
 }
 
 // errorHandler creates a HTTP response with the given status code or 500 by default.
