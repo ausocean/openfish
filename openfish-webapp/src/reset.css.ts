@@ -21,6 +21,10 @@ export const buttonStyles = css`
   white-space: nowrap;
   border: 1px solid;
   cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+  }
 }
 
 .btn-sm {
@@ -33,6 +37,10 @@ export const buttonStyles = css`
   border: none;
   border: 1px solid;
   cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+  }
 }
 
 .btn-orange {    
@@ -40,7 +48,7 @@ export const buttonStyles = css`
   color: var(--orange-800);
   border-color: var(--orange-400);
 
-  &:hover {
+  &:hover:enabled {
     background-color: var(--orange-500);
     border-color: var(--orange-500);
   }
@@ -51,7 +59,7 @@ export const buttonStyles = css`
   color: var(--gray-900);
   border-color: var(--gray-200);
 
-  &:hover {
+  &:hover:enabled {
     background-color: var(--gray-300);
     color: var(--gray-950);
     border-color: var(--gray-300);
@@ -63,7 +71,7 @@ export const buttonStyles = css`
   color: var(--gray-100);
   border-color: var(--blue-800);
 
-  &:hover {
+  &:hover:enabled {
     background-color: var(--blue-900);
     border-color: var(--blue-900);
   }
@@ -75,8 +83,19 @@ export const buttonStyles = css`
   color: var(--gray-50);
   border-color: currentColor;
 
-  &:hover {
+  &:hover:enabled {
     color: var(--gray-300);
   }
-} 
+}
+
+.btn-transparent {
+  background-color: rgba(0, 0, 0, 0.75);
+  color: var(--gray-100);
+  border-color: rgba(0, 0, 0, 0.75);
+
+  &:hover:enabled {
+    background-color: rgba(0, 0, 0, 0.9);
+    border-color: rgba(0, 0, 0, 0.9);
+  }
+}
 `

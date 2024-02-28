@@ -211,7 +211,7 @@ export class AdvancedEditor extends ObservationEditor {
       padding: 1rem;
       border-radius: .5rem;
       box-shadow:  var(--shadow-sm);
-      width: calc(var(--aside-width) - 2rem);
+      width: calc(var(--aside-width) - 3rem);
     }
 
     table {

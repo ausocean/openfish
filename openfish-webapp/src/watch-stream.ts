@@ -1,7 +1,7 @@
 import { LitElement, css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { Annotation, VideoStream } from './api.types'
-import { videotimeToDatetime } from './datetime'
+import { formatAsTime, videotimeToDatetime } from './datetime'
 import { buttonStyles, resetcss } from './reset.css'
 
 import './annotation-displayer'
@@ -59,23 +59,35 @@ export class WatchStream extends LitElement {
   @state()
   private _observation: Record<string, string> = {}
 
+  @state()
+  private _start: Date | null = null
+
+  @state()
+  private _end: Date | null = null
+
+  private setStart() {
+    this._start = videotimeToDatetime(this._videostream!.startTime, this._currentTime)
+  }
+
+  private setEnd() {
+    this._end = videotimeToDatetime(this._videostream!.startTime, this._currentTime)
+  }
+
   private addAnnotation() {
     this._mode = 'editor'
     this.pause()
+    this._start = null
+    this._end = null
   }
 
   private async confirmAnnotation() {
-    // TODO: let user adjust timespan.
-    const start = videotimeToDatetime(this._videostream!.startTime, this._currentTime)
-    const end = videotimeToDatetime(this._videostream!.startTime, this._currentTime + 10)
-
     // TODO: set observer to user's name.
     // TODO: let user include bounding box (optional).
     const payload = {
       videostreamId: this._videostream!.id,
       observer: 'user@placeholder.com',
       observation: this._observation,
-      timespan: { start, end },
+      timespan: { start: this._start, end: this._end },
     }
 
     // Make annotation.
@@ -167,28 +179,46 @@ export class WatchStream extends LitElement {
     ></playback-controls>`
 
     const observationEditor = html`
+
+    <section class="set-start-end">
+      <h4>Annotation times</h4>
+      <table>
+      <tbody>
+      <tr>
+        <td>Start:</td>
+        <td>${this._start == null ? '' : formatAsTime(this._start)}</td>
+        <td><button class="btn-sm btn-blue w-full" @click=${this.setStart}>Set start time</button></td>
+      </tr>
+      <tr>
+      <td>End:</td>
+      <td>${this._end == null ? '' : formatAsTime(this._end)}</td>
+      <td><button class="btn-sm btn-blue w-full" @click=${this.setEnd}>Set end time</button></td>
+    </tr>
+      </tbody>
+      </table>
+
+    </section>
+
+    <menu>
+    <h4>Observation</h4>
+    <button class="btn-sm ${
+      this._editorMode === 'simple' ? ' btn-secondary' : 'btn-outline'
+    }"  @click=${() => (this._editorMode = 'simple')}>Simple</button>
+    <button class="btn-sm ${
+      this._editorMode === 'advanced' ? ' btn-secondary' : 'btn-outline'
+    }" @click=${() => (this._editorMode = 'advanced')}>Advanced</button>
+    </menu>
     <div class="scrollable">
-      <div class="observation-editor ">
-        <menu>
-            <span>Observation mode</span>
-            <button class="btn-sm ${
-              this._editorMode === 'simple' ? ' btn-secondary' : 'btn-outline'
-            }"  @click=${() => (this._editorMode = 'simple')}>Simple</button>
-            <button class="btn-sm ${
-              this._editorMode === 'advanced' ? ' btn-secondary' : 'btn-outline'
-            }" @click=${() => (this._editorMode = 'advanced')}>Advanced</button>
-        </menu>
-        <div>
-        ${
-          this._editorMode === 'simple'
-            ? html`<species-selection .observation=${this._observation}           @observation=${(
-                ev: ObservationEvent
-              ) => (this._observation = ev.detail)}></species-selection>`
-            : html`<advanced-editor .observation=${this._observation}           @observation=${(
-                ev: ObservationEvent
-              ) => (this._observation = ev.detail)}></advanced-editor>`
-        }
-        </div>
+      <div>
+      ${
+        this._editorMode === 'simple'
+          ? html`<species-selection .observation=${this._observation}           @observation=${(
+              ev: ObservationEvent
+            ) => (this._observation = ev.detail)}></species-selection>`
+          : html`<advanced-editor .observation=${this._observation}           @observation=${(
+              ev: ObservationEvent
+            ) => (this._observation = ev.detail)}></advanced-editor>`
+      }
       </div>
     </div>
     `
@@ -215,9 +245,10 @@ export class WatchStream extends LitElement {
         <header>
           <h3>Add Annotation</h3>
           <button class="btn btn-secondary" @click=${this.cancelAnnotation}>Cancel</button>
-          <button class="btn btn-orange" @click=${this.confirmAnnotation}>Done</button>
+          <button class="btn btn-orange" @click=${this.confirmAnnotation} .disabled=${
+            !this._start || !this._end || Object.keys(this._observation).length === 0
+          }>Done</button>
         </header>
-        
           ${observationEditor}
       </aside>`
 
@@ -309,6 +340,7 @@ export class WatchStream extends LitElement {
       position: absolute;
       left: 0;
       top: 0;
+      padding: 0.5rem;
     }
 
     h3 {
@@ -318,23 +350,36 @@ export class WatchStream extends LitElement {
       color: var(--blue-50)
     }
 
-    ${buttonStyles}
-    .observation-editor {
-        display: flex;
-        flex-direction: column;
-        padding: 0.5rem 0;
-        gap: 0.5rem;
-        width: 100%;
+    h4 {
+      margin: 0;
+      color: var(--gray-50);
     }
 
-    .observation-editor menu {
+    section {
+      padding: 0.5rem;
+      color: var(--gray-50);
+    }
+
+    table {
+      width: 100%;
+      
+      & tbody tr :nth-child(3) {
+        width: 0;
+      }
+    }
+
+    .w-full { 
+      width: 100%;
+    }
+
+    menu {
         display: flex;
         justify-content: end;
         margin: 0;
-        padding: 0 0.5rem;
+        padding: 0.5rem;
         gap: 0.5rem;
 
-        & > span {
+        & > h4 {
           color: var(--gray-50);
           margin-right: auto;
         }  
