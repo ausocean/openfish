@@ -26,6 +26,7 @@ export default defineConfig({
             { text: 'Capture Sources', link: '/api/capture-sources'},
             { text: 'Video Streams', link: '/api/video-streams'},
             { text: 'Annotations', link: '/api/annotations'},
+            { text: 'Species', link: '/api/species'},
           ]},
 
         ]
