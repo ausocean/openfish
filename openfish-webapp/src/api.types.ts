@@ -28,8 +28,8 @@ export interface Observation {
 }
 
 export interface Timespan {
-  start: string
-  end: string
+  start: Date | string
+  end: Date | string
 }
 
 export interface BoundingBox {
