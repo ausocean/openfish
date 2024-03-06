@@ -9,9 +9,11 @@ import './youtube-player'
 import './annotation-card'
 import './playback-controls'
 import './observation-editor'
+import './bounding-box-creator'
 import { MouseoverAnnotationEvent } from './annotation-displayer'
 import { DurationChangeEvent, TimeUpdateEvent } from './youtube-player'
 import { ObservationEvent } from './observation-editor'
+import { UpdateBoundingBoxEvent } from './bounding-box-creator'
 
 @customElement('watch-stream')
 export class WatchStream extends LitElement {
@@ -65,6 +67,9 @@ export class WatchStream extends LitElement {
   @state()
   private _end: Date | null = null
 
+  @state()
+  private _boundingBox: [number, number, number, number] | null = null
+
   private setStart() {
     this._start = videotimeToDatetime(this._videostream!.startTime, this._currentTime)
   }
@@ -82,12 +87,20 @@ export class WatchStream extends LitElement {
 
   private async confirmAnnotation() {
     // TODO: set observer to user's name.
-    // TODO: let user include bounding box (optional).
-    const payload = {
+    const payload: Omit<Annotation, 'id'> = {
       videostreamId: this._videostream!.id,
       observer: 'user@placeholder.com',
       observation: this._observation,
-      timespan: { start: this._start, end: this._end },
+      timespan: { start: this._start!, end: this._end! },
+    }
+
+    if (this._boundingBox) {
+      payload.boundingBox = {
+        x1: Math.round(this._boundingBox[0]),
+        y1: Math.round(this._boundingBox[1]),
+        x2: Math.round(this._boundingBox[2]),
+        y2: Math.round(this._boundingBox[3]),
+      }
     }
 
     // Make annotation.
@@ -180,23 +193,27 @@ export class WatchStream extends LitElement {
 
     const observationEditor = html`
 
-    <section class="set-start-end">
+    <section>
       <h4>Annotation times</h4>
       <table>
-      <tbody>
-      <tr>
-        <td>Start:</td>
-        <td>${this._start == null ? '' : formatAsTime(this._start)}</td>
-        <td><button class="btn-sm btn-blue w-full" @click=${this.setStart}>Set start time</button></td>
-      </tr>
-      <tr>
-      <td>End:</td>
-      <td>${this._end == null ? '' : formatAsTime(this._end)}</td>
-      <td><button class="btn-sm btn-blue w-full" @click=${this.setEnd}>Set end time</button></td>
-    </tr>
-      </tbody>
+        <tbody>
+        <tr>
+          <td>Start:</td>
+          <td>${this._start == null ? '' : formatAsTime(this._start)}</td>
+          <td><button class="btn-sm btn-blue w-full" @click=${this.setStart}>Set start time</button></td>
+        </tr>
+        <tr>
+          <td>End:</td>
+          <td>${this._end == null ? '' : formatAsTime(this._end)}</td>
+          <td><button class="btn-sm btn-blue w-full" @click=${this.setEnd}>Set end time</button></td>
+        </tr>
+        </tbody>
       </table>
+    </section>
 
+    <section>
+      <h4>Bounding Box</h4>
+      <span>${this._boundingBox ? 'Yes' : 'No bounding box given'}</span>
     </section>
 
     <menu>
@@ -255,13 +272,16 @@ export class WatchStream extends LitElement {
     const overlay =
       this._mode === 'playback'
         ? html`
-    <annotation-overlay
-      .annotations=${filteredAnnotations}
-      .activeAnnotation=${this._activeId}
-      @mouseover-annotation=${(e: MouseoverAnnotationEvent) => (this._activeId = e.detail)}
-    ></annotation-overlay>
-    `
-        : html``
+          <annotation-overlay
+            .annotations=${filteredAnnotations}
+            .activeAnnotation=${this._activeId}
+            @mouseover-annotation=${(e: MouseoverAnnotationEvent) => (this._activeId = e.detail)}
+          ></annotation-overlay>
+          `
+        : html`
+          <bounding-box-creator @updateboundingbox=${(e: UpdateBoundingBoxEvent) =>
+            (this._boundingBox = e.detail)}></bounding-box-creator>    
+          `
 
     return html`
       <div class="root">
@@ -310,7 +330,7 @@ export class WatchStream extends LitElement {
       aspect-ratio: var(--video-ratio);
       height: 100%;
     }
-    annotation-overlay {
+    annotation-overlay, bounding-box-creator {
       grid-area: video-player;
       z-index: 100;
     }
