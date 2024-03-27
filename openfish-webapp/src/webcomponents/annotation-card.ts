@@ -1,8 +1,8 @@
 import { LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { Annotation } from './api.types.ts'
+import { Annotation } from '../utils/api.types.ts'
 import { repeat } from 'lit/directives/repeat.js'
-import { formatAsDate, formatAsTime, formatAsTimeZone } from './datetime.ts'
+import { formatAsDate, formatAsTime, formatAsTimeZone } from '../utils/datetime.ts'
 
 /**
  * TODO: write component documentation

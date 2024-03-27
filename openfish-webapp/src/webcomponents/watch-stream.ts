@@ -1,8 +1,9 @@
-import { LitElement, css, html } from 'lit'
+import { LitElement, css, html, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { Annotation, VideoStream } from './api.types'
-import { formatAsTime, videotimeToDatetime } from './datetime'
-import { buttonStyles, resetcss } from './reset.css'
+import { Annotation, VideoStream } from '../utils/api.types'
+import { formatAsTime, videotimeToDatetime } from '../utils/datetime'
+import resetcss from '../styles/reset.css?raw'
+import btncss from '../styles/buttons.css?raw'
 
 import './annotation-displayer'
 import './youtube-player'
@@ -293,7 +294,8 @@ export class WatchStream extends LitElement {
   }
 
   static styles = css`
-    ${resetcss} ${buttonStyles}
+    ${unsafeCSS(resetcss)}
+    ${unsafeCSS(btncss)}
 
     .root {
       --video-ratio: 4 / 3;

@@ -1,6 +1,6 @@
-import { LitElement, css, html } from 'lit'
+import { LitElement, css, html, unsafeCSS } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import { resetcss } from './reset.css.ts'
+import resetcss from '../styles/reset.css?raw'
 import '@fooloomanzoo/datetime-picker/datetime-picker.js'
 import { type SelectCaptureSourceEvent } from './capture-source-dropdown.ts'
 
@@ -85,7 +85,7 @@ export class StreamFilter extends LitElement {
   }
 
   static styles = css`
-    ${resetcss}
+    ${unsafeCSS(resetcss)}
     aside {
       background-color: var(--gray-50);
       border-radius: 0.25rem;

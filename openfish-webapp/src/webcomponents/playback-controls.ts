@@ -1,9 +1,10 @@
-import { LitElement, css, html, svg } from 'lit'
+import { LitElement, css, html, svg, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { Annotation, VideoStream } from './api.types'
+import { Annotation, VideoStream } from '../utils/api.types'
 import { repeat } from 'lit/directives/repeat.js'
-import { datetimeDifference, datetimeToVideoTime, formatVideoTime } from './datetime'
-import { resetcss, buttonStyles } from './reset.css'
+import { datetimeDifference, datetimeToVideoTime, formatVideoTime } from '../utils/datetime'
+import resetcss from '../styles/reset.css?raw'
+import btncss from '../styles/buttons.css?raw'
 
 export type SeekEvent = CustomEvent<number>
 
@@ -116,8 +117,8 @@ export class PlaybackControls extends LitElement {
   }
 
   static styles = css`
-    ${resetcss}
-    ${buttonStyles}
+    ${unsafeCSS(resetcss)}
+    ${unsafeCSS(btncss)}
     .root {
       display: flex;
       width: 100%;
