@@ -1,9 +1,9 @@
-import { LitElement, css, html } from 'lit'
+import { LitElement, css, html, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { Result, VideoStream } from './api.types.ts'
+import { Result, VideoStream } from '../utils/api.types.ts'
 import { repeat } from 'lit/directives/repeat.js'
-import { resetcss } from './reset.css.ts'
-import { datetimeDifference, formatAsDatetime, formatDuration } from './datetime.ts'
+import resetcss from '../styles/reset.css?raw'
+import { datetimeDifference, formatAsDatetime, formatDuration } from '../utils/datetime.ts'
 import { Filter } from './stream-filter.ts'
 
 @customElement('stream-list')
@@ -103,7 +103,7 @@ export class StreamList extends LitElement {
   }
 
   static styles = css`
-    ${resetcss}
+    ${unsafeCSS(resetcss)}
 
     table {
       display: grid;  

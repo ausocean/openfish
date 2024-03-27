@@ -1,8 +1,8 @@
-import { LitElement, css, html, svg } from 'lit'
+import { LitElement, css, html, svg, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { Annotation } from './api.types.ts'
+import { Annotation } from '../utils/api.types.ts'
 import { repeat } from 'lit/directives/repeat.js'
-import { resetcss } from './reset.css.ts'
+import resetcss from '../styles/reset.css?raw'
 
 export type MouseoverAnnotationEvent = CustomEvent<number | null>
 
@@ -51,7 +51,7 @@ export class AnnotationOverlay extends AnnotationDisplayer {
   }
 
   static styles = css`
-    ${resetcss}
+    ${unsafeCSS(resetcss)}
 
     svg {
       pointer-events: none;
@@ -93,7 +93,7 @@ export class AnnotationList extends AnnotationDisplayer {
   }
 
   static styles = css`
-    ${resetcss}
+    ${unsafeCSS(resetcss)}
     div {
       height: 100%;
       overflow-y: scroll;

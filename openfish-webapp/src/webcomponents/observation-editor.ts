@@ -1,8 +1,9 @@
-import { LitElement, css, html } from 'lit'
+import { LitElement, css, html, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
-import { buttonStyles, resetcss } from './reset.css'
-import { zip } from './array-utils'
+import { zip } from '../utils/array-utils'
+import resetcss from '../styles/reset.css?raw'
+import btncss from '../styles/buttons.css?raw'
 
 type Species = { species: string; common_name: string; images?: Image[] }
 type Image = { src: string; attribution: string }
@@ -83,7 +84,9 @@ export class SpeciesSelection extends ObservationEditor {
   }
 
   static styles = css`
-    ${resetcss}
+    ${unsafeCSS(resetcss)}
+    ${unsafeCSS(btncss)}
+    
     ul {
         list-style-type: none;
         margin:0;
@@ -206,8 +209,8 @@ export class AdvancedEditor extends ObservationEditor {
   }
 
   static styles = css`
-    ${resetcss}
-    ${buttonStyles}
+    ${unsafeCSS(resetcss)}
+    ${unsafeCSS(btncss)}
     .card {
       background-color: var(--gray-50);
       padding: 1rem;
