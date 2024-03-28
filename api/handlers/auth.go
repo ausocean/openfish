@@ -3,7 +3,7 @@ AUTHORS
   Scott Barnard <scott@ausocean.org>
 
 LICENSE
-  Copyright (c) 2023, The OpenFish Contributors.
+  Copyright (c) 2023-2024, The OpenFish Contributors.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -31,51 +31,21 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package api
+// handlers package handles HTTP requests.
+package handlers
 
 import (
-	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 )
 
-// Result is the JSON format to use in response bodies for returning a list of results.
-type Result[T any] struct {
-	Results []T `json:"results"`
-	Offset  int `json:"offset"`
-	Limit   int `json:"limit"`
-	Total   int `json:"total"`
+type UserResult struct {
+	Email string `json:"email"`
 }
 
-// Failure is the JSON format to use in response bodies for returning errors.
-type Failure struct {
-	Message string `json:"message"`
-}
-
-// DatastoreReadFailure returns an error for datastore read failures.
-func DatastoreReadFailure(err error) error {
-	return fiber.NewError(500, fmt.Errorf("could not read from datastore: %w", err).Error())
-}
-
-// DatastoreWriteFailure returns an error for datastore write failures.
-func DatastoreWriteFailure(err error) error {
-	return fiber.NewError(500, fmt.Errorf("could not write to datastore: %w", err).Error())
-}
-
-// InvalidRequestJSON returns an error for requests with invalid JSON.
-func InvalidRequestJSON(err error) error {
-	return fiber.NewError(400, fmt.Errorf("invalid JSON in request: %w", err).Error())
-}
-
-// InvalidRequestURL returns an error for requests with invalid URLs.
-func InvalidRequestURL(err error) error {
-	return fiber.NewError(400, fmt.Errorf("invalid URL in request: %w", err).Error())
-}
-
-func Unauthorized(err error) error {
-	return fiber.NewError(401, fmt.Errorf("Unauthorized: %w", err).Error())
-}
-
-func Forbidden(err error) error {
-	return fiber.NewError(403, fmt.Errorf("Forbidden: %w", err).Error())
+// GetSelf gets information about the current user.
+func GetSelf(ctx *fiber.Ctx) error {
+	// Return user.
+	return ctx.JSON(UserResult{
+		Email: ctx.Locals("email").(string),
+	})
 }
