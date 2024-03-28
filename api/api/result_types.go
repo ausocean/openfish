@@ -71,3 +71,11 @@ func InvalidRequestJSON(err error) error {
 func InvalidRequestURL(err error) error {
 	return fiber.NewError(400, fmt.Errorf("invalid URL in request: %w", err).Error())
 }
+
+func Unauthorized(err error) error {
+	return fiber.NewError(401, fmt.Errorf("Unauthorized: %w", err).Error())
+}
+
+func Forbidden(err error) error {
+	return fiber.NewError(403, fmt.Errorf("Forbidden: %w", err).Error())
+}
