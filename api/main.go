@@ -83,6 +83,9 @@ func registerAPIRoutes(app *fiber.App) {
 	v1.Get("/species/:id", handlers.GetSpeciesByID)
 	v1.Post("/species", handlers.CreateSpecies)
 	v1.Delete("/species/:id", handlers.DeleteSpecies)
+
+	// Auth.
+	v1.Get("/auth/me", handlers.GetSelf)
 }
 
 // errorHandler creates a HTTP response with the given status code or 500 by default.
