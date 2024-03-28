@@ -34,7 +34,10 @@ LICENSE
 package main
 
 import (
+	"context"
 	"errors"
+	"os"
+	"strconv"
 
 	"github.com/ausocean/openfish/api/api"
 	"github.com/ausocean/openfish/api/ds_client"
@@ -45,6 +48,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"google.golang.org/api/idtoken"
 )
 
 // registerAPIRoutes registers all handler functions to their routes.
@@ -98,22 +102,86 @@ func errorHandler(ctx *fiber.Ctx, err error) error {
 	return nil
 }
 
+// validateJWT creates a validator middleware that validate JWT tokens returned from Google IAP.
+// Otherwise, it returns a 401 Unauthorized http error.
+// See more: https://cloud.google.com/iap/docs/signed-headers-howto#iap_validate_jwt-go
+func validateJWT(aud string) func(*fiber.Ctx) error {
+
+	fmt.Println("jwt audience: ", aud)
+
+	return func(ctx *fiber.Ctx) error {
+
+		// Get JWT from header.
+		iapJWT := ctx.Get("X-Goog-IAP-JWT-Assertion")
+
+		// Validate JWT token.
+		payload, err := idtoken.Validate(context.Background(), iapJWT, aud)
+		if err != nil {
+			return api.Unauthorized(err)
+		}
+
+		ctx.Locals("subject", payload.Subject)
+		ctx.Locals("email", payload.Claims["email"])
+
+		return ctx.Next()
+	}
+}
+
+func envOrFlag[T any](flagName string, envName string, description string, defaultVal T, parse func(string) (T, error), flag func(string, T, string) *T) *T {
+	v, err := parse(os.Getenv(envName))
+
+	if err == nil {
+		description = fmt.Sprintf("%s [set %s=%s]", description, envName, os.Getenv(envName))
+		defaultVal = v
+	}
+
+	return flag(flagName, defaultVal, description)
+}
+
+// parseString does nothing, but is required for using envOrFlag for strings.
+func parseString(s string) (string, error) {
+	return s, nil
+}
+
 func main() {
-	local := flag.Bool("local", false, "Run in local mode")
+
+	// Get app configuration. Configurations can be set using environment variables or command line arguments.
+	// Command line arguments take priority.
+
+	port := envOrFlag("port", "PORT", "Port to listen on", 8080, strconv.Atoi, flag.Int)
+	useFilestore := envOrFlag("filestore", "FILESTORE", "Use local datastore", false, strconv.ParseBool, flag.Bool)
+	useIAP := envOrFlag("iap", "IAP", "Use Google's Identity Aware Proxy for authentication", false, strconv.ParseBool, flag.Bool)
+	jwtAudience := envOrFlag("jwt-audience", "JWT_AUDIENCE", "Audience to use to validate JWT token", "", parseString, flag.String)
 
 	flag.Parse()
 
 	// Datastore setup.
-	fmt.Println("creating datastore (local mode: ", *local, ")")
-	ds_client.Init(*local)
+	if *useFilestore {
+		fmt.Println("using filestore")
+	} else {
+		fmt.Println("using cloud datastore")
+	}
+	ds_client.Init(*useFilestore)
 
-	// Start web server.
-	fmt.Println("starting web server")
+	// Create app.
 	app := fiber.New(fiber.Config{ErrorHandler: errorHandler})
 
+	// CORS middleware.
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
 	}))
+
+	// IAP middleware.
+	if *useIAP {
+		fmt.Println("using IAP for authentication")
+		app.Use(validateJWT(*jwtAudience))
+	}
+
+	// Register routes.
 	registerAPIRoutes(app)
-	app.Listen(":8080")
+
+	// Start web server.
+	listenOn := fmt.Sprintf(":%d", *port)
+	fmt.Printf("starting web server on %s\n", listenOn)
+	app.Listen(listenOn)
 }

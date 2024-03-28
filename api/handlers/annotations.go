@@ -187,10 +187,13 @@ func CreateAnnotation(ctx *fiber.Ctx) error {
 		return api.InvalidRequestJSON(err)
 	}
 
+	// Get logged in user.
+	observer := ctx.Locals("email").(string)
+
 	// Write data to the datastore.
 	id, err := services.CreateAnnotation(body.VideoStreamID,
 		body.TimeSpan, body.BoundingBox,
-		body.Observer, body.Observation)
+		observer, body.Observation)
 	if err != nil {
 		return api.DatastoreWriteFailure(err)
 	}
