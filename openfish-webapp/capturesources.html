@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenFish | Manage capture sources</title>
+    <link rel="stylesheet" href="./src/styles/index.css" />
+    <link rel="stylesheet" href="./src/styles/buttons.css" />
+
+    <script type="module" src="./src/webcomponents/site-nav.ts"></script>
+    <script type="module" src="./src/webcomponents/capturesource-list.ts"></script>
+
+    <style>
+      site-nav {
+        background-color: var(--bg);
+        border-color: var(--gray-100);
+      }
+      header {
+        grid-column: page;
+        display: flex;
+        justify-content: space-between;
+      }
+      capturesource-list {
+        grid-column: page;
+      }
+    </style>
+  </head>
+  <body class="grid-layout">
+    <site-nav></site-nav>
+    <header>
+      <h1>Manage capture sources</h1>
+      <button class="btn btn-blue" onclick="alert('placeholder dialog')">+ Create new capture source</button>
+    </header>
+      
+    <capturesource-list></capturesource-list>
+  </body>
+</html>
