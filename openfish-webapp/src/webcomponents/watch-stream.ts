@@ -1,6 +1,6 @@
 import { LitElement, css, html, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { Annotation, VideoStream } from '../utils/api.types'
+import type { Annotation, VideoStream } from '../utils/api.types'
 import { formatAsTime, videotimeToDatetime } from '../utils/datetime'
 import resetcss from '../styles/reset.css?raw'
 import btncss from '../styles/buttons.css?raw'
@@ -11,10 +11,10 @@ import './annotation-card'
 import './playback-controls'
 import './observation-editor'
 import './bounding-box-creator'
-import { MouseoverAnnotationEvent } from './annotation-displayer'
-import { DurationChangeEvent, TimeUpdateEvent } from './youtube-player'
-import { ObservationEvent } from './observation-editor'
-import { UpdateBoundingBoxEvent } from './bounding-box-creator'
+import type { MouseoverAnnotationEvent } from './annotation-displayer'
+import type { DurationChangeEvent, TimeUpdateEvent } from './youtube-player'
+import type { ObservationEvent } from './observation-editor'
+import type { UpdateBoundingBoxEvent } from './bounding-box-creator'
 
 @customElement('watch-stream')
 export class WatchStream extends LitElement {

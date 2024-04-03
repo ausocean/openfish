@@ -1,6 +1,6 @@
 import { LitElement, css, html, svg, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { Annotation } from '../utils/api.types.ts'
+import type { Annotation } from '../utils/api.types.ts'
 import { repeat } from 'lit/directives/repeat.js'
 import resetcss from '../styles/reset.css?raw'
 

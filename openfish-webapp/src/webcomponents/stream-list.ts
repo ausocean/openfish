@@ -1,10 +1,10 @@
 import { LitElement, css, html, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { Result, VideoStream } from '../utils/api.types.ts'
+import type { Result, VideoStream } from '../utils/api.types.ts'
 import { repeat } from 'lit/directives/repeat.js'
 import resetcss from '../styles/reset.css?raw'
 import { datetimeDifference, formatAsDatetime, formatDuration } from '../utils/datetime.ts'
-import { Filter } from './stream-filter.ts'
+import type { Filter } from './stream-filter.ts'
 
 @customElement('stream-list')
 export class StreamList extends LitElement {

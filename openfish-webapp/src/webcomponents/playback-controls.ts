@@ -1,6 +1,6 @@
 import { LitElement, css, html, svg, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { Annotation, VideoStream } from '../utils/api.types'
+import type { Annotation, VideoStream } from '../utils/api.types'
 import { repeat } from 'lit/directives/repeat.js'
 import { datetimeDifference, datetimeToVideoTime, formatVideoTime } from '../utils/datetime'
 import resetcss from '../styles/reset.css?raw'

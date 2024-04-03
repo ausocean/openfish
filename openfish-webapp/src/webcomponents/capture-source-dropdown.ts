@@ -1,6 +1,6 @@
 import { LitElement, css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import { Result, CaptureSource } from '../utils/api.types.ts'
+import type { Result, CaptureSource } from '../utils/api.types.ts'
 import { repeat } from 'lit/directives/repeat.js'
 
 export type SelectCaptureSourceEvent = CustomEvent<number | null>
