@@ -3,6 +3,9 @@ import { customElement, state } from 'lit/decorators.js'
 import type { CaptureSource, Result } from '../utils/api.types.ts'
 import { repeat } from 'lit/directives/repeat.js'
 import resetcss from '../styles/reset.css?raw'
+import btncss from '../styles/buttons.css?raw'
+
+export type DeleteItemEvent = CustomEvent<number>
 
 @customElement('capturesource-list')
 export class CaptureSourceList extends LitElement {
@@ -49,6 +52,10 @@ export class CaptureSourceList extends LitElement {
     this.fetchData()
   }
 
+  dispatchDeleteItemEvent(id: number) {
+    this.dispatchEvent(new CustomEvent('deleteitem', { detail: id }) as DeleteItemEvent)
+  }
+
   render() {
     const header = html`
     <tr>
@@ -56,6 +63,7 @@ export class CaptureSourceList extends LitElement {
       <th>Camera Hardware</th>
       <th>Site ID</th>
       <th>Location</th>
+      <th></th>
     </tr>
     `
 
@@ -65,6 +73,8 @@ export class CaptureSourceList extends LitElement {
       <td>${source.camera_hardware}</td>
       <td>${source.site_id ?? '-'}</td>
       <td>${source.location}</td>
+      <td><button class="btn btn-sm btn-secondary" @click=${() =>
+        this.dispatchDeleteItemEvent(source.id)}>Delete</button></td>
     </tr>
     `
 
@@ -91,10 +101,11 @@ export class CaptureSourceList extends LitElement {
 
   static styles = css`
     ${unsafeCSS(resetcss)}
+    ${unsafeCSS(btncss)}
 
     table {
       display: grid;  
-      grid-template-columns: 1fr 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr 1fr min-content;
       border-radius: 0.25rem;
       border: 1px solid var(--gray-100);
     }
@@ -124,7 +135,7 @@ export class CaptureSourceList extends LitElement {
     tfoot {
       background-color: var(--gray-50);
       padding: 0.5em 0;
-      grid-column: 1/ span 4;
+      grid-column: 1/-1;
       display: flex;
       justify-content: center;
       gap: 0.25rem
