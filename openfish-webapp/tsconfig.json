@@ -4,7 +4,7 @@
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
     "module": "ESNext",
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],/* Using ES2023 for its findLastIndex function*/
+    "lib": ["ES2023", "DOM", "DOM.Iterable"] /* Using ES2023 for its findLastIndex function*/,
     "skipLibCheck": true,
 
     /* Bundler mode */

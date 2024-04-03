@@ -1,6 +1,6 @@
 import { LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { Annotation } from '../utils/api.types.ts'
+import type { Annotation } from '../utils/api.types.ts'
 import { repeat } from 'lit/directives/repeat.js'
 import { formatAsDate, formatAsTime, formatAsTimeZone } from '../utils/datetime.ts'
 

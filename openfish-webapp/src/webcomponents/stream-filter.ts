@@ -2,7 +2,7 @@ import { LitElement, css, html, unsafeCSS } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import resetcss from '../styles/reset.css?raw'
 import '@fooloomanzoo/datetime-picker/datetime-picker.js'
-import { type SelectCaptureSourceEvent } from './capture-source-dropdown.ts'
+import type { SelectCaptureSourceEvent } from './capture-source-dropdown.ts'
 
 // TODO: add support for start and end times.
 export type Filter = {
