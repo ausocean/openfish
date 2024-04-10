@@ -11,7 +11,8 @@
     <script type="module" src="./src/webcomponents/site-nav.ts"></script>
     <script type="module" src="./src/webcomponents/capturesource-list.ts"></script>
     <script type="module" src="./src/webcomponents/confirm-dialog.ts"></script>
-
+    <script type="module" src="./src/webcomponents/create-capture-source-dialog.ts"></script>
+    
     <style>
       site-nav {
         background-color: var(--bg);
@@ -32,6 +33,7 @@
     <script type="module" >
     const list = document.querySelector("capturesource-list")
     const confirmDialog = document.querySelector("confirm-dialog")
+    const createCaptureSourceDialog = document.querySelector("create-capture-source-dialog")
     const createBtn = document.querySelector("#create-btn")
 
     async function deleteCaptureSource(id) {
@@ -46,6 +48,8 @@
     }
 
     list.addEventListener("deleteitem", (e) => confirmDialog.show(()=> deleteCaptureSource(e.detail)))
+    createBtn.addEventListener("click", () => createCaptureSourceDialog.show())
+    createCaptureSourceDialog.addEventListener("createitem", ()=>list.fetchData())
     </script>
   </head>
   <body class="grid-layout">
@@ -56,6 +60,8 @@
     </header>
       
     <capturesource-list></capturesource-list>
+
     <confirm-dialog>Are you sure you want to delete this capture source?</confirm-dialog>
+    <create-capture-source-dialog></create-capture-source-dialog>
   </body>
 </html>
