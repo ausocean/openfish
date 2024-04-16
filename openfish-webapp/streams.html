@@ -4,28 +4,28 @@
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OpenFish</title>
+    <title>OpenFish | Streams</title>
     <link rel="stylesheet" href="./src/styles/index.css" />
 
+    <script type="module" src="./src/webcomponents/site-nav.ts"></script>
     <script type="module" src="./src/webcomponents/stream-list.ts"></script>
     <script type="module" src="./src/webcomponents/stream-filter.ts"></script>
     <script type="module" src="./src/webcomponents/capture-source-dropdown.ts"></script>
 
     <style>
+      site-nav {
+        background-color: var(--bg);
+        border-color: var(--gray-100);
+      }
+      h1 {
+        grid-column: page;
+      }
       stream-filter {
-        grid-row: content;
         grid-column: left-aside;
         height: min-content;
       }
       stream-list {
-        grid-row: content;
-        grid-column-start: content-start;
-        grid-column-end: page-end;
-      }
-
-      header {
-        background-color: var(--bg);
-        border-color: var(--gray-100);
+        grid-column: right-content;
       }
     </style>
 
@@ -42,9 +42,8 @@
     </script>
   </head>
   <body class="grid-layout">
-    <header>
-      <h1>OpenFish WebApp</h1>
-    </header>
+    <site-nav></site-nav>
+    <h1>View streams</h1>
     <stream-filter></stream-filter>
     <stream-list></stream-list>
   </body>

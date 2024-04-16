@@ -6,40 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OpenFish | Watch</title>
     <link rel="stylesheet" href="./src/styles/index.css" />
+
+    <script type="module" src="./src/webcomponents/site-nav.ts"></script>
     <script type="module" src="/src/webcomponents/watch-stream.ts"></script>
 
     <style>
-      main {
-        grid-row: content;
-        grid-column: page;
-        height: min-content;
-        
-      }
-
-      watch-stream {
-        box-shadow: var(--shadow-md);
-      }
-
       body {
         background-color: var(--blue-800);
       }
 
-      header {
+      site-nav {
         background-color: var(--blue-700);
         border-color: var(--blue-300);
         color: var(--blue-50);
       }
 
-      .title {
-        color: var(--blue-100);
-        font-size: 2rem;
-        margin: 1rem 0;
-        font-weight: 400;
+      header {
+        grid-column: page;
       }
 
-      .stream-id {
-        color: var(--blue-50);
-        font-weight: 700  ;
+      watch-stream {
+        grid-column: page;
+        box-shadow: var(--shadow-md);
       }
 
       .back-button {
@@ -57,6 +45,18 @@
           color: var(--blue-50);
         }
       }
+
+      h1 {
+        color: var(--blue-100);
+        font-size: 2rem;
+        font-weight: 400;
+        margin-top: 1rem;
+      }
+
+      .stream-id {
+        color: var(--blue-50);
+        font-weight: 700;
+      }
     </style>
 
     <script type="module">
@@ -73,16 +73,15 @@
     </script>
   </head>
   <body class="grid-layout">
-    <header class="dark">
-      <h1>OpenFish WebApp</h1>
-    </header>
-    <main>
+    <site-nav></site-nav>
+    <header>
       <a class="back-button" href="/streams.html">
         &leftarrow; Back to video streams
       </a>
-      <h2 class="title">Watching stream: <span class="stream-id">-</span> </h2>
-      <watch-stream></watch-stream>    
-    </main>
+      <h1>Watching stream: <span class="stream-id">-</span></h1>
+    </header>
+
+    <watch-stream></watch-stream>    
 
   </body>
 </html>
