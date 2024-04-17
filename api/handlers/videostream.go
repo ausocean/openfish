@@ -36,6 +36,7 @@ package handlers
 
 import (
 	"errors"
+	"io"
 	"strconv"
 	"time"
 
@@ -82,6 +83,11 @@ type GetVideoStreamsQuery struct {
 	CaptureSource *int64             `query:"capturesource"` // Optional.
 	TimeSpan      *entities.TimeSpan `query:"timespan"`      // Optional.
 	api.LimitAndOffset
+}
+
+// GetMediaQuery describes the URL query parameters required for the GetVideoStreamMedia endpoint.
+type GetMediaQuery struct {
+	Time string `query:"time"` // Optional.
 }
 
 // CreateVideoStreamBody describes the JSON format required for the CreateVideoStream endpoint.
@@ -135,6 +141,42 @@ func GetVideoStreamByID(ctx *fiber.Ctx) error {
 	// Format result.
 	result := FromVideoStream(videoStream, id, format)
 	return ctx.JSON(result)
+}
+
+func GetVideoStreamMedia(ctx *fiber.Ctx) error {
+	// Parse URL.
+	qry := new(GetMediaQuery)
+
+	if err := ctx.QueryParser(qry); err != nil {
+		return api.InvalidRequestURL(err)
+	}
+
+	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
+	if err != nil {
+		return api.InvalidRequestURL(err)
+	}
+
+	timespan, err := entities.TimeSpanFromString(qry.Time)
+	if err != nil {
+		return api.InvalidRequestURL(err)
+	}
+
+	// Fetch data from the datastore.
+	r, filename, err := services.GetVideoStreamMedia(id, *timespan)
+	if err != nil {
+		return api.DatastoreReadFailure(err)
+	}
+
+	// Set mime type and content-disposition headers.
+	ctx.Type(".mkv")
+	ctx.Attachment(filename)
+
+	// Write file to response.
+	if _, err := io.Copy(ctx, r); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // GetVideoStreams gets a list of video streams, filtering by timespan, capture source if specified.
