@@ -1,5 +1,5 @@
 import { LitElement } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import useYoutubePlayer from 'youtube-player'
 import type { YouTubePlayer } from 'youtube-player/dist/types'
 
@@ -12,12 +12,22 @@ export class YouTubePlayerElement extends LitElement {
   @property({ type: String })
   url = ''
 
+  _intervalID?: number
+
   @property()
   set playing(val: boolean) {
     if (val) {
+      clearInterval(this._intervalID)
       this._player?.playVideo()
+      this._player?.setPlaybackRate(1)
     } else {
-      this._player?.pauseVideo()
+      ;(async () => {
+        const pauseTime = (await this._player?.getCurrentTime()) ?? 0
+        this._intervalID = setInterval(() => {
+          this._player?.seekTo(pauseTime, true)
+        }, 100)
+        await this._player?.setPlaybackRate(0)
+      })()
     }
   }
 
