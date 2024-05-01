@@ -6,15 +6,23 @@ import resetcss from '../styles/reset.css?raw'
 import btncss from '../styles/buttons.css?raw'
 
 import './annotation-displayer'
-import './youtube-player'
 import './annotation-card'
 import './playback-controls'
 import './observation-editor'
 import './bounding-box-creator'
+// import 'vidstack/bundle'
+
+import vidstackcss from 'vidstack/player/styles/default/theme.css?raw'
+import 'vidstack/player'
+import 'vidstack/player/ui'
+
 import type { MouseoverAnnotationEvent } from './annotation-displayer'
-import type { DurationChangeEvent, TimeUpdateEvent } from './youtube-player'
 import type { ObservationEvent } from './observation-editor'
 import type { UpdateBoundingBoxEvent } from './bounding-box-creator'
+
+import { ref, type Ref, createRef } from 'lit/directives/ref.js'
+import type { MediaPlayerElement } from 'vidstack/elements'
+import { extractVideoID } from '../utils/youtube'
 
 @customElement('watch-stream')
 export class WatchStream extends LitElement {
@@ -52,10 +60,12 @@ export class WatchStream extends LitElement {
   private _editorMode: 'simple' | 'advanced' = 'simple'
 
   private play() {
+    this.playerRef.value?.play()
     this._playing = true
   }
 
   private pause() {
+    this.playerRef.value?.pause()
     this._playing = false
   }
 
@@ -85,6 +95,8 @@ export class WatchStream extends LitElement {
     this._start = null
     this._end = null
   }
+
+  playerRef: Ref<MediaPlayerElement> = createRef()
 
   private async confirmAnnotation() {
     // TODO: set observer to user's name.
@@ -163,19 +175,25 @@ export class WatchStream extends LitElement {
       )
     }
 
-    const video =
-      this._videostream == null
-        ? html``
-        : html`
-        <youtube-player 
-          .url=${this._videostream?.stream_url}
-          .seekTo=${this._seekTo}
-          .playing=${this._playing}
-          @timeupdate=${(e: TimeUpdateEvent) => (this._currentTime = e.detail)} 
-          @durationchange=${(e: DurationChangeEvent) => (this._duration = e.detail)}
-          @loadeddata=${this.play}
-          >
-        </video-player>`
+    // Render video.
+    const videoID = extractVideoID(this._videostream?.stream_url)
+
+    const video = html`
+    <media-player
+      ${ref(this.playerRef)} 
+      title="Openfish Video" 
+      src="youtube/${videoID}"
+      .currentTime="${this._seekTo}"
+      @time-update=${(e: CustomEvent<{ currentTime: number }>) =>
+        (this._currentTime = e.detail.currentTime)} 
+      @duration-change=${(e: CustomEvent<number>) => (this._duration = e.detail)}
+      @can-play=${this.play}
+      .muted=${true}
+    >
+      <media-provider></media-provider>
+      <media-video-layout></media-video-layout>
+    </media-player>
+    `
 
     const playbackControls = html`
     <playback-controls 
@@ -296,6 +314,7 @@ export class WatchStream extends LitElement {
   static styles = css`
     ${unsafeCSS(resetcss)}
     ${unsafeCSS(btncss)}
+    ${unsafeCSS(vidstackcss)}
 
     .root {
       --video-ratio: 4 / 3;
@@ -327,7 +346,7 @@ export class WatchStream extends LitElement {
       display: flex;
       flex-direction: column;
     }
-    youtube-player {
+    media-player {
       grid-area: video-player;
       aspect-ratio: var(--video-ratio);
       height: 100%;
