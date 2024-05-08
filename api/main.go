@@ -34,21 +34,20 @@ LICENSE
 package main
 
 import (
-	"context"
 	"errors"
+	"flag"
+	"fmt"
 	"os"
 	"strconv"
 
 	"github.com/ausocean/openfish/api/api"
 	"github.com/ausocean/openfish/api/ds_client"
+	"github.com/ausocean/openfish/api/entities"
 	"github.com/ausocean/openfish/api/handlers"
-
-	"flag"
-	"fmt"
+	"github.com/ausocean/openfish/api/middleware"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"google.golang.org/api/idtoken"
 )
 
 // registerAPIRoutes registers all handler functions to their routes.
@@ -57,32 +56,43 @@ func registerAPIRoutes(app *fiber.App) {
 	v1 := app.Group("/api/v1")
 
 	// Capture sources.
-	v1.Get("/capturesources/:id", handlers.GetCaptureSourceByID)
-	v1.Get("/capturesources", handlers.GetCaptureSources)
-	v1.Post("/capturesources", handlers.CreateCaptureSource)
-	v1.Patch("/capturesources/:id", handlers.UpdateCaptureSource)
-	v1.Delete("/capturesources/:id", handlers.DeleteCaptureSource)
+	v1.Group("/capturesources").
+		Get("/:id", handlers.GetCaptureSourceByID).
+		Get("/", handlers.GetCaptureSources).
+		Post("/", middleware.Guard(entities.AdminRole), handlers.CreateCaptureSource).
+		Patch("/:id", middleware.Guard(entities.AdminRole), handlers.UpdateCaptureSource).
+		Delete("/:id", middleware.Guard(entities.AdminRole), handlers.DeleteCaptureSource)
 
 	// Video streams.
-	v1.Get("/videostreams/:id", handlers.GetVideoStreamByID)
-	v1.Get("/videostreams", handlers.GetVideoStreams)
-	v1.Post("/videostreams/live", handlers.StartVideoStream)
-	v1.Patch("/videostreams/:id/live", handlers.EndVideoStream)
-	v1.Post("/videostreams", handlers.CreateVideoStream)
-	v1.Patch("/videostreams/:id", handlers.UpdateVideoStream)
-	v1.Delete("/videostreams/:id", handlers.DeleteVideoStream)
+	v1.Group("/videostreams").
+		Get("/:id", handlers.GetVideoStreamByID).
+		Get("/", handlers.GetVideoStreams).
+		Post("/live", middleware.Guard(entities.CuratorRole), handlers.StartVideoStream).
+		Patch("/:id/live", middleware.Guard(entities.CuratorRole), handlers.EndVideoStream).
+		Post("/", middleware.Guard(entities.CuratorRole), handlers.CreateVideoStream).
+		Patch("/:id", middleware.Guard(entities.CuratorRole), handlers.UpdateVideoStream).
+		Delete("/:id", middleware.Guard(entities.AdminRole), handlers.DeleteVideoStream)
 
 	// Annotations.
-	v1.Get("/annotations/:id", handlers.GetAnnotationByID)
-	v1.Get("/annotations", handlers.GetAnnotations)
-	v1.Post("/annotations", handlers.CreateAnnotation)
-	v1.Delete("/annotations/:id", handlers.DeleteAnnotation)
+	v1.Group("/annotations").
+		Get("/:id", handlers.GetAnnotationByID).
+		Get("/", handlers.GetAnnotations).
+		Post("/", middleware.Guard(entities.AnnotatorRole), handlers.CreateAnnotation).
+		Delete("/:id", middleware.Guard(entities.AdminRole), handlers.DeleteAnnotation)
 
 	// Species.
-	v1.Get("/species/recommended", handlers.GetRecommendedSpecies)
-	v1.Get("/species/:id", handlers.GetSpeciesByID)
-	v1.Post("/species", handlers.CreateSpecies)
-	v1.Delete("/species/:id", handlers.DeleteSpecies)
+	v1.Group("/species").
+		Get("/recommended", handlers.GetRecommendedSpecies).
+		Get("/:id", handlers.GetSpeciesByID).
+		Post("/", middleware.Guard(entities.AdminRole), handlers.CreateSpecies).
+		Delete("/:id", middleware.Guard(entities.AdminRole), handlers.DeleteSpecies)
+
+	// Users.
+	v1.Group("/users", middleware.Guard(entities.AdminRole)).
+		Get("/:email", handlers.GetUserByEmail).
+		Get("/", handlers.GetUsers).
+		Patch("/:email", middleware.Guard(entities.AdminRole), handlers.UpdateUser).
+		Delete("/:email", middleware.Guard(entities.AdminRole), handlers.DeleteUser)
 
 	// Auth.
 	v1.Get("/auth/me", handlers.GetSelf)
@@ -103,31 +113,6 @@ func errorHandler(ctx *fiber.Ctx, err error) error {
 	// Send JSON response.
 	ctx.Status(code).JSON(api.Failure{Message: err.Error()})
 	return nil
-}
-
-// validateJWT creates a validator middleware that validate JWT tokens returned from Google IAP.
-// Otherwise, it returns a 401 Unauthorized http error.
-// See more: https://cloud.google.com/iap/docs/signed-headers-howto#iap_validate_jwt-go
-func validateJWT(aud string) func(*fiber.Ctx) error {
-
-	fmt.Println("jwt audience: ", aud)
-
-	return func(ctx *fiber.Ctx) error {
-
-		// Get JWT from header.
-		iapJWT := ctx.Get("X-Goog-IAP-JWT-Assertion")
-
-		// Validate JWT token.
-		payload, err := idtoken.Validate(context.Background(), iapJWT, aud)
-		if err != nil {
-			return api.Unauthorized(err)
-		}
-
-		ctx.Locals("subject", payload.Subject)
-		ctx.Locals("email", payload.Claims["email"])
-
-		return ctx.Next()
-	}
 }
 
 func envOrFlag[T any](flagName string, envName string, description string, defaultVal T, parse func(string) (T, error), flag func(string, T, string) *T) *T {
@@ -177,7 +162,7 @@ func main() {
 	// IAP middleware.
 	if *useIAP {
 		fmt.Println("using IAP for authentication")
-		app.Use(validateJWT(*jwtAudience))
+		app.Use(middleware.ValidateJWT(*jwtAudience))
 	}
 
 	// Register routes.

@@ -236,6 +236,7 @@ func UpdateCaptureSource(ctx *fiber.Ctx) error {
 
 // DeleteCaptureSource deletes a capture source.
 func DeleteCaptureSource(ctx *fiber.Ctx) error {
+
 	// Parse URL.
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 	if err != nil {
