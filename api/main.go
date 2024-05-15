@@ -65,6 +65,7 @@ func registerAPIRoutes(app *fiber.App) {
 
 	// Video streams.
 	v1.Get("/videostreams/:id", handlers.GetVideoStreamByID)
+	v1.Get("/videostreams/:id/media", handlers.GetVideoStreamMedia)
 	v1.Get("/videostreams", handlers.GetVideoStreams)
 	v1.Post("/videostreams/live", handlers.StartVideoStream)
 	v1.Patch("/videostreams/:id/live", handlers.EndVideoStream)

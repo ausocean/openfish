@@ -36,6 +36,8 @@ package services
 import (
 	"context"
 	"fmt"
+	"io"
+	"os/exec"
 	"time"
 
 	"github.com/ausocean/openfish/api/ds_client"
@@ -62,6 +64,41 @@ func VideoStreamExists(id int64) bool {
 	var videoStream entities.VideoStream
 	err := store.Get(context.Background(), key, &videoStream)
 	return err == nil
+}
+
+func GetVideoStreamMedia(id int64, timespan entities.TimeSpan) (io.ReadCloser, string, error) {
+	store := ds_client.Get()
+	key := store.IDKey(entities.VIDEOSTREAM_KIND, id)
+	var videoStream entities.VideoStream
+	err := store.Get(context.Background(), key, &videoStream)
+	if err != nil {
+		return nil, "", err
+	}
+
+	start := timespan.Start.Format(time.TimeOnly)
+	end := timespan.End.Format(time.TimeOnly)
+
+	cmd := exec.Command("yt-dlp",
+		"--download-sections",
+		fmt.Sprintf("*%s-%s", start, end),
+		"--force-keyframes-at-cuts",
+		"-o",
+		"-",
+		"-q",
+		videoStream.StreamUrl)
+
+	cmd.Dir = "/tmp"
+	out, err := cmd.StdoutPipe()
+	if err != nil {
+		return nil, "", err
+	}
+	err = cmd.Start()
+	if err != nil {
+		return nil, "", err
+	}
+
+	filename := fmt.Sprintf("%d_%s_%s.mkv", id, start, end)
+	return out, filename, nil
 }
 
 // GetVideoStreams gets a list of video streams, filtering by timespan, capturesource if specified.

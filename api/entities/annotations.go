@@ -36,6 +36,8 @@ package entities
 
 import (
 	"encoding/json"
+	"errors"
+	"strings"
 	"time"
 
 	"github.com/ausocean/openfish/datastore"
@@ -48,6 +50,28 @@ const ANNOTATION_KIND = "Annotation"
 type TimeSpan struct {
 	Start time.Time `json:"start"`
 	End   time.Time `json:"end"`
+}
+
+func TimeSpanFromString(str string) (*TimeSpan, error) {
+	parts := strings.Split(str, "-")
+	if len(parts) != 2 {
+		return nil, errors.New("invalid time")
+	}
+
+	start, err := time.Parse(time.TimeOnly, parts[0])
+	if err != nil {
+		return nil, err
+	}
+	end, err := time.Parse(time.TimeOnly, parts[1])
+	if err != nil {
+		return nil, err
+	}
+
+	if end.Before(start) {
+		return nil, errors.New("start and end time provided in the wrong order")
+	}
+
+	return &TimeSpan{Start: start, End: end}, nil
 }
 
 // BoundingBox is a rectangle enclosing something interesting in a video.
