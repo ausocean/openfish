@@ -6,7 +6,7 @@ import resetcss from '../styles/reset.css?raw'
 export class SiteNav extends LitElement {
   render() {
     return html`
-    <h1><a href="/">OpenFish WebApp</a></h1>
+    <h1><a href="/">OpenFish</a></h1>
     <menu>
         <li><a href="/streams.html">View streams</a></li>
         <li><a href="/capturesources.html">Manage capture sources</a></li>
@@ -36,7 +36,7 @@ export class SiteNav extends LitElement {
     grid-column: right-content;
     display: flex;
     justify-content: flex-end;
-    align-self: end;
+    align-self: center;
     gap: 1rem;
     font-weight: 500;
 
