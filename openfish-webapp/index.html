@@ -5,9 +5,56 @@
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OpenFish</title>
-    <link rel="stylesheet" href="./src/index.css" />
+    <link rel="stylesheet" href="./src/styles/index.css" />
+    <link rel="stylesheet" href="./src/styles/buttons.css" />
+
+    <script type="module" src="./src/webcomponents/site-nav.ts"></script>
+
+    <style>
+      site-nav {
+        background-color: var(--bg);
+        border-color: var(--gray-100);
+      }
+      main {
+        grid-row: content;
+        grid-column: page;
+        align-self: center;
+        row-gap: 4rem;
+      }
+      h1 {
+        font-size: 3.5rem;
+        font-weight: 600;
+        color: var(--blue-600);
+      }
+      [role="doc-subtitle"] {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--gray-800);
+      }
+      .intro {
+        max-width: min(50ch, 50%);
+        font-size: 1.25rem;
+      }
+      menu {
+        list-style-type: none;
+        display: flex;
+        padding: 0;
+        gap: 1em;
+      }
+    </style>
+
   </head>
-  <body>
-    Placeholder home page
+  <body class="grid-layout">
+    <site-nav></site-nav>
+    <main>
+      <h1>OpenFish</h1>
+      <p role="doc-subtitle">A project by AusOcean</p>
+      <p class="intro">Watch our underwater streams, share what you observe and help us identify and improve our understanding of marine species!</p>
+      <menu>
+        <li><a class="btn btn-orange" href="/streams.html">View streams</a></li>
+        <li><a class="btn btn-secondary" href="https://ausocean.github.io/openfish/project-overview.html">Learn more about the project</a></li>
+      </menu>
+    </main>
+
   </body>
 </html>

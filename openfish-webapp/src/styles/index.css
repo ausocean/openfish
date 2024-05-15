@@ -119,19 +119,21 @@ html, *, *:before, *:after {
 }
 
 /* Link styling */
-a {
+a:not(.btn) {
   font-weight: 500;
   color: var(--bright-blue-400);
   text-decoration: inherit;
+
+  &:hover {
+    color: var(--bright-blue-500);
+  }
 }
-a:hover {
-  color: var(--bright-blue-500);
-}
+
 
 /* Page layout */
 body {
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 body.grid-layout {
