@@ -36,10 +36,13 @@ export class AnnotationOverlay extends AnnotationDisplayer {
           <rect 
             class="annotation-rect ${annotation.id === this.activeAnnotation ? 'active' : ''}" 
             x="${x1}%" y="${y1}%" width="${x2 - x1}%" height="${y2 - y1}%" 
-            stroke-width="4" fill="#00000000" 
+            stroke-width="3px" fill="#00000000" 
           />
-          <foreignobject class="node" x="${x1}%" y="${y1}%" width="${x2 - x1}%" height="${y2 - y1}%" >
-            <span class="annotation-label">Ann. #${annotation.id}</span>              
+          <foreignobject x="${x1}%" y="${y1}%" width="${x2 - x1}%" height="${y2 - y1}%" >
+            <span class="annotation-label">
+              <span>${annotation.observation.common_name}</span>
+              <span>(${annotation.observation.species})</span>
+            </span>              
           </foreignobject>
         </g>`
     })
@@ -65,10 +68,17 @@ export class AnnotationOverlay extends AnnotationDisplayer {
     }
     .annotation-label {
       font-size: 0.75rem;
-      padding: 0.4rem 0.5rem;
+      padding: 0.1rem 0.2rem;
       background-color: var(--bright-blue-400);
       color: var(--content);
-    }`
+      width: 100%;
+      top: -1px;
+      position: absolute;
+    }
+    .annotation-label>span {
+      text-wrap: nowrap;
+    }
+    `
 }
 
 @customElement('annotation-list')
