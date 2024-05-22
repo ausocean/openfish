@@ -35,6 +35,8 @@ LICENSE
 package handlers
 
 import (
+	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -189,6 +191,15 @@ func CreateAnnotation(ctx *fiber.Ctx) error {
 
 	// Get logged in user.
 	observer := ctx.Locals("email").(string)
+
+	// Check logged in user is in annotator_list.
+	videostream, err := services.GetVideoStreamByID(body.VideoStreamID)
+	if err != nil {
+		return api.DatastoreReadFailure(err)
+	}
+	if len(videostream.AnnotatorList) != 0 && !slices.Contains(videostream.AnnotatorList, observer) {
+		return api.Forbidden(fmt.Errorf("logged in user is not within annotator list for this videostream (%d)", body.VideoStreamID))
+	}
 
 	// Write data to the datastore.
 	id, err := services.CreateAnnotation(body.VideoStreamID,

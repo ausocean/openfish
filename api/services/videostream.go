@@ -100,7 +100,7 @@ func GetVideoStreams(limit int, offset int, timespan *entities.TimeSpan, capture
 }
 
 // CreateVideoStream puts a video stream in the datastore, checking if the capture source exists.
-func CreateVideoStream(streamURL string, captureSource int64, startTime time.Time, endTime *time.Time) (int64, error) {
+func CreateVideoStream(streamURL string, captureSource int64, startTime time.Time, endTime *time.Time, annotatorList []string) (int64, error) {
 
 	// Verify CaptureSource exists.
 	if !CaptureSourceExists(captureSource) {
@@ -116,6 +116,7 @@ func CreateVideoStream(streamURL string, captureSource int64, startTime time.Tim
 		CaptureSource: captureSource,
 		StartTime:     startTime,
 		EndTime:       endTime,
+		AnnotatorList: annotatorList,
 	}
 	key, err := store.Put(context.Background(), key, &vs)
 	if err != nil {
@@ -127,7 +128,7 @@ func CreateVideoStream(streamURL string, captureSource int64, startTime time.Tim
 }
 
 // UpdateCaptureSource updates a capture source.
-func UpdateVideoStream(id int64, streamURL *string, captureSource *int64, startTime *time.Time, endTime *time.Time) error {
+func UpdateVideoStream(id int64, streamURL *string, captureSource *int64, startTime *time.Time, endTime *time.Time, annotatorList *[]string) error {
 
 	// Update data in the datastore.
 	store := ds_client.Get()
@@ -149,6 +150,9 @@ func UpdateVideoStream(id int64, streamURL *string, captureSource *int64, startT
 			}
 			if endTime != nil {
 				v.EndTime = endTime
+			}
+			if annotatorList != nil {
+				v.AnnotatorList = *annotatorList
 			}
 		}
 	}, &videoStream)

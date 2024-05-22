@@ -45,7 +45,7 @@ func TestCreateAnnotation(t *testing.T) {
 
 	// Create a new annotation entity.
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm)
+	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []string{})
 	_, err := services.CreateAnnotation(vs,
 		entities.TimeSpan{Start: _8am, End: _9am},
 		nil, "scott@ausocean.org",
@@ -61,7 +61,7 @@ func TestAnnotationExists(t *testing.T) {
 
 	// Create a new annotation entity.
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm)
+	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []string{})
 	id, _ := services.CreateAnnotation(vs,
 		entities.TimeSpan{Start: _8am, End: _9am},
 		nil, "scott@ausocean.org",
@@ -88,7 +88,7 @@ func TestGetAnnotationByID(t *testing.T) {
 
 	// Create a new annotation entity.
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm)
+	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []string{})
 	id, _ := services.CreateAnnotation(vs,
 		entities.TimeSpan{Start: _8am, End: _9am},
 		nil, "scott@ausocean.org",
@@ -119,7 +119,7 @@ func TestDeleteAnnotation(t *testing.T) {
 
 	// Create a new annotation entity.
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm)
+	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []string{})
 	id, _ := services.CreateAnnotation(vs,
 		entities.TimeSpan{Start: _8am, End: _9am},
 		nil, "scott@ausocean.org",
