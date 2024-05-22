@@ -23,11 +23,14 @@ export default defineConfig({
         text: 'API Documentation',
         items: [
           { text: 'Introduction', link: '/api/'},
+          { text: 'Authentication', link: '/api/authentication'},
+          { text: 'Roles and Permissions', link: '/api/roles-and-permissions'},
           { text: 'API Usage', link: '/api/api-usage', items: [
             { text: 'Capture Sources', link: '/api/capture-sources'},
             { text: 'Video Streams', link: '/api/video-streams'},
             { text: 'Annotations', link: '/api/annotations'},
             { text: 'Species', link: '/api/species'},
+            { text: 'Users', link: '/api/users'},
           ]},
 
         ]
