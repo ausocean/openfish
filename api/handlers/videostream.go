@@ -3,7 +3,7 @@ AUTHORS
   Scott Barnard <scott@ausocean.org>
 
 LICENSE
-  Copyright (c) 2023, The OpenFish Contributors.
+  Copyright (c) 2023-2024, The OpenFish Contributors.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -54,6 +54,7 @@ type VideoStreamResult struct {
 	EndTime       *time.Time `json:"endTime,omitempty"`
 	StreamUrl     *string    `json:"stream_url,omitempty"`
 	CaptureSource *int64     `json:"capturesource,omitempty"`
+	AnnotatorList *[]string  `json:"annotator_list,omitempty"`
 }
 
 // FromVideoStream creates a VideoStreamResult from a entities.VideoStream and key, formatting it according to the requested format.
@@ -74,6 +75,9 @@ func FromVideoStream(videoStream *entities.VideoStream, id int64, format *api.Fo
 	if format.Requires("capturesource") {
 		result.CaptureSource = &videoStream.CaptureSource
 	}
+	if format.Requires("annotator_list") {
+		result.AnnotatorList = &videoStream.AnnotatorList
+	}
 	return result
 }
 
@@ -92,6 +96,7 @@ type CreateVideoStreamBody struct {
 	EndTime       time.Time `json:"endTime"`
 	StreamUrl     string    `json:"stream_url"`
 	CaptureSource int64     `json:"capturesource"`
+	AnnotatorList []string  `json:"annotator_list"`
 }
 
 // StartVideoStreamBody describes the JSON format required for the StartVideoStream endpoint.
@@ -100,16 +105,18 @@ type CreateVideoStreamBody struct {
 // Datetime is omitted because it uses the current time.
 // Duration is omitted because it will be set once the stream concludes.
 type StartVideoStreamBody struct {
-	StreamUrl     string `json:"stream_url"`
-	CaptureSource int64  `json:"capturesource"`
+	StreamUrl     string   `json:"stream_url"`
+	CaptureSource int64    `json:"capturesource"`
+	AnnotatorList []string `json:"annotator_list"`
 }
 
 // UpdateVideoStreamBody describes the JSON format required for the UpdateVideoStream endpoint.
 type UpdateVideoStreamBody struct {
-	StartTime     *time.Time `json:"startTime"`     // Optional.
-	EndTime       *time.Time `json:"endTime"`       // Optional.
-	StreamUrl     *string    `json:"stream_url"`    // Optional.
-	CaptureSource *int64     `json:"capturesource"` // Optional.
+	StartTime     *time.Time `json:"startTime"`      // Optional.
+	EndTime       *time.Time `json:"endTime"`        // Optional.
+	StreamUrl     *string    `json:"stream_url"`     // Optional.
+	CaptureSource *int64     `json:"capturesource"`  // Optional.
+	AnnotatorList *[]string  `json:"annotator_list"` // Optional.
 }
 
 // GetVideoStreamByID gets a video stream when provided with an ID.
@@ -191,7 +198,7 @@ func CreateVideoStream(ctx *fiber.Ctx) error {
 	}
 
 	// Create video stream entity and add to the datastore.
-	id, err := services.CreateVideoStream(body.StreamUrl, body.CaptureSource, body.StartTime, &body.EndTime)
+	id, err := services.CreateVideoStream(body.StreamUrl, body.CaptureSource, body.StartTime, &body.EndTime, body.AnnotatorList)
 	if err != nil {
 		return api.DatastoreWriteFailure(err)
 	}
@@ -212,7 +219,7 @@ func StartVideoStream(ctx *fiber.Ctx) error {
 	}
 
 	// Create video stream entity and add to the datastore.
-	id, err := services.CreateVideoStream(body.StreamUrl, body.CaptureSource, time.Now(), nil)
+	id, err := services.CreateVideoStream(body.StreamUrl, body.CaptureSource, time.Now(), nil, body.AnnotatorList)
 	if err != nil {
 		return api.DatastoreWriteFailure(err)
 	}
@@ -234,7 +241,7 @@ func EndVideoStream(ctx *fiber.Ctx) error {
 	}
 
 	// Update data in the datastore.
-	err = services.UpdateVideoStream(id, nil, nil, nil, &now)
+	err = services.UpdateVideoStream(id, nil, nil, nil, &now, nil)
 	if err != nil {
 		return api.DatastoreWriteFailure(err)
 	}
@@ -257,7 +264,7 @@ func UpdateVideoStream(ctx *fiber.Ctx) error {
 	}
 
 	// Update data in the datastore.
-	err = services.UpdateVideoStream(id, body.StreamUrl, body.CaptureSource, body.StartTime, body.EndTime)
+	err = services.UpdateVideoStream(id, body.StreamUrl, body.CaptureSource, body.StartTime, body.EndTime, body.AnnotatorList)
 	if err != nil {
 		return api.DatastoreWriteFailure(err)
 	}

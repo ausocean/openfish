@@ -215,7 +215,7 @@ func TestDeleteCaptureSourceWithAssociatedVideoStreams(t *testing.T) {
 
 	// Create a new capture source entity and a video stream that references it.
 	id, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(id), _8am, &_4pm)
+	services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(id), _8am, &_4pm, []string{})
 
 	err := services.DeleteCaptureSource(int64(id))
 	if err == nil {
