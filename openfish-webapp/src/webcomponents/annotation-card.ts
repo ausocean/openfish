@@ -1,13 +1,9 @@
-import { LitElement, css, html } from 'lit'
+import { LitElement, css, html, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import type { Annotation } from '../utils/api.types.ts'
 import { repeat } from 'lit/directives/repeat.js'
-import { formatDuration, parseVideoTime } from '../utils/datetime.ts'
+import resetcss from '../styles/reset.css?raw'
 
-/**
- * TODO: write component documentation
- *
- */
 @customElement('annotation-card')
 export class AnnotationCard extends LitElement {
   @property({ type: Object })
@@ -16,6 +12,9 @@ export class AnnotationCard extends LitElement {
   @property({ type: Boolean })
   outline = false
 
+  @property({ type: Boolean })
+  glow = false
+
   render() {
     if (this.annotation === undefined) {
       return html`<div class="card"></div>`
@@ -23,10 +22,11 @@ export class AnnotationCard extends LitElement {
 
     const start = this.annotation.timespan.start
     const end = this.annotation.timespan.end
-    const duration = formatDuration(parseVideoTime(end) - parseVideoTime(start))
+
+    const { common_name, species, ...rest } = this.annotation.observation
 
     const rows = repeat(
-      Object.entries(this.annotation.observation),
+      Object.entries(rest),
       ([key, val]) => html`
       <tr>
       <td>${key}</td>
@@ -35,23 +35,8 @@ export class AnnotationCard extends LitElement {
     `
     )
 
-    return html`
-    <div class="card ${this.outline ? 'outline' : ''}">
-    <div class="header">
-      <span class="title">Annotation #${this.annotation.id}</span>
-      <span class="observer">${this.annotation.observer}</span>
-    </div>
-    <div class="timestamps">
-      <div>
-        <span>Time: </span>
-        <span><em>${start}</em> - <em>${end}</em></span>
-      </div>
-      <div>
-        <span>Duration: </span>
-        <span><em>${duration} seconds</em></span>
-      </div>
-    </div>
-    <table>
+    const table = html`
+      <table class="cols-2">
         <thead>
             <tr>
                 <th>Property</th>
@@ -61,41 +46,61 @@ export class AnnotationCard extends LitElement {
         <tbody>
         ${rows}
         </tbody>
-    </table>
-    
-    </div>
+      </table>
+    `
+
+    return html`
+    <article class="card ${this.glow ? 'glow' : ''} ${this.outline ? 'outline' : ''}">
+      <span class="title">${common_name}</span>
+      <span class="observer">${this.annotation.observer}</span>
+      <span class="species">${species}</span>
+      <span class="timestamps"><a href="#">${start}</a> - <a href="#">${end}</a></span>
+      
+      ${Object.entries(rest).length > 0 ? table : html``}
+    </article>
     `
   }
 
   static styles = css`
+  ${unsafeCSS(resetcss)}
+
+  a:not(.btn) {
+    font-weight: 500;
+    color: var(--content);
+    text-decoration: underline;
+  
+    &:hover {
+      color: var(--bright-blue-500);
+    }
+  }
+
   .card {
     background-color: var(--gray-50);
     border: 2px solid var(--blue-300);
-    padding: 1rem;
+    padding: 0.75rem;
     border-radius: .5rem;
     box-shadow:  var(--shadow-sm);
     transition: box-shadow 0.25s;
+
+    display: grid;
+    gap: 0.5rem;
+    grid-template-rows: min-content min-content min-content;
+    grid-template-columns: 1fr min-content;
+    width: 100%;
+
+  }
+  .card.glow { 
+    border: 2px solid var(--bright-blue-400);
+    box-shadow:  var(--shadow-lg), 0px 0px 10px 2px color-mix(in srgb, var(--bright-blue-400) 80%, transparent);
   }
   .card.outline {
     border: 2px solid var(--bright-blue-400);
-    box-shadow:  var(--shadow-lg), 0px 0px 10px 2px color-mix(in srgb, var(--bright-blue-400) 80%, transparent);
-    ;
+    box-shadow: var(--bright-blue-400) 0 0 0 2px inset;
   }
-  .header {
-    display: flex; 
-    justify-content: space-between;
-    align-items: baseline;
-    width: 100%;
-    border-bottom: 1px solid var(--gray-200);
-    padding-bottom: 0.5rem;
+  .card.outline.glow {
+    box-shadow: var(--bright-blue-400) 0 0 0 2px inset, var(--shadow-lg), 0px 0px 10px 2px color-mix(in srgb, var(--bright-blue-400) 80%, transparent);
   }
 
-  .header>span {
-    margin-right: 1rem;
-  }
-  .header>span:last-child {
-    margin-right: 0;
-  }
 
   .title {
     font-weight: bold;
@@ -110,23 +115,16 @@ export class AnnotationCard extends LitElement {
   }
 
   .timestamps {
-    padding: 0.5rem 0;
-    width: 100%;
     font-size: 0.8rem;
-    color: var(--gray-800);
-  }
-  .timestamps>div>:nth-child(1) {
-    display: inline-block;
-    width: 4rem;
-  }
-  .timestamps em {
-    color: var(--content);
+    text-wrap: nowrap;
+    place-self: end;
   }
 
   table {
     font-size: 0.8rem;
     width: 100%;
     border-spacing: 0;
+    grid-column: 1 / 3;
   }
   table th:nth-child(1) {
     width: 40%;
