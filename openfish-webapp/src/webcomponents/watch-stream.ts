@@ -264,7 +264,8 @@ export class WatchStream extends LitElement {
         </header>
         <div class="scrollable">
           <annotation-list
-            .annotations=${filteredAnnotations}
+            .annotations=${this._annotations}
+            .currentTime=${this._currentTime}
             .activeAnnotation=${this._activeId}
             @mouseover-annotation=${(e: MouseoverAnnotationEvent) => (this._activeId = e.detail)}
             >
@@ -299,9 +300,11 @@ export class WatchStream extends LitElement {
 
     return html`
       <div class="root">
-        ${video}
-        ${overlay}
-        ${aside}
+        <div class="row">  
+          ${video}
+          ${overlay}
+          ${aside}
+        </div>
         ${playbackControls}
       </div>`
   }
@@ -313,16 +316,20 @@ export class WatchStream extends LitElement {
 
     .root {
       --video-ratio: 4 / 3;
-      --aside-width: 45ch;
-
+      
+      height: calc(100vh - 12.75rem);
       border-radius: 0.5rem;
       overflow: clip;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .row {
       display: grid;
-      grid-template-rows: min-content 1fr;
-      grid-template-columns: 1fr var(--aside-width);
-      grid-template-areas:
-        "video-player annotations"
-        "controls controls";
+      height: calc(100% - 3rem);
+      grid-template-rows: 1fr;
+      grid-template-columns: min-content 1fr;
+      grid-template-areas: "video-player annotations";
     }
 
     h2 {
@@ -337,7 +344,6 @@ export class WatchStream extends LitElement {
     aside {
       grid-area: annotations;
       background-color: var(--blue-700);
-      padding: 0 1rem;
       display: flex;
       flex-direction: column;
     }
@@ -350,17 +356,15 @@ export class WatchStream extends LitElement {
       grid-area: video-player;
       z-index: 100;
     }
-    playback-controls  {
-      grid-area: controls;
-    }
 
     aside header {
-      padding: 0.75rem 0;
-      border-bottom: 1px solid var(--blue-200);
+      padding: 0.75rem 1rem;
+      background: var(--blue-500);
       display: flex;
       align-items: center;
       justify-content: end;
       gap: 0.5rem;
+      box-shadow: var(--shadow-md);
 
       & :first-child {
         margin-right: auto
@@ -376,7 +380,10 @@ export class WatchStream extends LitElement {
       position: absolute;
       left: 0;
       top: 0;
-      padding: 0.5rem;
+    }
+
+    annotation-list {
+      width: 100%;
     }
 
     h3 {

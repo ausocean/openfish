@@ -139,6 +139,6 @@ body {
 body.grid-layout {
   display: grid;
   gap: 1rem;
-  grid-template-columns: [fullwidth-start] 1fr [page-start left-aside-start left-content-start] 16rem [left-aside-end right-content-start] minmax(auto, 44rem) [right-aside-start left-content-end] 16rem [page-end right-aside-end right-content-end] 1fr [fullwidth-end];
+  grid-template-columns: [fullwidth-start] 1fr [page-start left-aside-start left-content-start] 16rem [left-aside-end right-content-start] minmax(auto, 54rem) [right-aside-start left-content-end] 16rem [page-end right-aside-end right-content-end] 1fr [fullwidth-end];
   grid-template-rows: [header-start] 4rem [header-end title-start] min-content [title-end content-start] 1fr [content-end];
 }

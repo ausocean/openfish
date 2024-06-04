@@ -3,6 +3,8 @@ import { customElement, property } from 'lit/decorators.js'
 import type { Annotation } from '../utils/api.types.ts'
 import { repeat } from 'lit/directives/repeat.js'
 import resetcss from '../styles/reset.css?raw'
+import { parseVideoTime } from '../utils/datetime.ts'
+import { createRef, ref, type Ref } from 'lit/directives/ref.js'
 
 export type MouseoverAnnotationEvent = CustomEvent<number | null>
 
@@ -12,6 +14,9 @@ abstract class AnnotationDisplayer extends LitElement {
 
   @property({ type: Number })
   activeAnnotation: number | null = null
+
+  @property({ type: Number })
+  currentTime = 0
 
   dispatchMouseOverAnnotation(id: number | null) {
     this.dispatchEvent(new CustomEvent('mouseover-annotation', { detail: id }))
@@ -83,20 +88,30 @@ export class AnnotationOverlay extends AnnotationDisplayer {
 
 @customElement('annotation-list')
 export class AnnotationList extends AnnotationDisplayer {
+  listContainer: Ref<HTMLElement> = createRef()
+
   render() {
+    const currentIdx = this.annotations.findIndex(
+      (a) => this.currentTime < parseVideoTime(a.timespan.end)
+    )
+    console.log(currentIdx)
+
     const items = repeat(
       this.annotations,
-      (annotation: Annotation) => html`
+      (a) => a.id,
+      (a: Annotation, i: number) => html`
+      ${currentIdx === i ? html`<hr class="playback-hr"/>` : html``}
     <annotation-card
-      .annotation=${annotation}
-      .outline=${this.activeAnnotation === annotation.id}
-      @mouseover=${() => this.dispatchMouseOverAnnotation(annotation.id)}
+      .annotation=${a}
+      .glow=${this.activeAnnotation === a.id}
+      .outline=${parseVideoTime(a.timespan.start) <= this.currentTime && this.currentTime <= parseVideoTime(a.timespan.end)}
+      @mouseover=${() => this.dispatchMouseOverAnnotation(a.id)}
       @mouseout=${() => this.dispatchMouseOverAnnotation(null)}
     />`
     )
 
     return html`
-    <div>
+    <div ${ref(this.listContainer)}>
         ${items}
     </div>
     `
@@ -110,12 +125,20 @@ export class AnnotationList extends AnnotationDisplayer {
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      padding: 1rem 0;
+      padding: 1rem 1rem;
       overflow: visible; 
     }
 
     annotation-card.active {
       border: 1px solid var(--bright-blue-400)
+    }
+
+    .playback-hr {
+      border: 1px solid var(--red-500);
+      width: 100%;
+      height: 0;
+      margin-top: -0.5rem;
+      margin-bottom: -0.5rem;
     }
     `
 }
