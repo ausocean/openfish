@@ -44,7 +44,7 @@ func TestCreateSpecies(t *testing.T) {
 	setup()
 
 	// Create a new species entity.
-	_, err := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0))
+	_, err := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
 	if err != nil {
 		t.Errorf("Could not create species entity %s", err)
 	}
@@ -54,7 +54,7 @@ func TestSpeciesExists(t *testing.T) {
 	setup()
 
 	// Create a new species entity.
-	id, _ := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0))
+	id, _ := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
 
 	// Check if the species exists.
 	if !services.SpeciesExists(int64(id)) {
@@ -76,7 +76,7 @@ func TestGetSpeciesByID(t *testing.T) {
 	setup()
 
 	// Create a new species entity.
-	id, _ := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0))
+	id, _ := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
 
 	species, err := services.GetSpeciesByID(int64(id))
 	if err != nil {
@@ -102,7 +102,7 @@ func TestDeleteSpecies(t *testing.T) {
 	setup()
 
 	// Create a new species entity.
-	id, _ := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0))
+	id, _ := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
 
 	// Delete the species entity.
 	err := services.DeleteSpecies(int64(id))

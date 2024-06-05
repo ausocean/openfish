@@ -38,6 +38,7 @@ import (
 
 	"github.com/ausocean/openfish/api/ds_client"
 	"github.com/ausocean/openfish/api/entities"
+	"github.com/ausocean/openfish/datastore"
 )
 
 // GetSpeciesByID gets a species when provided with an ID.
@@ -51,6 +52,27 @@ func GetSpeciesByID(id int64) (*entities.Species, error) {
 	}
 
 	return &species, nil
+}
+
+// GetSpeciesByINaturalist gets a species when provided with an iNaturalist ID.
+func GetSpeciesByINaturalistID(id int) (*entities.Species, int64, error) {
+	store := ds_client.Get()
+	query := store.NewQuery(entities.SPECIES_KIND, false)
+
+	query.FilterField("INaturalistTaxonID", "=", id)
+	query.Limit(1)
+
+	var species []entities.Species
+	keys, err := store.GetAll(context.Background(), query, &species)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	if len(keys) == 0 {
+		return nil, 0, nil
+	}
+
+	return &species[0], keys[0].ID, nil
 }
 
 func SpeciesExists(id int64) bool {
@@ -86,24 +108,52 @@ func GetRecommendedSpecies(limit int, offset int, videostream *int64, captureSou
 }
 
 // CreateSpecies puts a species in the datastore.
-func CreateSpecies(species string, commonName string, images []entities.Image) (int64, error) {
+func CreateSpecies(species string, commonName string, images []entities.Image, iNaturalistTaxonID *int) (int64, error) {
 
 	// Create Species entity.
 	store := ds_client.Get()
 	key := store.IncompleteKey(entities.SPECIES_KIND)
 
-	vs := entities.Species{
-		Species:    species,
-		CommonName: commonName,
-		Images:     images,
+	sp := entities.Species{
+		Species:            species,
+		CommonName:         commonName,
+		Images:             images,
+		INaturalistTaxonID: iNaturalistTaxonID,
 	}
-	key, err := store.Put(context.Background(), key, &vs)
+	key, err := store.Put(context.Background(), key, &sp)
 	if err != nil {
 		return 0, err
 	}
 
 	// Return ID of created species.
 	return key.ID, nil
+}
+
+// UpdateSpecies finds the species with a given
+func UpdateSpecies(id int64, species *string, commonName *string, images *[]entities.Image, iNaturalistTaxonID *int) error {
+	store := ds_client.Get()
+	key := store.IDKey(entities.SPECIES_KIND, id)
+
+	var sp entities.Species
+
+	return store.Update(context.Background(), key, func(e datastore.Entity) {
+		s, ok := e.(*entities.Species)
+		if ok {
+			if species != nil {
+				s.Species = *species
+			}
+			if commonName != nil {
+				s.CommonName = *commonName
+			}
+			if images != nil {
+				s.Images = *images
+			}
+			if iNaturalistTaxonID != nil {
+				s.INaturalistTaxonID = iNaturalistTaxonID
+			}
+		}
+	}, &sp)
+
 }
 
 // DeleteSpecies deletes a species.
