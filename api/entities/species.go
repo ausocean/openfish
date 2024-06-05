@@ -44,9 +44,10 @@ const SPECIES_KIND = "Species"
 
 // Species is used for our guide.
 type Species struct {
-	Species    string
-	CommonName string
-	Images     []Image
+	Species            string
+	CommonName         string
+	Images             []Image
+	INaturalistTaxonID *int // Optional.
 }
 
 type Image struct {

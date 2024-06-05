@@ -85,6 +85,7 @@ func registerAPIRoutes(app *fiber.App) {
 		Get("/recommended", handlers.GetRecommendedSpecies).
 		Get("/:id", handlers.GetSpeciesByID).
 		Post("/", middleware.Guard(entities.AdminRole), handlers.CreateSpecies).
+		Post("/import-from-inaturalist", middleware.Guard(entities.AdminRole), handlers.ImportFromINaturalist).
 		Delete("/:id", middleware.Guard(entities.AdminRole), handlers.DeleteSpecies)
 
 	// Users.

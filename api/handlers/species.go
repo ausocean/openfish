@@ -78,6 +78,10 @@ type GetRecommendedSpeciesQuery struct {
 	api.LimitAndOffset
 }
 
+type ImportFromINaturalistQuery struct {
+	DescendantsOf []string `query:"descendants_of"`
+}
+
 // CreateSpeciesBody describes the JSON format required for the CreateSpecies endpoint.
 //
 // ID is omitted because it is chosen automatically.
@@ -157,7 +161,7 @@ func CreateSpecies(ctx *fiber.Ctx) error {
 	}
 
 	// Create video stream entity and add to the datastore.
-	id, err := services.CreateSpecies(body.Species, body.CommonName, body.Images)
+	id, err := services.CreateSpecies(body.Species, body.CommonName, body.Images, nil)
 	if err != nil {
 		return api.DatastoreWriteFailure(err)
 	}
@@ -166,6 +170,46 @@ func CreateSpecies(ctx *fiber.Ctx) error {
 	return ctx.JSON(VideoStreamResult{
 		ID: &id,
 	})
+}
+
+// ImportFromINaturalist imports species from INaturalist's taxa API.
+func ImportFromINaturalist(ctx *fiber.Ctx) error {
+
+	qry := new(ImportFromINaturalistQuery)
+
+	if err := ctx.QueryParser(qry); err != nil {
+		return api.InvalidRequestURL(err)
+	}
+
+	for _, parentName := range qry.DescendantsOf {
+
+		// Get parent ID.
+		parentTaxa, err := services.GetTaxonByName(parentName)
+		if err != nil {
+			return err // TODO: add more descriptive error.
+		}
+
+		// Get descendants.
+		species, err := services.GetSpeciesByDescendant(parentTaxa.ID)
+		if err != nil {
+			return err // TODO: add more descriptive error.
+		}
+
+		// Insert species into datastore or update existing entry.
+		for _, s := range species {
+
+			img := entities.Image{Src: s.DefaultPhoto.MediumURL, Attribution: s.DefaultPhoto.Attribution}
+
+			species, id, _ := services.GetSpeciesByINaturalistID(s.ID)
+			if species == nil {
+				services.CreateSpecies(s.Name, s.PreferredCommonName, []entities.Image{img}, &s.ID)
+			}
+
+			services.UpdateSpecies(id, &s.Name, &s.PreferredCommonName, &[]entities.Image{img}, nil)
+		}
+	}
+
+	return nil
 }
 
 // DeleteSpecies deletes a species.
