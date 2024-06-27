@@ -35,6 +35,7 @@ LICENSE
 package handlers
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/ausocean/openfish/cmd/openfish/api"
@@ -186,13 +187,13 @@ func ImportFromINaturalist(ctx *fiber.Ctx) error {
 		// Get parent ID.
 		parentTaxa, err := services.GetTaxonByName(parentName)
 		if err != nil {
-			return err // TODO: add more descriptive error.
+			return fmt.Errorf("could not get taxon by name %s, error: %w", parentName, err)
 		}
 
 		// Get descendants.
 		species, err := services.GetSpeciesByDescendant(parentTaxa.ID)
 		if err != nil {
-			return err // TODO: add more descriptive error.
+			return fmt.Errorf("could not get species as descendant of %s, error: %w", parentTaxa.Name, err)
 		}
 
 		// Insert species into datastore or update existing entry.

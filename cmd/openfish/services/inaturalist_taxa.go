@@ -153,12 +153,12 @@ func GetTaxonByName(taxonName string) (*Taxa, error) {
 	var res PaginatedAPIResponse
 	code, _, errs := agent.Struct(&res)
 
-	if errs != nil {
-		return nil, errors.Join(errs...)
-	}
-
 	if code != 200 {
 		return nil, fmt.Errorf("iNaturalist API returned status code %d", code)
+	}
+
+	if errs != nil {
+		return nil, errors.Join(errs...)
 	}
 
 	if len(res.Results) == 0 {
