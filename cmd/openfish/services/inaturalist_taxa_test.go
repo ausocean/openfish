@@ -3,7 +3,7 @@ AUTHORS
   Scott Barnard <scott@ausocean.org>
 
 LICENSE
-  Copyright (c) 2023, The OpenFish Contributors.
+  Copyright (c) 2023-2024, The OpenFish Contributors.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -31,37 +31,31 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// Package ds_client initializes the datastore and makes it available to other packages through the use of Get().
-package ds_client
+package services_test
 
 import (
-	"context"
+	"testing"
 
-	"github.com/ausocean/openfish/api/entities"
-	"github.com/ausocean/openfish/datastore"
+	"github.com/ausocean/openfish/cmd/openfish/services"
 )
 
-var store datastore.Store
+func TestGetTaxonByName(t *testing.T) {
+	_, err := services.GetTaxonByName("infraorder cetacea")
 
-// Get returns the datastore global variable.
-func Get() datastore.Store {
-	return store
+	if err != nil {
+		t.Errorf("Could not get taxon by name: %s", err)
+	}
 }
 
-// Init initializes the datastore global variable and datastore client.
-func Init(local bool) {
-	ctx := context.Background()
-	var err error
-	if local {
-		store, err = datastore.NewStore(ctx, "file", "openfish", "./store")
-	} else {
-		store, err = datastore.NewStore(ctx, "cloud", "openfish", "")
-	}
+func TestGetSpeciesByDescendant(t *testing.T) {
+	parentTaxa, _ := services.GetTaxonByName("infraorder cetacea")
+
+	species, err := services.GetSpeciesByDescendant(parentTaxa.ID)
 	if err != nil {
-		panic(err)
+		t.Errorf("Could not get descendant species: %s", err)
 	}
 
-	datastore.RegisterEntity(entities.CAPTURESOURCE_KIND, entities.NewCaptureSource)
-	datastore.RegisterEntity(entities.VIDEOSTREAM_KIND, entities.NewVideoStream)
-	datastore.RegisterEntity(entities.ANNOTATION_KIND, entities.NewAnnotation)
+	if len(species) == 0 {
+		t.Error("species is empty")
+	}
 }

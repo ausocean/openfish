@@ -40,11 +40,11 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/ausocean/openfish/api/api"
-	"github.com/ausocean/openfish/api/ds_client"
-	"github.com/ausocean/openfish/api/entities"
-	"github.com/ausocean/openfish/api/handlers"
-	"github.com/ausocean/openfish/api/middleware"
+	"github.com/ausocean/openfish/cmd/openfish/api"
+	"github.com/ausocean/openfish/cmd/openfish/ds_client"
+	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"github.com/ausocean/openfish/cmd/openfish/handlers"
+	"github.com/ausocean/openfish/cmd/openfish/middleware"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"

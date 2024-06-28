@@ -6,11 +6,11 @@ COPY api ./api
 COPY datastore ./datastore
 COPY go.mod go.sum ./
 
-RUN go build -o ./openfish-api ./api
+RUN go build ./cmd/openfish
 
 # Production container.
 FROM alpine:3.14 as production-stage
 WORKDIR /app
-COPY --from=build-stage /src/openfish-api ./
+COPY --from=build-stage /src/openfish ./
 EXPOSE 8080
-ENTRYPOINT [ "/app/openfish-api" ] 
+ENTRYPOINT [ "/app/openfish" ] 
