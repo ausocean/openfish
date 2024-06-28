@@ -36,18 +36,18 @@ package entities
 
 import (
 	"encoding/json"
-	"time"
 
+	"github.com/ausocean/openfish/api/types/videotime"
 	"github.com/ausocean/openfish/datastore"
 )
 
 // Kind of entity to store / fetch from the datastore.
 const ANNOTATION_KIND = "Annotation"
 
-// TimeSpan is a pair of timestamps - start time and end time.
+// TimeSpan is a pair of video timestamps - start time and end time.
 type TimeSpan struct {
-	Start time.Time `json:"start"`
-	End   time.Time `json:"end"`
+	Start videotime.VideoTime `json:"start"`
+	End   videotime.VideoTime `json:"end"`
 }
 
 // BoundingBox is a rectangle enclosing something interesting in a video.
