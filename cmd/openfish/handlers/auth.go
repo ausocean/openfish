@@ -31,31 +31,19 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package services_test
+// handlers package handles HTTP requests.
+package handlers
 
 import (
-	"testing"
-
-	"github.com/ausocean/openfish/api/services"
+	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"github.com/gofiber/fiber/v2"
 )
 
-func TestGetTaxonByName(t *testing.T) {
-	_, err := services.GetTaxonByName("infraorder cetacea")
-
-	if err != nil {
-		t.Errorf("Could not get taxon by name: %s", err)
-	}
-}
-
-func TestGetSpeciesByDescendant(t *testing.T) {
-	parentTaxa, _ := services.GetTaxonByName("infraorder cetacea")
-
-	species, err := services.GetSpeciesByDescendant(parentTaxa.ID)
-	if err != nil {
-		t.Errorf("Could not get descendant species: %s", err)
-	}
-
-	if len(species) == 0 {
-		t.Error("species is empty")
-	}
+// GetSelf gets information about the current user.
+func GetSelf(ctx *fiber.Ctx) error {
+	// Return user.
+	return ctx.JSON(UserResult{
+		Email: ctx.Locals("email").(string),
+		Role:  ctx.Locals("role").(entities.Role).String(),
+	})
 }

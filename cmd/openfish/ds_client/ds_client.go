@@ -3,7 +3,7 @@ AUTHORS
   Scott Barnard <scott@ausocean.org>
 
 LICENSE
-  Copyright (c) 2023-2024, The OpenFish Contributors.
+  Copyright (c) 2023, The OpenFish Contributors.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -31,19 +31,37 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// handlers package handles HTTP requests.
-package handlers
+// Package ds_client initializes the datastore and makes it available to other packages through the use of Get().
+package ds_client
 
 import (
-	"github.com/ausocean/openfish/api/entities"
-	"github.com/gofiber/fiber/v2"
+	"context"
+
+	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"github.com/ausocean/openfish/datastore"
 )
 
-// GetSelf gets information about the current user.
-func GetSelf(ctx *fiber.Ctx) error {
-	// Return user.
-	return ctx.JSON(UserResult{
-		Email: ctx.Locals("email").(string),
-		Role:  ctx.Locals("role").(entities.Role).String(),
-	})
+var store datastore.Store
+
+// Get returns the datastore global variable.
+func Get() datastore.Store {
+	return store
+}
+
+// Init initializes the datastore global variable and datastore client.
+func Init(local bool) {
+	ctx := context.Background()
+	var err error
+	if local {
+		store, err = datastore.NewStore(ctx, "file", "openfish", "./store")
+	} else {
+		store, err = datastore.NewStore(ctx, "cloud", "openfish", "")
+	}
+	if err != nil {
+		panic(err)
+	}
+
+	datastore.RegisterEntity(entities.CAPTURESOURCE_KIND, entities.NewCaptureSource)
+	datastore.RegisterEntity(entities.VIDEOSTREAM_KIND, entities.NewVideoStream)
+	datastore.RegisterEntity(entities.ANNOTATION_KIND, entities.NewAnnotation)
 }
