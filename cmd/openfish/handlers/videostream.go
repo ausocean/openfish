@@ -35,12 +35,14 @@ LICENSE
 package handlers
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/ausocean/openfish/cmd/openfish/api"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/services"
+	"github.com/ausocean/openfish/cmd/openfish/types/timespan"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -83,7 +85,7 @@ func FromVideoStream(videoStream *entities.VideoStream, id int64, format *api.Fo
 // GetVideoStreamsQuery describes the URL query parameters required for the GetVideoStreams endpoint.
 type GetVideoStreamsQuery struct {
 	CaptureSource *int64             `query:"capturesource"` // Optional.
-	TimeSpan      *entities.TimeSpan `query:"timespan"`      // Optional.
+	TimeSpan      *timespan.TimeSpan `query:"timespan"`      // Optional.
 	api.LimitAndOffset
 }
 
@@ -159,8 +161,10 @@ func GetVideoStreams(ctx *fiber.Ctx) error {
 	}
 
 	// Validate timespan.
-	if err := qry.TimeSpan.Validate(); err != nil {
-		return api.InvalidRequestURL(err)
+	if qry.TimeSpan != nil {
+		if !qry.TimeSpan.Valid() {
+			return api.InvalidRequestURL(fmt.Errorf("invalid time span, start time must occur before end time"))
+		}
 	}
 
 	// Fetch data from the datastore.

@@ -63,6 +63,11 @@ func (t VideoTime) String() string {
 	return fmt.Sprintf("%02d:%02d:%02d", h, m, s)
 }
 
+// Int converts a VideoTime to an int64 (seconds).
+func (t VideoTime) Int() int64 {
+	return t.value
+}
+
 // Parse converts a string to a VideoTime, or throws an error.
 func Parse(s string) (VideoTime, error) {
 	// Split on colons.

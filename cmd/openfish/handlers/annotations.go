@@ -43,6 +43,7 @@ import (
 	"github.com/ausocean/openfish/cmd/openfish/api"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/services"
+	"github.com/ausocean/openfish/cmd/openfish/types/timespan"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -52,7 +53,7 @@ import (
 type AnnotationResult struct {
 	ID            *int64                `json:"id,omitempty"`
 	VideoStreamID *int64                `json:"videostreamId,omitempty"`
-	TimeSpan      *entities.TimeSpan    `json:"timespan,omitempty"`
+	TimeSpan      *timespan.TimeSpan    `json:"timespan,omitempty"`
 	BoundingBox   *entities.BoundingBox `json:"boundingBox,omitempty"`
 	Observer      *string               `json:"observer,omitempty"`
 	Observation   map[string]string     `json:"observation,omitempty"`
@@ -104,7 +105,7 @@ type GetAnnotationsQuery struct {
 // BoundingBox is optional because some annotations might not be described by a rectangular area.
 type CreateAnnotationBody struct {
 	VideoStreamID int64                 `json:"videostreamId"`
-	TimeSpan      entities.TimeSpan     `json:"timespan"`
+	TimeSpan      timespan.TimeSpan     `json:"timespan"`
 	BoundingBox   *entities.BoundingBox `json:"boundingBox"` // Optional.
 	Observer      string                `json:"observer"`
 	Observation   map[string]string     `json:"observation"`
