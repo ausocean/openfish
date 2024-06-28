@@ -41,6 +41,7 @@ import (
 
 	"github.com/ausocean/openfish/cmd/openfish/ds_client"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"github.com/ausocean/openfish/cmd/openfish/types/timespan"
 	"github.com/ausocean/openfish/datastore"
 )
 
@@ -102,7 +103,7 @@ func GetAnnotations(limit int, offset int, observer *string, observation map[str
 }
 
 // CreateAnnotation creates a new annotation.
-func CreateAnnotation(videoStreamID int64, timeSpan entities.TimeSpan, boundingBox *entities.BoundingBox, observer string, observation map[string]string) (int64, error) {
+func CreateAnnotation(videoStreamID int64, timeSpan timespan.TimeSpan, boundingBox *entities.BoundingBox, observer string, observation map[string]string) (int64, error) {
 	// Convert observation map into a format the datastore can take.
 	obsKeys := make([]string, 0, len(observation))
 	obsPairs := make([]string, 0, len(observation))
