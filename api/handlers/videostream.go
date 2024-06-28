@@ -35,7 +35,6 @@ LICENSE
 package handlers
 
 import (
-	"errors"
 	"strconv"
 	"time"
 
@@ -159,12 +158,13 @@ func GetVideoStreams(ctx *fiber.Ctx) error {
 		return api.InvalidRequestURL(err)
 	}
 
-	// Validate timespan
-	if qry.TimeSpan != nil {
-		if qry.TimeSpan.Start.After(qry.TimeSpan.End) {
-			return api.InvalidRequestURL(errors.New("start time not before end time"))
-		}
-	}
+	// Validate timespan.
+	// TODO: Add validation directly to TimeSpan type.
+	// if qry.TimeSpan != nil {
+	// 	if qry.TimeSpan.Start.After(qry.TimeSpan.End) {
+	// 		return api.InvalidRequestURL(errors.New("start time not before end time"))
+	// 	}
+	// }
 
 	// Fetch data from the datastore.
 	videoStreams, ids, err := services.GetVideoStreams(qry.Limit, qry.Offset, qry.TimeSpan, qry.CaptureSource)

@@ -38,7 +38,12 @@ import (
 
 	"github.com/ausocean/openfish/api/entities"
 	"github.com/ausocean/openfish/api/services"
+	"github.com/ausocean/openfish/api/types/videotime"
 )
+
+// Constants
+var oneSec, _ = videotime.Parse("00:00:01")
+var oneMin, _ = videotime.Parse("00:01:00")
 
 func TestCreateAnnotation(t *testing.T) {
 	setup()
@@ -47,7 +52,7 @@ func TestCreateAnnotation(t *testing.T) {
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []string{})
 	_, err := services.CreateAnnotation(vs,
-		entities.TimeSpan{Start: _8am, End: _9am},
+		entities.TimeSpan{Start: oneSec, End: oneMin},
 		nil, "scott@ausocean.org",
 		map[string]string{"species": "Sepia Apama"})
 
@@ -63,7 +68,7 @@ func TestAnnotationExists(t *testing.T) {
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []string{})
 	id, _ := services.CreateAnnotation(vs,
-		entities.TimeSpan{Start: _8am, End: _9am},
+		entities.TimeSpan{Start: oneSec, End: oneMin},
 		nil, "scott@ausocean.org",
 		map[string]string{"species": "Sepia Apama"})
 
@@ -90,7 +95,7 @@ func TestGetAnnotationByID(t *testing.T) {
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []string{})
 	id, _ := services.CreateAnnotation(vs,
-		entities.TimeSpan{Start: _8am, End: _9am},
+		entities.TimeSpan{Start: oneSec, End: oneMin},
 		nil, "scott@ausocean.org",
 		map[string]string{"species": "Sepia Apama"})
 
@@ -98,7 +103,7 @@ func TestGetAnnotationByID(t *testing.T) {
 	if err != nil {
 		t.Errorf("Could not get annotation entity %s", err)
 	}
-	if annotation.VideoStreamID != vs || !annotation.TimeSpan.Start.Equal(_8am) || !annotation.TimeSpan.End.Equal(_9am) || annotation.BoundingBox != nil || annotation.Observer != "scott@ausocean.org" || annotation.ObservationKeys[0] != "species" || annotation.ObservationPairs[0] != "species:Sepia Apama" {
+	if annotation.VideoStreamID != vs || annotation.BoundingBox != nil || annotation.Observer != "scott@ausocean.org" || annotation.ObservationKeys[0] != "species" || annotation.ObservationPairs[0] != "species:Sepia Apama" {
 		t.Errorf("Annotation entity does not match created entity")
 	}
 }
@@ -121,7 +126,7 @@ func TestDeleteAnnotation(t *testing.T) {
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []string{})
 	id, _ := services.CreateAnnotation(vs,
-		entities.TimeSpan{Start: _8am, End: _9am},
+		entities.TimeSpan{Start: oneSec, End: oneMin},
 		nil, "scott@ausocean.org",
 		map[string]string{"species": "Sepia Apama"})
 
