@@ -40,8 +40,8 @@ import (
 	"strings"
 
 	"github.com/ausocean/openfish/api/api"
-	"github.com/ausocean/openfish/api/entities"
 	"github.com/ausocean/openfish/api/services"
+	"github.com/ausocean/openfish/api/types/capturesource"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -56,8 +56,8 @@ type CaptureSourceResult struct {
 	SiteID         *int64  `json:"site_id,omitempty"`
 }
 
-// FromCaptureSource creates a CaptureSourceResult from a entities.CaptureSource and key, formatting it according to the requested format.
-func FromCaptureSource(captureSource *entities.CaptureSource, id int64, format *api.Format) CaptureSourceResult {
+// FromCaptureSource creates a CaptureSourceResult from a capturesource.CaptureSource and key, formatting it according to the requested format.
+func FromCaptureSource(captureSource *capturesource.CaptureSource, id int64, format *api.Format) CaptureSourceResult {
 	var result CaptureSourceResult
 	if format.Requires("id") {
 		result.ID = &id

@@ -36,8 +36,8 @@ package handlers
 
 import (
 	"github.com/ausocean/openfish/api/api"
-	"github.com/ausocean/openfish/api/entities"
 	"github.com/ausocean/openfish/api/services"
+	"github.com/ausocean/openfish/api/types/user"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -48,8 +48,8 @@ type UserResult struct {
 	Role  string `json:"role"`
 }
 
-// FromUserEntity creates a UserResult from a entities.User.
-func FromUserEntity(user *entities.User) UserResult {
+// FromUserEntity creates a UserResult from a user.User.
+func FromUserEntity(user *user.User) UserResult {
 	return UserResult{Email: user.Email, Role: user.Role.String()}
 }
 
@@ -122,7 +122,7 @@ func UpdateUser(ctx *fiber.Ctx) error {
 		return api.InvalidRequestJSON(err)
 	}
 
-	role, err := entities.ParseRole(body.Role)
+	role, err := user.ParseRole(body.Role)
 	if err != nil {
 		return api.InvalidRequestJSON(err)
 	}

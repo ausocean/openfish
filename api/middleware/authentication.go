@@ -38,8 +38,8 @@ import (
 	"fmt"
 
 	"github.com/ausocean/openfish/api/api"
-	"github.com/ausocean/openfish/api/entities"
 	"github.com/ausocean/openfish/api/services"
+	"github.com/ausocean/openfish/api/types/user"
 	"github.com/gofiber/fiber/v2"
 	"google.golang.org/api/idtoken"
 )
@@ -65,7 +65,7 @@ func ValidateJWT(aud string) func(*fiber.Ctx) error {
 		// Extract subject and email.
 		email := payload.Claims["email"].(string)
 		subject := payload.Subject
-		role := entities.DefaultRole
+		role := user.DefaultRole
 
 		// Fetch user from datastore if they exist, else
 		// create new user.
@@ -85,7 +85,7 @@ func ValidateJWT(aud string) func(*fiber.Ctx) error {
 	}
 }
 
-func Guard(requiredRole entities.Role) func(*fiber.Ctx) error {
+func Guard(requiredRole user.Role) func(*fiber.Ctx) error {
 
 	return func(ctx *fiber.Ctx) error {
 		// Skip if IAP authentication is disabled.
@@ -93,7 +93,7 @@ func Guard(requiredRole entities.Role) func(*fiber.Ctx) error {
 			return ctx.Next()
 		}
 
-		userRole := ctx.Locals("role").(entities.Role)
+		userRole := ctx.Locals("role").(user.Role)
 		if userRole >= requiredRole {
 			return ctx.Next()
 		} else {

@@ -31,8 +31,8 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// entities package has the data types of data we keep in the datastore.
-package entities
+// A CaptureSource holds the information about where a video stream came from.
+package capturesource
 
 import (
 	"encoding/json"
@@ -43,7 +43,7 @@ import (
 )
 
 // Kind of entity to store / fetch from the datastore.
-const CAPTURESOURCE_KIND = "CaptureSource"
+const KIND = "CaptureSource"
 
 // A CaptureSource holds the information about where a video stream came from.
 // A single capture source will produce multiple video streams (typically one per day).
@@ -86,6 +86,6 @@ func (cs *CaptureSource) GetCache() datastore.Cache {
 	return nil
 }
 
-func NewCaptureSource() datastore.Entity {
+func New() datastore.Entity {
 	return &CaptureSource{}
 }

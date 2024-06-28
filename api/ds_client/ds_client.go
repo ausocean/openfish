@@ -37,7 +37,11 @@ package ds_client
 import (
 	"context"
 
-	"github.com/ausocean/openfish/api/entities"
+	"github.com/ausocean/openfish/api/types/annotation"
+	"github.com/ausocean/openfish/api/types/capturesource"
+	"github.com/ausocean/openfish/api/types/species"
+	"github.com/ausocean/openfish/api/types/user"
+	"github.com/ausocean/openfish/api/types/videostream"
 	"github.com/ausocean/openfish/datastore"
 )
 
@@ -61,7 +65,9 @@ func Init(local bool) {
 		panic(err)
 	}
 
-	datastore.RegisterEntity(entities.CAPTURESOURCE_KIND, entities.NewCaptureSource)
-	datastore.RegisterEntity(entities.VIDEOSTREAM_KIND, entities.NewVideoStream)
-	datastore.RegisterEntity(entities.ANNOTATION_KIND, entities.NewAnnotation)
+	datastore.RegisterEntity(capturesource.KIND, capturesource.New)
+	datastore.RegisterEntity(videostream.KIND, videostream.New)
+	datastore.RegisterEntity(annotation.KIND, annotation.New)
+	datastore.RegisterEntity(species.KIND, species.New)
+	datastore.RegisterEntity(user.KIND, user.New)
 }

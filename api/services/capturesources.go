@@ -39,35 +39,35 @@ import (
 	googlestore "cloud.google.com/go/datastore"
 
 	"github.com/ausocean/openfish/api/ds_client"
-	"github.com/ausocean/openfish/api/entities"
+	"github.com/ausocean/openfish/api/types/capturesource"
 	"github.com/ausocean/openfish/datastore"
 )
 
 // GetCaptureSourceByID gets a capture source when provided with an ID.
-func GetCaptureSourceByID(id int64) (*entities.CaptureSource, error) {
+func GetCaptureSourceByID(id int64) (*capturesource.CaptureSource, error) {
 	store := ds_client.Get()
-	key := store.IDKey(entities.CAPTURESOURCE_KIND, id)
-	var captureSource entities.CaptureSource
-	err := store.Get(context.Background(), key, &captureSource)
+	key := store.IDKey(capturesource.KIND, id)
+	var c capturesource.CaptureSource
+	err := store.Get(context.Background(), key, &c)
 	if err != nil {
 		return nil, err
 	}
-	return &captureSource, nil
+	return &c, nil
 }
 
 func CaptureSourceExists(id int64) bool {
 	store := ds_client.Get()
-	key := store.IDKey(entities.CAPTURESOURCE_KIND, id)
-	var captureSource entities.CaptureSource
-	err := store.Get(context.Background(), key, &captureSource)
+	key := store.IDKey(capturesource.KIND, id)
+	var c capturesource.CaptureSource
+	err := store.Get(context.Background(), key, &c)
 	return err == nil
 }
 
 // GetCaptureSources gets a list of capture sources, filtering by name, location if specified.
-func GetCaptureSources(limit int, offset int, name *string) ([]entities.CaptureSource, []int64, error) {
+func GetCaptureSources(limit int, offset int, name *string) ([]capturesource.CaptureSource, []int64, error) {
 	// Fetch data from the datastore.
 	store := ds_client.Get()
-	query := store.NewQuery(entities.CAPTURESOURCE_KIND, false)
+	query := store.NewQuery(capturesource.KIND, false)
 
 	if name != nil {
 		query.FilterField("Name", "=", name)
@@ -78,10 +78,10 @@ func GetCaptureSources(limit int, offset int, name *string) ([]entities.CaptureS
 	query.Limit(limit)
 	query.Offset(offset)
 
-	var captureSources []entities.CaptureSource
+	var captureSources []capturesource.CaptureSource
 	keys, err := store.GetAll(context.Background(), query, &captureSources)
 	if err != nil {
-		return []entities.CaptureSource{}, []int64{}, err
+		return []capturesource.CaptureSource{}, []int64{}, err
 	}
 	ids := make([]int64, len(captureSources))
 	for i, k := range keys {
@@ -96,9 +96,9 @@ func CreateCaptureSource(name string, lat float64, long float64, cameraHardware 
 
 	// Get a unique ID for the new capturesource.
 	store := ds_client.Get()
-	key := store.IncompleteKey(entities.CAPTURESOURCE_KIND)
+	key := store.IncompleteKey(capturesource.KIND)
 
-	cs := entities.CaptureSource{
+	cs := capturesource.CaptureSource{
 		Name:           name,
 		Location:       googlestore.GeoPoint{Lat: lat, Lng: long},
 		CameraHardware: cameraHardware,
@@ -119,11 +119,11 @@ func UpdateCaptureSource(id int64, name *string, lat *float64, long *float64, ca
 
 	// Update data in the datastore.
 	store := ds_client.Get()
-	key := store.IDKey(entities.CAPTURESOURCE_KIND, id)
-	var captureSource entities.CaptureSource
+	key := store.IDKey(capturesource.KIND, id)
+	var c capturesource.CaptureSource
 
 	return store.Update(context.Background(), key, func(e datastore.Entity) {
-		v, ok := e.(*entities.CaptureSource)
+		v, ok := e.(*capturesource.CaptureSource)
 		if ok {
 			if name != nil {
 				v.Name = *name
@@ -138,7 +138,7 @@ func UpdateCaptureSource(id int64, name *string, lat *float64, long *float64, ca
 				v.SiteID = siteID
 			}
 		}
-	}, &captureSource)
+	}, &c)
 }
 
 // DeleteCaptureSource deletes a capture source.
@@ -147,6 +147,6 @@ func DeleteCaptureSource(id int64) error {
 
 	// Delete entity.
 	store := ds_client.Get()
-	key := store.IDKey(entities.CAPTURESOURCE_KIND, id)
+	key := store.IDKey(capturesource.KIND, id)
 	return store.Delete(context.Background(), key)
 }

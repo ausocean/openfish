@@ -31,84 +31,50 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package entities
+// Species is used for our guide.
+package species
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/ausocean/openfish/datastore"
 )
 
-// TODO: implement user entity.
-
 // Kind of entity to store / fetch from the datastore.
-const USER_KIND = "User"
+const KIND = "Species"
 
-// User contains the user role and email address.
-type User struct {
-	Email string
-	Role  Role
+// Species is used for our guide.
+type Species struct {
+	Species            string
+	CommonName         string
+	Images             []Image
+	INaturalistTaxonID *int // Optional.
 }
 
-// Role enum.
-type Role int8
-
-const (
-	ReadonlyRole  Role = iota // Can only use GET APIs.
-	AnnotatorRole             // Can create annotations.
-	CuratorRole               // Can create annotations and videostreams.
-	AdminRole                 // Can do everything.
-	DefaultRole   = AnnotatorRole
-)
-
-func (r Role) String() string {
-	switch r {
-	case ReadonlyRole:
-		return "readonly"
-	case AnnotatorRole:
-		return "annotator"
-	case CuratorRole:
-		return "curator"
-	case AdminRole:
-		return "admin"
-	}
-	return "unknown"
+type Image struct {
+	Src         string `json:"src"`
+	Attribution string `json:"attribution"`
 }
 
-func ParseRole(s string) (Role, error) {
-	switch s {
-	case "readonly":
-		return ReadonlyRole, nil
-	case "annotator":
-		return AnnotatorRole, nil
-	case "curator":
-		return CuratorRole, nil
-	case "admin":
-		return AdminRole, nil
-	}
-	return DefaultRole, fmt.Errorf("invalid role provided: %s", s)
-}
-
-// Encode serializes User. Implements Entity interface. Used for FileStore datastore.
-func (vs *User) Encode() []byte {
+// Encode serializes Species. Implements Entity interface. Used for FileStore datastore.
+func (vs *Species) Encode() []byte {
 	bytes, _ := json.Marshal(vs)
 	return bytes
 }
 
-// Encode deserializes User. Implements Entity interface. Used for FileStore datastore.
-func (vs *User) Decode(b []byte) error {
+// Encode deserializes Species. Implements Entity interface. Used for FileStore datastore.
+func (vs *Species) Decode(b []byte) error {
 	return json.Unmarshal(b, vs)
 }
 
 // Implements Copy from the Entity interface.
-func (vs *User) Copy(dst datastore.Entity) (datastore.Entity, error) {
-	var v *User
+func (vs *Species) Copy(dst datastore.Entity) (datastore.Entity, error) {
+	var v *Species
 	if dst == nil {
-		v = new(User)
+		v = new(Species)
 	} else {
 		var ok bool
-		v, ok = dst.(*User)
+		v, ok = dst.(*Species)
 		if !ok {
 			return nil, datastore.ErrWrongType
 		}
@@ -118,10 +84,10 @@ func (vs *User) Copy(dst datastore.Entity) (datastore.Entity, error) {
 }
 
 // No caching is used.
-func (vs *User) GetCache() datastore.Cache {
+func (vs *Species) GetCache() datastore.Cache {
 	return nil
 }
 
-func NewUser() datastore.Entity {
-	return &User{}
+func New() datastore.Entity {
+	return &Species{}
 }

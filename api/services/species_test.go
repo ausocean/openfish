@@ -36,15 +36,15 @@ package services_test
 import (
 	"testing"
 
-	"github.com/ausocean/openfish/api/entities"
 	"github.com/ausocean/openfish/api/services"
+	"github.com/ausocean/openfish/api/types/species"
 )
 
 func TestCreateSpecies(t *testing.T) {
 	setup()
 
 	// Create a new species entity.
-	_, err := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
+	_, err := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]species.Image, 0), nil)
 	if err != nil {
 		t.Errorf("Could not create species entity %s", err)
 	}
@@ -54,7 +54,7 @@ func TestSpeciesExists(t *testing.T) {
 	setup()
 
 	// Create a new species entity.
-	id, _ := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
+	id, _ := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]species.Image, 0), nil)
 
 	// Check if the species exists.
 	if !services.SpeciesExists(int64(id)) {
@@ -76,7 +76,7 @@ func TestGetSpeciesByID(t *testing.T) {
 	setup()
 
 	// Create a new species entity.
-	id, _ := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
+	id, _ := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]species.Image, 0), nil)
 
 	species, err := services.GetSpeciesByID(int64(id))
 	if err != nil {
@@ -102,7 +102,7 @@ func TestDeleteSpecies(t *testing.T) {
 	setup()
 
 	// Create a new species entity.
-	id, _ := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
+	id, _ := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]species.Image, 0), nil)
 
 	// Delete the species entity.
 	err := services.DeleteSpecies(int64(id))

@@ -35,7 +35,7 @@ LICENSE
 package handlers
 
 import (
-	"github.com/ausocean/openfish/api/entities"
+	"github.com/ausocean/openfish/api/types/user"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -44,6 +44,6 @@ func GetSelf(ctx *fiber.Ctx) error {
 	// Return user.
 	return ctx.JSON(UserResult{
 		Email: ctx.Locals("email").(string),
-		Role:  ctx.Locals("role").(entities.Role).String(),
+		Role:  ctx.Locals("role").(user.Role).String(),
 	})
 }

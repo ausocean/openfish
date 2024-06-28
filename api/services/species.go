@@ -37,33 +37,33 @@ import (
 	"context"
 
 	"github.com/ausocean/openfish/api/ds_client"
-	"github.com/ausocean/openfish/api/entities"
+	"github.com/ausocean/openfish/api/types/species"
 	"github.com/ausocean/openfish/datastore"
 )
 
 // GetSpeciesByID gets a species when provided with an ID.
-func GetSpeciesByID(id int64) (*entities.Species, error) {
+func GetSpeciesByID(id int64) (*species.Species, error) {
 	store := ds_client.Get()
-	key := store.IDKey(entities.SPECIES_KIND, id)
-	var species entities.Species
-	err := store.Get(context.Background(), key, &species)
+	key := store.IDKey(species.KIND, id)
+	var s species.Species
+	err := store.Get(context.Background(), key, &s)
 	if err != nil {
 		return nil, err
 	}
 
-	return &species, nil
+	return &s, nil
 }
 
 // GetSpeciesByINaturalist gets a species when provided with an iNaturalist ID.
-func GetSpeciesByINaturalistID(id int) (*entities.Species, int64, error) {
+func GetSpeciesByINaturalistID(id int) (*species.Species, int64, error) {
 	store := ds_client.Get()
-	query := store.NewQuery(entities.SPECIES_KIND, false)
+	query := store.NewQuery(species.KIND, false)
 
 	query.FilterField("INaturalistTaxonID", "=", id)
 	query.Limit(1)
 
-	var species []entities.Species
-	keys, err := store.GetAll(context.Background(), query, &species)
+	var s []species.Species
+	keys, err := store.GetAll(context.Background(), query, &s)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -72,50 +72,50 @@ func GetSpeciesByINaturalistID(id int) (*entities.Species, int64, error) {
 		return nil, 0, nil
 	}
 
-	return &species[0], keys[0].ID, nil
+	return &s[0], keys[0].ID, nil
 }
 
 func SpeciesExists(id int64) bool {
 	store := ds_client.Get()
-	key := store.IDKey(entities.SPECIES_KIND, id)
-	var species entities.Species
-	err := store.Get(context.Background(), key, &species)
+	key := store.IDKey(species.KIND, id)
+	var s species.Species
+	err := store.Get(context.Background(), key, &s)
 	return err == nil
 }
 
 // GetRecommendedSpecies gets a list of species, most relevant for the specified stream and capture source.
-func GetRecommendedSpecies(limit int, offset int, videostream *int64, captureSource *int64) ([]entities.Species, []int64, error) {
+func GetRecommendedSpecies(limit int, offset int, videostream *int64, captureSource *int64) ([]species.Species, []int64, error) {
 	// Fetch data from the datastore.
 	store := ds_client.Get()
-	query := store.NewQuery(entities.SPECIES_KIND, false)
+	query := store.NewQuery(species.KIND, false)
 
 	// TODO: implement returning most relevant species.
 
 	query.Limit(limit)
 	query.Offset(offset)
 
-	var species []entities.Species
-	keys, err := store.GetAll(context.Background(), query, &species)
+	var s []species.Species
+	keys, err := store.GetAll(context.Background(), query, &s)
 	if err != nil {
-		return []entities.Species{}, []int64{}, err
+		return []species.Species{}, []int64{}, err
 	}
-	ids := make([]int64, len(species))
+	ids := make([]int64, len(s))
 	for i, k := range keys {
 		ids[i] = k.ID
 	}
 
-	return species, ids, nil
+	return s, ids, nil
 }
 
 // CreateSpecies puts a species in the datastore.
-func CreateSpecies(species string, commonName string, images []entities.Image, iNaturalistTaxonID *int) (int64, error) {
+func CreateSpecies(latin string, commonName string, images []species.Image, iNaturalistTaxonID *int) (int64, error) {
 
 	// Create Species entity.
 	store := ds_client.Get()
-	key := store.IncompleteKey(entities.SPECIES_KIND)
+	key := store.IncompleteKey(species.KIND)
 
-	sp := entities.Species{
-		Species:            species,
+	sp := species.Species{
+		Species:            latin,
 		CommonName:         commonName,
 		Images:             images,
 		INaturalistTaxonID: iNaturalistTaxonID,
@@ -130,17 +130,17 @@ func CreateSpecies(species string, commonName string, images []entities.Image, i
 }
 
 // UpdateSpecies finds the species with a given
-func UpdateSpecies(id int64, species *string, commonName *string, images *[]entities.Image, iNaturalistTaxonID *int) error {
+func UpdateSpecies(id int64, latin *string, commonName *string, images *[]species.Image, iNaturalistTaxonID *int) error {
 	store := ds_client.Get()
-	key := store.IDKey(entities.SPECIES_KIND, id)
+	key := store.IDKey(species.KIND, id)
 
-	var sp entities.Species
+	var sp species.Species
 
 	return store.Update(context.Background(), key, func(e datastore.Entity) {
-		s, ok := e.(*entities.Species)
+		s, ok := e.(*species.Species)
 		if ok {
-			if species != nil {
-				s.Species = *species
+			if latin != nil {
+				s.Species = *latin
 			}
 			if commonName != nil {
 				s.CommonName = *commonName
@@ -160,6 +160,6 @@ func UpdateSpecies(id int64, species *string, commonName *string, images *[]enti
 func DeleteSpecies(id int64) error {
 	// Delete entity.
 	store := ds_client.Get()
-	key := store.IDKey(entities.SPECIES_KIND, id)
+	key := store.IDKey(species.KIND, id)
 	return store.Delete(context.Background(), key)
 }

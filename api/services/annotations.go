@@ -40,37 +40,38 @@ import (
 	"time"
 
 	"github.com/ausocean/openfish/api/ds_client"
-	"github.com/ausocean/openfish/api/entities"
+	"github.com/ausocean/openfish/api/types/annotation"
 	"github.com/ausocean/openfish/api/types/timespan"
+	"github.com/ausocean/openfish/api/types/videostream"
 	"github.com/ausocean/openfish/datastore"
 )
 
 // GetAnnotationByID gets an annotation from datastore when provided with an ID.
-func GetAnnotationByID(id int64) (*entities.Annotation, error) {
+func GetAnnotationByID(id int64) (*annotation.Annotation, error) {
 	store := ds_client.Get()
-	key := store.IDKey(entities.ANNOTATION_KIND, id)
-	var annotation entities.Annotation
-	err := store.Get(context.Background(), key, &annotation)
+	key := store.IDKey(annotation.KIND, id)
+	var a annotation.Annotation
+	err := store.Get(context.Background(), key, &a)
 	if err != nil {
 		return nil, err
 	}
 
-	return &annotation, nil
+	return &a, nil
 }
 
 func AnnotationExists(id int64) bool {
 	store := ds_client.Get()
-	key := store.IDKey(entities.ANNOTATION_KIND, id)
-	var annotation entities.Annotation
-	err := store.Get(context.Background(), key, &annotation)
+	key := store.IDKey(annotation.KIND, id)
+	var a annotation.Annotation
+	err := store.Get(context.Background(), key, &a)
 	return err == nil
 }
 
 // GetAnnotations gets a list of annotations, filtering by timespan, capturesource, observer & observation if specified.
-func GetAnnotations(limit int, offset int, observer *string, observation map[string]string) ([]entities.Annotation, []int64, error) {
+func GetAnnotations(limit int, offset int, observer *string, observation map[string]string) ([]annotation.Annotation, []int64, error) {
 	// Fetch data from the datastore.
 	store := ds_client.Get()
-	query := store.NewQuery(entities.ANNOTATION_KIND, false)
+	query := store.NewQuery(annotation.KIND, false)
 
 	// Filter by observer.
 	if observer != nil {
@@ -89,10 +90,10 @@ func GetAnnotations(limit int, offset int, observer *string, observation map[str
 	query.Limit(limit)
 	query.Offset(offset)
 
-	var annotations []entities.Annotation
+	var annotations []annotation.Annotation
 	keys, err := store.GetAll(context.Background(), query, &annotations)
 	if err != nil {
-		return []entities.Annotation{}, []int64{}, err
+		return []annotation.Annotation{}, []int64{}, err
 	}
 	ids := make([]int64, len(annotations))
 	for i, k := range keys {
@@ -103,7 +104,7 @@ func GetAnnotations(limit int, offset int, observer *string, observation map[str
 }
 
 // CreateAnnotation creates a new annotation.
-func CreateAnnotation(videoStreamID int64, timeSpan timespan.TimeSpan, boundingBox *entities.BoundingBox, observer string, observation map[string]string) (int64, error) {
+func CreateAnnotation(videoStreamID int64, timeSpan timespan.TimeSpan, boundingBox *annotation.BoundingBox, observer string, observation map[string]string) (int64, error) {
 	// Convert observation map into a format the datastore can take.
 	obsKeys := make([]string, 0, len(observation))
 	obsPairs := make([]string, 0, len(observation))
@@ -114,7 +115,7 @@ func CreateAnnotation(videoStreamID int64, timeSpan timespan.TimeSpan, boundingB
 	}
 
 	// Create annotation entity and add to the datastore.
-	an := entities.Annotation{
+	an := annotation.Annotation{
 		VideoStreamID:    videoStreamID,
 		TimeSpan:         timeSpan,
 		BoundingBox:      boundingBox,
@@ -130,7 +131,7 @@ func CreateAnnotation(videoStreamID int64, timeSpan timespan.TimeSpan, boundingB
 
 	// Get a unique ID for the new annotation.
 	store := ds_client.Get()
-	key := store.IncompleteKey(entities.ANNOTATION_KIND)
+	key := store.IncompleteKey(annotation.KIND)
 	key, err := store.Put(context.Background(), key, &an)
 	if err != nil {
 		return 0, err
@@ -145,11 +146,11 @@ func UpdateAnnotation(id int64, streamURL *string, captureSource *int64, startTi
 
 	// Update data in the datastore.
 	store := ds_client.Get()
-	key := store.IDKey(entities.VIDEOSTREAM_KIND, id)
-	var videoStream entities.VideoStream
+	key := store.IDKey(videostream.KIND, id)
+	var videoStream videostream.VideoStream
 
 	return store.Update(context.Background(), key, func(e datastore.Entity) {
-		v, ok := e.(*entities.VideoStream)
+		v, ok := e.(*videostream.VideoStream)
 		if ok {
 			if streamURL != nil {
 				v.StreamUrl = *streamURL
@@ -174,6 +175,6 @@ func DeleteAnnotation(id int64) error {
 
 	// Delete entity.
 	store := ds_client.Get()
-	key := store.IDKey(entities.ANNOTATION_KIND, id)
+	key := store.IDKey(annotation.KIND, id)
 	return store.Delete(context.Background(), key)
 }

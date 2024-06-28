@@ -41,8 +41,8 @@ import (
 	"strings"
 
 	"github.com/ausocean/openfish/api/api"
-	"github.com/ausocean/openfish/api/entities"
 	"github.com/ausocean/openfish/api/services"
+	"github.com/ausocean/openfish/api/types/annotation"
 	"github.com/ausocean/openfish/api/types/timespan"
 
 	"github.com/gofiber/fiber/v2"
@@ -51,16 +51,16 @@ import (
 // AnnotationResult describes the JSON format for annotations in API responses.
 // Fields use pointers because they are optional (this is what the format URL param is for).
 type AnnotationResult struct {
-	ID            *int64                `json:"id,omitempty"`
-	VideoStreamID *int64                `json:"videostreamId,omitempty"`
-	TimeSpan      *timespan.TimeSpan    `json:"timespan,omitempty"`
-	BoundingBox   *entities.BoundingBox `json:"boundingBox,omitempty"`
-	Observer      *string               `json:"observer,omitempty"`
-	Observation   map[string]string     `json:"observation,omitempty"`
+	ID            *int64                  `json:"id,omitempty"`
+	VideoStreamID *int64                  `json:"videostreamId,omitempty"`
+	TimeSpan      *timespan.TimeSpan      `json:"timespan,omitempty"`
+	BoundingBox   *annotation.BoundingBox `json:"boundingBox,omitempty"`
+	Observer      *string                 `json:"observer,omitempty"`
+	Observation   map[string]string       `json:"observation,omitempty"`
 }
 
-// FromAnnotation creates an AnnotationResult from a entities.Annotation and key, formatting it according to the requested format.
-func FromAnnotation(annotation *entities.Annotation, id int64, format *api.Format) AnnotationResult {
+// FromAnnotation creates an AnnotationResult from a annotation.Annotation and key, formatting it according to the requested format.
+func FromAnnotation(annotation *annotation.Annotation, id int64, format *api.Format) AnnotationResult {
 	var result AnnotationResult
 	if format.Requires("id") {
 		result.ID = &id
@@ -104,11 +104,11 @@ type GetAnnotationsQuery struct {
 // ID is omitted because it is chosen automatically.
 // BoundingBox is optional because some annotations might not be described by a rectangular area.
 type CreateAnnotationBody struct {
-	VideoStreamID int64                 `json:"videostreamId"`
-	TimeSpan      timespan.TimeSpan     `json:"timespan"`
-	BoundingBox   *entities.BoundingBox `json:"boundingBox"` // Optional.
-	Observer      string                `json:"observer"`
-	Observation   map[string]string     `json:"observation"`
+	VideoStreamID int64                   `json:"videostreamId"`
+	TimeSpan      timespan.TimeSpan       `json:"timespan"`
+	BoundingBox   *annotation.BoundingBox `json:"boundingBox"` // Optional.
+	Observer      string                  `json:"observer"`
+	Observation   map[string]string       `json:"observation"`
 }
 
 // GetAnnotationByID gets an annotation when provided with an ID.

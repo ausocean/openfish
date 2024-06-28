@@ -3,7 +3,7 @@ AUTHORS
   Scott Barnard <scott@ausocean.org>
 
 LICENSE
-  Copyright (c) 2023-2024, The OpenFish Contributors.
+  Copyright (c) 2023, The OpenFish Contributors.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -31,49 +31,49 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package entities
+// VideoStream holds the information about a single video stream.
+package videostream
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/ausocean/openfish/datastore"
 )
 
 // Kind of entity to store / fetch from the datastore.
-const SPECIES_KIND = "Species"
+const KIND = "VideoStream"
 
-// Species is used for our guide.
-type Species struct {
-	Species            string
-	CommonName         string
-	Images             []Image
-	INaturalistTaxonID *int // Optional.
+// VideoStream holds the information about a single video stream.
+// VideoStream contains the url for a live or completed stream off of youtube, the start time,
+// the end time (unless it is still ongoing), and the ID of its capture source.
+type VideoStream struct {
+	StartTime     time.Time
+	EndTime       *time.Time // Optional.
+	StreamUrl     string
+	CaptureSource int64
+	AnnotatorList []string
 }
 
-type Image struct {
-	Src         string `json:"src"`
-	Attribution string `json:"attribution"`
-}
-
-// Encode serializes Species. Implements Entity interface. Used for FileStore datastore.
-func (vs *Species) Encode() []byte {
+// Encode serializes VideoStream. Implements Entity interface. Used for FileStore datastore.
+func (vs *VideoStream) Encode() []byte {
 	bytes, _ := json.Marshal(vs)
 	return bytes
 }
 
-// Encode deserializes Species. Implements Entity interface. Used for FileStore datastore.
-func (vs *Species) Decode(b []byte) error {
+// Encode deserializes VideoStream. Implements Entity interface. Used for FileStore datastore.
+func (vs *VideoStream) Decode(b []byte) error {
 	return json.Unmarshal(b, vs)
 }
 
 // Implements Copy from the Entity interface.
-func (vs *Species) Copy(dst datastore.Entity) (datastore.Entity, error) {
-	var v *Species
+func (vs *VideoStream) Copy(dst datastore.Entity) (datastore.Entity, error) {
+	var v *VideoStream
 	if dst == nil {
-		v = new(Species)
+		v = new(VideoStream)
 	} else {
 		var ok bool
-		v, ok = dst.(*Species)
+		v, ok = dst.(*VideoStream)
 		if !ok {
 			return nil, datastore.ErrWrongType
 		}
@@ -83,10 +83,10 @@ func (vs *Species) Copy(dst datastore.Entity) (datastore.Entity, error) {
 }
 
 // No caching is used.
-func (vs *Species) GetCache() datastore.Cache {
+func (vs *VideoStream) GetCache() datastore.Cache {
 	return nil
 }
 
-func NewSpecies() datastore.Entity {
-	return &Species{}
+func New() datastore.Entity {
+	return &VideoStream{}
 }

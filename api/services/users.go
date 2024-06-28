@@ -37,86 +37,86 @@ import (
 	"context"
 
 	"github.com/ausocean/openfish/api/ds_client"
-	"github.com/ausocean/openfish/api/entities"
+	"github.com/ausocean/openfish/api/types/user"
 	"github.com/ausocean/openfish/datastore"
 )
 
 // GetUserByEmail gets a user when provided with an email.
-func GetUserByEmail(email string) (*entities.User, error) {
+func GetUserByEmail(email string) (*user.User, error) {
 	store := ds_client.Get()
-	key := store.NameKey(entities.USER_KIND, email)
-	var user entities.User
-	err := store.Get(context.Background(), key, &user)
+	key := store.NameKey(user.KIND, email)
+	var u user.User
+	err := store.Get(context.Background(), key, &u)
 	if err != nil {
 		return nil, err
 	}
-	return &user, nil
+	return &u, nil
 }
 
 func UserExists(email string) bool {
 	store := ds_client.Get()
-	key := store.NameKey(entities.USER_KIND, email)
-	var user entities.User
-	err := store.Get(context.Background(), key, &user)
+	key := store.NameKey(user.KIND, email)
+	var u user.User
+	err := store.Get(context.Background(), key, &u)
 	return err == nil
 }
 
 // GetUsers gets a list of users.
-func GetUsers(limit int, offset int) ([]entities.User, error) {
+func GetUsers(limit int, offset int) ([]user.User, error) {
 
 	// Fetch data from the datastore.
 	store := ds_client.Get()
-	query := store.NewQuery(entities.USER_KIND, false)
+	query := store.NewQuery(user.KIND, false)
 
 	query.Limit(limit)
 	query.Offset(offset)
 
-	var users []entities.User
+	var users []user.User
 	_, err := store.GetAll(context.Background(), query, &users)
 	if err != nil {
-		return []entities.User{}, err
+		return []user.User{}, err
 	}
 
 	return users, nil
 }
 
 // CreateUser creates a new user.
-func CreateUser(email string, role entities.Role) error {
+func CreateUser(email string, role user.Role) error {
 
 	// Use the user's email as a unique ID.
 	store := ds_client.Get()
-	key := store.NameKey(entities.USER_KIND, email)
+	key := store.NameKey(user.KIND, email)
 
-	user := entities.User{
+	u := user.User{
 		Email: email,
 		Role:  role,
 	}
 
 	// Add to datastore.
-	_, err := store.Put(context.Background(), key, &user)
+	_, err := store.Put(context.Background(), key, &u)
 	return err
 }
 
 // UpdateUser updates a user's role.
-func UpdateUser(email string, role entities.Role) error {
+func UpdateUser(email string, role user.Role) error {
 
 	// Update data in the datastore.
 	store := ds_client.Get()
-	key := store.NameKey(entities.USER_KIND, email)
-	var user entities.User
+	key := store.NameKey(user.KIND, email)
+	var u user.User
 
 	return store.Update(context.Background(), key, func(e datastore.Entity) {
-		v, ok := e.(*entities.User)
+		v, ok := e.(*user.User)
 		if ok {
 			v.Role = role
 		}
-	}, &user)
+	}, &u)
 }
 
 // DeleteUser deletes a user.
 func DeleteUser(email string) error {
 	// Delete entity.
 	store := ds_client.Get()
-	key := store.NameKey(entities.USER_KIND, email)
+	key := store.NameKey(user.KIND, email)
 	return store.Delete(context.Background(), key)
 }

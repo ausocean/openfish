@@ -36,15 +36,15 @@ package services_test
 import (
 	"testing"
 
-	"github.com/ausocean/openfish/api/entities"
 	"github.com/ausocean/openfish/api/services"
+	"github.com/ausocean/openfish/api/types/user"
 )
 
 func TestCreateUser(t *testing.T) {
 	setup()
 
 	// Create a new user entity.
-	err := services.CreateUser("test@test.com", entities.DefaultRole)
+	err := services.CreateUser("test@test.com", user.DefaultRole)
 	if err != nil {
 		t.Errorf("Could not create user entity %s", err)
 	}
@@ -54,7 +54,7 @@ func TestUserExists(t *testing.T) {
 	setup()
 
 	// Create a new user entity.
-	services.CreateUser("test@test.com", entities.DefaultRole)
+	services.CreateUser("test@test.com", user.DefaultRole)
 
 	// Check if the user exists.
 	if !services.UserExists("test@test.com") {
@@ -78,12 +78,12 @@ func TestGetUserByEmail(t *testing.T) {
 	// Define test cases.
 	testCases := []struct {
 		email string
-		role  entities.Role
+		role  user.Role
 	}{
-		{"admin@test.com", entities.AdminRole},
-		{"curator@test.com", entities.CuratorRole},
-		{"annotator@test.com", entities.AnnotatorRole},
-		{"readonly@test.com", entities.ReadonlyRole},
+		{"admin@test.com", user.AdminRole},
+		{"curator@test.com", user.CuratorRole},
+		{"annotator@test.com", user.AnnotatorRole},
+		{"readonly@test.com", user.ReadonlyRole},
 	}
 
 	for _, tc := range testCases {
@@ -114,10 +114,10 @@ func TestUpdateUser(t *testing.T) {
 	setup()
 
 	// Create a new user entity.
-	services.CreateUser("test@test.com", entities.DefaultRole)
+	services.CreateUser("test@test.com", user.DefaultRole)
 
 	// Update the role.
-	role := entities.AdminRole
+	role := user.AdminRole
 	err := services.UpdateUser("test@test.com", role)
 	if err != nil {
 		t.Errorf("Could not update user entity %s", err)
@@ -132,7 +132,7 @@ func TestUpdateUser(t *testing.T) {
 func TestUpdateUserForNonExistentEntity(t *testing.T) {
 	setup()
 
-	err := services.UpdateUser("nonexistent@test.com", entities.AdminRole)
+	err := services.UpdateUser("nonexistent@test.com", user.AdminRole)
 	if err == nil {
 		t.Errorf("Did not receive expected error when updating non-existent user")
 	}
@@ -142,7 +142,7 @@ func TestDeleteUser(t *testing.T) {
 	setup()
 
 	// Create a new user entity.
-	services.CreateUser("test@test.com", entities.DefaultRole)
+	services.CreateUser("test@test.com", user.DefaultRole)
 
 	// Delete the capture source entity.
 	err := services.DeleteUser("test@test.com")

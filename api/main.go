@@ -42,9 +42,9 @@ import (
 
 	"github.com/ausocean/openfish/api/api"
 	"github.com/ausocean/openfish/api/ds_client"
-	"github.com/ausocean/openfish/api/entities"
 	"github.com/ausocean/openfish/api/handlers"
 	"github.com/ausocean/openfish/api/middleware"
+	"github.com/ausocean/openfish/api/types/user"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -59,41 +59,41 @@ func registerAPIRoutes(app *fiber.App) {
 	v1.Group("/capturesources").
 		Get("/:id", handlers.GetCaptureSourceByID).
 		Get("/", handlers.GetCaptureSources).
-		Post("/", middleware.Guard(entities.AdminRole), handlers.CreateCaptureSource).
-		Patch("/:id", middleware.Guard(entities.AdminRole), handlers.UpdateCaptureSource).
-		Delete("/:id", middleware.Guard(entities.AdminRole), handlers.DeleteCaptureSource)
+		Post("/", middleware.Guard(user.AdminRole), handlers.CreateCaptureSource).
+		Patch("/:id", middleware.Guard(user.AdminRole), handlers.UpdateCaptureSource).
+		Delete("/:id", middleware.Guard(user.AdminRole), handlers.DeleteCaptureSource)
 
 	// Video streams.
 	v1.Group("/videostreams").
 		Get("/:id", handlers.GetVideoStreamByID).
 		Get("/", handlers.GetVideoStreams).
-		Post("/live", middleware.Guard(entities.CuratorRole), handlers.StartVideoStream).
-		Patch("/:id/live", middleware.Guard(entities.CuratorRole), handlers.EndVideoStream).
-		Post("/", middleware.Guard(entities.CuratorRole), handlers.CreateVideoStream).
-		Patch("/:id", middleware.Guard(entities.CuratorRole), handlers.UpdateVideoStream).
-		Delete("/:id", middleware.Guard(entities.AdminRole), handlers.DeleteVideoStream)
+		Post("/live", middleware.Guard(user.CuratorRole), handlers.StartVideoStream).
+		Patch("/:id/live", middleware.Guard(user.CuratorRole), handlers.EndVideoStream).
+		Post("/", middleware.Guard(user.CuratorRole), handlers.CreateVideoStream).
+		Patch("/:id", middleware.Guard(user.CuratorRole), handlers.UpdateVideoStream).
+		Delete("/:id", middleware.Guard(user.AdminRole), handlers.DeleteVideoStream)
 
 	// Annotations.
 	v1.Group("/annotations").
 		Get("/:id", handlers.GetAnnotationByID).
 		Get("/", handlers.GetAnnotations).
-		Post("/", middleware.Guard(entities.AnnotatorRole), handlers.CreateAnnotation).
-		Delete("/:id", middleware.Guard(entities.AdminRole), handlers.DeleteAnnotation)
+		Post("/", middleware.Guard(user.AnnotatorRole), handlers.CreateAnnotation).
+		Delete("/:id", middleware.Guard(user.AdminRole), handlers.DeleteAnnotation)
 
 	// Species.
 	v1.Group("/species").
 		Get("/recommended", handlers.GetRecommendedSpecies).
 		Get("/:id", handlers.GetSpeciesByID).
-		Post("/", middleware.Guard(entities.AdminRole), handlers.CreateSpecies).
-		Post("/import-from-inaturalist", middleware.Guard(entities.AdminRole), handlers.ImportFromINaturalist).
-		Delete("/:id", middleware.Guard(entities.AdminRole), handlers.DeleteSpecies)
+		Post("/", middleware.Guard(user.AdminRole), handlers.CreateSpecies).
+		Post("/import-from-inaturalist", middleware.Guard(user.AdminRole), handlers.ImportFromINaturalist).
+		Delete("/:id", middleware.Guard(user.AdminRole), handlers.DeleteSpecies)
 
 	// Users.
-	v1.Group("/users", middleware.Guard(entities.AdminRole)).
+	v1.Group("/users", middleware.Guard(user.AdminRole)).
 		Get("/:email", handlers.GetUserByEmail).
 		Get("/", handlers.GetUsers).
-		Patch("/:email", middleware.Guard(entities.AdminRole), handlers.UpdateUser).
-		Delete("/:email", middleware.Guard(entities.AdminRole), handlers.DeleteUser)
+		Patch("/:email", middleware.Guard(user.AdminRole), handlers.UpdateUser).
+		Delete("/:email", middleware.Guard(user.AdminRole), handlers.DeleteUser)
 
 	// Auth.
 	v1.Get("/auth/me", handlers.GetSelf)

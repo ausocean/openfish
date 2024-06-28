@@ -31,61 +31,70 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package entities
+// An Annotation holds information about observations at a particular moment and region within a video stream.
+package annotation
 
 import (
 	"encoding/json"
-	"time"
 
+	"github.com/ausocean/openfish/api/types/timespan"
 	"github.com/ausocean/openfish/datastore"
 )
 
 // Kind of entity to store / fetch from the datastore.
-const VIDEOSTREAM_KIND = "VideoStream"
+const KIND = "Annotation"
 
-// VideoStream holds the information about a single video stream.
-// VideoStream contains the url for a live or completed stream off of youtube, the start time,
-// the end time (unless it is still ongoing), and the ID of its capture source.
-type VideoStream struct {
-	StartTime     time.Time
-	EndTime       *time.Time // Optional.
-	StreamUrl     string
-	CaptureSource int64
-	AnnotatorList []string
+// BoundingBox is a rectangle enclosing something interesting in a video.
+// It is represented using two x y coordinates, top left corner and bottom right corner of the rectangle.
+type BoundingBox struct {
+	X1 int `json:"x1"`
+	X2 int `json:"x2"`
+	Y1 int `json:"y1"`
+	Y2 int `json:"y2"`
 }
 
-// Encode serializes VideoStream. Implements Entity interface. Used for FileStore datastore.
-func (vs *VideoStream) Encode() []byte {
-	bytes, _ := json.Marshal(vs)
+// An Annotation holds information about observations at a particular moment and region within a video stream.
+type Annotation struct {
+	VideoStreamID    int64
+	TimeSpan         timespan.TimeSpan
+	BoundingBox      *BoundingBox // Optional.
+	Observer         string
+	ObservationPairs []string
+	ObservationKeys  []string // A copy of the map's keys are stored separately, so we can quickly query for annotations with a given key present.
+}
+
+// Encode serializes Annotation. Implements Entity interface. Used for FileStore datastore.
+func (an *Annotation) Encode() []byte {
+	bytes, _ := json.Marshal(an)
 	return bytes
 }
 
-// Encode deserializes VideoStream. Implements Entity interface. Used for FileStore datastore.
-func (vs *VideoStream) Decode(b []byte) error {
-	return json.Unmarshal(b, vs)
+// Encode deserializes Annotation. Implements Entity interface. Used for FileStore datastore.
+func (an *Annotation) Decode(b []byte) error {
+	return json.Unmarshal(b, an)
 }
 
 // Implements Copy from the Entity interface.
-func (vs *VideoStream) Copy(dst datastore.Entity) (datastore.Entity, error) {
-	var v *VideoStream
+func (an *Annotation) Copy(dst datastore.Entity) (datastore.Entity, error) {
+	var a *Annotation
 	if dst == nil {
-		v = new(VideoStream)
+		a = new(Annotation)
 	} else {
 		var ok bool
-		v, ok = dst.(*VideoStream)
+		a, ok = dst.(*Annotation)
 		if !ok {
 			return nil, datastore.ErrWrongType
 		}
 	}
-	*v = *vs
-	return v, nil
+	*a = *an
+	return a, nil
 }
 
 // No caching is used.
-func (vs *VideoStream) GetCache() datastore.Cache {
+func (an *Annotation) GetCache() datastore.Cache {
 	return nil
 }
 
-func NewVideoStream() datastore.Entity {
-	return &VideoStream{}
+func New() datastore.Entity {
+	return &Annotation{}
 }

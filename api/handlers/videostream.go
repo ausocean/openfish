@@ -40,9 +40,9 @@ import (
 	"time"
 
 	"github.com/ausocean/openfish/api/api"
-	"github.com/ausocean/openfish/api/entities"
 	"github.com/ausocean/openfish/api/services"
 	"github.com/ausocean/openfish/api/types/timespan"
+	"github.com/ausocean/openfish/api/types/videostream"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -58,8 +58,8 @@ type VideoStreamResult struct {
 	AnnotatorList *[]string  `json:"annotator_list,omitempty"`
 }
 
-// FromVideoStream creates a VideoStreamResult from a entities.VideoStream and key, formatting it according to the requested format.
-func FromVideoStream(videoStream *entities.VideoStream, id int64, format *api.Format) VideoStreamResult {
+// FromVideoStream creates a VideoStreamResult from a videostream.VideoStream and key, formatting it according to the requested format.
+func FromVideoStream(videoStream *videostream.VideoStream, id int64, format *api.Format) VideoStreamResult {
 	var result VideoStreamResult
 	if format.Requires("id") {
 		result.ID = &id

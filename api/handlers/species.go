@@ -38,8 +38,8 @@ import (
 	"strconv"
 
 	"github.com/ausocean/openfish/api/api"
-	"github.com/ausocean/openfish/api/entities"
 	"github.com/ausocean/openfish/api/services"
+	"github.com/ausocean/openfish/api/types/species"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -47,14 +47,14 @@ import (
 // SpeciesResult describes the JSON format for species in API responses.
 // Fields use pointers because they are optional (this is what the format URL param is for).
 type SpeciesResult struct {
-	ID         *int64            `json:"id,omitempty"`
-	Species    *string           `json:"species,omitempty"`
-	CommonName *string           `json:"common_name,omitempty"`
-	Images     *[]entities.Image `json:"images,omitempty"`
+	ID         *int64           `json:"id,omitempty"`
+	Species    *string          `json:"species,omitempty"`
+	CommonName *string          `json:"common_name,omitempty"`
+	Images     *[]species.Image `json:"images,omitempty"`
 }
 
-// FromSpecies creates a SpeciesResult from a entities.Species and key, formatting it according to the requested format.
-func FromSpecies(species *entities.Species, id int64, format *api.Format) SpeciesResult {
+// FromSpecies creates a SpeciesResult from a species.Species and key, formatting it according to the requested format.
+func FromSpecies(species *species.Species, id int64, format *api.Format) SpeciesResult {
 	var result SpeciesResult
 	if format.Requires("id") {
 		result.ID = &id
@@ -86,9 +86,9 @@ type ImportFromINaturalistQuery struct {
 //
 // ID is omitted because it is chosen automatically.
 type CreateSpeciesBody struct {
-	Species    string           `json:"species"`
-	CommonName string           `json:"common_name"`
-	Images     []entities.Image `json:"images"`
+	Species    string          `json:"species"`
+	CommonName string          `json:"common_name"`
+	Images     []species.Image `json:"images"`
 }
 
 // GetSpeciesByID gets a species when provided with an ID.
@@ -190,22 +190,22 @@ func ImportFromINaturalist(ctx *fiber.Ctx) error {
 		}
 
 		// Get descendants.
-		species, err := services.GetSpeciesByDescendant(parentTaxa.ID)
+		descendants, err := services.GetSpeciesByDescendant(parentTaxa.ID)
 		if err != nil {
 			return err // TODO: add more descriptive error.
 		}
 
 		// Insert species into datastore or update existing entry.
-		for _, s := range species {
+		for _, s := range descendants {
 
-			img := entities.Image{Src: s.DefaultPhoto.MediumURL, Attribution: s.DefaultPhoto.Attribution}
+			img := species.Image{Src: s.DefaultPhoto.MediumURL, Attribution: s.DefaultPhoto.Attribution}
 
-			species, id, _ := services.GetSpeciesByINaturalistID(s.ID)
-			if species == nil {
-				services.CreateSpecies(s.Name, s.PreferredCommonName, []entities.Image{img}, &s.ID)
+			spec, id, _ := services.GetSpeciesByINaturalistID(s.ID)
+			if spec == nil {
+				services.CreateSpecies(s.Name, s.PreferredCommonName, []species.Image{img}, &s.ID)
 			}
 
-			services.UpdateSpecies(id, &s.Name, &s.PreferredCommonName, &[]entities.Image{img}, nil)
+			services.UpdateSpecies(id, &s.Name, &s.PreferredCommonName, &[]species.Image{img}, nil)
 		}
 	}
 

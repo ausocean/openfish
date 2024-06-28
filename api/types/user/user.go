@@ -3,7 +3,7 @@ AUTHORS
   Scott Barnard <scott@ausocean.org>
 
 LICENSE
-  Copyright (c) 2023, The OpenFish Contributors.
+  Copyright (c) 2023-2024, The OpenFish Contributors.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -31,70 +31,98 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// entities package has the data types of data we keep in the datastore.
-package entities
+// User contains the user role and email address.
+package user
 
 import (
 	"encoding/json"
+	"fmt"
 
-	"github.com/ausocean/openfish/api/types/timespan"
 	"github.com/ausocean/openfish/datastore"
 )
 
+// TODO: implement user entity.
+
 // Kind of entity to store / fetch from the datastore.
-const ANNOTATION_KIND = "Annotation"
+const KIND = "User"
 
-// BoundingBox is a rectangle enclosing something interesting in a video.
-// It is represented using two x y coordinates, top left corner and bottom right corner of the rectangle.
-type BoundingBox struct {
-	X1 int `json:"x1"`
-	X2 int `json:"x2"`
-	Y1 int `json:"y1"`
-	Y2 int `json:"y2"`
+// User contains the user role and email address.
+type User struct {
+	Email string
+	Role  Role
 }
 
-// An Annotation holds information about observations at a particular moment and region within a video stream.
-type Annotation struct {
-	VideoStreamID    int64
-	TimeSpan         timespan.TimeSpan
-	BoundingBox      *BoundingBox // Optional.
-	Observer         string
-	ObservationPairs []string
-	ObservationKeys  []string // A copy of the map's keys are stored separately, so we can quickly query for annotations with a given key present.
+// Role enum.
+type Role int8
+
+const (
+	ReadonlyRole  Role = iota // Can only use GET APIs.
+	AnnotatorRole             // Can create annotations.
+	CuratorRole               // Can create annotations and videostreams.
+	AdminRole                 // Can do everything.
+	DefaultRole   = AnnotatorRole
+)
+
+func (r Role) String() string {
+	switch r {
+	case ReadonlyRole:
+		return "readonly"
+	case AnnotatorRole:
+		return "annotator"
+	case CuratorRole:
+		return "curator"
+	case AdminRole:
+		return "admin"
+	}
+	return "unknown"
 }
 
-// Encode serializes Annotation. Implements Entity interface. Used for FileStore datastore.
-func (an *Annotation) Encode() []byte {
-	bytes, _ := json.Marshal(an)
+func ParseRole(s string) (Role, error) {
+	switch s {
+	case "readonly":
+		return ReadonlyRole, nil
+	case "annotator":
+		return AnnotatorRole, nil
+	case "curator":
+		return CuratorRole, nil
+	case "admin":
+		return AdminRole, nil
+	}
+	return DefaultRole, fmt.Errorf("invalid role provided: %s", s)
+}
+
+// Encode serializes User. Implements Entity interface. Used for FileStore datastore.
+func (vs *User) Encode() []byte {
+	bytes, _ := json.Marshal(vs)
 	return bytes
 }
 
-// Encode deserializes Annotation. Implements Entity interface. Used for FileStore datastore.
-func (an *Annotation) Decode(b []byte) error {
-	return json.Unmarshal(b, an)
+// Encode deserializes User. Implements Entity interface. Used for FileStore datastore.
+func (vs *User) Decode(b []byte) error {
+	return json.Unmarshal(b, vs)
 }
 
 // Implements Copy from the Entity interface.
-func (an *Annotation) Copy(dst datastore.Entity) (datastore.Entity, error) {
-	var a *Annotation
+func (vs *User) Copy(dst datastore.Entity) (datastore.Entity, error) {
+	var v *User
 	if dst == nil {
-		a = new(Annotation)
+		v = new(User)
 	} else {
 		var ok bool
-		a, ok = dst.(*Annotation)
+		v, ok = dst.(*User)
 		if !ok {
 			return nil, datastore.ErrWrongType
 		}
 	}
-	*a = *an
-	return a, nil
+	*v = *vs
+	return v, nil
 }
 
 // No caching is used.
-func (an *Annotation) GetCache() datastore.Cache {
+func (vs *User) GetCache() datastore.Cache {
 	return nil
 }
 
-func NewAnnotation() datastore.Entity {
-	return &Annotation{}
+func New() datastore.Entity {
+	return &User{}
 }
