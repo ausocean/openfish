@@ -38,8 +38,8 @@ import (
 
 	googlestore "cloud.google.com/go/datastore"
 
-	"github.com/ausocean/openfish/api/ds_client"
-	"github.com/ausocean/openfish/api/entities"
+	"github.com/ausocean/openfish/cmd/openfish/ds_client"
+	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/datastore"
 )
 

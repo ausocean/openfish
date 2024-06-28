@@ -40,9 +40,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ausocean/openfish/api/api"
-	"github.com/ausocean/openfish/api/entities"
-	"github.com/ausocean/openfish/api/services"
+	"github.com/ausocean/openfish/cmd/openfish/api"
+	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"github.com/ausocean/openfish/cmd/openfish/services"
 
 	"github.com/gofiber/fiber/v2"
 )

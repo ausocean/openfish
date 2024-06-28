@@ -37,8 +37,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ausocean/openfish/api/entities"
-	"github.com/ausocean/openfish/api/services"
+	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"github.com/ausocean/openfish/cmd/openfish/services"
 )
 
 // Constants.

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ausocean/openfish/api/ds_client"
+	"github.com/ausocean/openfish/cmd/openfish/ds_client"
 	"github.com/gofiber/fiber/v2"
 )
 

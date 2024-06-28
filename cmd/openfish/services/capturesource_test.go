@@ -37,8 +37,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ausocean/openfish/api/ds_client"
-	"github.com/ausocean/openfish/api/services"
+	"github.com/ausocean/openfish/cmd/openfish/ds_client"
+	"github.com/ausocean/openfish/cmd/openfish/services"
 )
 
 func setup() {

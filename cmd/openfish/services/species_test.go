@@ -36,8 +36,8 @@ package services_test
 import (
 	"testing"
 
-	"github.com/ausocean/openfish/api/entities"
-	"github.com/ausocean/openfish/api/services"
+	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"github.com/ausocean/openfish/cmd/openfish/services"
 )
 
 func TestCreateSpecies(t *testing.T) {
