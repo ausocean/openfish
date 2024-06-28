@@ -36,8 +36,8 @@ package services_test
 import (
 	"testing"
 
-	"github.com/ausocean/openfish/api/entities"
 	"github.com/ausocean/openfish/api/services"
+	"github.com/ausocean/openfish/api/types/timespan"
 	"github.com/ausocean/openfish/api/types/videotime"
 )
 
@@ -52,7 +52,7 @@ func TestCreateAnnotation(t *testing.T) {
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []string{})
 	_, err := services.CreateAnnotation(vs,
-		entities.TimeSpan{Start: oneSec, End: oneMin},
+		timespan.TimeSpan{Start: oneSec, End: oneMin},
 		nil, "scott@ausocean.org",
 		map[string]string{"species": "Sepia Apama"})
 
@@ -68,7 +68,7 @@ func TestAnnotationExists(t *testing.T) {
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []string{})
 	id, _ := services.CreateAnnotation(vs,
-		entities.TimeSpan{Start: oneSec, End: oneMin},
+		timespan.TimeSpan{Start: oneSec, End: oneMin},
 		nil, "scott@ausocean.org",
 		map[string]string{"species": "Sepia Apama"})
 
@@ -95,7 +95,7 @@ func TestGetAnnotationByID(t *testing.T) {
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []string{})
 	id, _ := services.CreateAnnotation(vs,
-		entities.TimeSpan{Start: oneSec, End: oneMin},
+		timespan.TimeSpan{Start: oneSec, End: oneMin},
 		nil, "scott@ausocean.org",
 		map[string]string{"species": "Sepia Apama"})
 
@@ -126,7 +126,7 @@ func TestDeleteAnnotation(t *testing.T) {
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []string{})
 	id, _ := services.CreateAnnotation(vs,
-		entities.TimeSpan{Start: oneSec, End: oneMin},
+		timespan.TimeSpan{Start: oneSec, End: oneMin},
 		nil, "scott@ausocean.org",
 		map[string]string{"species": "Sepia Apama"})
 

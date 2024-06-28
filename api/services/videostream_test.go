@@ -37,8 +37,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ausocean/openfish/api/entities"
 	"github.com/ausocean/openfish/api/services"
+	"github.com/ausocean/openfish/api/types/timespan"
 )
 
 // Constants.
@@ -205,7 +205,7 @@ func TestDeleteVideoStreamWithAssociatedAnnotations(t *testing.T) {
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	id, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []string{})
 	services.CreateAnnotation(id,
-		entities.TimeSpan{Start: oneSec, End: oneMin},
+		timespan.TimeSpan{Start: oneSec, End: oneMin},
 		nil, "scott@ausocean.org",
 		map[string]string{"species": "Sepia Apama"})
 

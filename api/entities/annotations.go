@@ -37,18 +37,12 @@ package entities
 import (
 	"encoding/json"
 
-	"github.com/ausocean/openfish/api/types/videotime"
+	"github.com/ausocean/openfish/api/types/timespan"
 	"github.com/ausocean/openfish/datastore"
 )
 
 // Kind of entity to store / fetch from the datastore.
 const ANNOTATION_KIND = "Annotation"
-
-// TimeSpan is a pair of video timestamps - start time and end time.
-type TimeSpan struct {
-	Start videotime.VideoTime `json:"start"`
-	End   videotime.VideoTime `json:"end"`
-}
 
 // BoundingBox is a rectangle enclosing something interesting in a video.
 // It is represented using two x y coordinates, top left corner and bottom right corner of the rectangle.
@@ -62,7 +56,7 @@ type BoundingBox struct {
 // An Annotation holds information about observations at a particular moment and region within a video stream.
 type Annotation struct {
 	VideoStreamID    int64
-	TimeSpan         TimeSpan
+	TimeSpan         timespan.TimeSpan
 	BoundingBox      *BoundingBox // Optional.
 	Observer         string
 	ObservationPairs []string
