@@ -40,6 +40,7 @@ import (
 
 	"github.com/ausocean/openfish/api/ds_client"
 	"github.com/ausocean/openfish/api/entities"
+	"github.com/ausocean/openfish/api/types/timespan"
 	"github.com/ausocean/openfish/datastore"
 )
 
@@ -65,7 +66,7 @@ func VideoStreamExists(id int64) bool {
 }
 
 // GetVideoStreams gets a list of video streams, filtering by timespan, capturesource if specified.
-func GetVideoStreams(limit int, offset int, timespan *entities.TimeSpan, captureSource *int64) ([]entities.VideoStream, []int64, error) {
+func GetVideoStreams(limit int, offset int, timespan *timespan.TimeSpan, captureSource *int64) ([]entities.VideoStream, []int64, error) {
 	// Fetch data from the datastore.
 	store := ds_client.Get()
 	query := store.NewQuery(entities.VIDEOSTREAM_KIND, false)

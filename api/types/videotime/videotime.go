@@ -62,6 +62,10 @@ func (t VideoTime) String() string {
 	return fmt.Sprintf("%02d:%02d:%02d", h, m, s)
 }
 
+func (t VideoTime) Int() int64 {
+	return t.value
+}
+
 func Parse(s string) (VideoTime, error) {
 	// Split on ':' characters.
 	str := strings.Split(s, ":")
