@@ -4,7 +4,7 @@ AUTHORS
   Scott Barnard <scott@ausocean.org>
 
 LICENSE
-  Copyright (c) 2023, The OpenFish Contributors.
+  Copyright (c) 2023-2024, The OpenFish Contributors.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -82,6 +82,7 @@ var (
 	ErrNoSuchEntity    = errors.New("no such entity")
 	ErrEntityExists    = errors.New("entity exists")
 	ErrWrongType       = errors.New("wrong type")
+	ErrInvalidType     = errors.New("invalid type")
 )
 
 // We reuse some Google Datastore types.
@@ -115,7 +116,7 @@ type Store interface {
 	GetAll(ctx context.Context, q Query, dst interface{}) ([]*Key, error)    // Runs a query and returns all matching entities.
 	Create(ctx context.Context, key *Key, src Entity) error                  // Creates a single entity by its key.
 	Put(ctx context.Context, key *Key, src Entity) (*Key, error)             // Put or creates a single entity by its key.
-	Update(ctx context.Context, key *Key, fn func(Entity), dst Entity) error // Atomically updates a single entity by its key.
+	Update(ctx context.Context, key *Key, fn func(Entity), dst Entity) error // Atomically updates or creates a single entity by its key.
 	Delete(ctx context.Context, key *Key) error                              // Deletes a single entity by its key.
 	DeleteMulti(ctx context.Context, keys []*Key) error                      // Deletes multiple entities by their keys.
 }
@@ -137,6 +138,15 @@ type Query interface {
 // RegisterEntity registers a new kind of entity and its constructor.
 func RegisterEntity(kind string, construct func() Entity) {
 	newEntity[kind] = construct
+}
+
+// NewEntity instantiates a new entity of the given kind, else returns an error.
+func NewEntity(kind string) (Entity, error) {
+	construct, ok := newEntity[kind]
+	if !ok {
+		return nil, ErrInvalidType
+	}
+	return construct(), nil
 }
 
 // NewStore returns a new Store. If kind is "cloud" a CloudStore is
@@ -303,7 +313,7 @@ func (s *CloudStore) Put(ctx context.Context, key *Key, src Entity) (*Key, error
 func (s *CloudStore) Update(ctx context.Context, key *Key, fn func(Entity), dst Entity) error {
 	_, err := s.client.RunInTransaction(ctx, func(tx *datastore.Transaction) error {
 		err := tx.Get(key, dst)
-		if err != nil {
+		if err != nil && err != datastore.ErrNoSuchEntity {
 			return err
 		}
 		fn(dst)
@@ -674,7 +684,7 @@ func (s *FileStore) Update(ctx context.Context, key *Key, fn func(Entity), dst E
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	err := s.Get(ctx, key, dst)
-	if err != nil {
+	if err != nil && err != ErrNoSuchEntity {
 		return err
 	}
 	fn(dst)
