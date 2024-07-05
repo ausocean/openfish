@@ -7,7 +7,7 @@
 # Go code.
 !go.mod
 !go.sum
-!api/
+!cmd/
 !datastore/
 
 

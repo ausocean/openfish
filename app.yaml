@@ -6,7 +6,7 @@ env_variables:
   FILESTORE: 'false'
   JWT_AUDIENCE: '/projects/174291483773/apps/openfish'
 
-main: ./api/main.go
+main: ./cmd/openfish/main.go
 
 handlers:
 
