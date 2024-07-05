@@ -198,6 +198,10 @@ func ImportFromINaturalist(ctx *fiber.Ctx) error {
 
 		// Insert species into datastore or update existing entry.
 		for _, s := range species {
+			// Skip species without a photo.
+			if s.DefaultPhoto == nil {
+				continue
+			}
 
 			img := entities.Image{Src: s.DefaultPhoto.MediumURL, Attribution: s.DefaultPhoto.Attribution}
 
