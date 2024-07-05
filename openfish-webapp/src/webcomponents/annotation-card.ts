@@ -2,7 +2,7 @@ import { LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import type { Annotation } from '../utils/api.types.ts'
 import { repeat } from 'lit/directives/repeat.js'
-import { formatAsDate, formatAsTime, formatAsTimeZone } from '../utils/datetime.ts'
+import { formatDuration, parseVideoTime } from '../utils/datetime.ts'
 
 /**
  * TODO: write component documentation
@@ -21,20 +21,9 @@ export class AnnotationCard extends LitElement {
       return html`<div class="card"></div>`
     }
 
-    const start = new Date(this.annotation.timespan.start)
-    const end = new Date(this.annotation.timespan.end)
-    const duration = (end.getTime() - start.getTime()) / 1000
-    const tz = formatAsTimeZone(start)
-
-    const startDate = formatAsDate(start)
-    const startTime = formatAsTime(start)
-    const endDate = formatAsDate(end)
-    const endTime = formatAsTime(end)
-
-    const rangeFormatted =
-      startDate === endDate
-        ? html`<em>${startDate}</em>, from <em>${startTime}</em> until <em>${endTime}</em>`
-        : html`From <em>${startDate}, ${startTime}</em> until <em>${endDate}, ${endTime}</em>`
+    const start = this.annotation.timespan.start
+    const end = this.annotation.timespan.end
+    const duration = formatDuration(parseVideoTime(end) - parseVideoTime(start))
 
     const rows = repeat(
       Object.entries(this.annotation.observation),
@@ -55,7 +44,7 @@ export class AnnotationCard extends LitElement {
     <div class="timestamps">
       <div>
         <span>Time: </span>
-        <span>${rangeFormatted} [${tz}]</span>
+        <span><em>${start}</em> - <em>${end}</em></span>
       </div>
       <div>
         <span>Duration: </span>

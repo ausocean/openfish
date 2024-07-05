@@ -2,7 +2,7 @@ import { LitElement, css, html, svg, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import type { Annotation, VideoStream } from '../utils/api.types'
 import { repeat } from 'lit/directives/repeat.js'
-import { datetimeDifference, datetimeToVideoTime, formatVideoTime } from '../utils/datetime'
+import { formatVideoTime, parseVideoTime } from '../utils/datetime'
 import resetcss from '../styles/reset.css?raw'
 import btncss from '../styles/buttons.css?raw'
 
@@ -57,10 +57,10 @@ export class PlaybackControls extends LitElement {
   // Jump to when the next annotation occurs in the video.
   private next() {
     const nextAnnotation = this.annotations.find(
-      (a) => datetimeToVideoTime(this.videostream!.startTime, a.timespan.start) > this.currentTime
+      (a) => parseVideoTime(a.timespan.start) > this.currentTime
     )
     if (nextAnnotation !== undefined) {
-      const seekTo = datetimeToVideoTime(this.videostream!.startTime, nextAnnotation.timespan.start)
+      const seekTo = parseVideoTime(nextAnnotation.timespan.start)
       this.dispatchSeekEvent(seekTo)
     }
   }
@@ -68,19 +68,20 @@ export class PlaybackControls extends LitElement {
   // Jump to when the previous annotation occurs in the video.
   private prev() {
     const idx = this.annotations.findLastIndex(
-      (a) => datetimeToVideoTime(this.videostream!.startTime, a.timespan.start) < this.currentTime
+      (a) => parseVideoTime(a.timespan.start) < this.currentTime
     )
     if (idx > 0) {
       const prevAnnotation = this.annotations[idx - 1]
-      const seekTo = datetimeToVideoTime(this.videostream!.startTime, prevAnnotation.timespan.start)
+      const seekTo = parseVideoTime(prevAnnotation.timespan.start)
       this.dispatchSeekEvent(seekTo)
     }
   }
 
   render() {
     const heatmap = repeat(this.annotations, (annotation) => {
-      const start = datetimeToVideoTime(this.videostream!.startTime, annotation.timespan.start)
-      const duration = datetimeDifference(annotation.timespan.end, annotation.timespan.start)
+      const start = parseVideoTime(annotation.timespan.start)
+      const end = parseVideoTime(annotation.timespan.end)
+      const duration = end - start
 
       const x = (start / this.duration) * 100
       const width = Math.max((duration / this.duration) * 100, 0.25) // Give them a min width of 0.25% so they are legible.
