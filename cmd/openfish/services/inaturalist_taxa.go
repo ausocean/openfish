@@ -60,7 +60,7 @@ type Taxa struct {
 	Ancestry                  string     `json:"ancestry"`
 	Names                     []Name     `json:"names"`
 	Extinct                   bool       `json:"extinct"`
-	DefaultPhoto              Photo      `json:"default_photo"`
+	DefaultPhoto              *Photo     `json:"default_photo"`
 	TaxonChangesCount         int        `json:"taxon_changes_count"`
 	TaxonSchemesCount         int        `json:"taxon_schemes_count"`
 	ObservationsCount         int        `json:"observations_count"`
