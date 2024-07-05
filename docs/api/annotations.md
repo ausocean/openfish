@@ -18,10 +18,7 @@ HTTP/1.1 200
 {
   "id": <annotation ID>,
   "videostreamId": 4586454965551104,
-  "timespan": {
-    "Start": "0001-01-01T00:00:00Z",
-    "End": "0001-01-01T00:00:00Z"
-  },
+  "timespan": { "start": "00:01:10", "end": "00:01:15" },
   "observer": "scott@ausocean.org",
   "observation": {
     "common_name": "Zebrafish",
@@ -54,7 +51,7 @@ Content-Type: application/json
 
 {
   "videostreamId": 4586454965551104,
-  "timespan": { "start": "2023-06-07T16:30:00.00Z", "end": "2023-06-07T16:30:02.00Z" },
+  "timespan": { "start": "00:01:10", "end": "00:01:15" },
   "boundingBox": {"x1": 84, "y1": 160, "x2": 205, "y2": 295},
   "observer": "scott@ausocean.com",
   "observation": {
