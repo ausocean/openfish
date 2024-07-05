@@ -1,7 +1,7 @@
 import { LitElement, css, html, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import type { Annotation, VideoStream } from '../utils/api.types'
-import { formatAsTime, videotimeToDatetime } from '../utils/datetime'
+import type { Annotation, VideoStream, VideoTime } from '../utils/api.types'
+import { formatVideoTime, parseVideoTime } from '../utils/datetime'
 import resetcss from '../styles/reset.css?raw'
 import btncss from '../styles/buttons.css?raw'
 
@@ -10,7 +10,6 @@ import './annotation-card'
 import './playback-controls'
 import './observation-editor'
 import './bounding-box-creator'
-// import 'vidstack/bundle'
 
 import vidstackcss from 'vidstack/player/styles/default/theme.css?raw'
 import 'vidstack/player'
@@ -73,20 +72,20 @@ export class WatchStream extends LitElement {
   private _observation: Record<string, string> = {}
 
   @state()
-  private _start: Date | null = null
+  private _start: VideoTime | null = null
 
   @state()
-  private _end: Date | null = null
+  private _end: VideoTime | null = null
 
   @state()
   private _boundingBox: [number, number, number, number] | null = null
 
   private setStart() {
-    this._start = videotimeToDatetime(this._videostream!.startTime, this._currentTime)
+    this._start = formatVideoTime(this._currentTime)
   }
 
   private setEnd() {
-    this._end = videotimeToDatetime(this._videostream!.startTime, this._currentTime)
+    this._end = formatVideoTime(this._currentTime)
   }
 
   private addAnnotation() {
@@ -99,7 +98,6 @@ export class WatchStream extends LitElement {
   playerRef: Ref<MediaPlayerElement> = createRef()
 
   private async confirmAnnotation() {
-    // TODO: set observer to user's name.
     const payload: Omit<Annotation, 'id'> = {
       videostreamId: this._videostream!.id,
       observer: 'user@placeholder.com',
@@ -164,14 +162,11 @@ export class WatchStream extends LitElement {
   render() {
     let filteredAnnotations: Annotation[] = []
     if (this._videostream != null) {
-      // Convert playback time in seconds to a datetime.
-      const playbackDatetime = videotimeToDatetime(this._videostream?.startTime, this._currentTime)
-
       // Filter annotations to only show those spanning the current playback time/position.
       filteredAnnotations = this._annotations.filter(
         (an: Annotation) =>
-          new Date(an.timespan.start).getTime() <= playbackDatetime.getTime() &&
-          playbackDatetime.getTime() <= new Date(an.timespan.end).getTime()
+          parseVideoTime(an.timespan.start) <= this._currentTime &&
+          this._currentTime <= parseVideoTime(an.timespan.end)
       )
     }
 
@@ -218,12 +213,12 @@ export class WatchStream extends LitElement {
         <tbody>
         <tr>
           <td>Start:</td>
-          <td>${this._start == null ? '' : formatAsTime(this._start)}</td>
+          <td>${this._start == null ? '' : this._start}</td>
           <td><button class="btn-sm btn-blue w-full" @click=${this.setStart}>Set start time</button></td>
         </tr>
         <tr>
           <td>End:</td>
-          <td>${this._end == null ? '' : formatAsTime(this._end)}</td>
+          <td>${this._end == null ? '' : this._end}</td>
           <td><button class="btn-sm btn-blue w-full" @click=${this.setEnd}>Set end time</button></td>
         </tr>
         </tbody>

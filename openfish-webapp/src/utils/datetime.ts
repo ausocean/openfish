@@ -1,14 +1,4 @@
-// Convert a video time in seconds to a datetime.
-export function videotimeToDatetime(streamStart: string, time: number): Date {
-  const playbackDatetime = new Date(streamStart)
-  playbackDatetime.setSeconds(playbackDatetime.getSeconds() + time)
-  return playbackDatetime
-}
-
-// Convert a datetime to a video time in seconds.
-export function datetimeToVideoTime(streamStart: DateLike, datetime: DateLike): number {
-  return (new Date(datetime).getTime() - new Date(streamStart).getTime()) / 1000
-}
+import type { VideoTime } from './api.types'
 
 // Subtracts datetimes and returns difference as a number in seconds.
 export function datetimeDifference(a: DateLike, b: DateLike): number {
@@ -53,15 +43,20 @@ export function formatAsTimeZone(dt: DateLike): string {
     .slice(4)
 }
 
-export function formatDuration(duration: number): string {
-  const h = Math.floor(duration / 3600)
-  const m = Math.floor((duration - h * 3600) / 60)
-  const s = duration - h * 3600 - m * 60
+export function formatDuration(seconds: number): string {
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds - h * 3600) / 60)
+  const s = seconds - h * 3600 - m * 60
   return `${h}h ${m}m ${s}s `
 }
 
-export function formatVideoTime(seconds: number): string {
+export function formatVideoTime(seconds: number): VideoTime {
   const date = new Date(0)
   date.setSeconds(seconds)
-  return date.toISOString().substring(11, 19)
+  return date.toISOString().substring(11, 19) as VideoTime
+}
+
+export function parseVideoTime(str: VideoTime): number {
+  const [h, m, s] = str.split(':')
+  return Number(h) * 60 * 60 + Number(m) * 60 + Number(s)
 }

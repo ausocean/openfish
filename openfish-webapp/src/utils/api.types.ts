@@ -27,9 +27,11 @@ export interface Observation {
   [key: string]: string
 }
 
+export type VideoTime = `${number}:${number}:${number}`
+
 export interface Timespan {
-  start: Date | string
-  end: Date | string
+  start: VideoTime
+  end: VideoTime
 }
 
 export interface BoundingBox {
