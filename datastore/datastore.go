@@ -82,6 +82,7 @@ var (
 	ErrNoSuchEntity    = errors.New("no such entity")
 	ErrEntityExists    = errors.New("entity exists")
 	ErrWrongType       = errors.New("wrong type")
+	ErrInvalidType     = errors.New("invalid type")
 )
 
 // We reuse some Google Datastore types.
@@ -137,6 +138,15 @@ type Query interface {
 // RegisterEntity registers a new kind of entity and its constructor.
 func RegisterEntity(kind string, construct func() Entity) {
 	newEntity[kind] = construct
+}
+
+// NewEntity instantiates a new entity of the given kind, else returns an error.
+func NewEntity(kind string) (Entity, error) {
+	construct, ok := newEntity[kind]
+	if !ok {
+		return nil, ErrInvalidType
+	}
+	return construct(), nil
 }
 
 // NewStore returns a new Store. If kind is "cloud" a CloudStore is
