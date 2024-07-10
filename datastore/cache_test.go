@@ -40,42 +40,42 @@ import (
 
 func Test(t *testing.T) {
 	tests := []struct {
-		action, key, value, want string
-		ok                       bool // true if action returns an error and is expected to succeed.
+		action, name, value, want string
+		ok                        bool // true if action returns an error and is expected to succeed.
 	}{
 		{
 			action: "get",
-			key:    "a",
+			name:   "a",
 			ok:     false,
 		},
 		{
 			action: "set",
-			key:    "a",
+			name:   "a",
 			value:  "aa",
 		},
 		{
 			action: "get",
-			key:    "a",
+			name:   "a",
 			want:   "aa",
 			ok:     true,
 		},
 		{
 			action: "set",
-			key:    "b",
+			name:   "b",
 			value:  "bb",
 		},
 		{
 			action: "delete",
-			key:    "a",
+			name:   "a",
 		},
 		{
 			action: "get",
-			key:    "a",
+			name:   "a",
 			ok:     false,
 		},
 		{
 			action: "get",
-			key:    "b",
+			name:   "b",
 			want:   "bb",
 			ok:     true,
 		},
@@ -84,7 +84,7 @@ func Test(t *testing.T) {
 		},
 		{
 			action: "get",
-			key:    "b",
+			name:   "b",
 			ok:     false,
 		},
 	}
@@ -92,34 +92,34 @@ func Test(t *testing.T) {
 	var cache Cache = NewEntityCache()
 
 	for i, test := range tests {
-		var k Key = Key{Name: test.key}
+		var k Key = Key{Name: test.name}
 
 		switch test.action {
 		case "get":
-			var kv KeyValue
-			err := cache.Get(&k, &kv)
+			var v NameValue
+			err := cache.Get(&k, &v)
 			if err != nil {
 				if test.ok {
-					t.Errorf("Test %d: Get(%s) returned unexpected error: %v", i, test.key, err)
+					t.Errorf("Test %d: Get(%s) returned unexpected error: %v", i, test.name, err)
 				}
 				var errCacheMiss ErrCacheMiss
 				if !errors.As(err, &errCacheMiss) {
-					t.Errorf("Test %d: Get(%s) returned wrong error: %v", i, test.key, err)
+					t.Errorf("Test %d: Get(%s) returned wrong error: %v", i, test.name, err)
 				}
 				continue // Got expected type of error.
 			}
 			if !test.ok {
-				t.Errorf("Test %d: Get(%s) did not return error", i, test.key)
+				t.Errorf("Test %d: Get(%s) did not return error", i, test.name)
 			}
-			if test.want != kv.Value {
-				t.Errorf("Test %d: Get(%s) returned wrong value: %s", i, test.key, kv.Value)
+			if test.want != v.Value {
+				t.Errorf("Test %d: Get(%s) returned wrong value: %s", i, test.name, v.Value)
 			}
 
 		case "set":
-			kv := KeyValue{Key: test.key, Value: test.value}
-			err := cache.Set(&k, &kv)
+			v := NameValue{Name: test.name, Value: test.value}
+			err := cache.Set(&k, &v)
 			if err != nil {
-				t.Errorf("Test %d: Set(%s,%s) returned unexpected error: %v", i, test.key, test.value, err)
+				t.Errorf("Test %d: Set(%s,%s) returned unexpected error: %v", i, test.name, test.value, err)
 			}
 
 		case "delete":

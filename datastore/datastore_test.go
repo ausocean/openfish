@@ -42,39 +42,39 @@ import (
 	"testing"
 )
 
-const typeKeyValue = "KeyValue" // KeyValue datastore type.
+const typeNameValue = "NameValue" // NameValue datastore type.
 
-// KeyValue represents a key/value pair.
-type KeyValue struct {
-	Key   string
+// NameValue represents a key/value pair.
+type NameValue struct {
+	Name  string
 	Value string
 	cache Cache
 }
 
-// Encode serializes a KeyValue into tab-separated values.
-func (v *KeyValue) Encode() []byte {
-	return []byte(fmt.Sprintf("%s\t%s", v.Key, v.Value))
+// Encode serializes a NameValue into tab-separated values.
+func (v *NameValue) Encode() []byte {
+	return []byte(fmt.Sprintf("%s\t%s", v.Name, v.Value))
 }
 
-// Decode deserializes a KeyValue from tab-separated values.
-func (v *KeyValue) Decode(b []byte) error {
+// Decode deserializes a NameValue from tab-separated values.
+func (v *NameValue) Decode(b []byte) error {
 	p := strings.Split(string(b), "\t")
 	if len(p) != 2 {
 		return ErrDecoding
 	}
-	v.Key = p[0]
+	v.Name = p[0]
 	v.Value = p[1]
 	return nil
 }
 
-// Copy copies a KeyValue to dst, or returns a copy of the KeyValue when dst is nil.
-func (v *KeyValue) Copy(dst Entity) (Entity, error) {
-	var kv *KeyValue
+// Copy copies a NameValue to dst, or returns a copy of the NameValue when dst is nil.
+func (v *NameValue) Copy(dst Entity) (Entity, error) {
+	var kv *NameValue
 	if dst == nil {
-		kv = new(KeyValue)
+		kv = new(NameValue)
 	} else {
 		var ok bool
-		kv, ok = dst.(*KeyValue)
+		kv, ok = dst.(*NameValue)
 		if !ok {
 			return nil, ErrWrongType
 		}
@@ -83,54 +83,54 @@ func (v *KeyValue) Copy(dst Entity) (Entity, error) {
 	return kv, nil
 }
 
-// GetCache returns the KeyValue cache.
-func (v *KeyValue) GetCache() Cache {
+// GetCache returns the NameValue cache.
+func (v *NameValue) GetCache() Cache {
 	return v.cache
 }
 
-// CreateKeyValue creates a KeyValue.
-func CreateKeyValue(ctx context.Context, store Store, key, value string) error {
-	k := store.NameKey(typeKeyValue, key)
-	v := &KeyValue{Key: key, Value: value}
+// CreateNameValue creates a NameValue.
+func CreateNameValue(ctx context.Context, store Store, key, value string) error {
+	k := store.NameKey(typeNameValue, key)
+	v := &NameValue{Name: key, Value: value}
 	return store.Create(ctx, k, v)
 }
 
-// PutKeyValue creates or updates a KeyValue.
-func PutKeyValue(ctx context.Context, store Store, key, value string) error {
-	k := store.NameKey(typeKeyValue, key)
-	v := &KeyValue{Key: key, Value: value}
+// PutNameValue creates or updates a NameValue.
+func PutNameValue(ctx context.Context, store Store, key, value string) error {
+	k := store.NameKey(typeNameValue, key)
+	v := &NameValue{Name: key, Value: value}
 	_, err := store.Put(ctx, k, v)
 	return err
 }
 
-// GetKeyValue gets a KeyValue.
-func GetKeyValue(ctx context.Context, store Store, key string) (*KeyValue, error) {
-	k := store.NameKey(typeKeyValue, key)
-	v := new(KeyValue)
+// GetNameValue gets a NameValue.
+func GetNameValue(ctx context.Context, store Store, key string) (*NameValue, error) {
+	k := store.NameKey(typeNameValue, key)
+	v := new(NameValue)
 	return v, store.Get(ctx, k, v)
 }
 
-// UpdateKeyValue updates a KeyValue by applying the given function.
-func UpdateKeyValue(ctx context.Context, store Store, key string, fn func(Entity)) (*KeyValue, error) {
-	k := store.NameKey(typeKeyValue, key)
-	v := new(KeyValue)
+// UpdateNameValue updates a NameValue by applying the given function.
+func UpdateNameValue(ctx context.Context, store Store, key string, fn func(Entity)) (*NameValue, error) {
+	k := store.NameKey(typeNameValue, key)
+	v := new(NameValue)
 	return v, store.Update(ctx, k, fn, v)
 }
 
-// DeleteKeyValue deletes a KeyValue.
-func DeleteKeyValue(ctx context.Context, store Store, key string) error {
-	k := store.NameKey(typeKeyValue, key)
+// DeleteNameValue deletes a NameValue.
+func DeleteNameValue(ctx context.Context, store Store, key string) error {
+	k := store.NameKey(typeNameValue, key)
 	return store.DeleteMulti(ctx, []*Key{k})
 }
 
-// init registers the KeyValue entitity.
+// init registers the NameValue entitity.
 func init() {
-	RegisterEntity(typeKeyValue, func() Entity { return new(KeyValue) })
+	RegisterEntity(typeNameValue, func() Entity { return new(NameValue) })
 }
 
 // TestFile tests the file store.
 func TestFile(t *testing.T) {
-	testKeyValue(t, "file", nil)
+	testNameValue(t, "file", nil)
 }
 
 // TestCloud tests the cloud store without caching.
@@ -139,7 +139,7 @@ func TestCloud(t *testing.T) {
 	if os.Getenv("OPENFISH_CREDENTIALS") == "" {
 		t.Skip("OPENFISH_CREDENTIALS")
 	}
-	testKeyValue(t, "cloud", nil)
+	testNameValue(t, "cloud", nil)
 }
 
 // TestCloudCaching tests the cloud store with caching.
@@ -148,11 +148,11 @@ func TestCloudCaching(t *testing.T) {
 	if os.Getenv("OPENFISH_CREDENTIALS") == "" {
 		t.Skip("OPENFISH_CREDENTIALS")
 	}
-	testKeyValue(t, "cloud", NewEntityCache())
+	testNameValue(t, "cloud", NewEntityCache())
 }
 
-// testKeyValue tests various KeyValue methods.
-func testKeyValue(t *testing.T, kind string, cache Cache) {
+// testNameValue tests various NameValue methods.
+func testNameValue(t *testing.T, kind string, cache Cache) {
 	ctx := context.Background()
 
 	store, err := NewStore(ctx, kind, "openfish", "")
@@ -183,36 +183,36 @@ func testKeyValue(t *testing.T, kind string, cache Cache) {
 	}
 
 	for i, test := range tests {
-		err = PutKeyValue(ctx, store, test.key, test.value)
+		err = PutNameValue(ctx, store, test.key, test.value)
 		if err != nil {
-			t.Errorf("PutKeyValue %d failed with error: %v", i, err)
+			t.Errorf("PutNameValue %d failed with error: %v", i, err)
 		}
-		err = CreateKeyValue(ctx, store, test.key, test.value)
+		err = CreateNameValue(ctx, store, test.key, test.value)
 		if err != ErrEntityExists {
-			t.Errorf("CreateKeyValue %d failed with unexpected error: %v", i, err)
+			t.Errorf("CreateNameValue %d failed with unexpected error: %v", i, err)
 		}
-		v, err := GetKeyValue(ctx, store, test.key)
+		v, err := GetNameValue(ctx, store, test.key)
 		if err != nil {
-			t.Errorf("GetKeyValue %d failed with error: %v", i, err)
+			t.Errorf("GetNameValue %d failed with error: %v", i, err)
 		}
 		if v.Value != test.value {
-			t.Errorf("GetKeyValue %d returned wrong value; expected %s, got %s", i, test.value, v.Value)
+			t.Errorf("GetNameValue %d returned wrong value; expected %s, got %s", i, test.value, v.Value)
 		}
-		v, err = UpdateKeyValue(ctx, store, test.key, clearValue)
+		v, err = UpdateNameValue(ctx, store, test.key, clearValue)
 		if err != nil {
-			t.Errorf("UpdateKeyValue %d failed with error: %v", i, err)
+			t.Errorf("UpdateNameValue %d failed with error: %v", i, err)
 		}
 		if v.Value != "" {
-			t.Errorf("GetKeyValue %d returned wrong value; expected empty string, got %s", i, v.Value)
+			t.Errorf("GetNameValue %d returned wrong value; expected empty string, got %s", i, v.Value)
 		}
-		err = DeleteKeyValue(ctx, store, test.key)
+		err = DeleteNameValue(ctx, store, test.key)
 		if err != nil {
-			t.Errorf("DeleteKeyValue %d failed with error: %v", i, err)
+			t.Errorf("DeleteNameValue %d failed with error: %v", i, err)
 		}
 		if test.cache != nil {
 			// Check that the value was cleared from the cache.
-			k := store.NameKey(typeKeyValue, test.key)
-			var v KeyValue
+			k := store.NameKey(typeNameValue, test.key)
+			var v NameValue
 			err := cache.Get(k, &v)
 			if err == nil {
 				t.Errorf("cache.Get %d returned no error", i)
@@ -225,9 +225,9 @@ func testKeyValue(t *testing.T, kind string, cache Cache) {
 	}
 }
 
-// clearValue clears the value of a KeyValue.
+// clearValue clears the value of a NameValue.
 func clearValue(e Entity) {
-	v, ok := e.(*KeyValue)
+	v, ok := e.(*NameValue)
 	if ok {
 		v.Value = ""
 	}
