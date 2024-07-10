@@ -508,7 +508,7 @@ func (s *FileStore) IncompleteKey(kind string) *Key {
 
 // NewQuery creates and returns a new FileQuery.
 func (s *FileStore) NewQuery(kind string, keysOnly bool, keyParts ...string) Query {
-	query := FileQuery{kind: kind, keysOnly: keysOnly, keyParts: keyParts}
+	query := FileQuery{kind: kind, keysOnly: keysOnly, keyParts: keyParts, limit: MaxKeys}
 	return &query
 }
 
