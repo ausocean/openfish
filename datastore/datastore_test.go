@@ -257,7 +257,7 @@ func TestFileDirect(t *testing.T) {
 		t.Errorf("Put name2 failed: %v", err)
 	}
 
-	// GetAll by name, returning key only
+	// GetAll by name, returning key only.
 	q := store.NewQuery(typeNameValue, true, "Name", "Value")
 	q.Filter("Name =", name1)
 	keys, err := store.GetAll(ctx, q, nil)
