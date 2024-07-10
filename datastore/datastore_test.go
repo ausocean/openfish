@@ -232,3 +232,76 @@ func clearValue(e Entity) {
 		v.Value = ""
 	}
 }
+
+// TestFileDirect tests direct file store operations.
+func TestFileDirect(t *testing.T) {
+	ctx := context.Background()
+	store, err := NewStore(ctx, "file", "test", "store")
+	if err != nil {
+		t.Fatalf("could not create file store: %v", err)
+	}
+
+	const (
+		name1 = "1"
+		name2 = "2"
+		value = "localuser@localhost"
+	)
+
+	// Put two NameValue entities with the same value.
+	_, err = store.Put(ctx, store.NameKey(typeNameValue, name1+"."+value), &NameValue{Name: name1, Value: value})
+	if err != nil {
+		t.Errorf("Put name1 failed: %v", err)
+	}
+	_, err = store.Put(ctx, store.NameKey(typeNameValue, name2+"."+value), &NameValue{Name: name2, Value: value})
+	if err != nil {
+		t.Errorf("Put name2 failed: %v", err)
+	}
+
+	// GetAll by name, returning key only
+	q := store.NewQuery(typeNameValue, true, "Name", "Value")
+	q.Filter("Name =", name1)
+	keys, err := store.GetAll(ctx, q, nil)
+	if err != nil {
+		t.Errorf("GetAll by name, keys only failed: %v", err)
+	}
+	if len(keys) != 1 {
+		t.Errorf("GetAll by name returned %d keys, expected 1", len(keys))
+	}
+
+	// GetAll by name, returning 1 entity.
+	q = store.NewQuery(typeNameValue, false, "Name", "Value")
+	q.Filter("Name =", name1)
+	var entities []NameValue
+	_, err = store.GetAll(ctx, q, &entities)
+	if err != nil {
+		t.Errorf("GetAll by name, returning entities failed: %v", err)
+	}
+	if len(entities) != 1 {
+		t.Errorf("GetAll by name returned %d entities, expected 1", len(entities))
+	}
+
+	// GetAll by value, returning 2 entities.
+	q = store.NewQuery(typeNameValue, false, "Name", "Value")
+	q.Filter("Value =", value)
+	entities = nil
+	_, err = store.GetAll(ctx, q, &entities)
+	if err != nil {
+		t.Errorf("GetAll by value failed: %v", err)
+	}
+	if len(entities) != 2 {
+		t.Errorf("GetAll by value returned %d entities, expected 2", len(entities))
+	}
+
+	// GetAll by value, returning entities, limited to 1.
+	q = store.NewQuery(typeNameValue, false, "Name", "Value")
+	q.Filter("Value =", value)
+	q.Limit(1)
+	entities = nil
+	_, err = store.GetAll(ctx, q, &entities)
+	if err != nil {
+		t.Errorf("GetAll by value failed: %v", err)
+	}
+	if len(entities) != 1 {
+		t.Errorf("GetAll by value returned %d entities, expected 1", len(entities))
+	}
+}
