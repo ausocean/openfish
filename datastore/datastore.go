@@ -79,10 +79,10 @@ var (
 	ErrInvalidOperator = errors.New("invalid operator")
 	ErrInvalidValue    = errors.New("invalid value")
 	ErrOperatorMissing = errors.New("operator missing")
-	ErrNoSuchEntity    = errors.New("no such entity")
+	ErrNoSuchEntity    = datastore.ErrNoSuchEntity
 	ErrEntityExists    = errors.New("entity exists")
 	ErrWrongType       = errors.New("wrong type")
-	ErrInvalidType     = errors.New("invalid type")
+	ErrInvalidType     = datastore.ErrInvalidEntityType
 )
 
 // We reuse some Google Datastore types.
@@ -290,7 +290,7 @@ func (s *CloudStore) Create(ctx context.Context, key *Key, src Entity) error {
 		if err == nil {
 			return ErrEntityExists
 		}
-		if err != datastore.ErrNoSuchEntity {
+		if err != ErrNoSuchEntity {
 			return err
 		}
 		_, err = tx.Put(key, src)
