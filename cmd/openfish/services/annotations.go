@@ -45,6 +45,29 @@ import (
 	"github.com/ausocean/openfish/datastore"
 )
 
+// validateObservation checks that an observation contains a species
+// that is within our datastore.
+func validateObservation(observation map[string]string) error {
+	species, ok := observation["species"]
+	if !ok {
+		return errors.New("species key required in observation")
+	}
+	commonName, ok := observation["common_name"]
+	if !ok {
+		return errors.New("common_name key required in observation")
+	}
+
+	entity, _, err := GetSpeciesByScientificName(species)
+	if entity == nil {
+		return fmt.Errorf("species (%s) does not exist", species)
+	}
+	if entity.CommonName != commonName {
+		return fmt.Errorf("common name provided (%s) does not match expected: %s", commonName, entity.CommonName)
+	}
+
+	return err
+}
+
 // GetAnnotationByID gets an annotation from datastore when provided with an ID.
 func GetAnnotationByID(id int64) (*entities.Annotation, error) {
 	store := ds_client.Get()
@@ -104,6 +127,10 @@ func GetAnnotations(limit int, offset int, observer *string, observation map[str
 
 // CreateAnnotation creates a new annotation.
 func CreateAnnotation(videoStreamID int64, timeSpan timespan.TimeSpan, boundingBox *entities.BoundingBox, observer string, observation map[string]string) (int64, error) {
+	if err := validateObservation(observation); err != nil {
+		return 0, err
+	}
+
 	// Convert observation map into a format the datastore can take.
 	obsKeys := make([]string, 0, len(observation))
 	obsPairs := make([]string, 0, len(observation))

@@ -87,6 +87,21 @@ func TestGetSpeciesByID(t *testing.T) {
 	}
 }
 
+func TestGetSpeciesByScientificName(t *testing.T) {
+	setup()
+
+	// Create a new species entity.
+	services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
+
+	species, _, err := services.GetSpeciesByScientificName("Sepioteuthis australis")
+	if err != nil {
+		t.Errorf("Could not get species entity %s", err)
+	}
+	if species.CommonName != "Southern Reef Squid" && species.Species != "Sepioteuthis australis" && len(species.Images) != 0 {
+		t.Errorf("Video stream entity does not match created entity")
+	}
+}
+
 func TestGetSpeciesByIDForNonexistentEntity(t *testing.T) {
 	setup()
 
