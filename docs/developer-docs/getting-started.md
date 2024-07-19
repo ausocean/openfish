@@ -8,6 +8,7 @@ You will need installed:
 - [gcloud CLI](https://cloud.google.com/sdk/docs/install)
 - Linux (Windows is currently untested but may work)
 
+## Deployment instructions
 ### Steps:
 1) Setup google cloud credentials so your application can access the datastore:
    ```bash

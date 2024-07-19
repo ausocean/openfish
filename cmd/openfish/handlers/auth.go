@@ -40,6 +40,13 @@ import (
 )
 
 // GetSelf gets information about the current user.
+//
+//	@Summary		Get current user
+//	@Description	Gets information about the current user.
+//	@Tags			Authentication
+//	@Produce		json
+//	@Success		200	{object}	UserResult
+//	@Router			/api/v1/auth/me [get]
 func GetSelf(ctx *fiber.Ctx) error {
 	// Return user.
 	return ctx.JSON(UserResult{

@@ -44,6 +44,14 @@ import (
 
 // PollTask checks if a task is completed, if it is it redirects to
 // the task's resource, otherwise it returns 200
+//
+//	@Summary		Poll status
+//	@Description	Checks if a task is completed, if so, it redirects to the task's resource, otherwise returns 200.
+//	@Tags			Tasks
+//	@Param			id	path	int	true	"Task ID"	example(1234567890)
+//	@Success		200
+//	@Success		301
+//	@Router			/api/v1/tasks/{id}/status [get]
 func PollTask(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 	if err != nil {

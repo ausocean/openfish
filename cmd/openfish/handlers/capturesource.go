@@ -48,12 +48,21 @@ import (
 
 // CaptureSourceResult describes the JSON format for capture sources in API responses.
 // Fields use pointers because they are optional (this is what the format URL param is for).
+//
+//	@Description	contains information about something that produces a video stream
 type CaptureSourceResult struct {
-	ID             *int64  `json:"id,omitempty"`
-	Name           *string `json:"name,omitempty"`
-	Location       *string `json:"location,omitempty"`
-	CameraHardware *string `json:"camera_hardware,omitempty"`
-	SiteID         *int64  `json:"site_id,omitempty"`
+	ID             *int64  `json:"id,omitempty" example:"1234567890"`                               // Unique ID of the capture source.
+	Name           *string `json:"name,omitempty" example:"Stony Point Cuttle Cam"`                 // Name of rig or camera.
+	Location       *string `json:"location,omitempty" example:"-32.12345,139.12345"`                // Where the rig or camera is located.
+	CameraHardware *string `json:"camera_hardware,omitempty" example:"pi cam v2 (wide angle lens)"` // Short description of the camera hardware.
+	SiteID         *int64  `json:"site_id,omitempty" example:"246813579"`                           // Site ID is used to reference sites in OceanBench. Optional.
+}
+
+// EntityIDResult contains the ID of a newly created entity.
+//
+//	@Description	ID of newly created entity.
+type EntityIDResult struct {
+	ID *int64 `json:"id,omitempty" example:"1234567890"` // Unique ID of the entity.
 }
 
 // FromCaptureSource creates a CaptureSourceResult from a entities.CaptureSource and key, formatting it according to the requested format.
@@ -89,18 +98,18 @@ type GetCaptureSourcesQuery struct {
 // CreateCaptureSourceBody describes the JSON format required for the CreateCaptureSource endpoint.
 // ID is omitted because it is chosen automatically. All other fields are required.
 type CreateCaptureSourceBody struct {
-	Name           string `json:"name"`
-	Location       string `json:"location"`
-	CameraHardware string `json:"camera_hardware"`
-	SiteID         *int64 `json:"site_id"` // Optional.
+	Name           string `json:"name" example:"Stony Point Cuttle Cam" validate:"required"`                 // Name of rig or camera.
+	Location       string `json:"location" example:"-32.12345,139.12345" validate:"required"`                // Location of the rig or camera.
+	CameraHardware string `json:"camera_hardware" example:"pi cam v2 (wide angle lens)" validate:"required"` // Short description of the camera hardware.
+	SiteID         *int64 `json:"site_id" example:"246813579" validate:"optional"`                           // ID used to reference sites in OceanBench.
 }
 
 // UpdateCaptureSourceBody describes the JSON format required for the UpdateCaptureSource endpoint.
 type UpdateCaptureSourceBody struct {
-	Name           *string `json:"name"`            // Optional.
-	Location       *string `json:"location"`        // Optional.
-	CameraHardware *string `json:"camera_hardware"` // Optional.
-	SiteID         *int64  `json:"site_id"`         // Optional.
+	Name           *string `json:"name" example:"Stony Point Cuttle Cam" validate:"optional"`                 // Name of rig or camera.
+	Location       *string `json:"location" example:"-32.12345,139.12345" validate:"optional"`                // Location of the rig or camera.
+	CameraHardware *string `json:"camera_hardware" example:"pi cam v2 (wide angle lens)" validate:"optional"` // Short description of the camera hardware.
+	SiteID         *int64  `json:"site_id" example:"246813579" validate:"optional"`                           // ID used to reference sites in OceanBench.
 }
 
 // parseGeoPoint converts a string containing two comma-separated values into a GeoPoint.
@@ -123,6 +132,16 @@ func parseGeoPoint(location string) (float64, float64, error) {
 }
 
 // GetCaptureSourceByID gets a capture source when provided with an ID.
+//
+//	@Summary		Get capture source by ID
+//	@Description	Gets a capture source when provided with an ID.
+//	@Tags			Capture Sources
+//	@Produce		json
+//	@Param			id	path		int	true	"Capture Source ID"	example(1234567890)
+//	@Success		200	{object}	CaptureSourceResult
+//	@Failure		400	{object}	api.Failure
+//	@Failure		404	{object}	api.Failure
+//	@Router			/api/v1/capturesources/{id} [get]
 func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 	// Parse URL.
 	format := new(api.Format)
@@ -145,6 +164,17 @@ func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 }
 
 // GetCaptureSources gets a list of capture sources, filtering by name, location if specified.
+//
+//	@Summary		Get capture sources
+//	@Description	Get paginated capture sources, with options to filter by name and location.
+//	@Tags			Capture Sources
+//	@Produce		json
+//	@Param			limit	query		int		false	"Number of results to return."	minimum(1)	default(20)
+//	@Param			offset	query		int		false	"Number of results to skip."	minimum(0)
+//	@Param			name	query		string	false	"Name to filter by."
+//	@Success		200		{object}	api.Result[CaptureSourceResult]
+//	@Failure		400		{object}	api.Failure
+//	@Router			/api/v1/capturesources [get]
 func GetCaptureSources(ctx *fiber.Ctx) error {
 	// Parse URL.
 	qry := new(GetCaptureSourcesQuery)
@@ -180,6 +210,18 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 }
 
 // CreateCaptureSource creates a new capture source.
+//
+//	@Summary		Create capture source
+//	@Description	Admin role required`**
+//	@Description
+//	@Description	Creates a new capture source from provided JSON body.
+//	@Tags			Capture Sources
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body		CreateCaptureSourceBody	true	"New Capture Source"
+//	@Success		201		{object}	EntityIDResult
+//	@Failure		400		{object}	api.Failure
+//	@Router			/api/v1/capturesources [post]
 func CreateCaptureSource(ctx *fiber.Ctx) error {
 	// Parse body.
 	var body CreateCaptureSourceBody
@@ -198,12 +240,24 @@ func CreateCaptureSource(ctx *fiber.Ctx) error {
 	id, err := services.CreateCaptureSource(body.Name, lat, long, body.CameraHardware, body.SiteID)
 
 	// Return ID of created capture source.
-	return ctx.JSON(CaptureSourceResult{
+	return ctx.JSON(EntityIDResult{
 		ID: &id,
 	})
 }
 
 // UpdateCaptureSource updates a capture source.
+//
+//	@Summary		Update capture source
+//	@Description	Admin role required`**
+//	@Description
+//	@Description	Partially update a capture source by specifying the properties to update.
+//	@Tags			Capture Sources
+//	@Accept			json
+//	@Param			id		path	int						true	"Capture Source ID"	example(1234567890)
+//	@Param			body	body	UpdateCaptureSourceBody	true	"Update Capture Source"
+//	@Success		200
+//	@Failure		400	{object}	api.Failure
+//	@Router			/api/v1/capturesources/{id} [patch]
 func UpdateCaptureSource(ctx *fiber.Ctx) error {
 	// Parse URL.
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
@@ -235,6 +289,18 @@ func UpdateCaptureSource(ctx *fiber.Ctx) error {
 }
 
 // DeleteCaptureSource deletes a capture source.
+//
+//	@Summary		Delete capture source
+//	@Security		IAP
+//	@Description	**`Admin role required`**
+//	@Description
+//	@Description	Delete a capture source by providing the capture source ID.
+//	@Tags			Capture Sources
+//	@Param			id	path	int	true	"Capture Source ID"	example(1234567890)
+//	@Success		200
+//	@Failure		400	{object}	api.Failure
+//	@Failure		404	{object}	api.Failure
+//	@Router			/api/v1/capturesources/{id} [delete]
 func DeleteCaptureSource(ctx *fiber.Ctx) error {
 
 	// Parse URL.
