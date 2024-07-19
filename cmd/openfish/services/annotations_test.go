@@ -103,7 +103,7 @@ func TestGetAnnotationByID(t *testing.T) {
 	if err != nil {
 		t.Errorf("Could not get annotation entity %s", err)
 	}
-	if annotation.VideoStreamID != vs || annotation.BoundingBox != nil || annotation.Observer != "scott@ausocean.org" || annotation.ObservationKeys[0] != "species" || annotation.ObservationPairs[0] != "species:Sepia Apama" {
+	if annotation.VideoStreamID != vs || annotation.BoundingBox != nil || annotation.Observer != "scott@ausocean.org" || annotation.Observation["species"] != "Sepia Apama" {
 		t.Errorf("Annotation entity does not match created entity")
 	}
 }

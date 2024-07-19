@@ -104,23 +104,14 @@ func GetAnnotations(limit int, offset int, observer *string, observation map[str
 
 // CreateAnnotation creates a new annotation.
 func CreateAnnotation(videoStreamID int64, timeSpan timespan.TimeSpan, boundingBox *entities.BoundingBox, observer string, observation map[string]string) (int64, error) {
-	// Convert observation map into a format the datastore can take.
-	obsKeys := make([]string, 0, len(observation))
-	obsPairs := make([]string, 0, len(observation))
-
-	for k, v := range observation {
-		obsKeys = append(obsKeys, k)
-		obsPairs = append(obsPairs, fmt.Sprintf("%s:%s", k, v))
-	}
 
 	// Create annotation entity and add to the datastore.
 	an := entities.Annotation{
-		VideoStreamID:    videoStreamID,
-		TimeSpan:         timeSpan,
-		BoundingBox:      boundingBox,
-		Observer:         observer,
-		ObservationPairs: obsPairs,
-		ObservationKeys:  obsKeys,
+		VideoStreamID: videoStreamID,
+		TimeSpan:      timeSpan,
+		BoundingBox:   boundingBox,
+		Observer:      observer,
+		Observation:   observation,
 	}
 
 	// Verify VideoStream exists.

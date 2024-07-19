@@ -78,12 +78,7 @@ func FromAnnotation(annotation *entities.Annotation, id int64, format *api.Forma
 		result.Observer = &annotation.Observer
 	}
 	if format.Requires("observation") {
-		observation := make(map[string]string)
-		for _, o := range annotation.ObservationPairs {
-			parts := strings.Split(o, ":")
-			observation[parts[0]] = parts[1]
-		}
-		result.Observation = observation
+		result.Observation = annotation.Observation
 	}
 
 	return result

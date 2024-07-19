@@ -36,9 +36,13 @@ package entities
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 
 	"github.com/ausocean/openfish/cmd/openfish/types/timespan"
 	"github.com/ausocean/openfish/datastore"
+
+	googlestore "cloud.google.com/go/datastore"
 )
 
 // Kind of entity to store / fetch from the datastore.
@@ -55,12 +59,11 @@ type BoundingBox struct {
 
 // An Annotation holds information about observations at a particular moment and region within a video stream.
 type Annotation struct {
-	VideoStreamID    int64
-	TimeSpan         timespan.TimeSpan
-	BoundingBox      *BoundingBox // Optional.
-	Observer         string
-	ObservationPairs []string
-	ObservationKeys  []string // A copy of the map's keys are stored separately, so we can quickly query for annotations with a given key present.
+	VideoStreamID int64
+	TimeSpan      timespan.TimeSpan
+	BoundingBox   *BoundingBox // Optional.
+	Observer      string
+	Observation   map[string]string
 }
 
 // Encode serializes Annotation. Implements Entity interface. Used for FileStore datastore.
@@ -97,4 +100,78 @@ func (an *Annotation) GetCache() datastore.Cache {
 
 func NewAnnotation() datastore.Entity {
 	return &Annotation{}
+}
+
+// Load implements loading from the datastore.
+func (a *Annotation) Load(ps []datastore.Property) error {
+	var data struct {
+		VideoStreamID    int64
+		TimeSpan         timespan.TimeSpan
+		BoundingBox      *BoundingBox
+		Observer         string
+		ObservationPairs []string
+		ObservationKeys  []string
+	}
+
+	if err := googlestore.LoadStruct(&data, ps); err != nil {
+		return err
+	}
+
+	// Convert observation pairs into a map.
+	observation := make(map[string]string)
+	for _, o := range data.ObservationPairs {
+		parts := strings.Split(o, ":")
+		observation[parts[0]] = parts[1]
+	}
+
+	a.VideoStreamID = data.VideoStreamID
+	a.TimeSpan = data.TimeSpan
+	a.BoundingBox = data.BoundingBox
+	a.Observer = data.Observer
+	a.Observation = observation
+
+	return nil
+}
+
+// Save implements saving to the datastore.
+func (a *Annotation) Save() ([]datastore.Property, error) {
+
+	// Convert observation map into a format the datastore can take.
+	obsKeys := make([]any, 0, len(a.Observation))
+	obsPairs := make([]any, 0, len(a.Observation))
+
+	for k, v := range a.Observation {
+		obsKeys = append(obsKeys, k)
+		obsPairs = append(obsPairs, fmt.Sprintf("%s:%s", k, v))
+	}
+
+	bbProps, _ := googlestore.SaveStruct(a.BoundingBox)
+	tsProps, _ := a.TimeSpan.Save()
+
+	return []datastore.Property{
+		{
+			Name:  "VideoStreamID",
+			Value: a.VideoStreamID,
+		},
+		{
+			Name:  "TimeSpan",
+			Value: &googlestore.Entity{Properties: tsProps},
+		},
+		{
+			Name:  "BoundingBox",
+			Value: &googlestore.Entity{Properties: bbProps},
+		},
+		{
+			Name:  "Observer",
+			Value: a.Observer,
+		},
+		{
+			Name:  "ObservationKeys",
+			Value: &obsKeys,
+		},
+		{
+			Name:  "ObservationPairs",
+			Value: &obsPairs,
+		},
+	}, nil
 }
