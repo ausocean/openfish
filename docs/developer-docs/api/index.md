@@ -1,15 +1,21 @@
-# Introduction
-**Authors:** Scott Barnard
+# OpenFish API documentation
 
 OpenFish provides an API to access stored marine footage, and video annotations / labels, allowing clients to retrieve and filter the data.
-Clients can download segments of footage or video annotations by querying by location, time, and other parameters.
 
-OpenFish's API has a few types of resources it deals with: [capture sources][capture-sources], [video streams][video-streams], [annotations][annotations], [species][species] and [users][users]. Capture sources are cameras that produces video streams. Video streams have information about a single video. Annotations are used for labeling interesting things at a particular time and place in videos. Species provides a list of valid species for users to identify. Users contains the user's [role and permissions][roles-permissions].
+Clients can download segments of footage or video annotations by querying
+by location, time, and other parameters.
 
-[capture-sources]: ./capture-sources
-[video-streams]: ./video-streams
-[annotations]: ./annotations
-[species]: ./species
-[users]: ./users
-[roles-permissions]: ./roles-and-permissions
+## Authentication
+OpenFish has optional support for requiring user authentication.
 
+User authentication is provided using Google Cloud's Identity Aware Proxy (IAP). By default it is disabled, to use it you need to pass the command line flag `--iap` or set the environmental variable `IAP=\"true\"` to enable it.
+
+## Roles and permissions
+If user authentication is enabled, the following roles and permissions apply:
+
+| Role               | Permissions                                                                       |
+| ------------------ | --------------------------------------------------------------------------------- |
+| Admin              | Can add and remove annotations, videostreams, capturesources, users, and species. |
+| Curator            | Can select streams for classification.                                            |
+| Annotator          | Can add annotations, and delete their own annotations                             |
+| Readonly (default) | A readonly user is only be able to look at annotations, not make any              |

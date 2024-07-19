@@ -64,7 +64,7 @@ You will need installed:
 ### Formatting code
 ::: code-group
 ```bash [Back-end project]
-go fmt ./...
+go fmt ./... && swag fmt
 ```
 ```bash [Front-end project]
 pnpm --filter webapp fmt
