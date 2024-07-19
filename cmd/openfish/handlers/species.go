@@ -48,10 +48,10 @@ import (
 // SpeciesResult describes the JSON format for species in API responses.
 // Fields use pointers because they are optional (this is what the format URL param is for).
 type SpeciesResult struct {
-	ID         *int64            `json:"id,omitempty"`
-	Species    *string           `json:"species,omitempty"`
-	CommonName *string           `json:"common_name,omitempty"`
-	Images     *[]entities.Image `json:"images,omitempty"`
+	ID         *int64            `json:"id,omitempty" example:"1234567890"`                   // Unique ID of the species.
+	Species    *string           `json:"species,omitempty" example:"Sepioteuthis australis"`  // Scientific name of the species.
+	CommonName *string           `json:"common_name,omitempty" example:"Southern Reef Squid"` // Common name (in English) of the species.
+	Images     *[]entities.Image `json:"images,omitempty"`                                    // Image or images of the species.
 }
 
 // FromSpecies creates a SpeciesResult from a entities.Species and key, formatting it according to the requested format.
@@ -88,12 +88,22 @@ type ImportFromINaturalistQuery struct {
 //
 // ID is omitted because it is chosen automatically.
 type CreateSpeciesBody struct {
-	Species    string           `json:"species"`
-	CommonName string           `json:"common_name"`
-	Images     []entities.Image `json:"images"`
+	Species    string           `json:"species" example:"Sepioteuthis australis"`  // Scientific name of the species.
+	CommonName string           `json:"common_name" example:"Southern Reef Squid"` // Common name (in English) of the species.
+	Images     []entities.Image `json:"images"`                                    // Image or images of the species.
 }
 
 // GetSpeciesByID gets a species when provided with an ID.
+//
+//	@Summary		Get a species by ID
+//	@Description	Gets a species when provided with an ID.
+//	@Tags			Species
+//	@Produce		json
+//	@Param			id	path		int	true	"Species ID"	example(1234567890)
+//	@Success		200	{object}	SpeciesResult
+//	@Failure		400	{object}	api.Failure
+//	@Failure		404	{object}	api.Failure
+//	@Router			/api/v1/species/{id} [get]
 func GetSpeciesByID(ctx *fiber.Ctx) error {
 	// Parse URL.
 	format := new(api.Format)
@@ -154,6 +164,18 @@ func GetRecommendedSpecies(ctx *fiber.Ctx) error {
 }
 
 // CreateSpecies creates a new species.
+//
+//	@Summary		Create a new species
+//	@Description	`Admin role required`
+//	@Description
+//	@Description	Creates a new species from provided JSON body.
+//	@Tags			Species
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body		CreateSpeciesBody	true	"New Species"
+//	@Success		201		{object}	EntityIDResult
+//	@Failure		400		{object}	api.Failure
+//	@Router			/api/v1/species [post]
 func CreateSpecies(ctx *fiber.Ctx) error {
 	// Parse body.
 	var body CreateSpeciesBody
@@ -169,12 +191,22 @@ func CreateSpecies(ctx *fiber.Ctx) error {
 	}
 
 	// Return ID of created video stream.
-	return ctx.JSON(VideoStreamResult{
+	return ctx.JSON(EntityIDResult{
 		ID: &id,
 	})
 }
 
 // ImportFromINaturalist imports species from INaturalist's taxa API.
+//
+//	@Summary		Imports species from INaturalist.
+//	@Description	`Admin role required`
+//	@Description
+//	@Description	Imports all species that are descendants of a Phylum/Class/Order/etc from INaturalist's taxa API.
+//	@Tags			Species
+//	@Param			descendants_of	query	string	true	"Phylum/Class/Order/etc to import"	example(Infraorder Cetacea)
+//	@Success		200
+//	@Failure		400	{object}	api.Failure
+//	@Router			/api/v1/species:import-from-inaturalist [post]
 func ImportFromINaturalist(ctx *fiber.Ctx) error {
 
 	qry := new(ImportFromINaturalistQuery)
@@ -219,6 +251,16 @@ func ImportFromINaturalist(ctx *fiber.Ctx) error {
 }
 
 // DeleteSpecies deletes a species.
+//
+//	@Summary		Delete a species
+//	@Description	`Admin role required`
+//	@Description
+//	@Description	Delete a species by providing the species ID.
+//	@Tags			Species
+//	@Param			id	path	int	true	"Species ID"	example(1234567890)
+//	@Success		200
+//	@Failure		400	{object}	api.Failure
+//	@Router			/api/v1/species/{id} [delete]
 func DeleteSpecies(ctx *fiber.Ctx) error {
 	// Parse URL.
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)

@@ -11,30 +11,21 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Project Overview', link: '/project-overview' },
-      { text: 'API Documentation', link: '/api/' },
+      { text: 'API Documentation', link: '/developer-docs/api' },
       { text: 'AusOcean', link: 'https://www.ausocean.org/'}
     ],
 
     sidebar: [  
       { text: 'Project Overview', link: '/project-overview' },
-      { text: 'Getting Started', link: '/getting-started' },
-      { text: 'Contributing', link: '/contributing' },
-      {
-        text: 'API Documentation',
+      { 
+        text: 'Developer Documentation',
         items: [
-          { text: 'Introduction', link: '/api/'},
-          { text: 'Authentication', link: '/api/authentication'},
-          { text: 'Roles and Permissions', link: '/api/roles-and-permissions'},
-          { text: 'API Usage', link: '/api/api-usage', items: [
-            { text: 'Capture Sources', link: '/api/capture-sources'},
-            { text: 'Video Streams', link: '/api/video-streams'},
-            { text: 'Annotations', link: '/api/annotations'},
-            { text: 'Species', link: '/api/species'},
-            { text: 'Users', link: '/api/users'},
-          ]},
-
+          { text: 'Getting Started', link: '/developer-docs/getting-started' },
+          { text: 'API Documentation', link: '/developer-docs/api' },
+          { text: 'Contributing', link: '/developer-docs/contributing' },
         ]
       },
+      
     ],
 
     socialLinks: [

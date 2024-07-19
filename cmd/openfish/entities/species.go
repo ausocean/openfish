@@ -50,8 +50,8 @@ type Species struct {
 }
 
 type Image struct {
-	Src         string `json:"src"`
-	Attribution string `json:"attribution"`
+	Src         string `json:"src" example:"https://inaturalist-open-data.s3.amazonaws.com/photos/340064435/medium.jpg"`
+	Attribution string `json:"attribution" example:"Tiffany Kosch, CC BY-NC-SA 4.0"`
 }
 
 // Implements Copy from the Entity interface.

@@ -44,7 +44,6 @@ import (
 	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/services"
 	"github.com/ausocean/openfish/cmd/openfish/types/keypoint"
-	"github.com/ausocean/openfish/cmd/openfish/types/timespan"
 	"github.com/ausocean/openfish/cmd/openfish/types/videotime"
 
 	"github.com/gofiber/fiber/v2"
@@ -53,12 +52,11 @@ import (
 // AnnotationResult describes the JSON format for annotations in API responses.
 // Fields use pointers because they are optional (this is what the format URL param is for).
 type AnnotationResult struct {
-	ID            *int64              `json:"id,omitempty"`
-	VideoStreamID *int64              `json:"videostreamId,omitempty"`
-	TimeSpan      *timespan.TimeSpan  `json:"timespan,omitempty"`
+	ID            *int64              `json:"id,omitempty" example:"1234567890"`
+	VideoStreamID *int64              `json:"videostreamId,omitempty" example:"1234567890"`
 	Keypoints     []keypoint.KeyPoint `json:"keypoints,omitempty"`
-	Observer      *string             `json:"observer,omitempty"`
-	Observation   map[string]string   `json:"observation,omitempty"`
+	Observer      *string             `json:"observer,omitempty" example:"user@example.com"`
+	Observation   map[string]string   `json:"observation,omitempty" example:"species:Girella Zebra,common_name:Zebrafish"`
 }
 
 // FromAnnotation creates an AnnotationResult from a entities.Annotation and key, formatting it according to the requested format.
@@ -110,16 +108,24 @@ type GetAnnotationsQuery struct {
 // CreateAnnotationBody describes the JSON format required for the CreateAnnotation endpoint.
 //
 // ID is omitted because it is chosen automatically.
-// BoundingBox is optional because some annotations might not be described by a rectangular area.
+// Observer is omitted because it is set to currently logged in user automatically.
 type CreateAnnotationBody struct {
-	VideoStreamID int64               `json:"videostreamId"`
-	TimeSpan      timespan.TimeSpan   `json:"timespan"`
-	Keypoints     []keypoint.KeyPoint `json:"keypoints"`
-	Observer      string              `json:"observer"`
-	Observation   map[string]string   `json:"observation"`
+	VideoStreamID int64               `json:"videostreamId" example:"1234567890" validate:"required"`
+	Keypoints     []keypoint.KeyPoint `json:"keypoints" validate:"required"`
+	Observation   map[string]string   `json:"observation" example:"species:Girella Zebra,common_name:Zebrafish" validate:"required"`
 }
 
 // GetAnnotationByID gets an annotation when provided with an ID.
+//
+//	@Summary		Get an annotation by ID
+//	@Description	Gets an annotation when provided with an ID.
+//	@Tags			Annotations
+//	@Produce		json
+//	@Param			id	path		int	true	"Annotation ID"	example(1234567890)
+//	@Success		200	{object}	AnnotationResult
+//	@Failure		400	{object}	api.Failure
+//	@Failure		404	{object}	api.Failure
+//	@Router			/api/v1/annotations/{id} [get]
 func GetAnnotationByID(ctx *fiber.Ctx) error {
 	// Parse URL.
 	format := new(api.Format)
@@ -144,7 +150,22 @@ func GetAnnotationByID(ctx *fiber.Ctx) error {
 	return ctx.JSON(result)
 }
 
-// GetAnnotations gets a list of annotations, filtering by timespan, capturesource, observer & observation if specified.
+// GetAnnotations gets a list of annotations, filtering by videostream, capturesource, observer & observation if specified.
+//
+//	@Summary		Get annotations
+//	@Description	Get paginated annotations, with options to filter by video stream, capture source, observer and observation.
+//	@Tags			Annotations
+//	@Produce		json
+//	@Param			limit				query		int		false	"Number of results to return."	minimum(1)	default(20)
+//	@Param			offset				query		int		false	"Number of results to skip."	minimum(0)
+//	@Param			name				query		string	false	"Name to filter by."
+//	@Param			videostream			query		int		false	"Video stream to filter by."
+//	@Param			capturesource		query		int		false	"Capture source to filter by."
+//	@Param			observer			query		string	false	"Observer to filter by."
+//	@Param			observation[<key>]	query		string	false	"Observation key/value to filter by. Use * to filter on presence of the key only."
+//	@Success		200					{object}	api.Result[AnnotationResult]
+//	@Failure		400					{object}	api.Failure
+//	@Router			/api/v1/annotations [get]
 func GetAnnotations(ctx *fiber.Ctx) error {
 	qry := new(GetAnnotationsQuery)
 	qry.SetLimit()
@@ -190,6 +211,18 @@ func GetAnnotations(ctx *fiber.Ctx) error {
 }
 
 // CreateAnnotation creates a new annotation.
+//
+//	@Summary		Create a new annotation
+//	@Description	`Annotator role required`
+//	@Description
+//	@Description	Creates a new annotation from provided JSON body.
+//	@Tags			Annotations
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body		CreateAnnotationBody	true	"New Annotation"
+//	@Success		201		{object}	EntityIDResult
+//	@Failure		400		{object}	api.Failure
+//	@Router			/api/v1/annotations [post]
 func CreateAnnotation(ctx *fiber.Ctx) error {
 	// Parse URL.
 	var body CreateAnnotationBody
@@ -227,6 +260,18 @@ func CreateAnnotation(ctx *fiber.Ctx) error {
 
 // TODO: Implement UpdateAnnotation.
 
+// DeleteAnnotation deletes an annotation.
+//
+//	@Summary		Delete an annotation.
+//	@Description	`Admin role required`
+//	@Description
+//	@Description	Delete an annotation by providing the annotation ID.
+//	@Tags			Annotations
+//	@Param			id	path	int	true	"Annotation ID"	example(1234567890)
+//	@Success		200
+//	@Failure		400	{object}	api.Failure
+//	@Failure		404	{object}	api.Failure
+//	@Router			/api/v1/annotations/{id} [delete]
 func DeleteAnnotation(ctx *fiber.Ctx) error {
 	// Parse URL.
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)

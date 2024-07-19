@@ -42,14 +42,14 @@ import (
 // Result is the JSON format to use in response bodies for returning a list of results.
 type Result[T any] struct {
 	Results []T `json:"results"`
-	Offset  int `json:"offset"`
-	Limit   int `json:"limit"`
-	Total   int `json:"total"`
+	Offset  int `json:"offset" example:"0"`
+	Limit   int `json:"limit" example:"20"`
+	Total   int `json:"total" example:"1"`
 }
 
 // Failure is the JSON format to use in response bodies for returning errors.
 type Failure struct {
-	Message string `json:"message"`
+	Message string `json:"message" example:"error message here"`
 }
 
 // DatastoreReadFailure returns an error for datastore read failures.

@@ -1,5 +1,6 @@
-/api/store/**
+cmd/openfish/store/**
 go.work
 **.http
 .vscode/*
 node_modules/
+docs/developer-docs/api/swagger.json
