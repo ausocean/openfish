@@ -34,8 +34,6 @@ LICENSE
 package entities
 
 import (
-	"encoding/json"
-
 	"github.com/ausocean/openfish/datastore"
 )
 
@@ -53,17 +51,6 @@ type Species struct {
 type Image struct {
 	Src         string `json:"src"`
 	Attribution string `json:"attribution"`
-}
-
-// Encode serializes Species. Implements Entity interface. Used for FileStore datastore.
-func (vs *Species) Encode() []byte {
-	bytes, _ := json.Marshal(vs)
-	return bytes
-}
-
-// Encode deserializes Species. Implements Entity interface. Used for FileStore datastore.
-func (vs *Species) Decode(b []byte) error {
-	return json.Unmarshal(b, vs)
 }
 
 // Implements Copy from the Entity interface.

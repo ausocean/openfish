@@ -35,8 +35,6 @@ LICENSE
 package entities
 
 import (
-	"encoding/json"
-
 	"github.com/ausocean/openfish/cmd/openfish/types/timespan"
 	"github.com/ausocean/openfish/datastore"
 )
@@ -61,17 +59,6 @@ type Annotation struct {
 	Observer         string
 	ObservationPairs []string
 	ObservationKeys  []string // A copy of the map's keys are stored separately, so we can quickly query for annotations with a given key present.
-}
-
-// Encode serializes Annotation. Implements Entity interface. Used for FileStore datastore.
-func (an *Annotation) Encode() []byte {
-	bytes, _ := json.Marshal(an)
-	return bytes
-}
-
-// Encode deserializes Annotation. Implements Entity interface. Used for FileStore datastore.
-func (an *Annotation) Decode(b []byte) error {
-	return json.Unmarshal(b, an)
 }
 
 // Implements Copy from the Entity interface.
