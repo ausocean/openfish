@@ -3,3 +3,4 @@ go.work
 **.http
 .vscode/*
 node_modules/
+docs/public/swagger.json

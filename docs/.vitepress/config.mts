@@ -1,5 +1,19 @@
 import { defineConfig } from "vitepress";
 
+import { useSidebar, useOpenapi } from "vitepress-theme-openapi";
+import spec from "../public/swagger.json" assert { type: "json" };
+import type { DefaultTheme } from "vitepress";
+
+const openapi = useOpenapi();
+openapi.setSpec(spec);
+const apiItems: DefaultTheme.SidebarItem[] = useSidebar()
+	.generateSidebarGroups()
+	.map((s: DefaultTheme.SidebarItem) => ({
+		...s,
+		collapsed: true,
+		link: `/tags/${s.text}`,
+	}));
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
 	base: "/openfish/",
@@ -22,22 +36,9 @@ export default defineConfig({
 				{
 					text: "API Documentation",
 					base: "/developer-docs/api",
-					items: [
-						{ text: "Introduction", link: "/" },
-						{ text: "Authentication", link: "/authentication" },
-						{ text: "Roles and Permissions", link: "/roles-and-permissions" },
-						{
-							text: "API Usage",
-							link: "/api-usage",
-							items: [
-								{ text: "Capture Sources", link: "/capture-sources" },
-								{ text: "Video Streams", link: "/video-streams" },
-								{ text: "Annotations", link: "/annotations" },
-								{ text: "Species", link: "/species" },
-								{ text: "Users", link: "/users" },
-							],
-						},
-					],
+					collapsed: true,
+					link: "/",
+					items: apiItems,
 				},
 			],
 			"/user-guide/": [

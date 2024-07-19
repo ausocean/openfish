@@ -33,7 +33,7 @@ LICENSE
 
 // videotime provides a type VideoTime that represents the time in a video - hours, minutes and seconds.
 // Unlike the time package, there is no concept of dates, and no timezones. VideoTimes are displayed in
-// the format 12:01:04, and can be serialized/deserialized to and from JSON in this format also.
+// the format 12:01:04.000, and can be serialized/deserialized to and from JSON in this format also.
 package videotime
 
 import (

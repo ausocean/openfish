@@ -5,7 +5,8 @@
     "leaflet": "^1.9.4",
     "lit": "^3.1.4",
     "reflect-metadata": "^0.2.2",
-    "vidstack": "^1.11.25"
+    "vidstack": "^1.11.25",
+    "vitepress-theme-openapi": "0.0.3-alpha.26"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",
