@@ -8,9 +8,10 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "fmt": "biome format . --write",
-    "check": "biome check .",
+    "check": "biome check . --write",
     "test": "vitest run --passWithNoTests",
-    "ci:fmt": "biome ci --formatter-enabled=true .",
-    "ci:check": "biome ci --linter-enabled=true ."
+    "ci:test": "vitest run --passWithNoTests --reporter=github-actions",
+    "ci:fmt": "biome ci --formatter-enabled=true --reporter=github .",
+    "ci:check": "biome ci --linter-enabled=true --reporter=github ."
   }
 }
