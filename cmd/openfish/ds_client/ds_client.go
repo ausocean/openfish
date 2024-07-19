@@ -64,4 +64,6 @@ func Init(local bool) {
 	datastore.RegisterEntity(entities.CAPTURESOURCE_KIND, entities.NewCaptureSource)
 	datastore.RegisterEntity(entities.VIDEOSTREAM_KIND, entities.NewVideoStream)
 	datastore.RegisterEntity(entities.ANNOTATION_KIND, entities.NewAnnotation)
+	datastore.RegisterEntity(entities.SPECIES_KIND, entities.NewSpecies)
+	datastore.RegisterEntity(entities.USER_KIND, entities.NewUser)
 }

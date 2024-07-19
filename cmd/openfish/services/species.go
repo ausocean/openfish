@@ -75,6 +75,27 @@ func GetSpeciesByINaturalistID(id int) (*entities.Species, int64, error) {
 	return &species[0], keys[0].ID, nil
 }
 
+// GetSpeciesByINaturalist gets a species when provided with its scientific name.
+func GetSpeciesByScientificName(name string) (*entities.Species, int64, error) {
+	store := ds_client.Get()
+	query := store.NewQuery(entities.SPECIES_KIND, false)
+
+	query.FilterField("Species", "=", name)
+	query.Limit(1)
+
+	var species []entities.Species
+	keys, err := store.GetAll(context.Background(), query, &species)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	if len(keys) == 0 {
+		return nil, 0, nil
+	}
+
+	return &species[0], keys[0].ID, nil
+}
+
 func SpeciesExists(id int64) bool {
 	store := ds_client.Get()
 	key := store.IDKey(entities.SPECIES_KIND, id)
