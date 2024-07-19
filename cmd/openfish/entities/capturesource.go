@@ -35,8 +35,6 @@ LICENSE
 package entities
 
 import (
-	"encoding/json"
-
 	googlestore "cloud.google.com/go/datastore"
 
 	"github.com/ausocean/openfish/datastore"
@@ -52,17 +50,6 @@ type CaptureSource struct {
 	Location       googlestore.GeoPoint
 	CameraHardware string
 	SiteID         *int64 // Optional.
-}
-
-// Encode serializes Capture source. Implements Entity interface. Used for FileStore datastore.
-func (cs *CaptureSource) Encode() []byte {
-	bytes, _ := json.Marshal(cs)
-	return bytes
-}
-
-// Encode deserializes Capture source. Implements Entity interface. Used for FileStore datastore.
-func (cs *CaptureSource) Decode(b []byte) error {
-	return json.Unmarshal(b, cs)
 }
 
 // Implements Copy from the Entity interface.

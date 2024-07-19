@@ -34,7 +34,6 @@ LICENSE
 package entities
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/ausocean/openfish/datastore"
@@ -88,17 +87,6 @@ func ParseRole(s string) (Role, error) {
 		return AdminRole, nil
 	}
 	return DefaultRole, fmt.Errorf("invalid role provided: %s", s)
-}
-
-// Encode serializes User. Implements Entity interface. Used for FileStore datastore.
-func (vs *User) Encode() []byte {
-	bytes, _ := json.Marshal(vs)
-	return bytes
-}
-
-// Encode deserializes User. Implements Entity interface. Used for FileStore datastore.
-func (vs *User) Decode(b []byte) error {
-	return json.Unmarshal(b, vs)
 }
 
 // Implements Copy from the Entity interface.

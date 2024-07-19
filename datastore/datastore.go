@@ -40,6 +40,7 @@ package datastore
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"log"
@@ -93,10 +94,39 @@ type (
 
 // Entity defines the common interface for our datastore entities.
 type Entity interface {
-	Encode() []byte                  // Encode an entity into bytes.
-	Decode([]byte) error             // Decode bytes into an entity.
 	Copy(dst Entity) (Entity, error) // Copy an entity to dst, or return a copy of the entity when dst is nil.
 	GetCache() Cache                 // Returns a cache, or nil for no caching.
+}
+
+// EntityEncoder defines an Entity with a custom encoding function.
+type EntityEncoder interface {
+	Encode() []byte // Encode an entity into bytes.
+}
+
+// EntityDecoder defines an Entity with a custom decoding function.
+type EntityDecoder interface {
+	Decode([]byte) error // Decode bytes into an entity.
+}
+
+// encode encodes an entity into bytes, by default using json.Marshal.
+func encode(e Entity) []byte {
+	encodable, ok := e.(EntityEncoder)
+	if ok {
+		return encodable.Encode()
+	}
+	bytes, _ := json.Marshal(e)
+	return bytes
+}
+
+// decode decodes an entity from bytes, by default using json.Unmarshal.
+func decode(e Entity, b []byte) error {
+	decodable, ok := e.(EntityDecoder)
+	if ok {
+		return decodable.Decode(b)
+	}
+
+	// Default implementation.
+	return json.Unmarshal(b, e)
 }
 
 // newEntity maps entity type names to their respective constructor function.
@@ -521,7 +551,7 @@ func (s *FileStore) Get(ctx context.Context, key *Key, dst Entity) error {
 		}
 		return err
 	}
-	dst.Decode(bytes)
+	decode(dst, bytes)
 	return nil
 }
 
@@ -672,7 +702,7 @@ func (s *FileStore) Create(ctx context.Context, key *Key, src Entity) error {
 }
 
 func (s *FileStore) Put(ctx context.Context, key *Key, src Entity) (*Key, error) {
-	bytes := src.Encode()
+	bytes := encode(src)
 	err := ioutil.WriteFile(filepath.Join(s.dir, s.id, key.Kind, key.Name), bytes, 0777)
 	if err != nil {
 		return nil, err

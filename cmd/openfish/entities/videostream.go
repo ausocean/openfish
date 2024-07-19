@@ -34,7 +34,6 @@ LICENSE
 package entities
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/ausocean/openfish/datastore"
@@ -52,17 +51,6 @@ type VideoStream struct {
 	StreamUrl     string
 	CaptureSource int64
 	AnnotatorList []string
-}
-
-// Encode serializes VideoStream. Implements Entity interface. Used for FileStore datastore.
-func (vs *VideoStream) Encode() []byte {
-	bytes, _ := json.Marshal(vs)
-	return bytes
-}
-
-// Encode deserializes VideoStream. Implements Entity interface. Used for FileStore datastore.
-func (vs *VideoStream) Decode(b []byte) error {
-	return json.Unmarshal(b, vs)
 }
 
 // Implements Copy from the Entity interface.
