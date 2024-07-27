@@ -48,6 +48,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
 // registerAPIRoutes registers all handler functions to their routes.
@@ -154,6 +155,9 @@ func main() {
 
 	// Create app.
 	app := fiber.New(fiber.Config{ErrorHandler: errorHandler})
+
+	// Recover from panics.
+	app.Use(recover.New())
 
 	// CORS middleware.
 	app.Use(cors.New(cors.Config{
