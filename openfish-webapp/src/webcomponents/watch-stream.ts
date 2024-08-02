@@ -150,7 +150,7 @@ export class WatchStream extends LitElement {
       // TODO: We should only fetch a small portion of the annotations near the current playback position.
       //       When the user plays the video we can fetch in more as needed.
       const res = await fetch(
-        `${import.meta.env.VITE_API_HOST}/api/v1/annotations?videostream=${id}`
+        `${import.meta.env.VITE_API_HOST}/api/v1/annotations?videostream=${id}&order=Timespan.Start`
       )
       const json = await res.json()
       this._annotations = json.results as Annotation[]

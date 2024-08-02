@@ -59,3 +59,7 @@ type LimitAndOffset struct {
 func (l *LimitAndOffset) SetLimit() {
 	l.Limit = 20
 }
+
+type Sort struct {
+	Order *string `query:"order"`
+}

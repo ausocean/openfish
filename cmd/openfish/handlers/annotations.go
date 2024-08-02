@@ -98,6 +98,7 @@ type GetAnnotationsQuery struct {
 	Observation   map[string]string `query:"observation"`    // Optional.
 	api.LimitAndOffset
 	api.Format
+	api.Sort
 }
 
 // CreateAnnotationBody describes the JSON format required for the CreateAnnotation endpoint.
@@ -163,7 +164,7 @@ func GetAnnotations(ctx *fiber.Ctx) error {
 	}
 
 	// Fetch data from the datastore.
-	annotations, ids, err := services.GetAnnotations(qry.Limit, qry.Offset, qry.Observer, qry.Observation)
+	annotations, ids, err := services.GetAnnotations(qry.Limit, qry.Offset, qry.Observer, qry.Observation, qry.Order)
 	if err != nil {
 		return api.DatastoreReadFailure(err)
 	}

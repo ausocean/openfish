@@ -90,7 +90,7 @@ func AnnotationExists(id int64) bool {
 }
 
 // GetAnnotations gets a list of annotations, filtering by timespan, capturesource, observer & observation if specified.
-func GetAnnotations(limit int, offset int, observer *string, observation map[string]string) ([]entities.Annotation, []int64, error) {
+func GetAnnotations(limit int, offset int, observer *string, observation map[string]string, order *string) ([]entities.Annotation, []int64, error) {
 	// Fetch data from the datastore.
 	store := ds_client.Get()
 	query := store.NewQuery(entities.ANNOTATION_KIND, false)
@@ -111,6 +111,9 @@ func GetAnnotations(limit int, offset int, observer *string, observation map[str
 
 	query.Limit(limit)
 	query.Offset(offset)
+	if order != nil {
+		query.Order(*order)
+	}
 
 	var annotations []entities.Annotation
 	keys, err := store.GetAll(context.Background(), query, &annotations)
