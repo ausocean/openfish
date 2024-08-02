@@ -22,6 +22,7 @@ import type { UpdateBoundingBoxEvent } from './bounding-box-creator'
 import { ref, type Ref, createRef } from 'lit/directives/ref.js'
 import type { MediaPlayerElement } from 'vidstack/elements'
 import { extractVideoID } from '../utils/youtube'
+import { repeat } from 'lit/directives/repeat.js'
 
 @customElement('watch-stream')
 export class WatchStream extends LitElement {
@@ -72,27 +73,22 @@ export class WatchStream extends LitElement {
   private _observation: Record<string, string> = {}
 
   @state()
-  private _start: VideoTime | null = null
-
-  @state()
-  private _end: VideoTime | null = null
+  private _keypoints: VideoTime[] = []
 
   @state()
   private _boundingBox: [number, number, number, number] | null = null
 
-  private setStart() {
-    this._start = formatVideoTime(this._currentTime)
-  }
-
-  private setEnd() {
-    this._end = formatVideoTime(this._currentTime)
+  private addKeyPoint() {
+    if (this._keypoints.length < 2) {
+      this._keypoints.push(formatVideoTime(this._currentTime))
+    }
+    this.requestUpdate()
   }
 
   private addAnnotation() {
     this._mode = 'editor'
     this.pause()
-    this._start = null
-    this._end = null
+    this._keypoints = []
   }
 
   playerRef: Ref<MediaPlayerElement> = createRef()
@@ -102,7 +98,7 @@ export class WatchStream extends LitElement {
       videostreamId: this._videostream!.id,
       observer: 'user@placeholder.com',
       observation: this._observation,
-      timespan: { start: this._start!, end: this._end! },
+      timespan: { start: this._keypoints[0], end: this._keypoints[1] },
     }
 
     if (this._boundingBox) {
@@ -197,6 +193,7 @@ export class WatchStream extends LitElement {
       .currentTime=${this._currentTime}
       .annotations=${this._annotations}
       .videostream=${this._videostream}
+      .editMode=${this._mode === 'editor'}
       @play=${this.play} 
       @pause=${this.pause}
       @seek=${(e: CustomEvent) => {
@@ -207,28 +204,6 @@ export class WatchStream extends LitElement {
 
     const observationEditor = html`
 
-    <section>
-      <h4>Annotation times</h4>
-      <table>
-        <tbody>
-        <tr>
-          <td>Start:</td>
-          <td>${this._start == null ? '' : this._start}</td>
-          <td><button class="btn-sm btn-blue w-full" @click=${this.setStart}>Set start time</button></td>
-        </tr>
-        <tr>
-          <td>End:</td>
-          <td>${this._end == null ? '' : this._end}</td>
-          <td><button class="btn-sm btn-blue w-full" @click=${this.setEnd}>Set end time</button></td>
-        </tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section>
-      <h4>Bounding Box</h4>
-      <span>${this._boundingBox ? 'Yes' : 'No bounding box given'}</span>
-    </section>
 
     <menu>
     <h4>Observation</h4>
@@ -278,7 +253,7 @@ export class WatchStream extends LitElement {
           <h3>Add Annotation</h3>
           <button class="btn btn-secondary" @click=${this.cancelAnnotation}>Cancel</button>
           <button class="btn btn-orange" @click=${this.confirmAnnotation} .disabled=${
-            !this._start || !this._end || Object.keys(this._observation).length === 0
+            this._keypoints.length !== 2 || Object.keys(this._observation).length === 0
           }>Done</button>
         </header>
           ${observationEditor}
@@ -295,7 +270,21 @@ export class WatchStream extends LitElement {
           `
         : html`
           <bounding-box-creator @updateboundingbox=${(e: UpdateBoundingBoxEvent) =>
-            (this._boundingBox = e.detail)}></bounding-box-creator>    
+            (this._boundingBox = e.detail)}></bounding-box-creator>
+          <div class="add-keypoint">
+            <button class="btn btn-transparent" @click=${this.addKeyPoint}>Add keypoint</button>
+            ${repeat(
+              this._keypoints,
+              (k: VideoTime) => html`
+                <span class="keypoint">
+                  ${k}
+                  <button class="btn-icon btn-transparent" @click=${() => {
+                    this._keypoints = this._keypoints.filter((v) => v !== k)
+                  }}>✕</button>
+                </span>
+              `
+            )}
+          </div>
           `
 
     return html`
@@ -326,7 +315,7 @@ export class WatchStream extends LitElement {
 
     .row {
       display: grid;
-      height: calc(100% - 3rem);
+      height: calc(100% - 3.5rem);
       grid-template-rows: 1fr;
       grid-template-columns: min-content 1fr;
       grid-template-areas: "video-player annotations";
@@ -352,11 +341,40 @@ export class WatchStream extends LitElement {
       aspect-ratio: var(--video-ratio);
       height: 100%;
     }
-    annotation-overlay, bounding-box-creator {
+    annotation-overlay, bounding-box-creator{
       grid-area: video-player;
       z-index: 100;
     }
+    .add-keypoint {
+      grid-area: video-player;
+      z-index: 200;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: end;
+      padding: 1rem;
+      pointer-events: none;
+      gap: 1rem;
 
+      & button {
+        pointer-events: auto;
+      }
+    }
+    .keypoint {
+      width: min-content;
+      height: 2.5rem;
+      border-radius: 999px;
+      font-size: 1rem;
+      padding-left: 1rem;
+      white-space: nowrap;
+      border: 1px solid;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.75);
+      color: var(--gray-100);
+      border-color: rgba(0, 0, 0, 0.75);
+    }
     aside header {
       padding: 0.75rem 1rem;
       background: var(--blue-500);

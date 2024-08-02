@@ -16,6 +16,24 @@
     }
 }
 
+.btn-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    font-size: 1rem;
+    padding: 0;
+    border: 1px solid;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+
+    &:disabled {
+        opacity: 0.5;
+    }
+}
+
 .btn-sm {
     width: min-content;
     height: 1.5rem;
