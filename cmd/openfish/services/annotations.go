@@ -143,7 +143,8 @@ func CreateAnnotation(videoStreamID int64, timeSpan timespan.TimeSpan, boundingB
 	// Create annotation entity and add to the datastore.
 	an := entities.Annotation{
 		VideoStreamID:    videoStreamID,
-		TimeSpan:         timeSpan,
+		Start:            timeSpan.Start.Int(),
+		End:              timeSpan.End.Int(),
 		BoundingBox:      boundingBox,
 		Observer:         observer,
 		ObservationPairs: obsPairs,

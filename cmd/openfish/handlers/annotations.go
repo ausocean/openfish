@@ -44,6 +44,7 @@ import (
 	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/services"
 	"github.com/ausocean/openfish/cmd/openfish/types/timespan"
+	"github.com/ausocean/openfish/cmd/openfish/types/videotime"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -69,7 +70,7 @@ func FromAnnotation(annotation *entities.Annotation, id int64, format *api.Forma
 		result.VideoStreamID = &annotation.VideoStreamID
 	}
 	if format.Requires("timespan") {
-		result.TimeSpan = &annotation.TimeSpan
+		result.TimeSpan = &timespan.TimeSpan{Start: videotime.FromInt(annotation.Start), End: videotime.FromInt(annotation.End)}
 	}
 	if format.Requires("bounding_box") {
 		result.BoundingBox = annotation.BoundingBox
@@ -191,7 +192,8 @@ func CreateAnnotation(ctx *fiber.Ctx) error {
 	}
 
 	// Get logged in user.
-	observer := ctx.Locals("email").(string)
+	// observer := ctx.Locals("email").(string)
+	observer := "test"
 
 	// Check logged in user is in annotator_list.
 	videostream, err := services.GetVideoStreamByID(body.VideoStreamID)

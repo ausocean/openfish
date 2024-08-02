@@ -100,6 +100,10 @@ func New(h int, m int, s int) (VideoTime, error) {
 	return VideoTime{value: int64(h*60*60 + m*60 + s)}, nil
 }
 
+func FromInt(i int64) VideoTime {
+	return VideoTime{value: i}
+}
+
 // UnmarshalText is used for decoding query params or JSON into a VideoTime.
 func (t *VideoTime) UnmarshalText(text []byte) error {
 	var err error
