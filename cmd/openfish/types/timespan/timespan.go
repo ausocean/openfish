@@ -37,10 +37,7 @@ LICENSE
 package timespan
 
 import (
-	googlestore "cloud.google.com/go/datastore"
-
 	"github.com/ausocean/openfish/cmd/openfish/types/videotime"
-	"github.com/ausocean/openfish/datastore"
 )
 
 // TimeSpan is a pair of video timestamps - start time and end time.
@@ -52,35 +49,4 @@ type TimeSpan struct {
 // Valid tests if a timespan is valid. Start should be less than End.
 func (t TimeSpan) Valid() bool {
 	return t.Start.Int() <= t.End.Int()
-}
-
-// Load implements loading from the datastore.
-func (t *TimeSpan) Load(ps []datastore.Property) error {
-	var data struct {
-		Start string
-		End   string
-	}
-
-	if err := googlestore.LoadStruct(&data, ps); err != nil {
-		return err
-	}
-
-	t.Start, _ = videotime.Parse(data.Start)
-	t.End, _ = videotime.Parse(data.End)
-
-	return nil
-}
-
-// Save implements saving to the datastore.
-func (t *TimeSpan) Save() ([]datastore.Property, error) {
-	return []datastore.Property{
-		{
-			Name:  "Start",
-			Value: t.Start.String(),
-		},
-		{
-			Name:  "End",
-			Value: t.End.String(),
-		},
-	}, nil
 }

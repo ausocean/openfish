@@ -35,7 +35,6 @@ LICENSE
 package entities
 
 import (
-	"github.com/ausocean/openfish/cmd/openfish/types/timespan"
 	"github.com/ausocean/openfish/datastore"
 )
 
@@ -54,7 +53,8 @@ type BoundingBox struct {
 // An Annotation holds information about observations at a particular moment and region within a video stream.
 type Annotation struct {
 	VideoStreamID    int64
-	TimeSpan         timespan.TimeSpan
+	Start            int64        `datastore:"Timespan.Start"`
+	End              int64        `datastore:"Timespan.End"`
 	BoundingBox      *BoundingBox // Optional.
 	Observer         string
 	ObservationPairs []string
