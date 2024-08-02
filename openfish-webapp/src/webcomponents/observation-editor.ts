@@ -10,7 +10,7 @@ type Image = { src: string; attribution: string }
 
 export type ObservationEvent = CustomEvent<Record<string, string>>
 
-abstract class ObservationEditor extends LitElement {
+abstract class AbstractObservationEditor extends LitElement {
   @state()
   protected _keys: string[] = []
 
@@ -33,10 +33,79 @@ abstract class ObservationEditor extends LitElement {
   }
 }
 
+@customElement('observation-editor')
+export class ObservationEditor extends AbstractObservationEditor {
+  @state()
+  private _editorMode: 'simple' | 'advanced' = 'simple'
+
+  _onObservation(ev: ObservationEvent) {
+    this.observation = ev.detail
+    this.dispatchObservationEvent()
+  }
+
+  render() {
+    return html`
+    <menu>
+    <h4>Observation</h4>
+    <button class="btn-sm ${
+      this._editorMode === 'simple' ? ' btn-secondary' : 'btn-outline'
+    }"  @click=${() => {
+      this._editorMode = 'simple'
+    }}>Select species</button>
+    <button class="btn-sm ${
+      this._editorMode === 'advanced' ? ' btn-secondary' : 'btn-outline'
+    }" @click=${() => {
+      this._editorMode = 'advanced'
+    }}>Additional observations</button>
+    </menu>
+
+      ${
+        this._editorMode === 'simple'
+          ? html`<species-selection .observation=${this.observation} @observation=${this._onObservation} ></species-selection>`
+          : html`<advanced-editor .observation=${this.observation} @observation=${this._onObservation}></advanced-editor>`
+      }
+    `
+  }
+
+  static styles = css`
+  ${unsafeCSS(resetcss)}
+  ${unsafeCSS(btncss)}
+  menu {
+    display: flex;
+    justify-content: end;
+    margin: 0;
+    padding: 0.5rem 1rem;
+    gap: 0.5rem;
+    background-color: var(--blue-600);
+
+    & > h4 {
+      color: var(--gray-50);
+      margin-right: auto;
+    }  
+
+    & button[data-active="true"] {
+      background-color: var(--gray-50);
+      color: var(--gray-900);
+    }
+
+    & button[data-active="false"] {
+      background-color: transparent;
+      color: var(--gray-50);
+    }
+  }
+  `
+}
+
 @customElement('species-selection')
-export class SpeciesSelection extends ObservationEditor {
+export class SpeciesSelection extends AbstractObservationEditor {
   @state()
   private _speciesList: Species[] = []
+
+  @state()
+  offset = 0
+
+  @state()
+  _search = ''
 
   private selectSpecies(val: string) {
     const { species, common_name } = this._speciesList.find((s) => s.species === val)!
@@ -46,19 +115,34 @@ export class SpeciesSelection extends ObservationEditor {
 
   connectedCallback() {
     super.connectedCallback()
-    this.fetchGuide()
+    this.fetchMore()
   }
 
-  private async fetchGuide() {
+  private async fetchMore() {
     try {
-      // TODO: fetch list from an API.
+      const params = new URLSearchParams({
+        limit: '20',
+        offset: this.offset.toString(),
+      })
+      if (this._search.length > 0) {
+        params.set('search', this._search)
+      }
       const res = await fetch(
-        `${import.meta.env.VITE_API_HOST}/api/v1/species/recommended?limit=999`
+        `${import.meta.env.VITE_API_HOST}/api/v1/species/recommended?${params}`
       )
-      this._speciesList = (await res.json()).results
+      this._speciesList.push(...(await res.json()).results)
+      this.offset += 20
+      this.requestUpdate()
     } catch (error) {
       console.error(error)
     }
+  }
+
+  private async search(e: TextInputEvent) {
+    this._search = e.target.value
+    this.offset = 0
+    this._speciesList = []
+    this.fetchMore()
   }
 
   render() {
@@ -77,26 +161,77 @@ export class SpeciesSelection extends ObservationEditor {
     )
 
     return html`
-    <ul>
-        ${items}
-    </ul>
+    <header>
+      <input type="text" placeholder="Search species" @input=${this.search}></input>
+    </header>
+    <div class="scrollable">
+    <div>
+      <ul>
+          ${items}
+      </ul>
+      <footer>
+        <button class="btn btn-blue" @click=${this.fetchMore}>Load more</button>
+      </footer>
+    </div>
+    </div>
     `
   }
 
   static styles = css`
     ${unsafeCSS(resetcss)}
     ${unsafeCSS(btncss)}
+
+    .scrollable {
+      position: relative;
+      height: calc(100% - 6rem);
+      overflow-y: scroll;
+    }
+    .scrollable > * {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
     
+    header {
+      background-color: var(--blue-600);
+      padding: 0.5rem 1rem;
+      border-bottom: 1px solid var(--blue-500);
+      box-shadow: var(--shadow-sm);
+    }
+
+    input {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      background-color: var(--blue-700);
+      border: 1px solid var(--blue-800);
+      border-radius: 0.25rem;
+      color: var(--blue-100);
+
+      &:focus {
+        outline: none;
+        color: var(--blue-50);
+        border-color: var(--blue-400);
+      }
+    }
+
     ul {
         list-style-type: none;
         margin:0;
-        padding: 0;
         overflow-y: scroll;
         
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         grid-template-rows: auto;
-        gap: 1rem
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    footer {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding-bottom: 1rem;
     }
 
     .card {
@@ -153,7 +288,7 @@ export class SpeciesSelection extends ObservationEditor {
 type TextInputEvent = InputEvent & { target: HTMLInputElement }
 
 @customElement('advanced-editor')
-export class AdvancedEditor extends ObservationEditor {
+export class AdvancedEditor extends AbstractObservationEditor {
   // Mutating an array doesn't trigger an update.
   // https://lit.dev/docs/components/properties/#mutating-properties
   addRow() {
@@ -189,34 +324,39 @@ export class AdvancedEditor extends ObservationEditor {
     )
 
     return html`
-    <div class="card">
-    <table>
-    <thead>
-        <tr>
-            <th>Property</th>
-            <th>Value</th>
-        </tr>
-    </thead>
-    <tbody>
-    ${rows}
-    <tr>
-    <td colspan="2"><button class="btn-sm btn-orange btn-fullwidth" @click=${this.addRow}>+ Add information</button></td>
-    </tr>
-    </tbody>
-</table>
-</div>
+    <div class="root">
+      <div class="card">
+      <table>
+      <thead>
+          <tr>
+              <th>Property</th>
+              <th>Value</th>
+          </tr>
+      </thead>
+      <tbody>
+      ${rows}
+      <tr>
+      <td colspan="2"><button class="btn-sm btn-orange btn-fullwidth" @click=${this.addRow}>+ Add information</button></td>
+      </tr>
+      </tbody>
+      </table>
+      </div>
+    </div>
     `
   }
 
   static styles = css`
     ${unsafeCSS(resetcss)}
     ${unsafeCSS(btncss)}
+    .root {
+      padding: 1rem;
+    }
     .card {
       background-color: var(--gray-50);
       padding: 1rem;
       border-radius: .5rem;
       box-shadow:  var(--shadow-sm);
-      width: calc(var(--aside-width) - 3rem);
+      width: 100%;
     }
 
     table {

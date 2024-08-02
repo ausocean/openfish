@@ -74,8 +74,9 @@ func FromSpecies(species *entities.Species, id int64, format *api.Format) Specie
 
 // GetRecommendedSpeciesQuery describes the URL query parameters required for the GetRecommendedSpecies endpoint.
 type GetRecommendedSpeciesQuery struct {
-	VideoStream   *int64 `query:"videostream"`   // Optional.
-	CaptureSource *int64 `query:"capturesource"` // Optional.
+	VideoStream   *int64  `query:"videostream"`   // Optional.
+	CaptureSource *int64  `query:"capturesource"` // Optional.
+	Search        *string `query:"search"`        // Optional.
 	api.LimitAndOffset
 }
 
@@ -133,7 +134,7 @@ func GetRecommendedSpecies(ctx *fiber.Ctx) error {
 	}
 
 	// Fetch data from the datastore.
-	species, ids, err := services.GetRecommendedSpecies(qry.Limit, qry.Offset, qry.VideoStream, qry.CaptureSource)
+	species, ids, err := services.GetRecommendedSpecies(qry.Limit, qry.Offset, qry.VideoStream, qry.CaptureSource, qry.Search)
 	if err != nil {
 		return api.DatastoreReadFailure(err)
 	}
