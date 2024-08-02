@@ -105,10 +105,19 @@ func SpeciesExists(id int64) bool {
 }
 
 // GetRecommendedSpecies gets a list of species, most relevant for the specified stream and capture source.
-func GetRecommendedSpecies(limit int, offset int, videostream *int64, captureSource *int64) ([]entities.Species, []int64, error) {
+func GetRecommendedSpecies(limit int, offset int, videostream *int64, captureSource *int64, search *string) ([]entities.Species, []int64, error) {
 	// Fetch data from the datastore.
 	store := ds_client.Get()
 	query := store.NewQuery(entities.SPECIES_KIND, false)
+
+	if search != nil {
+		// Datastore does not support starts with or contains queries so we do two inequalities.
+		query.FilterField("CommonName", ">", *search)
+		lastChar := (*search)[len(*search)-1]
+		bytes := []byte(*search)
+		bytes[len(bytes)-1] = lastChar + 1
+		query.FilterField("CommonName", "<", string(bytes))
+	}
 
 	// TODO: implement returning most relevant species.
 
