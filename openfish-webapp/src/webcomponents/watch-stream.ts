@@ -56,9 +56,6 @@ export class WatchStream extends LitElement {
   @state()
   private _mode: 'playback' | 'editor' = 'playback'
 
-  @state()
-  private _editorMode: 'simple' | 'advanced' = 'simple'
-
   private play() {
     this.playerRef.value?.play()
     this._playing = true
@@ -202,33 +199,6 @@ export class WatchStream extends LitElement {
       }}
     ></playback-controls>`
 
-    const observationEditor = html`
-
-
-    <menu>
-    <h4>Observation</h4>
-    <button class="btn-sm ${
-      this._editorMode === 'simple' ? ' btn-secondary' : 'btn-outline'
-    }"  @click=${() => (this._editorMode = 'simple')}>Simple</button>
-    <button class="btn-sm ${
-      this._editorMode === 'advanced' ? ' btn-secondary' : 'btn-outline'
-    }" @click=${() => (this._editorMode = 'advanced')}>Advanced</button>
-    </menu>
-    <div class="scrollable">
-      <div>
-      ${
-        this._editorMode === 'simple'
-          ? html`<species-selection .observation=${this._observation}           @observation=${(
-              ev: ObservationEvent
-            ) => (this._observation = ev.detail)}></species-selection>`
-          : html`<advanced-editor .observation=${this._observation}           @observation=${(
-              ev: ObservationEvent
-            ) => (this._observation = ev.detail)}></advanced-editor>`
-      }
-      </div>
-    </div>
-    `
-
     const aside =
       this._mode === 'playback'
         ? html`
@@ -256,7 +226,11 @@ export class WatchStream extends LitElement {
             this._keypoints.length !== 2 || Object.keys(this._observation).length === 0
           }>Done</button>
         </header>
-          ${observationEditor}
+        <observation-editor .observation=${this._observation} @observation=${(
+          ev: ObservationEvent
+        ) => {
+          this._observation = ev.detail
+        }}>
       </aside>`
 
     const overlay =
@@ -404,6 +378,11 @@ export class WatchStream extends LitElement {
       width: 100%;
     }
 
+    observation-editor {
+      height: calc(100% - 4rem);
+      overflow: hidden;
+    }
+
     h3 {
       margin-top: 0;
       margin-bottom: 0;
@@ -432,32 +411,6 @@ export class WatchStream extends LitElement {
     .w-full { 
       width: 100%;
     }
-
-    menu {
-        display: flex;
-        justify-content: end;
-        margin: 0;
-        padding: 0.5rem;
-        gap: 0.5rem;
-
-        & > h4 {
-          color: var(--gray-50);
-          margin-right: auto;
-        }  
-  
-        & button[data-active="true"] {
-            background-color: var(--gray-50);
-            color: var(--gray-900);
-        }
-    
-        & button[data-active="false"] {
-            background-color: transparent;
-            color: var(--gray-50);
-        }
-    }
-
-
-
   `
 }
 
