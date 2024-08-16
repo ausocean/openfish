@@ -35,27 +35,21 @@ LICENSE
 package entities
 
 import (
+	"github.com/ausocean/openfish/cmd/openfish/types/keypoint"
 	"github.com/ausocean/openfish/datastore"
 )
 
 // Kind of entity to store / fetch from the datastore.
 const ANNOTATION_KIND = "Annotation"
 
-// BoundingBox is a rectangle enclosing something interesting in a video.
-// It is represented using two x y coordinates, top left corner and bottom right corner of the rectangle.
-type BoundingBox struct {
-	X1 int `json:"x1"`
-	X2 int `json:"x2"`
-	Y1 int `json:"y1"`
-	Y2 int `json:"y2"`
-}
-
 // An Annotation holds information about observations at a particular moment and region within a video stream.
 type Annotation struct {
-	VideoStreamID    int64
-	Start            int64        `datastore:"Timespan.Start"`
-	End              int64        `datastore:"Timespan.End"`
-	BoundingBox      *BoundingBox // Optional.
+	VideoStreamID int64
+	Start         int64 `datastore:"StartTime"` // for indexing purposes.
+	Keypoints     []struct {
+		Time string
+		keypoint.BoundingBox
+	}
 	Observer         string
 	ObservationPairs []string
 	ObservationKeys  []string // A copy of the map's keys are stored separately, so we can quickly query for annotations with a given key present.

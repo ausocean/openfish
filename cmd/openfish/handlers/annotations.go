@@ -43,6 +43,7 @@ import (
 	"github.com/ausocean/openfish/cmd/openfish/api"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/services"
+	"github.com/ausocean/openfish/cmd/openfish/types/keypoint"
 	"github.com/ausocean/openfish/cmd/openfish/types/timespan"
 	"github.com/ausocean/openfish/cmd/openfish/types/videotime"
 
@@ -52,12 +53,12 @@ import (
 // AnnotationResult describes the JSON format for annotations in API responses.
 // Fields use pointers because they are optional (this is what the format URL param is for).
 type AnnotationResult struct {
-	ID            *int64                `json:"id,omitempty"`
-	VideoStreamID *int64                `json:"videostreamId,omitempty"`
-	TimeSpan      *timespan.TimeSpan    `json:"timespan,omitempty"`
-	BoundingBox   *entities.BoundingBox `json:"boundingBox,omitempty"`
-	Observer      *string               `json:"observer,omitempty"`
-	Observation   map[string]string     `json:"observation,omitempty"`
+	ID            *int64              `json:"id,omitempty"`
+	VideoStreamID *int64              `json:"videostreamId,omitempty"`
+	TimeSpan      *timespan.TimeSpan  `json:"timespan,omitempty"`
+	Keypoints     []keypoint.KeyPoint `json:"keypoints,omitempty"`
+	Observer      *string             `json:"observer,omitempty"`
+	Observation   map[string]string   `json:"observation,omitempty"`
 }
 
 // FromAnnotation creates an AnnotationResult from a entities.Annotation and key, formatting it according to the requested format.
@@ -69,11 +70,16 @@ func FromAnnotation(annotation *entities.Annotation, id int64, format *api.Forma
 	if format.Requires("videostream_id") {
 		result.VideoStreamID = &annotation.VideoStreamID
 	}
-	if format.Requires("timespan") {
-		result.TimeSpan = &timespan.TimeSpan{Start: videotime.FromInt(annotation.Start), End: videotime.FromInt(annotation.End)}
-	}
-	if format.Requires("bounding_box") {
-		result.BoundingBox = annotation.BoundingBox
+	if format.Requires("keypoints") {
+		result.Keypoints = make([]keypoint.KeyPoint, 0, len(annotation.Keypoints))
+
+		for _, k := range annotation.Keypoints {
+			t, _ := videotime.Parse(k.Time)
+			result.Keypoints = append(result.Keypoints, keypoint.KeyPoint{
+				Time:        t,
+				BoundingBox: k.BoundingBox,
+			})
+		}
 	}
 	if format.Requires("observer") {
 		result.Observer = &annotation.Observer
@@ -106,11 +112,11 @@ type GetAnnotationsQuery struct {
 // ID is omitted because it is chosen automatically.
 // BoundingBox is optional because some annotations might not be described by a rectangular area.
 type CreateAnnotationBody struct {
-	VideoStreamID int64                 `json:"videostreamId"`
-	TimeSpan      timespan.TimeSpan     `json:"timespan"`
-	BoundingBox   *entities.BoundingBox `json:"boundingBox"` // Optional.
-	Observer      string                `json:"observer"`
-	Observation   map[string]string     `json:"observation"`
+	VideoStreamID int64               `json:"videostreamId"`
+	TimeSpan      timespan.TimeSpan   `json:"timespan"`
+	Keypoints     []keypoint.KeyPoint `json:"keypoints"`
+	Observer      string              `json:"observer"`
+	Observation   map[string]string   `json:"observation"`
 }
 
 // GetAnnotationByID gets an annotation when provided with an ID.
@@ -193,8 +199,10 @@ func CreateAnnotation(ctx *fiber.Ctx) error {
 	}
 
 	// Get logged in user.
-	// observer := ctx.Locals("email").(string)
-	observer := "test"
+	observer := "testuser"
+	if ctx.Locals("email") != nil {
+		observer = ctx.Locals("email").(string)
+	}
 
 	// Check logged in user is in annotator_list.
 	videostream, err := services.GetVideoStreamByID(body.VideoStreamID)
@@ -206,9 +214,7 @@ func CreateAnnotation(ctx *fiber.Ctx) error {
 	}
 
 	// Write data to the datastore.
-	id, err := services.CreateAnnotation(body.VideoStreamID,
-		body.TimeSpan, body.BoundingBox,
-		observer, body.Observation)
+	id, err := services.CreateAnnotation(body.VideoStreamID, body.Keypoints, observer, body.Observation)
 	if err != nil {
 		return api.DatastoreWriteFailure(err)
 	}
