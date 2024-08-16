@@ -38,8 +38,6 @@ package videotime
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
 )
 
 // VideoTime is a time in hours, minutes and seconds.
@@ -49,18 +47,23 @@ type VideoTime struct {
 
 // String converts a VideoTime to a string.
 func (t VideoTime) String() string {
-	// Seconds are what remain.
-	s := t.value
+
+	// Milliseconds are what remain.
+	ms := t.value
 
 	// Calculate hours.
-	h := s / (60 * 60)
-	s -= h * (60 * 60)
+	h := ms / (60 * 60 * 1000)
+	ms -= h * (60 * 60 * 1000)
 
 	// Calculate minutes.
-	m := s / 60
-	s -= m * 60
+	m := ms / (60 * 1000)
+	ms -= m * (60 * 1000)
 
-	return fmt.Sprintf("%02d:%02d:%02d", h, m, s)
+	// Calculate seconds
+	s := ms / 1000
+	ms -= s * 1000
+
+	return fmt.Sprintf("%02d:%02d:%02d.%03d", h, m, s, ms)
 }
 
 // Int converts a VideoTime to an int64 (seconds).
@@ -69,35 +72,29 @@ func (t VideoTime) Int() int64 {
 }
 
 // Parse converts a string to a VideoTime, or throws an error.
-func Parse(s string) (VideoTime, error) {
-	// Split on colons.
-	str := strings.Split(s, ":")
-	if len(str) != 3 {
-		return VideoTime{}, fmt.Errorf("invalid format: %s, must have three parts: hh:mm:ss", s)
+func Parse(str string) (VideoTime, error) {
+	var h, m, s, ms int
+
+	_, err := fmt.Sscanf(str, "%02d:%02d:%02d.%03d", &h, &m, &s, &ms)
+	if err != nil {
+		return VideoTime{}, fmt.Errorf("invalid format: %s, %v", str, err)
 	}
 
-	// Parse as integers.
-	var nums [3]int
-	var err error
-	for i := 0; i < 3; i++ {
-		nums[i], err = strconv.Atoi(str[i])
-		if err != nil {
-			return VideoTime{}, fmt.Errorf("invalid format: %s, must only have numbers between ':' separator", s)
-		}
-	}
-
-	return New(nums[0], nums[1], nums[2])
+	return New(h, m, s, ms)
 }
 
 // New creates a new VideoTime.
-func New(h int, m int, s int) (VideoTime, error) {
+func New(h int, m int, s int, ms int) (VideoTime, error) {
+	if ms < 0 || ms >= 1000 {
+		return VideoTime{}, fmt.Errorf("invalid value, milliseconds is not 0 ≤ %d ≤ 999", s)
+	}
 	if s < 0 || s >= 60 {
 		return VideoTime{}, fmt.Errorf("invalid value, seconds is not 0 ≤ %d ≤ 59", s)
 	}
 	if m < 0 || m >= 60 {
 		return VideoTime{}, fmt.Errorf("invalid value, minutes is not 0 ≤ %d ≤ 59", m)
 	}
-	return VideoTime{value: int64(h*60*60 + m*60 + s)}, nil
+	return VideoTime{value: int64(h*60*60*1000 + m*60*1000 + s*1000 + ms)}, nil
 }
 
 func FromInt(i int64) VideoTime {

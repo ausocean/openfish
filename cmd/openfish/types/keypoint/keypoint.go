@@ -3,7 +3,7 @@ AUTHORS
   Scott Barnard <scott@ausocean.org>
 
 LICENSE
-  Copyright (c) 2023-2024, The OpenFish Contributors.
+  Copyright (c) 2024, The OpenFish Contributors.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -31,63 +31,23 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package videotime_test
+package keypoint
 
 import (
-	"testing"
-
 	"github.com/ausocean/openfish/cmd/openfish/types/videotime"
 )
 
-func TestString(t *testing.T) {
-	vt, _ := videotime.New(12, 34, 56, 000)
-	expected := "12:34:56.000"
-
-	if vt.String() != expected {
-		t.Errorf("Expected %s, but got %s", expected, vt.String())
-	}
+// BoundingBox is a rectangle enclosing something interesting in a video.
+// It is represented using two x y coordinates, top left corner and bottom right corner of the rectangle.
+type BoundingBox struct {
+	X1 int `json:"x1"`
+	X2 int `json:"x2"`
+	Y1 int `json:"y1"`
+	Y2 int `json:"y2"`
 }
 
-func TestParse(t *testing.T) {
-	str := "12:34:56.000"
-	expected, _ := videotime.New(12, 34, 56, 000)
-
-	vt, err := videotime.Parse(str)
-	if err != nil {
-		t.Errorf("Error parsing time: %v", err)
-	}
-
-	if vt != expected {
-		t.Errorf("Expected value %s, but got %s", expected.String(), vt.String())
-	}
-}
-
-func TestUnmarshalText(t *testing.T) {
-	str := "12:34:56.000"
-	expected, _ := videotime.New(12, 34, 56, 000)
-
-	vt := videotime.VideoTime{}
-
-	err := vt.UnmarshalText([]byte(str))
-	if err != nil {
-		t.Errorf("Error unmarshalling text: %v", err)
-	}
-
-	if vt != expected {
-		t.Errorf("Expected value %s, but got %s", expected.String(), vt.String())
-	}
-}
-
-func TestMarshalText(t *testing.T) {
-	vt, _ := videotime.New(12, 34, 56, 000)
-	expected := "12:34:56.000"
-
-	data, err := vt.MarshalText()
-	if err != nil {
-		t.Errorf("Error marshalling text: %v", err)
-	}
-
-	if string(data) != expected {
-		t.Errorf("Expected text %s, but got %s", expected, string(data))
-	}
+// KeyPoint is a bounding box and time within the video.
+type KeyPoint struct {
+	BoundingBox BoundingBox         `json:"box"`
+	Time        videotime.VideoTime `json:"time"`
 }
