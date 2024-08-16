@@ -1,10 +1,10 @@
 import { LitElement, css, html, svg, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import type { Annotation } from '../utils/api.types.ts'
 import { repeat } from 'lit/directives/repeat.js'
 import resetcss from '../styles/reset.css?raw'
-import { parseVideoTime } from '../utils/datetime.ts'
 import { createRef, ref, type Ref } from 'lit/directives/ref.js'
+import { findClosestKeypointPair, interpolateKeypoints } from '../utils/keypoints.ts'
+import type { Annotation } from '../api/annotation.ts'
 
 export type MouseoverAnnotationEvent = CustomEvent<number | null>
 
@@ -27,29 +27,27 @@ abstract class AnnotationDisplayer extends LitElement {
 export class AnnotationOverlay extends AnnotationDisplayer {
   render() {
     const rects = repeat(this.annotations, (annotation: Annotation) => {
-      const x1 = annotation.boundingBox?.x1 ?? 0
-      const y1 = annotation.boundingBox?.y1 ?? 0
-
-      const x2 = annotation.boundingBox?.x2 ?? 100
-      const y2 = annotation.boundingBox?.y2 ?? 100
+      // Interpolate between keypoints.
+      const kpPair = findClosestKeypointPair(annotation.keypoints, this.currentTime)
+      const box = interpolateKeypoints(kpPair, this.currentTime)
 
       return svg`
-        <g 
-          @mouseover="${() => this.dispatchMouseOverAnnotation(annotation.id)}" 
-          @mouseout=${() => this.dispatchMouseOverAnnotation(null)}
-        > 
-          <rect 
-            class="annotation-rect ${annotation.id === this.activeAnnotation ? 'active' : ''}" 
-            x="${x1}%" y="${y1}%" width="${x2 - x1}%" height="${y2 - y1}%" 
-            stroke-width="3px" fill="#00000000" 
-          />
-          <foreignobject x="${x1}%" y="${y1}%" width="${x2 - x1}%" height="${y2 - y1}%" >
-            <span class="annotation-label">
-              <span>${annotation.observation.common_name}</span>
-              <span>(${annotation.observation.species})</span>
-            </span>              
-          </foreignobject>
-        </g>`
+          <g 
+            @mouseover="${() => this.dispatchMouseOverAnnotation(annotation.id)}" 
+            @mouseout=${() => this.dispatchMouseOverAnnotation(null)}
+          > 
+            <rect 
+              class="annotation-rect ${annotation.id === this.activeAnnotation ? 'active' : ''}" 
+              x="${box.xmin}%" y="${box.ymin}%" width="${box.w}%" height="${box.h}%" 
+              stroke-width="3px" fill="#00000000" 
+            />
+            <foreignobject x="${box.xmin}%" y="${box.ymin}%" width="${box.w}%" height="${box.h}%" >
+              <span class="annotation-label">
+                <span>${annotation.observation.common_name}</span>
+                <span>(${annotation.observation.species})</span>
+              </span>              
+            </foreignobject>
+          </g>`
     })
 
     return html`
@@ -91,10 +89,7 @@ export class AnnotationList extends AnnotationDisplayer {
   listContainer: Ref<HTMLElement> = createRef()
 
   render() {
-    const currentIdx = this.annotations.findIndex(
-      (a) => this.currentTime < parseVideoTime(a.timespan.end)
-    )
-    console.log(currentIdx)
+    const currentIdx = this.annotations.findIndex((a) => this.currentTime < a.end)
 
     const items = repeat(
       this.annotations,
@@ -104,7 +99,7 @@ export class AnnotationList extends AnnotationDisplayer {
     <annotation-card
       .annotation=${a}
       .glow=${this.activeAnnotation === a.id}
-      .outline=${parseVideoTime(a.timespan.start) <= this.currentTime && this.currentTime <= parseVideoTime(a.timespan.end)}
+      .outline=${a.start <= this.currentTime && this.currentTime <= a.end}
       @mouseover=${() => this.dispatchMouseOverAnnotation(a.id)}
       @mouseout=${() => this.dispatchMouseOverAnnotation(null)}
     />`

@@ -11,12 +11,18 @@ importers:
       '@fooloomanzoo/datetime-picker':
         specifier: ^3.0.9
         version: 3.0.9
+      class-transformer:
+        specifier: ^0.5.1
+        version: 0.5.1
       leaflet:
         specifier: ^1.9.4
         version: 1.9.4
       lit:
         specifier: ^3.1.4
         version: 3.1.4
+      reflect-metadata:
+        specifier: ^0.2.2
+        version: 0.2.2
       vidstack:
         specifier: ^1.11.25
         version: 1.11.25
@@ -1236,6 +1242,10 @@ packages:
       fsevents: 2.3.3
     dev: false
 
+  /class-transformer@0.5.1:
+    resolution: {integrity: sha512-SQa1Ws6hUbfC98vKGxZH3KFY0Y1lm5Zm0SY8XX9zbK7FJCyVEac3ATW0RIpwzW+oOfmHE5PMPufDG9hCfoEOMw==}
+    dev: false
+
   /color-convert@2.0.1:
     resolution: {integrity: sha512-RRECPsj7iu/xb5oKYcsFHSppFNnsj/52OVTRKb4zP5onXwVF3zVmmToNcOfGC+CRDpfK/U584fMg38ZHCaElKQ==}
     engines: {node: '>=7.0.0'}
@@ -1712,6 +1722,10 @@ packages:
     engines: {node: '>=8.10.0'}
     dependencies:
       picomatch: 2.3.1
+    dev: false
+
+  /reflect-metadata@0.2.2:
+    resolution: {integrity: sha512-urBwgfrvVP/eAyXx4hluJivBKzuEbSQs9rKWCrCkbSxNv8mxPcUZKeuoF3Uy4mJl3Lwprp6yy5/39VWigZ4K6Q==}
     dev: false
 
   /rfdc@1.4.1:

@@ -1,12 +1,13 @@
 import { LitElement, css, html, svg, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import type { Annotation, VideoStream } from '../utils/api.types'
+import type { VideoStream } from '../utils/api.types'
 import { repeat } from 'lit/directives/repeat.js'
-import { formatVideoTime, parseVideoTime } from '../utils/datetime'
+import { formatVideoTime } from '../utils/datetime'
 import resetcss from '../styles/reset.css?raw'
 import btncss from '../styles/buttons.css?raw'
 import zoomIn from '../icons/magnifying-glass-plus.svg'
 import zoomOut from '../icons/magnifying-glass-minus.svg'
+import type { Annotation } from '../api/annotation'
 
 export type SeekEvent = CustomEvent<number>
 
@@ -64,34 +65,25 @@ export class PlaybackControls extends LitElement {
 
   // Jump to when the next annotation occurs in the video.
   private next() {
-    const nextAnnotation = this.annotations.find(
-      (a) => parseVideoTime(a.timespan.start) > this.currentTime
-    )
+    const nextAnnotation = this.annotations.find((a) => a.start > this.currentTime)
     if (nextAnnotation !== undefined) {
-      const seekTo = parseVideoTime(nextAnnotation.timespan.start)
-      this.dispatchSeekEvent(seekTo)
+      this.dispatchSeekEvent(nextAnnotation.start)
     }
   }
 
   // Jump to when the previous annotation occurs in the video.
   private prev() {
-    const idx = this.annotations.findLastIndex(
-      (a) => parseVideoTime(a.timespan.start) < this.currentTime
-    )
+    const idx = this.annotations.findLastIndex((a) => a.start < this.currentTime)
     if (idx > 0) {
-      const prevAnnotation = this.annotations[idx - 1]
-      const seekTo = parseVideoTime(prevAnnotation.timespan.start)
-      this.dispatchSeekEvent(seekTo)
+      this.dispatchSeekEvent(this.annotations[idx - 1].start)
     }
   }
 
   render() {
-    const svgContents = repeat(this.annotations, (annotation) => {
-      const start = parseVideoTime(annotation.timespan.start)
-      const end = parseVideoTime(annotation.timespan.end)
-      const duration = end - start
+    const svgContents = repeat(this.annotations, (a) => {
+      const duration = a.end - a.start
 
-      const x = (start / this.duration) * 100
+      const x = (a.start / this.duration) * 100
       const width = Math.max((duration / this.duration) * 100, 0.25) // Give them a min width of 0.25% so they are legible.
 
       return svg`<rect x="${x}%" y="0%" width="${width}%" height="100%" />`

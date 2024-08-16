@@ -14,34 +14,11 @@ export type Species = {
 
 export type Image = { src: string; attribution: string }
 
-export interface Annotation {
-  id: number
-  videostreamId: number
-  timespan: Timespan
-  boundingBox?: BoundingBox
-  observer: string
-  observation: Observation
-}
+export type VideoTime = `${number}:${number}:${number}.${number}`
 
-export interface Observation {
-  [key: string]: string
-}
+export type LatLong = `${number},${number}`
 
-export type VideoTime = `${number}:${number}:${number}`
-
-export interface Timespan {
-  start: VideoTime
-  end: VideoTime
-}
-
-export interface BoundingBox {
-  x1: number
-  y1: number
-  x2: number
-  y2: number
-}
-
-export interface VideoStream {
+export type VideoStream = {
   id: number
   stream_url: string
   capturesource: string
@@ -49,10 +26,10 @@ export interface VideoStream {
   endTime: string
 }
 
-export interface CaptureSource {
+export type CaptureSource = {
   id: number
   name: string
-  location: `${number},${number}`
+  location: LatLong
   camera_hardware: string
   site_id?: number
 }

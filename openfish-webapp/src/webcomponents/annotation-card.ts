@@ -1,8 +1,9 @@
 import { LitElement, css, html, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import type { Annotation } from '../utils/api.types.ts'
 import { repeat } from 'lit/directives/repeat.js'
 import resetcss from '../styles/reset.css?raw'
+import { formatVideoTime } from '../utils/datetime.ts'
+import type { Annotation } from '../api/annotation.ts'
 
 @customElement('annotation-card')
 export class AnnotationCard extends LitElement {
@@ -20,8 +21,8 @@ export class AnnotationCard extends LitElement {
       return html`<div class="card"></div>`
     }
 
-    const start = this.annotation.timespan.start
-    const end = this.annotation.timespan.end
+    const start = formatVideoTime(this.annotation.start)
+    const end = formatVideoTime(this.annotation.end)
 
     const { common_name, species, ...rest } = this.annotation.observation
 

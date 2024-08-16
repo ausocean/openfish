@@ -1,7 +1,6 @@
 import { LitElement, css, html, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import type { Annotation, VideoStream, VideoTime } from '../utils/api.types'
-import { formatVideoTime, parseVideoTime } from '../utils/datetime'
+import type { VideoStream } from '../utils/api.types'
 import resetcss from '../styles/reset.css?raw'
 import btncss from '../styles/buttons.css?raw'
 
@@ -23,6 +22,9 @@ import { ref, type Ref, createRef } from 'lit/directives/ref.js'
 import type { MediaPlayerElement } from 'vidstack/elements'
 import { extractVideoID } from '../utils/youtube'
 import { repeat } from 'lit/directives/repeat.js'
+import { instanceToPlain, plainToInstance } from 'class-transformer'
+import { Annotation, BoundingBox, Keypoint } from '../api/annotation'
+import { formatVideoTime } from '../utils/datetime'
 
 @customElement('watch-stream')
 export class WatchStream extends LitElement {
@@ -70,15 +72,23 @@ export class WatchStream extends LitElement {
   private _observation: Record<string, string> = {}
 
   @state()
-  private _keypoints: VideoTime[] = []
+  private _keypoints: Keypoint[] = []
 
   @state()
   private _boundingBox: [number, number, number, number] | null = null
 
   private addKeyPoint() {
-    if (this._keypoints.length < 2) {
-      this._keypoints.push(formatVideoTime(this._currentTime))
+    if (this._boundingBox === null) {
+      return
     }
+    const box = new BoundingBox(
+      this._boundingBox[0],
+      this._boundingBox[1],
+      this._boundingBox[2],
+      this._boundingBox[3]
+    )
+    this._keypoints.push(new Keypoint(this._currentTime, box))
+
     this.requestUpdate()
   }
 
@@ -91,20 +101,11 @@ export class WatchStream extends LitElement {
   playerRef: Ref<MediaPlayerElement> = createRef()
 
   private async confirmAnnotation() {
-    const payload: Omit<Annotation, 'id'> = {
+    const payload = {
       videostreamId: this._videostream!.id,
       observer: 'user@placeholder.com',
       observation: this._observation,
-      timespan: { start: this._keypoints[0], end: this._keypoints[1] },
-    }
-
-    if (this._boundingBox) {
-      payload.boundingBox = {
-        x1: Math.round(this._boundingBox[0]),
-        y1: Math.round(this._boundingBox[1]),
-        x2: Math.round(this._boundingBox[2]),
-        y2: Math.round(this._boundingBox[3]),
-      }
+      keypoints: instanceToPlain(this._keypoints),
     }
 
     // Make annotation.
@@ -143,10 +144,11 @@ export class WatchStream extends LitElement {
       // TODO: We should only fetch a small portion of the annotations near the current playback position.
       //       When the user plays the video we can fetch in more as needed.
       const res = await fetch(
-        `${import.meta.env.VITE_API_HOST}/api/v1/annotations?videostream=${id}&order=Timespan.Start`
+        `${import.meta.env.VITE_API_HOST}/api/v1/annotations?videostream=${id}&order=StartTime`
       )
       const json = await res.json()
-      this._annotations = json.results as Annotation[]
+      this._annotations = plainToInstance<Annotation, object[]>(Annotation, json.results)
+      console.log(this._annotations)
     } catch (error) {
       console.error(error) // TODO: handle errors.
     }
@@ -157,9 +159,7 @@ export class WatchStream extends LitElement {
     if (this._videostream != null) {
       // Filter annotations to only show those spanning the current playback time/position.
       filteredAnnotations = this._annotations.filter(
-        (an: Annotation) =>
-          parseVideoTime(an.timespan.start) <= this._currentTime &&
-          this._currentTime <= parseVideoTime(an.timespan.end)
+        (a) => a.start <= this._currentTime && this._currentTime <= a.end
       )
     }
 
@@ -223,7 +223,7 @@ export class WatchStream extends LitElement {
           <h3>Add Annotation</h3>
           <button class="btn btn-secondary" @click=${this.cancelAnnotation}>Cancel</button>
           <button class="btn btn-orange" @click=${this.confirmAnnotation} .disabled=${
-            this._keypoints.length !== 2 || Object.keys(this._observation).length === 0
+            this._keypoints.length === 0 || Object.keys(this._observation).length === 0
           }>Done</button>
         </header>
         <observation-editor .observation=${this._observation} @observation=${(
@@ -239,21 +239,22 @@ export class WatchStream extends LitElement {
           <annotation-overlay
             .annotations=${filteredAnnotations}
             .activeAnnotation=${this._activeId}
+            .currentTime=${this._currentTime}
             @mouseover-annotation=${(e: MouseoverAnnotationEvent) => (this._activeId = e.detail)}
           ></annotation-overlay>
           `
         : html`
           <bounding-box-creator @updateboundingbox=${(e: UpdateBoundingBoxEvent) =>
             (this._boundingBox = e.detail)}></bounding-box-creator>
-          <div class="add-keypoint">
-            <button class="btn btn-transparent" @click=${this.addKeyPoint}>Add keypoint</button>
+          <div class="keypoint-container">
+            <button class="btn btn-transparent" @click=${this.addKeyPoint} .disabled=${this._boundingBox === null || this._keypoints.map((k) => k.time).includes(this._currentTime)}>Add keypoint</button>
             ${repeat(
               this._keypoints,
-              (k: VideoTime) => html`
+              (k: Keypoint) => html`
                 <span class="keypoint">
-                  ${k}
+                  ${formatVideoTime(k.time, true)}
                   <button class="btn-icon btn-transparent" @click=${() => {
-                    this._keypoints = this._keypoints.filter((v) => v !== k)
+                    this._keypoints = this._keypoints.filter((v) => v.time !== k.time)
                   }}>✕</button>
                 </span>
               `
@@ -264,8 +265,10 @@ export class WatchStream extends LitElement {
     return html`
       <div class="root">
         <div class="row">  
-          ${video}
-          ${overlay}
+          <div class="video">
+            ${video}
+            ${overlay}
+          </div>
           ${aside}
         </div>
         ${playbackControls}
@@ -288,13 +291,9 @@ export class WatchStream extends LitElement {
     }
 
     .row {
-      display: grid;
+      display: flex;
       height: calc(100% - 3.5rem);
-      grid-template-rows: 1fr;
-      grid-template-columns: min-content 1fr;
-      grid-template-areas: "video-player annotations";
     }
-
     h2 {
       margin: 0;
       padding: .25rem .5rem; 
@@ -305,30 +304,38 @@ export class WatchStream extends LitElement {
       font-weight: normal;
     }
     aside {
-      grid-area: annotations;
       background-color: var(--blue-700);
       display: flex;
       flex-direction: column;
+      width: 100%;
     }
-    media-player {
-      grid-area: video-player;
+    .video {
       aspect-ratio: var(--video-ratio);
       height: 100%;
+      position: relative;
     }
-    annotation-overlay, bounding-box-creator{
-      grid-area: video-player;
+    media-player, annotation-overlay, bounding-box-creator {
+      aspect-ratio: var(--video-ratio);
+      height: 100%;
+      position: absolute;
+      inset: 0;
+    }
+    annotation-overlay, bounding-box-creator {
       z-index: 100;
     }
-    .add-keypoint {
-      grid-area: video-player;
+    .keypoint-container {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: min-content;
       z-index: 200;
-      width: 100%;
-      height: 100%;
       display: flex;
-      align-items: end;
       padding: 1rem;
-      pointer-events: none;
+      padding-top: 0;
       gap: 1rem;
+      overflow-x: scroll;
+      
 
       & button {
         pointer-events: auto;
@@ -370,8 +377,7 @@ export class WatchStream extends LitElement {
     }
     aside .scrollable > * {
       position: absolute;
-      left: 0;
-      top: 0;
+      inset: 0;
     }
 
     annotation-list {
