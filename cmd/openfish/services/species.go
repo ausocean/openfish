@@ -35,6 +35,7 @@ package services
 
 import (
 	"context"
+	"strings"
 
 	"github.com/ausocean/openfish/cmd/openfish/ds_client"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
@@ -111,12 +112,13 @@ func GetRecommendedSpecies(limit int, offset int, videostream *int64, captureSou
 	query := store.NewQuery(entities.SPECIES_KIND, false)
 
 	if search != nil {
+		s := strings.ToLower(*search)
 		// Datastore does not support starts with or contains queries so we do two inequalities.
-		query.FilterField("CommonName", ">", *search)
-		lastChar := (*search)[len(*search)-1]
-		bytes := []byte(*search)
+		query.FilterField("SearchIndex", ">", s)
+		lastChar := (s)[len(*search)-1]
+		bytes := []byte(s)
 		bytes[len(bytes)-1] = lastChar + 1
-		query.FilterField("CommonName", "<", string(bytes))
+		query.FilterField("SearchIndex", "<", string(bytes))
 	}
 
 	// TODO: implement returning most relevant species.
@@ -149,6 +151,7 @@ func CreateSpecies(species string, commonName string, images []entities.Image, i
 		CommonName:         commonName,
 		Images:             images,
 		INaturalistTaxonID: iNaturalistTaxonID,
+		SearchIndex:        makeSearchIndex(species, commonName),
 	}
 	key, err := store.Put(context.Background(), key, &sp)
 	if err != nil {
@@ -181,6 +184,7 @@ func UpdateSpecies(id int64, species *string, commonName *string, images *[]enti
 			if iNaturalistTaxonID != nil {
 				s.INaturalistTaxonID = iNaturalistTaxonID
 			}
+			s.SearchIndex = makeSearchIndex(s.Species, s.CommonName)
 		}
 	}, &sp)
 
@@ -192,4 +196,16 @@ func DeleteSpecies(id int64) error {
 	store := ds_client.Get()
 	key := store.IDKey(entities.SPECIES_KIND, id)
 	return store.Delete(context.Background(), key)
+}
+
+// makeSearchIndex derives the search index field from the species and common name fields.
+func makeSearchIndex(species string, commonName string) []string {
+	searchableStrings := make([]string, 0, 10)
+	for _, word := range strings.Split(species, " ") {
+		searchableStrings = append(searchableStrings, strings.ToLower(word))
+	}
+	for _, word := range strings.Split(commonName, " ") {
+		searchableStrings = append(searchableStrings, strings.ToLower(word))
+	}
+	return searchableStrings
 }

@@ -46,6 +46,7 @@ type Species struct {
 	CommonName         string
 	Images             []Image
 	INaturalistTaxonID *int // Optional.
+	SearchIndex        []string
 }
 
 type Image struct {
