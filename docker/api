@@ -2,7 +2,7 @@
 FROM golang:1.21-alpine as build-stage
 WORKDIR /src
 
-COPY api ./api
+COPY cmd/openfish ./cmd/openfish
 COPY datastore ./datastore
 COPY go.mod go.sum ./
 
