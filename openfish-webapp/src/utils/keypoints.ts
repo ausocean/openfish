@@ -17,7 +17,7 @@ export function findClosestKeypointPair(
     }
   }
 
-  throw new Error('Current time outside range of keypoints')
+  throw new Error('current time outside range of keypoints')
 }
 
 export function lerp(t: number, t0: number, t1: number, v0: number, v1: number) {
