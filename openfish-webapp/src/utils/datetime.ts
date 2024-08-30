@@ -38,7 +38,10 @@ export function formatAsDatetime(dt: DateLike): string {
 }
 
 export function formatAsTimeZone(dt: DateLike): string {
-  return new Intl.DateTimeFormat('en-AU', { day: '2-digit', timeZoneName: 'short' })
+  return new Intl.DateTimeFormat('en-AU', {
+    day: '2-digit',
+    timeZoneName: 'short',
+  })
     .format(new Date(dt))
     .slice(4)
 }
@@ -50,13 +53,14 @@ export function formatDuration(seconds: number): string {
   return `${h}h ${m}m ${s}s `
 }
 
-export function formatVideoTime(seconds: number): VideoTime {
+export function formatVideoTime(seconds: number, ms = false): VideoTime {
   const date = new Date(0)
-  date.setSeconds(seconds)
-  return date.toISOString().substring(11, 19) as VideoTime
+  date.setMilliseconds(seconds * 1000)
+  return date.toISOString().substring(11, ms ? 23 : 19) as VideoTime
 }
 
 export function parseVideoTime(str: VideoTime): number {
-  const [h, m, s] = str.split(':')
-  return Number(h) * 60 * 60 + Number(m) * 60 + Number(s)
+  const [h, m, s, ms] = str.split(/[:\.]/)
+
+  return Number(h) * 60 * 60 + Number(m) * 60 + Number(s) + Number(ms) / 1000
 }
