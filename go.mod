@@ -1,6 +1,6 @@
 module github.com/ausocean/openfish
 
-go 1.20
+go 1.23
 
 require (
 	cloud.google.com/go/datastore v1.11.0
@@ -36,6 +36,7 @@ require (
 	github.com/valyala/fasthttp v1.47.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
+	golang.org/dl v0.0.0-20240905150950-a427666708fc // indirect
 	golang.org/x/crypto v0.7.0 // indirect
 	golang.org/x/oauth2 v0.7.0 // indirect
 	golang.org/x/sys v0.9.0 // indirect
