@@ -12,9 +12,9 @@ hero:
       link: /project-overview
     - theme: alt
       text: User Guide
-      link: /user-guide/todo
+      link: /user-guide/annotating-videos
     - theme: alt
-      text: Developer Documentation
+      text: Developer documentation
       link: /developer-docs/getting-started
 
 features:
