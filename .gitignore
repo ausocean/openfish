@@ -1,4 +1,4 @@
-/api/store/**
+/cmd/openfish/store/**
 go.work
 **.http
 .vscode/*
