@@ -39,6 +39,7 @@ import (
 
 	"github.com/ausocean/openfish/cmd/openfish/ds_client"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"github.com/ausocean/openfish/cmd/openfish/sliceutils"
 	"github.com/ausocean/openfish/datastore"
 )
 
@@ -112,13 +113,15 @@ func GetRecommendedSpecies(limit int, offset int, videostream *int64, captureSou
 	query := store.NewQuery(entities.SPECIES_KIND, false)
 
 	if search != nil {
-		s := strings.ToLower(*search)
+		trimmed := strings.TrimSpace(*search)
+		lower := strings.ToLower(trimmed)
+
 		// Datastore does not support starts with or contains queries so we do two inequalities.
-		query.FilterField("SearchIndex", ">", s)
-		lastChar := (s)[len(*search)-1]
-		bytes := []byte(s)
+		query.FilterField("SearchIndex", ">=", lower)
+		lastChar := (lower)[len(lower)-1]
+		bytes := []byte(lower)
 		bytes[len(bytes)-1] = lastChar + 1
-		query.FilterField("SearchIndex", "<", string(bytes))
+		query.FilterField("SearchIndex", "<=", string(bytes))
 	}
 
 	// TODO: implement returning most relevant species.
@@ -201,11 +204,15 @@ func DeleteSpecies(id int64) error {
 // makeSearchIndex derives the search index field from the species and common name fields.
 func makeSearchIndex(species string, commonName string) []string {
 	searchableStrings := make([]string, 0, 10)
-	for _, word := range strings.Split(species, " ") {
-		searchableStrings = append(searchableStrings, strings.ToLower(word))
+
+	for subslice := range sliceutils.WindowPermutations(strings.Split(species, " ")) {
+		str := strings.ToLower(strings.Join(subslice, " "))
+		searchableStrings = append(searchableStrings, str)
 	}
-	for _, word := range strings.Split(commonName, " ") {
-		searchableStrings = append(searchableStrings, strings.ToLower(word))
+
+	for subslice := range sliceutils.WindowPermutations(strings.Split(commonName, " ")) {
+		str := strings.ToLower(strings.Join(subslice, " "))
+		searchableStrings = append(searchableStrings, str)
 	}
 	return searchableStrings
 }
