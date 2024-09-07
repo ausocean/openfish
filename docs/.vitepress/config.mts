@@ -1,52 +1,55 @@
-import { defineConfig } from 'vitepress'
+import { defineConfig } from "vitepress";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  base: '/openfish/',
-  title: "OpenFish Documentation",
-  description: "OpenFish is an open-source system written in Golang for classifying marine species. Tasks involve importing video or image data, classifying and annotating data (both manually and automatically), searching, and more. ",
-  ignoreDeadLinks: [/^https?:\/\/localhost:5173/],
-  themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
-    nav: [
-      { text: 'Home', link: '/' },
-      { text: 'Project Overview', link: '/project-overview' },
-      { text: 'API Documentation', link: '/api/' },
-      { text: 'AusOcean', link: 'https://www.ausocean.org/'}
-    ],
+	base: "/openfish/",
+	title: "OpenFish Documentation",
+	description:
+		"OpenFish is an open-source system written in Golang for classifying marine species. Tasks involve importing video or image data, classifying and annotating data (both manually and automatically), searching, and more. ",
+	ignoreDeadLinks: [/^https?:\/\/localhost:5173/],
+	themeConfig: {
+		// https://vitepress.dev/reference/default-theme-config
+		nav: [
+			{ text: "Project Overview", link: "/project-overview" },
+			{ text: "User Guide", link: "/user-guide/todo" },
+			{ text: "Developer Documentation", link: "/developer-docs/getting-started" },
+			{ text: "AusOcean", link: "https://www.ausocean.org/" },
+		],
 
-    sidebar: [  
-      { text: 'Project Overview', link: '/project-overview' },
-      { text: 'Getting Started', link: '/getting-started' },
-      { text: 'Contributing', link: '/contributing' },
-      {
-        text: 'API Documentation',
-        items: [
-          { text: 'Introduction', link: '/api/'},
-          { text: 'Authentication', link: '/api/authentication'},
-          { text: 'Roles and Permissions', link: '/api/roles-and-permissions'},
-          { text: 'API Usage', link: '/api/api-usage', items: [
-            { text: 'Capture Sources', link: '/api/capture-sources'},
-            { text: 'Video Streams', link: '/api/video-streams'},
-            { text: 'Annotations', link: '/api/annotations'},
-            { text: 'Species', link: '/api/species'},
-            { text: 'Users', link: '/api/users'},
-          ]},
+		sidebar: {
+			"/developer-docs/": [
+				{ text: "Getting Started", link: "/developer-docs/getting-started" },
+				{ text: "Contributing", link: "/developer-docs/contributing" },
+				{
+					text: "API Documentation",
+					base: "/developer-docs/api",
+					items: [
+						{ text: "Introduction", link: "/" },
+						{ text: "Authentication", link: "/authentication" },
+						{ text: "Roles and Permissions", link: "/roles-and-permissions" },
+						{
+							text: "API Usage",
+							link: "/api-usage",
+							items: [
+								{ text: "Capture Sources", link: "/capture-sources" },
+								{ text: "Video Streams", link: "/video-streams" },
+								{ text: "Annotations", link: "/annotations" },
+								{ text: "Species", link: "/species" },
+								{ text: "Users", link: "/users" },
+							],
+						},
+					],
+				},
+			],
+			"/user-guide/": [],
+		},
 
-        ]
-      },
-    ],
+		socialLinks: [
+			{ icon: "github", link: "https://github.com/ausocean/openfish" },
+		],
 
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/ausocean/openfish' }
-    ],
-
-    search: {
-      provider: 'local'
-    }
-  }
-})
-
-
-
-
+		search: {
+			provider: "local",
+		},
+	},
+});

@@ -11,11 +11,11 @@ hero:
       text: Project overview
       link: /project-overview
     - theme: alt
-      text: Getting Started
-      link: /getting-started
+      text: User Guide
+      link: /user-guide/todo
     - theme: alt
-      text: API Documentation
-      link: /api/
+      text: Developer Documentation
+      link: /developer-docs/getting-started
 
 features:
   - title: Video annotation tools and dataset curation
@@ -25,4 +25,3 @@ features:
   - title: Species Statistics and Analysis Tools 
     details: "Planned: Not yet developed"
 ---
-
