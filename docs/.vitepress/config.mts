@@ -20,6 +20,7 @@ export default defineConfig({
 			"/developer-docs/": [
 				{ text: "Getting Started", link: "/developer-docs/getting-started" },
 				{ text: "Contributing", link: "/developer-docs/contributing" },
+				{ text: "OpenFish CLI", link: "/developer-docs/openfish-cli" },
 				{
 					text: "API Documentation",
 					base: "/developer-docs/api",
