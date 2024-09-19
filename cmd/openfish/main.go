@@ -98,6 +98,10 @@ func registerAPIRoutes(app *fiber.App) {
 
 	// Auth.
 	v1.Get("/auth/me", handlers.GetSelf)
+
+	// Tasks.
+	v1.Get("/tasks/:id/status", handlers.PollTask)
+
 }
 
 // errorHandler creates a HTTP response with the given status code or 500 by default.

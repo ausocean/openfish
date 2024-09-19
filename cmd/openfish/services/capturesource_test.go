@@ -50,6 +50,7 @@ func setup() {
 	_ = os.Mkdir("store/openfish/Annotation", os.ModePerm)
 	_ = os.Mkdir("store/openfish/Species", os.ModePerm)
 	_ = os.Mkdir("store/openfish/Users", os.ModePerm)
+	_ = os.Mkdir("store/openfish/Task", os.ModePerm)
 
 }
 
