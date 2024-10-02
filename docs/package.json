@@ -7,6 +7,6 @@
         "dev": "pnpm build:openapi && vitepress dev .",
         "build": "pnpm build:openapi && vitepress build .",
         "preview": "vitepress preview .",
-        "build:openapi": "swag init --dir ../cmd/openfish --output ./public --outputTypes json --v3.1"
+        "build:openapi": "swag init --dir ../cmd/openfish --output ./developer-docs/api --outputTypes json --v3.1"
       }
 }

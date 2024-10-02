@@ -66,7 +66,9 @@ type UpdateUserBody struct {
 // GetUserByEmail gets a user when provided with an email.
 //
 //	@Summary		Get user by email
-//	@Description	Gets a user when provided with an email. Admin role required.
+//	@Description	Admin role required`**
+//	@Description
+//	@Description	Gets a user when provided with an email.
 //	@Tags			Users
 //	@Produce		json
 //	@Param			email	path		string	true	"Email"	example(user@example.com)
@@ -93,7 +95,9 @@ func GetUserByEmail(ctx *fiber.Ctx) error {
 // TODO: support filtering by role.
 //
 //	@Summary		Get users
-//	@Description	Get paginated users. Admin role required.
+//	@Description	Admin role required`**
+//	@Description
+//	@Description	Get paginated users.
 //	@Tags			Users
 //	@Produce		json
 //	@Param			limit	query		int	false	"Number of results to return."	minimum(1)	default(20)
@@ -133,7 +137,9 @@ func GetUsers(ctx *fiber.Ctx) error {
 // UpdateUser updates a user.
 //
 //	@Summary		Update role
-//	@Description	Update a user's role. Admin role required.
+//	@Description	Admin role required`**
+//	@Description
+//	@Description	Update a user's role.
 //	@Tags			Users
 //	@Accept			json
 //	@Param			email	path	string			true	"Email"	example(user@example.com)
@@ -169,7 +175,9 @@ func UpdateUser(ctx *fiber.Ctx) error {
 // DeleteUser deletes a user.
 //
 //	@Summary		Delete user
-//	@Description	Delete a user by providing the user's email. Admin role required.
+//	@Description	Admin role required`**
+//	@Description
+//	@Description	Delete a user by providing the user's email.
 //	@Tags			Users
 //	@Param			email	path	string	true	"Email"	example(user@example.com)
 //	@Success		200

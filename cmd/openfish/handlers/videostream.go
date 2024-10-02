@@ -215,7 +215,9 @@ func GetVideoStreams(ctx *fiber.Ctx) error {
 // https://github.com/ausocean/openfish/issues/18
 //
 //	@Summary		Register video stream
-//	@Description	Registers a new video stream with OpenFish. Curator or Admin role required.
+//	@Description	Curator or Admin role required`**
+//	@Description
+//	@Description	Registers a new video stream with OpenFish.
 //	@Tags			Video Streams
 //	@Accept			json
 //	@Produce		json
@@ -246,7 +248,9 @@ func CreateVideoStream(ctx *fiber.Ctx) error {
 // StartVideoStream creates a new video stream at the current time.
 //
 //	@Summary		Register live stream
-//	@Description	Registers a new live video stream with OpenFish. The API takes the current time as the start time of the video stream. Curator or Admin role required.
+//	@Description	Curator or Admin role required`**
+//	@Description
+//	@Description	Registers a new live video stream with OpenFish. The API takes the current time as the start time of the video stream.
 //	@Tags			Video Streams (Live)
 //	@Accept			json
 //	@Produce		json
@@ -277,7 +281,9 @@ func StartVideoStream(ctx *fiber.Ctx) error {
 // EndVideoStream updates the video stream's duration.
 //
 //	@Summary		Finish live stream
-//	@Description	Notify OpenFish that a live video stream has finished. The API takes the current time as the end time. Curator or Admin role required.
+//	@Description	Curator or Admin role required`**
+//	@Description
+//	@Description	Notify OpenFish that a live video stream has finished. The API takes the current time as the end time.
 //	@Tags			Video Streams (Live)
 //	@Param			id	path	int	true	"Video Stream ID"	Example(1234567890)
 //	@Success		200
@@ -304,7 +310,9 @@ func EndVideoStream(ctx *fiber.Ctx) error {
 // UpdateVideoStream updates a video stream.
 //
 //	@Summary		Update video stream
-//	@Description	Partially update a video stream by specifying the properties to update. Curator or Admin role required.
+//	@Description	Curator or Admin role required`**
+//	@Description
+//	@Description	Partially update a video stream by specifying the properties to update.
 //	@Tags			Video Streams
 //	@Accept			json
 //	@Param			id		path	int						true	"Video Stream ID"	example(1234567890)
@@ -339,7 +347,9 @@ func UpdateVideoStream(ctx *fiber.Ctx) error {
 // https://github.com/ausocean/openfish/issues/17
 //
 //	@Summary		Delete video stream
-//	@Description	Delete a video stream by providing the video stream ID. Admin role required.
+//	@Description	Curator or Admin role required`**
+//	@Description
+//	@Description	Delete a video stream by providing the video stream ID.
 //	@Tags			Video Streams
 //	@Param			id	path	int	true	"Video Stream ID"	example(1234567890)
 //	@Success		200

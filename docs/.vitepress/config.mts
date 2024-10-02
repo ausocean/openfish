@@ -1,7 +1,7 @@
 import { defineConfig } from "vitepress";
 
 import { useSidebar, useOpenapi } from "vitepress-theme-openapi";
-import spec from "../public/swagger.json" assert { type: "json" };
+import spec from "../developer-docs/api/swagger.json" assert { type: "json" };
 import type { DefaultTheme } from "vitepress";
 
 const openapi = useOpenapi();

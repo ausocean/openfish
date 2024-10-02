@@ -261,7 +261,7 @@ func CreateAnnotation(ctx *fiber.Ctx) error {
 // DeleteAnnotation deletes an annotation.
 //
 //	@Summary		Delete annotation
-//	@Description	Delete an annotation by providing the annotation ID. Admin role required.
+//	@Description	Delete an annotation by providing the annotation ID. [Admin]
 //	@Tags			Annotations
 //	@Param			id	path	int	true	"Annotation ID"	example(1234567890)
 //	@Success		200

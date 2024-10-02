@@ -4,7 +4,7 @@ import type { Theme } from 'vitepress'
 import { theme, useOpenapi, useTheme } from 'vitepress-theme-openapi'
 import 'vitepress-theme-openapi/dist/style.css'
 
-import spec from '../../public/swagger.json' assert { type: 'json' }
+import spec from '../../developer-docs/api/swagger.json' assert { type: 'json' }
 
 export default {
     ...DefaultTheme,
@@ -15,7 +15,7 @@ export default {
 
         // Optionally, configure the theme.
         const themeConfig = useTheme()
-        themeConfig.setLocale('en') // en or es
+        themeConfig.setLocale('en')
 
         // Use the theme.
         theme.enhanceApp({app})

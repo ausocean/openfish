@@ -166,7 +166,9 @@ func GetRecommendedSpecies(ctx *fiber.Ctx) error {
 // CreateSpecies creates a new species.
 //
 //	@Summary		Create species
-//	@Description	Creates a new species from provided JSON body. Admin role required.
+//	@Description	Admin role required`**
+//	@Description
+//	@Description	Creates a new species from provided JSON body.
 //	@Tags			Species
 //	@Accept			json
 //	@Produce		json
@@ -197,7 +199,9 @@ func CreateSpecies(ctx *fiber.Ctx) error {
 // ImportFromINaturalist imports species from INaturalist's taxa API.
 //
 //	@Summary		Import from iNaturalist
-//	@Description	Imports all species that are descendants of a Phylum/Class/Order/etc from iNaturalist's taxa API. Admin role required.
+//	@Description	Admin role required`**
+//	@Description
+//	@Description	Imports all species that are descendants of a Phylum/Class/Order/etc from iNaturalist's taxa API.
 //	@Tags			Species
 //	@Param			descendants_of	query	string	true	"Phylum/Class/Order/etc to import"	example(Infraorder Cetacea)
 //	@Success		200
@@ -249,7 +253,9 @@ func ImportFromINaturalist(ctx *fiber.Ctx) error {
 // DeleteSpecies deletes a species.
 //
 //	@Summary		Delete species
-//	@Description	Delete a species by providing the species ID. Admin role required.
+//	@Description	Admin role required`**
+//	@Description
+//	@Description	Delete a species by providing the species ID.
 //	@Tags			Species
 //	@Param			id	path	int	true	"Species ID"	example(1234567890)
 //	@Success		200
