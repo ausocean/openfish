@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "dev": "pnpm build:openapi && vitepress dev .",
-        "build": "pnpm build:openapi && vitepress build .",
+        "build": "vitepress build .",
         "preview": "vitepress preview .",
         "build:openapi": "swag init --dir ../cmd/openfish --output ./developer-docs/api --outputTypes json --v3.1"
       }
