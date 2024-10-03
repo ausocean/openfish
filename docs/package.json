@@ -1,12 +1,11 @@
 {
-    "name": "@openfish/docs",
-    "private": true,
-    "version": "0.0.0",
-    "type": "module",
-    "scripts": {
-        "dev": "pnpm build:openapi && vitepress dev .",
-        "build": "pnpm build:openapi && vitepress build .",
-        "preview": "vitepress preview .",
-        "build:openapi": "swag init --dir ../cmd/openfish --output ./developer-docs/api --outputTypes json --v3.1"
-      }
+  "name": "docs",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "pnpm build:openapi && astro dev",
+    "build": "pnpm build:openapi && astro check && astro build",
+    "preview": "astro preview",
+    "build:openapi": "swag init --dir ../cmd/openfish --output ./src/assets --outputTypes json --v3.1"
+  }
 }

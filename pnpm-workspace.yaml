@@ -1,3 +1,4 @@
 packages:
   - 'openfish-webapp'
   - 'docs'
+  - 'docs2'

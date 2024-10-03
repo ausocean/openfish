@@ -1,0 +1,7 @@
+:root {
+    --sl-hue-base: 275 !important;
+    --sl-hue-accent: 275 !important;
+}
+.site-title {
+    color: var(--sl-color-gray-2);
+}

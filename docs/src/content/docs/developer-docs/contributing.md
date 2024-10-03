@@ -1,4 +1,6 @@
-# Openfish Contributing Guide
+---
+title: Openfish Contributing Guide
+---
 **Authors:** Scott Barnard
 
 Hi there! 👋 We’re thrilled that you’re interested in contributing to OpenFish, our open-source project dedicated to classifying marine species. 

@@ -1,10 +1,18 @@
 {
   "dependencies": {
+    "@astrojs/check": "^0.9.3",
+    "@astrojs/starlight": "^0.28.2",
     "@fooloomanzoo/datetime-picker": "^3.0.9",
+    "@lorenzo_lewis/starlight-utils": "^0.1.2",
+    "astro": "^4.15.3",
     "class-transformer": "^0.5.1",
     "leaflet": "^1.9.4",
     "lit": "^3.1.4",
     "reflect-metadata": "^0.2.2",
+    "sharp": "^0.32.5",
+    "starlight-image-zoom": "^0.8.0",
+    "starlight-openapi": "^0.8.0",
+    "starlight-theme-rapide": "^0.2.0",
     "vidstack": "^1.11.25",
     "vitepress-theme-openapi": "0.0.3-alpha.30"
   },

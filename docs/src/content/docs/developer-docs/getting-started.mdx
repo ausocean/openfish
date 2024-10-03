@@ -1,4 +1,8 @@
-# Getting started
+---
+title:  Getting started
+---
+import { Steps } from '@astrojs/starlight/components';
+
 
 Openfish can be built from the docker images to run locally on your computer or to deploy to the cloud.
 
@@ -9,8 +13,9 @@ You will need installed:
 - Linux (Windows is currently untested but may work)
 
 ## Deployment instructions
-### Steps:
-1) Setup google cloud credentials so your application can access the datastore:
+**Steps:**
+<Steps>
+1. Setup google cloud credentials so your application can access the datastore:
    ```bash
    gcloud auth login
    gcloud config set project openfish-dev
@@ -21,15 +26,16 @@ You will need installed:
    GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/application_default_credentials.json
    ```
 
-2) Build docker images:
+2. Build docker images:
    ```bash
    docker build . -t openfish-webapp -f ./docker/webapp
    docker build . -t openfish-api -f ./docker/api
    ```
 
-3) Run both containers:
+3. Run both containers:
    ```bash      
    docker run -p 80:80 openfish-webapp
    docker run -p 8080:8080 -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcloud.json -v $GOOGLE_APPLICATION_CREDENTIALS:/tmp/gcloud.json:z openfish-api
    ```
-4) Open the browser and visit http://localhost.
+4. Open the browser and visit http://localhost.
+</Steps>

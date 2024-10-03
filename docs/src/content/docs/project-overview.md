@@ -1,26 +1,9 @@
 ---
-outline: [2,3]
+title: Project Overview
 ---
-# Project Overview
+
 **Authors:** Trek Hopton, Alan Noble
 
-**Page Contents**
-- [Project Overview](#project-overview)
-  - [Mission](#mission)
-  - [Description](#description)
-  - [Stages](#stages)
-    - [Step 1 - AusOcean Data Storage Method](#step-1---ausocean-data-storage-method)
-    - [Step 2 - Data Access API](#step-2---data-access-api)
-    - [Step 3 - UI for and Video Annotation and Labelling](#step-3---ui-for-and-video-annotation-and-labelling)
-    - [Step 4 - Dataset Curation](#step-4---dataset-curation)
-    - [Step 5 - Motion Detection](#step-5---motion-detection)
-    - [Step 6 - Object Detection](#step-6---object-detection)
-    - [Step 7 - Automatic Species Classification / Suggestion](#step-7---automatic-species-classification--suggestion)
-    - [Step 8 - Species Statistics and Analysis Tools](#step-8---species-statistics-and-analysis-tools)
-  - [Related Projects](#related-projects)
-  - [Licensing](#licensing)
-
----
 
 ## Mission
 AusOcean is dedicated to helping our oceans through the use of technology. Our development of a video livestream stack has resulted in a significant accumulation of marine footage being uploaded to YouTube, with hours of content available for viewing. While the availability of this marine content contributes to the raising of awareness for our oceans, we believe the video data provides significant potential for further positive impact.

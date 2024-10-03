@@ -141,7 +141,26 @@ func parseString(s string) (string, error) {
 //
 //	@title									OpenFish API
 //	@version								1.0
-//	@description							OpenFish API
+//	@description							OpenFish provides an API to access stored marine footage, and video annotations / labels, allowing clients to retrieve and filter the data.
+//	@description
+//	@description							Clients can download segments of footage or video annotations by querying
+//	@description							by location, time, and other parameters.
+//	@description
+//	@description							## Authentication
+//	@description							OpenFish has optional support for requiring user authentication.
+//	@description
+//	@description							User authentication is provided using Google Cloud's Identity Aware Proxy (IAP). By default it is disabled, to use it you need to pass the command line flag `--iap` or set the environmental variable `IAP=\"true\"` to enable it.
+//	@description
+//	@description							## Roles and permissions
+//	@description							If user authentication is enabled, the following roles and permissions apply:
+//	@description
+//	@description							| Role               | Permissions                                                                       |
+//	@description							| ------------------ | --------------------------------------------------------------------------------- |
+//	@description							| Admin              | Can add and remove annotations, videostreams, capturesources, users, and species. |
+//	@description							| Curator            | Can select streams for classification.                                            |
+//	@description							| Annotator          | Can add annotations, and delete their own annotations                             |
+//	@description							| Readonly (default) | A readonly user is only be able to look at annotations, not make any              |
+//	@description
 //	@termsOfService							http://swagger.io/terms/
 //	@contact.name							Scott Barnard
 //	@contact.email							scott@ausocean.org
