@@ -9,7 +9,7 @@
     "vitepress-theme-openapi": "0.0.3-alpha.33"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.8.3",
+    "@biomejs/biome": "^1.9.3",
     "@types/leaflet": "^1.9.12",
     "glob": "^10.4.2",
     "typescript": "^5.5.3",

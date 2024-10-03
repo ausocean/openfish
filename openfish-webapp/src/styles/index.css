@@ -22,7 +22,6 @@
   --gray-900: #49555a;
   --gray-950: #2e383d;
 
-
   --blue-50: #f4f7fb;
   --blue-100: #e7eef7;
   --blue-200: #cadaed;
@@ -46,7 +45,7 @@
   --bright-blue-800: #174fb6;
   --bright-blue-900: #19458f;
   --bright-blue-950: #142b57;
-  
+
   --green-50: #ecfdf4;
   --green-100: #d0fbe3;
   --green-200: #a6f4cd;
@@ -95,7 +94,7 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  
+
   color-scheme: light dark;
   color: var(--content);
   background-color: var(--bg);
@@ -108,13 +107,25 @@
 }
 
 /* CSS reset */
-body, h1, h2, h3, h4, h5, h6, p, ol, ul {
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ol,
+ul {
   margin: 0;
   padding: 0;
   font-weight: normal;
 }
 
-html, *, *:before, *:after {
+html,
+*,
+*:before,
+*:after {
   box-sizing: inherit;
 }
 
@@ -129,7 +140,6 @@ a:not(.btn) {
   }
 }
 
-
 /* Page layout */
 body {
   width: 100vw;
@@ -139,6 +149,9 @@ body {
 body.grid-layout {
   display: grid;
   gap: 1rem;
-  grid-template-columns: [fullwidth-start] 1fr [page-start left-aside-start left-content-start] 16rem [left-aside-end right-content-start] minmax(auto, 54rem) [right-aside-start left-content-end] 16rem [page-end right-aside-end right-content-end] 1fr [fullwidth-end];
+  grid-template-columns: [fullwidth-start] 1fr [page-start left-aside-start left-content-start] 16rem [left-aside-end right-content-start] minmax(
+      auto,
+      54rem
+    ) [right-aside-start left-content-end] 16rem [page-end right-aside-end right-content-end] 1fr [fullwidth-end];
   grid-template-rows: [header-start] 4rem [header-end title-start] min-content [title-end content-start] 1fr [content-end];
 }
