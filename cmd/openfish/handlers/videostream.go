@@ -215,7 +215,7 @@ func GetVideoStreams(ctx *fiber.Ctx) error {
 // https://github.com/ausocean/openfish/issues/18
 //
 //	@Summary		Register video stream
-//	@Description	Curator or Admin role required`**
+//	@Description	Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
 //	@Description
 //	@Description	Registers a new video stream with OpenFish.
 //	@Tags			Video Streams
@@ -248,7 +248,7 @@ func CreateVideoStream(ctx *fiber.Ctx) error {
 // StartVideoStream creates a new video stream at the current time.
 //
 //	@Summary		Register live stream
-//	@Description	Curator or Admin role required`**
+//	@Description	Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
 //	@Description
 //	@Description	Registers a new live video stream with OpenFish. The API takes the current time as the start time of the video stream.
 //	@Tags			Video Streams (Live)
@@ -281,7 +281,7 @@ func StartVideoStream(ctx *fiber.Ctx) error {
 // EndVideoStream updates the video stream's duration.
 //
 //	@Summary		Finish live stream
-//	@Description	Curator or Admin role required`**
+//	@Description	Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
 //	@Description
 //	@Description	Notify OpenFish that a live video stream has finished. The API takes the current time as the end time.
 //	@Tags			Video Streams (Live)
@@ -310,7 +310,7 @@ func EndVideoStream(ctx *fiber.Ctx) error {
 // UpdateVideoStream updates a video stream.
 //
 //	@Summary		Update video stream
-//	@Description	Curator or Admin role required`**
+//	@Description	Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
 //	@Description
 //	@Description	Partially update a video stream by specifying the properties to update.
 //	@Tags			Video Streams
@@ -347,7 +347,7 @@ func UpdateVideoStream(ctx *fiber.Ctx) error {
 // https://github.com/ausocean/openfish/issues/17
 //
 //	@Summary		Delete video stream
-//	@Description	Curator or Admin role required`**
+//	@Description	Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
 //	@Description
 //	@Description	Delete a video stream by providing the video stream ID.
 //	@Tags			Video Streams

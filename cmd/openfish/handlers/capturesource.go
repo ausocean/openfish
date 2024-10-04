@@ -212,7 +212,7 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 // CreateCaptureSource creates a new capture source.
 //
 //	@Summary		Create capture source
-//	@Description	Admin role required`**
+//	@Description	Roles required: <role-tag>Admin</role-tag>
 //	@Description
 //	@Description	Creates a new capture source from provided JSON body.
 //	@Tags			Capture Sources
@@ -248,7 +248,7 @@ func CreateCaptureSource(ctx *fiber.Ctx) error {
 // UpdateCaptureSource updates a capture source.
 //
 //	@Summary		Update capture source
-//	@Description	Admin role required`**
+//	@Description	Roles required: <role-tag>Admin</role-tag>
 //	@Description
 //	@Description	Partially update a capture source by specifying the properties to update.
 //	@Tags			Capture Sources
@@ -291,8 +291,7 @@ func UpdateCaptureSource(ctx *fiber.Ctx) error {
 // DeleteCaptureSource deletes a capture source.
 //
 //	@Summary		Delete capture source
-//	@Security		IAP
-//	@Description	**`Admin role required`**
+//	@Description	Roles required: <role-tag>Admin</role-tag>
 //	@Description
 //	@Description	Delete a capture source by providing the capture source ID.
 //	@Tags			Capture Sources

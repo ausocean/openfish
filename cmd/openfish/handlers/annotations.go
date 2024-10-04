@@ -213,7 +213,9 @@ func GetAnnotations(ctx *fiber.Ctx) error {
 // CreateAnnotation creates a new annotation.
 //
 //	@Summary		Create annotation
-//	@Description	Creates a new annotation from provided JSON body. Annotator role required.
+//	@Description	Roles required: <role-tag>Annotator</role-tag>, <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
+//	@Description
+//	@Description	Creates a new annotation from provided JSON body.
 //	@Tags			Annotations
 //	@Accept			json
 //	@Produce		json
@@ -261,7 +263,9 @@ func CreateAnnotation(ctx *fiber.Ctx) error {
 // DeleteAnnotation deletes an annotation.
 //
 //	@Summary		Delete annotation
-//	@Description	Delete an annotation by providing the annotation ID. [Admin]
+//	@Description	Roles required: <role-tag>Admin</role-tag>
+//	@Description
+//	@Description	Delete an annotation by providing the annotation ID.
 //	@Tags			Annotations
 //	@Param			id	path	int	true	"Annotation ID"	example(1234567890)
 //	@Success		200
