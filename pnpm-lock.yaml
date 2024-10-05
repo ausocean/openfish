@@ -11,6 +11,9 @@ importers:
       '@fooloomanzoo/datetime-picker':
         specifier: ^3.0.9
         version: 3.0.9
+      '@lit/context':
+        specifier: ^1.1.2
+        version: 1.1.2
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
@@ -403,6 +406,9 @@ packages:
 
   '@lit-labs/ssr-dom-shim@1.2.0':
     resolution: {integrity: sha512-yWJKmpGE6lUURKAaIltoPIE/wrbY3TEkqQt+X0m+7fQNnAv0keydnYvbiJFP1PnMhizmIWRWOG5KLhYyc/xl+g==}
+
+  '@lit/context@1.1.2':
+    resolution: {integrity: sha512-S0nw2C6Tkm7fVX5TGYqeROGD+Z9Coa2iFpW+ysYBDH3YvCqOY3wVQvSgwbaliLJkjTnSEYCBe9qFqKV8WUFpVw==}
 
   '@lit/reactive-element@2.0.4':
     resolution: {integrity: sha512-GFn91inaUa2oHLak8awSIigYz0cU0Payr1rcFsrkf5OJ5eSPxElyZfKh0f2p9FsTiZWXQdWGJeXZICEfXXYSXQ==}
@@ -1920,6 +1926,10 @@ snapshots:
   '@jridgewell/sourcemap-codec@1.5.0': {}
 
   '@lit-labs/ssr-dom-shim@1.2.0': {}
+
+  '@lit/context@1.1.2':
+    dependencies:
+      '@lit/reactive-element': 2.0.4
 
   '@lit/reactive-element@2.0.4':
     dependencies:
