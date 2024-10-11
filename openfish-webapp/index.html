@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="./src/styles/index.css" />
     <link rel="stylesheet" href="./src/styles/buttons.css" />
 
+    <script type="module" src="./src/webcomponents/user-provider.ts"></script>
     <script type="module" src="./src/webcomponents/site-nav.ts"></script>
 
     <style>
@@ -45,16 +46,17 @@
 
   </head>
   <body class="grid-layout">
-    <site-nav></site-nav>
-    <main>
-      <h1>OpenFish</h1>
-      <p role="doc-subtitle">A project by AusOcean</p>
-      <p class="intro">Watch our underwater streams, share what you observe and help us identify and improve our understanding of marine species!</p>
-      <menu>
-        <li><a class="btn btn-orange" href="/streams.html">View streams</a></li>
-        <li><a class="btn btn-secondary" href="https://ausocean.github.io/openfish/project-overview.html">Learn more about the project</a></li>
-      </menu>
-    </main>
-
+    <user-provider>
+      <site-nav></site-nav>
+      <main>
+        <h1>OpenFish</h1>
+        <p role="doc-subtitle">A project by AusOcean</p>
+        <p class="intro">Watch our underwater streams, share what you observe and help us identify and improve our understanding of marine species!</p>
+        <menu>
+          <li><a class="btn btn-orange" href="/streams.html">View streams</a></li>
+          <li><a class="btn btn-secondary" href="https://ausocean.github.io/openfish/project-overview.html">Learn more about the project</a></li>
+        </menu>
+      </main>
+    </user-provider>
   </body>
 </html>

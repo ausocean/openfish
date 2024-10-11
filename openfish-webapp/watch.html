@@ -7,6 +7,7 @@
     <title>OpenFish | Watch</title>
     <link rel="stylesheet" href="./src/styles/index.css" />
 
+    <script type="module" src="./src/webcomponents/user-provider.ts"></script>
     <script type="module" src="./src/webcomponents/site-nav.ts"></script>
     <script type="module" src="/src/webcomponents/watch-stream.ts"></script>
 
@@ -73,16 +74,17 @@
     </script>
   </head>
   <body class="grid-layout">
-    <site-nav></site-nav>
-    <header>
-      <a class="back-button" href="/streams.html">
-        &leftarrow; Back to video streams
-      </a>
-      <h1>Watching stream: <span class="stream-id">-</span></h1>
-    </header>
+    <user-provider>
+      <site-nav></site-nav>
+      <header>
+        <a class="back-button" href="/streams.html">
+          &leftarrow; Back to video streams
+        </a>
+        <h1>Watching stream: <span class="stream-id">-</span></h1>
+      </header>
 
-    <watch-stream></watch-stream>    
-
+      <watch-stream></watch-stream>
+    </user-provider>
   </body>
 </html>
 

@@ -7,6 +7,7 @@
     <title>OpenFish | Streams</title>
     <link rel="stylesheet" href="./src/styles/index.css" />
 
+    <script type="module" src="./src/webcomponents/user-provider.ts"></script>
     <script type="module" src="./src/webcomponents/site-nav.ts"></script>
     <script type="module" src="./src/webcomponents/stream-list.ts"></script>
     <script type="module" src="./src/webcomponents/stream-filter.ts"></script>
@@ -42,9 +43,11 @@
     </script>
   </head>
   <body class="grid-layout">
-    <site-nav></site-nav>
-    <h1>View streams</h1>
-    <stream-filter></stream-filter>
-    <stream-list></stream-list>
+    <user-provider>
+      <site-nav></site-nav>
+      <h1>View streams</h1>
+      <stream-filter></stream-filter>
+      <stream-list></stream-list>
+    </user-provider>
   </body>
 </html>
