@@ -127,9 +127,7 @@ export class SpeciesSelection extends AbstractObservationEditor {
       if (this._search.length > 0) {
         params.set('search', this._search)
       }
-      const res = await fetch(
-        `${import.meta.env.VITE_API_HOST}/api/v1/species/recommended?${params}`
-      )
+      const res = await fetch(`/api/v1/species/recommended?${params}`)
       this._speciesList.push(...(await res.json()).results)
       this.offset += 20
       this.requestUpdate()

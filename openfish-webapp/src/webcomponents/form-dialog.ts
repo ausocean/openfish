@@ -50,7 +50,7 @@ export class FormDialog extends LitElement {
 
     e.target.reset()
 
-    await fetch(`${import.meta.env.VITE_API_HOST}${this.action}`, {
+    await fetch(this.action, {
       method: this.method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

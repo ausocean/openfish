@@ -17,7 +17,7 @@ export class UserProvider extends LitElement {
       this.user = plainToInstance(User, { email: 'user@localhost', role: 'admin' })
     } else {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_HOST}/api/v1/auth/me`)
+        const res = await fetch('/api/v1/auth/me')
         const json = await res.json()
         this.user = plainToInstance(User, json)
       } catch (error) {

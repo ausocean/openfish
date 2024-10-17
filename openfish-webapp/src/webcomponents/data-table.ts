@@ -46,7 +46,7 @@ export class DataTable<T extends { id: number }> extends LitElement {
   async fetchData() {
     const perPage = 10
 
-    const url = new URL(`${import.meta.env.VITE_API_HOST}${this.src}`)
+    const url = new URL(this.src)
     url.searchParams.set('limit', String(perPage))
     url.searchParams.set('offset', String((this._page - 1) * perPage))
 
