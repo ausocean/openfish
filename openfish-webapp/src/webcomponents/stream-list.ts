@@ -43,9 +43,7 @@ export class StreamList extends LitElement {
         params.set(key, String(this._filter[key as keyof Filter]))
       }
 
-      const res = await fetch(
-        `${import.meta.env.VITE_API_HOST}/api/v1/videostreams?${params.toString()}`
-      )
+      const res = await fetch(`/api/v1/videostreams?${params.toString()}`)
       const data = (await res.json()) as Result<VideoStream>
       this._items = data.results
       this._totalPages = Math.floor(data.total / perPage)

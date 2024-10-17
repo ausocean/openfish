@@ -17,7 +17,7 @@ export class CaptureSourceDropdown extends LitElement {
 
   async fetchData() {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_HOST}/api/v1/capturesources?limit=999`)
+      const res = await fetch('/api/v1/capturesources?limit=999')
       const data = (await res.json()) as Result<CaptureSource>
       this._items = data.results
     } catch (error) {

@@ -28,7 +28,7 @@ export class CreateCaptureSourceDialog extends LitElement {
       payload.site_id = Number(formdata.get('site_id'))
     }
 
-    await fetch(`${import.meta.env.VITE_API_HOST}/api/v1/capturesources`, {
+    await fetch('/api/v1/capturesources', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
