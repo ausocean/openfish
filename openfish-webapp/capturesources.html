@@ -39,7 +39,7 @@
     async function deleteCaptureSource(id) {
       try {
         await fetch(
-          `${import.meta.env.VITE_API_HOST}/api/v1/capturesources/${id}`, { method: 'DELETE' }
+          `/api/v1/capturesources/${id}`, { method: 'DELETE' }
         )
         dataTable.fetchData()
       } catch (error) {

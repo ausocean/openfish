@@ -109,7 +109,7 @@ export class WatchStream extends LitElement {
     }
 
     // Make annotation.
-    await fetch(`${import.meta.env.VITE_API_HOST}/api/v1/annotations`, {
+    await fetch('/api/v1/annotations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -132,7 +132,7 @@ export class WatchStream extends LitElement {
   async fetchVideoStream(id: number) {
     try {
       // Fetch video stream with ID.
-      const res = await fetch(`${import.meta.env.VITE_API_HOST}/api/v1/videostreams/${id}`)
+      const res = await fetch(`/api/v1/videostreams/${id}`)
       this._videostream = (await res.json()) as VideoStream
     } catch (error) {
       console.error(error) // TODO: handle errors.
@@ -143,9 +143,7 @@ export class WatchStream extends LitElement {
       // Fetch annotations for this video stream.
       // TODO: We should only fetch a small portion of the annotations near the current playback position.
       //       When the user plays the video we can fetch in more as needed.
-      const res = await fetch(
-        `${import.meta.env.VITE_API_HOST}/api/v1/annotations?videostream=${id}&order=StartTime`
-      )
+      const res = await fetch(`/api/v1/annotations?videostream=${id}&order=StartTime`)
       const json = await res.json()
       this._annotations = plainToInstance<Annotation, object[]>(Annotation, json.results)
       console.log(this._annotations)
