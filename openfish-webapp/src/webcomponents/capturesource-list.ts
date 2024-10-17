@@ -31,9 +31,7 @@ export class CaptureSourceList extends LitElement {
       params.set('limit', String(10))
       params.set('offset', String((this._page - 1) * perPage))
 
-      const res = await fetch(
-        `${import.meta.env.VITE_API_HOST}/api/v1/capturesources?${params.toString()}`
-      )
+      const res = await fetch(`/api/v1/capturesources?${params.toString()}`)
       const data = (await res.json()) as Result<CaptureSource>
       this._items = data.results
       this._totalPages = Math.floor(data.total / perPage)
