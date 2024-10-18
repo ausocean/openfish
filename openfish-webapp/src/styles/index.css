@@ -89,6 +89,9 @@
   --shadow-sm: 0 0.25rem 0.25rem -0.25rem var(--gray-950);
   --shadow-md: 0 0.5rem 0.5rem -0.5rem var(--gray-950);
   --shadow-lg: 0 1rem 3rem -1rem var(--gray-950);
+  --shadow-soft-sm: 0 0.25rem 0.25rem -0.25rem color-mix(in srgb, var(--gray-950), transparent 40%);
+  --shadow-soft-md: 0 0.5rem 0.5rem -0.5rem color-mix(in srgb, var(--gray-950), transparent 40%);
+  --shadow-soft-lg: 0 1rem 3rem -1rem color-mix(in srgb, var(--gray-950), transparent 40%);
 
   /* Base styles */
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
