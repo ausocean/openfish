@@ -7,13 +7,14 @@ import { provide, consume, createContext } from '@lit/context'
 
 export type ClickRowEvent<T> = CustomEvent<T>
 
-export type HoverItemEvent = CustomEvent<number | undefined>
+export type HoverItemEvent = CustomEvent<string | undefined>
 
 export const dataContext = createContext(Symbol('table'))
+export const pkeyContext = createContext(Symbol('pkey'))
 export const hoverContext = createContext(Symbol('hover-row'))
 
 @customElement('data-table')
-export class DataTable<T extends { id: number }> extends LitElement {
+export class DataTable<T extends Record<string, any>> extends LitElement {
   @state()
   protected _page = 1
 
@@ -23,7 +24,7 @@ export class DataTable<T extends { id: number }> extends LitElement {
 
   @state()
   @provide({ context: hoverContext })
-  protected _hover: number | undefined
+  protected _hover: string | undefined
 
   @state()
   protected _totalPages = 0
@@ -34,12 +35,16 @@ export class DataTable<T extends { id: number }> extends LitElement {
   @property()
   colwidths = ''
 
+  @property()
+  @provide({ context: pkeyContext })
+  pkey = 'id'
+
   onHoverItem(e: HoverItemEvent) {
     this._hover = e.detail
   }
 
   async deleteItem(item: T) {
-    await fetch(`${this.src}/${item.id}`, { method: 'DELETE' })
+    await fetch(`${this.src}/${item[this.pkey]}`, { method: 'DELETE' })
     await this.fetchData()
   }
 
@@ -116,22 +121,26 @@ export class DataTable<T extends { id: number }> extends LitElement {
     `
 }
 
-abstract class DataTableColumn<T extends { id: number }> extends LitElement {
+abstract class DataTableColumn<T extends Record<string, any>> extends LitElement {
   @consume({ context: dataContext, subscribe: true })
   @state()
   protected _items: T[] = []
 
   @consume({ context: hoverContext, subscribe: true })
   @state()
-  protected _hover: number | undefined
+  protected _hover: string | undefined
+
+  @consume({ context: pkeyContext, subscribe: true })
+  @state()
+  protected _pkey: string
 
   @property()
   align: 'left' | 'right' | 'center' = 'left'
 
-  hoverItem(id: number | undefined) {
+  hoverItem(key: string | undefined) {
     this.dispatchEvent(
       new CustomEvent('hoverItem', {
-        detail: id,
+        detail: key,
         bubbles: true,
         composed: true,
       })
@@ -153,17 +162,17 @@ abstract class DataTableColumn<T extends { id: number }> extends LitElement {
 
   render() {
     return html`
-    <div class="th" style="text-align: ${this.align}">
+    <div class="th" style="justify-content: ${this.align}">
       ${this.renderTitle()}
     </div>
     ${repeat(
       this._items,
       (item) => html`
       <div 
-        class="td ${this._hover === item.id ? 'hover' : ''}" 
-        style="text-align: ${this.align}" 
+        class="td ${this._hover === item[this._pkey].toString() ? 'hover' : ''}" 
+        style="justify-content: ${this.align}" 
         @click=${() => this.clickItem(item)} 
-        @mouseenter=${() => this.hoverItem(item.id)} 
+        @mouseenter=${() => this.hoverItem(item[this._pkey].toString())}
         @mouseleave=${() => this.hoverItem(undefined)}
       >
         ${this.renderCell(item)}
@@ -207,7 +216,7 @@ abstract class DataTableColumn<T extends { id: number }> extends LitElement {
 }
 
 @customElement('dt-col')
-export class DataTableTextColumn<T extends { id: number }> extends DataTableColumn<T> {
+export class DataTableTextColumn<T extends Record<string, any>> extends DataTableColumn<T> {
   @property()
   title: string
 
@@ -227,7 +236,7 @@ export class DataTableTextColumn<T extends { id: number }> extends DataTableColu
 }
 
 @customElement('dt-btn')
-export class DataTableButton<T extends { id: number }> extends DataTableColumn<T> {
+export class DataTableButton<T extends Record<string, any>> extends DataTableColumn<T> {
   @property()
   text: string
 
@@ -262,8 +271,8 @@ export class DataTableButton<T extends { id: number }> extends DataTableColumn<T
 
 declare global {
   interface HTMLElementTagNameMap {
-    'data-table': DataTable<{ id: number }>
-    'dt-col': DataTableTextColumn<{ id: number }>
-    'dt-btn': DataTableButton<{ id: number }>
+    'data-table': DataTable<Record<string, any>>
+    'dt-col': DataTableColumn<Record<string, any>>
+    'dt-btn': DataTableButton<Record<string, any>>
   }
 }
