@@ -1,4 +1,4 @@
-import { LitElement, css, html } from 'lit'
+import { LitElement, type TemplateResult, css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import resetcss from '../styles/reset.css'
 import btncss from '../styles/buttons.css'
@@ -36,6 +36,11 @@ export class DataTable<T extends { id: number }> extends LitElement {
 
   onHoverItem(e: HoverItemEvent) {
     this._hover = e.detail
+  }
+
+  async deleteItem(item: T) {
+    await fetch(`${this.src}/${item.id}`, { method: 'DELETE' })
+    await this.fetchData()
   }
 
   async connectedCallback() {
@@ -111,8 +116,7 @@ export class DataTable<T extends { id: number }> extends LitElement {
     `
 }
 
-@customElement('dt-col')
-export class DataTableColumn<T extends { id: number }> extends LitElement {
+abstract class DataTableColumn<T extends { id: number }> extends LitElement {
   @consume({ context: dataContext, subscribe: true })
   @state()
   protected _items: T[] = []
@@ -122,12 +126,6 @@ export class DataTableColumn<T extends { id: number }> extends LitElement {
   protected _hover: number | undefined
 
   @property()
-  title: string
-
-  @property()
-  key: keyof T
-
-  @property()
   align: 'left' | 'right' | 'center' = 'left'
 
   hoverItem(id: number | undefined) {
@@ -135,22 +133,42 @@ export class DataTableColumn<T extends { id: number }> extends LitElement {
       new CustomEvent('hoverItem', {
         detail: id,
         bubbles: true,
-
         composed: true,
       })
     )
   }
 
+  clickItem(item: T) {
+    this.dispatchEvent(
+      new CustomEvent('clickitem', {
+        detail: item,
+        bubbles: true,
+        composed: true,
+      })
+    )
+  }
+
+  abstract renderTitle(): TemplateResult
+  abstract renderCell(item: T): TemplateResult
+
   render() {
     return html`
     <div class="th" style="text-align: ${this.align}">
-        ${this.title}
+      ${this.renderTitle()}
     </div>
     ${repeat(
       this._items,
       (item) => html`
-      <div class="td ${this._hover === item.id ? 'hover' : ''}" style="text-align: ${this.align}" @mouseenter=${() => this.hoverItem(item.id)} @mouseleave=${() => this.hoverItem(undefined)}>${item[this.key]}</div>
-        `
+      <div 
+        class="td ${this._hover === item.id ? 'hover' : ''}" 
+        style="text-align: ${this.align}" 
+        @click=${() => this.clickItem(item)} 
+        @mouseenter=${() => this.hoverItem(item.id)} 
+        @mouseleave=${() => this.hoverItem(undefined)}
+      >
+        ${this.renderCell(item)}
+      </div>
+      `
     )}
     `
   }
@@ -188,9 +206,64 @@ export class DataTableColumn<T extends { id: number }> extends LitElement {
     `
 }
 
+@customElement('dt-col')
+export class DataTableTextColumn<T extends { id: number }> extends DataTableColumn<T> {
+  @property()
+  title: string
+
+  @property()
+  key: keyof T
+
+  @property()
+  align: 'left' | 'right' | 'center' = 'left'
+
+  renderTitle(): TemplateResult {
+    return html`${this.title}`
+  }
+
+  renderCell(item: T): TemplateResult {
+    return html`${item[this.key]}`
+  }
+}
+
+@customElement('dt-btn')
+export class DataTableButton<T extends { id: number }> extends DataTableColumn<T> {
+  @property()
+  text: string
+
+  @property()
+  action: string
+
+  clickButton(item: T) {
+    this.dispatchEvent(
+      new CustomEvent(this.action, {
+        detail: item,
+        bubbles: true,
+        composed: true,
+      })
+    )
+  }
+
+  renderTitle(): TemplateResult {
+    return html``
+  }
+
+  renderCell(item: T): TemplateResult {
+    return html`
+    <button type="button" class="btn btn-sm btn-secondary" @click=${() => this.clickButton(item)}>${this.text}</button>
+    `
+  }
+
+  static styles = css`
+    ${DataTableColumn.styles}
+    ${btncss}
+  `
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     'data-table': DataTable<{ id: number }>
-    'dt-col': DataTableColumn<{ id: number }>
+    'dt-col': DataTableTextColumn<{ id: number }>
+    'dt-btn': DataTableButton<{ id: number }>
   }
 }
