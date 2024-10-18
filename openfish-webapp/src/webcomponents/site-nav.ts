@@ -8,8 +8,8 @@ export class SiteNav extends LitElement {
     return html`
     <h1><a href="/">OpenFish</a></h1>
     <menu>
-        <li><a href="/streams.html">View streams</a></li>
-        <li><a href="/capturesources.html">Manage capture sources</a></li>
+        <li><a href="/streams.html">View Streams</a></li>
+        <li><a href="/admin/capturesources.html">Admin Settings</a></li>
     </menu>
     `
   }
