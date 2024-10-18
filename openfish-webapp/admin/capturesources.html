@@ -5,13 +5,14 @@
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OpenFish | Manage capture sources</title>
-    <link rel="stylesheet" href="./src/styles/index.css" />
-    <link rel="stylesheet" href="./src/styles/buttons.css" />
+    <link rel="stylesheet" href="../src/styles/index.css" />
+    <link rel="stylesheet" href="../src/styles/buttons.css" />
 
-    <script type="module" src="./src/webcomponents/site-nav.ts"></script>
-    <script type="module" src="./src/webcomponents/data-table.ts"></script>
-    <script type="module" src="./src/webcomponents/confirm-dialog.ts"></script>
-    <script type="module" src="./src/webcomponents/create-capture-source-dialog.ts"></script>
+    <script type="module" src="../src/webcomponents/site-nav.ts"></script>
+    <script type="module" src="../src/webcomponents/admin-menu.ts"></script>
+    <script type="module" src="../src/webcomponents/data-table.ts"></script>
+    <script type="module" src="../src/webcomponents/confirm-dialog.ts"></script>
+    <script type="module" src="../src/webcomponents/create-capture-source-dialog.ts"></script>
     
     <style>
       site-nav {
@@ -20,11 +21,17 @@
       }
       header {
         grid-column: page;
+      }
+      main {
+        grid-column: right-content;
+      }
+      main header {
         display: flex;
         justify-content: space-between;
+        padding: 1rem 0;
       }
-      data-table {
-        grid-column: page;
+      admin-menu {
+        grid-column: left-aside;
       }
     </style>
 
@@ -52,16 +59,24 @@
   <body class="grid-layout">
     <site-nav></site-nav>
     <header>
-      <h1>Manage capture sources</h1>
-      <button class="btn btn-blue" id="create-btn">+ Create new capture source</button>
+      <h1>Admin Settings</h1>
+      <hr>
     </header>
-      
-    <data-table src="/api/v1/capturesources" colwidths="2fr 3fr 2fr 2fr">
-      <dt-col title="Name" key="name"></dt-col>
-      <dt-col title="Camera Hardware" key="camera_hardware"></dt-col>
-      <dt-col title="Site ID" key="site_id"></dt-col>
-      <dt-col title="Location" key="location"></dt-col>
-    </data-table>
+    
+    <admin-menu></admin-menu>
+
+    <main>
+      <header>
+        <h2>Manage capture sources</h2>
+        <button class="btn btn-blue" id="create-btn">+ Create new capture source</button>
+      </header>
+      <data-table src="/api/v1/capturesources" colwidths="2fr 3fr 2fr 2fr">
+        <dt-col title="Name" key="name"></dt-col>
+        <dt-col title="Camera Hardware" key="camera_hardware"></dt-col>
+        <dt-col title="Site ID" key="site_id"></dt-col>
+        <dt-col title="Location" key="location"></dt-col>
+      </data-table>  
+    </main>
 
     <confirm-dialog>Are you sure you want to delete this capture source?</confirm-dialog>
     <create-capture-source-dialog></create-capture-source-dialog>
