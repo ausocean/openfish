@@ -44,7 +44,9 @@ export class DataTable<T extends Record<string, any>> extends LitElement {
   }
 
   async deleteItem(item: T) {
-    await fetch(`${this.src}/${item[this.pkey]}`, { method: 'DELETE' })
+    const url = new URL(`./${item[this.pkey]}`, `${document.location.origin}${this.src}`)
+    url.searchParams.forEach((_, key) => url.searchParams.delete(key))
+    await fetch(url, { method: 'DELETE' })
     await this.fetchData()
   }
 
