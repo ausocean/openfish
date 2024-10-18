@@ -43,7 +43,9 @@ export class FormDialog extends LitElement {
     const formdata = new FormData(e.target)
     const payload: Record<string, any> = {}
     for (const [key, val] of formdata.entries()) {
-      if (val !== '' && val !== undefined && val !== null) {
+      if (key === 'capturesource' || key === 'videostream') {
+        payload[key] = Number(val)
+      } else if (val !== '' && val !== undefined && val !== null) {
         payload[key] = val
       }
     }
