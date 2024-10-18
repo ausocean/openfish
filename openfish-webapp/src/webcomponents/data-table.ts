@@ -39,7 +39,8 @@ export class DataTable<T extends { id: number }> extends LitElement {
   }
 
   async deleteItem(item: T) {
-    const url = new URL(`${import.meta.env.VITE_API_HOST}${this.src}/${item.id}`)
+    const url = new URL(`./${item.id}`, `${import.meta.env.VITE_API_HOST}${this.src}`)
+    url.searchParams.forEach((_, key) => url.searchParams.delete(key))
     await fetch(url, { method: 'DELETE' })
     await this.fetchData()
   }
