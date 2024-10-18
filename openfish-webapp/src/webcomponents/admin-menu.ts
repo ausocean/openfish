@@ -9,7 +9,7 @@ export class AdminMenu extends LitElement {
     <aside>
       <menu>
           <li><a href="/admin/capturesources.html">Manage Capture Sources</a></li>
-          <li><a href="/admin/capturesources.html">Manage Users</a></li>
+          <li><a href="/admin/users.html">Manage Users</a></li>
           <li><a href="/admin/capturesources.html">Manage Species</a></li>
       </menu>
     </aside>
