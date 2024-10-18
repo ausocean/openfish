@@ -28,12 +28,12 @@ export class SiteNav extends LitElement {
         ${
           this.user?.role === 'admin'
             ? html`
-          <li><a href="/capturesources.html">Manage capture sources</a></li>   
+          <li><a href="/admin/capturesources.html">Admin Settings</a></li> 
         `
             : html``
         }
         |
-        ${user}
+        ${user}       
     </menu>
     `
   }
