@@ -1,8 +1,8 @@
-import { LitElement, css, html, unsafeCSS } from 'lit'
+import { LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { type Ref, createRef, ref } from 'lit/directives/ref.js'
-import resetcss from '../styles/reset.css?raw'
-import btncss from '../styles/buttons.css?raw'
+import resetcss from '../styles/reset.css'
+import btncss from '../styles/buttons.css'
 
 @customElement('confirm-dialog')
 export class ConfirmDialog extends LitElement {
@@ -43,8 +43,8 @@ export class ConfirmDialog extends LitElement {
   }
 
   static styles = css`
-  ${unsafeCSS(resetcss)}
-  ${unsafeCSS(btncss)}
+  ${resetcss}
+  ${btncss}
 
   dialog {
     border: none;

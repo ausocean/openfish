@@ -1,7 +1,7 @@
-import { LitElement, css, html, svg, unsafeCSS } from 'lit'
+import { LitElement, css, html, svg } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
-import resetcss from '../styles/reset.css?raw'
+import resetcss from '../styles/reset.css'
 import { createRef, ref, type Ref } from 'lit/directives/ref.js'
 import { findClosestKeypointPair, interpolateKeypoints } from '../utils/keypoints.ts'
 import type { Annotation } from '../api/annotation.ts'
@@ -57,7 +57,7 @@ export class AnnotationOverlay extends AnnotationDisplayer {
   }
 
   static styles = css`
-    ${unsafeCSS(resetcss)}
+    ${resetcss}
 
     svg {
       pointer-events: none;
@@ -113,7 +113,7 @@ export class AnnotationList extends AnnotationDisplayer {
   }
 
   static styles = css`
-    ${unsafeCSS(resetcss)}
+    ${resetcss}
     div {
       height: 100%;
       overflow-y: scroll;

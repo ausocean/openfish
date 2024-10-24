@@ -1,7 +1,7 @@
-import { LitElement, css, html, unsafeCSS } from 'lit'
+import { LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
-import resetcss from '../styles/reset.css?raw'
+import resetcss from '../styles/reset.css'
 import { formatVideoTime } from '../utils/datetime.ts'
 import type { Annotation } from '../api/annotation.ts'
 
@@ -63,7 +63,7 @@ export class AnnotationCard extends LitElement {
   }
 
   static styles = css`
-  ${unsafeCSS(resetcss)}
+  ${resetcss}
 
   a:not(.btn) {
     font-weight: 500;

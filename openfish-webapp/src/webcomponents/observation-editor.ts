@@ -1,9 +1,9 @@
-import { LitElement, css, html, unsafeCSS } from 'lit'
+import { LitElement, css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import { zip } from '../utils/array-utils'
-import resetcss from '../styles/reset.css?raw'
-import btncss from '../styles/buttons.css?raw'
+import resetcss from '../styles/reset.css'
+import btncss from '../styles/buttons.css'
 
 type Species = { species: string; common_name: string; images?: Image[] }
 type Image = { src: string; attribution: string }
@@ -68,8 +68,8 @@ export class ObservationEditor extends AbstractObservationEditor {
   }
 
   static styles = css`
-  ${unsafeCSS(resetcss)}
-  ${unsafeCSS(btncss)}
+  ${resetcss}
+  ${btncss}
   menu {
     display: flex;
     justify-content: end;
@@ -176,8 +176,8 @@ export class SpeciesSelection extends AbstractObservationEditor {
   }
 
   static styles = css`
-    ${unsafeCSS(resetcss)}
-    ${unsafeCSS(btncss)}
+    ${resetcss}
+    ${btncss}
 
     .scrollable {
       position: relative;
@@ -344,8 +344,8 @@ export class AdvancedEditor extends AbstractObservationEditor {
   }
 
   static styles = css`
-    ${unsafeCSS(resetcss)}
-    ${unsafeCSS(btncss)}
+    ${resetcss}
+    ${btncss}
     .root {
       padding: 1rem;
     }

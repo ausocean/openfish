@@ -1,9 +1,9 @@
-import { LitElement, css, html, unsafeCSS } from 'lit'
+import { LitElement, css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import resetcss from '../styles/reset.css?raw'
 import type { User } from '../api/user'
 import { consume } from '@lit/context'
 import { userContext } from '../utils/context'
+import resetcss from '../styles/reset.css'
 
 @customElement('site-nav')
 export class SiteNav extends LitElement {
@@ -39,7 +39,7 @@ export class SiteNav extends LitElement {
   }
 
   static styles = css`
-  ${unsafeCSS(resetcss)}
+  ${resetcss}
   
   :host {
     grid-column: fullwidth;

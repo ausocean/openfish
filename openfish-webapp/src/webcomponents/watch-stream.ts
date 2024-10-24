@@ -1,8 +1,8 @@
-import { LitElement, css, html, unsafeCSS } from 'lit'
+import { LitElement, css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import type { VideoStream } from '../utils/api.types'
-import resetcss from '../styles/reset.css?raw'
-import btncss from '../styles/buttons.css?raw'
+import resetcss from '../styles/reset.css'
+import btncss from '../styles/buttons.css'
 
 import './annotation-displayer'
 import './annotation-card'
@@ -10,7 +10,7 @@ import './playback-controls'
 import './observation-editor'
 import './bounding-box-creator'
 
-import vidstackcss from 'vidstack/player/styles/default/theme.css?raw'
+import vidstackcss from 'vidstack/player/styles/default/theme.css'
 import 'vidstack/player'
 import 'vidstack/player/ui'
 
@@ -274,9 +274,9 @@ export class WatchStream extends LitElement {
   }
 
   static styles = css`
-    ${unsafeCSS(resetcss)}
-    ${unsafeCSS(btncss)}
-    ${unsafeCSS(vidstackcss)}
+    ${resetcss}
+    ${btncss}
+    ${vidstackcss}
 
     .root {
       --video-ratio: 4 / 3;

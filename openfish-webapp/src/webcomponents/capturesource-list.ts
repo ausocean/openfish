@@ -1,9 +1,9 @@
-import { LitElement, css, html, unsafeCSS } from 'lit'
+import { LitElement, css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import type { CaptureSource, Result } from '../utils/api.types.ts'
 import { repeat } from 'lit/directives/repeat.js'
-import resetcss from '../styles/reset.css?raw'
-import btncss from '../styles/buttons.css?raw'
+import resetcss from '../styles/reset.css'
+import btncss from '../styles/buttons.css'
 
 export type DeleteItemEvent = CustomEvent<number>
 
@@ -98,8 +98,8 @@ export class CaptureSourceList extends LitElement {
   }
 
   static styles = css`
-    ${unsafeCSS(resetcss)}
-    ${unsafeCSS(btncss)}
+    ${resetcss}
+    ${btncss}
 
     table {
       display: grid;  

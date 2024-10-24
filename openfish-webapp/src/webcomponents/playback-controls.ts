@@ -1,10 +1,10 @@
-import { LitElement, css, html, svg, unsafeCSS } from 'lit'
+import { LitElement, css, html, svg } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import type { VideoStream } from '../utils/api.types'
 import { repeat } from 'lit/directives/repeat.js'
 import { formatVideoTime } from '../utils/datetime'
-import resetcss from '../styles/reset.css?raw'
-import btncss from '../styles/buttons.css?raw'
+import resetcss from '../styles/reset.css'
+import btncss from '../styles/buttons.css'
 import zoomIn from '../icons/magnifying-glass-plus.svg'
 import zoomOut from '../icons/magnifying-glass-minus.svg'
 import type { Annotation } from '../api/annotation'
@@ -133,8 +133,8 @@ export class PlaybackControls extends LitElement {
   }
 
   static styles = css`
-    ${unsafeCSS(resetcss)}
-    ${unsafeCSS(btncss)}
+    ${resetcss}
+    ${btncss}
     .root {
       display: flex;
       width: 100%;
