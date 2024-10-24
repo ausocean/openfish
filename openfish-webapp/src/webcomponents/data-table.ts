@@ -1,7 +1,7 @@
-import { LitElement, css, html, unsafeCSS } from 'lit'
+import { LitElement, css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import resetcss from '../styles/reset.css?raw'
-import btncss from '../styles/buttons.css?raw'
+import resetcss from '../styles/reset.css'
+import btncss from '../styles/buttons.css'
 import { repeat } from 'lit/directives/repeat.js'
 import { provide, consume, createContext } from '@lit/context'
 
@@ -46,7 +46,7 @@ export class DataTable<T extends { id: number }> extends LitElement {
   async fetchData() {
     const perPage = 10
 
-    const url = new URL(this.src)
+    const url = new URL(this.src, document.location.origin)
     url.searchParams.set('limit', String(perPage))
     url.searchParams.set('offset', String((this._page - 1) * perPage))
 
@@ -88,8 +88,8 @@ export class DataTable<T extends { id: number }> extends LitElement {
   }
 
   static styles = css`
-    ${unsafeCSS(resetcss)}
-    ${unsafeCSS(btncss)}
+    ${resetcss}
+    ${btncss}
 
     .table {
       display: grid;
@@ -156,7 +156,7 @@ export class DataTableColumn<T extends { id: number }> extends LitElement {
   }
 
   static styles = css`
-    ${unsafeCSS(resetcss)}
+    ${resetcss}
     
     :host {
       width: 1fr
