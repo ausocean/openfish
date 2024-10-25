@@ -32,8 +32,6 @@ LICENSE
 */
 
 // Timespan struct represents a start and end time in a video.
-// Uses a custom Save and Load method for reading/writing to the datastore.
-// TODO: add timespan validation to type (end > start).
 package timespan
 
 import (

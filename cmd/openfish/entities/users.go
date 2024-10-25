@@ -39,8 +39,6 @@ import (
 	"github.com/ausocean/openfish/datastore"
 )
 
-// TODO: implement user entity.
-
 // Kind of entity to store / fetch from the datastore.
 const USER_KIND = "User"
 
