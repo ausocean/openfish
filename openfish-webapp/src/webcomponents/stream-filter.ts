@@ -1,6 +1,6 @@
 import { LitElement, css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import resetcss from '../styles/reset.css'
+import resetcss from '../styles/reset.css?lit'
 import '@fooloomanzoo/datetime-picker/datetime-picker.js'
 import type { SelectCaptureSourceEvent } from './capture-source-dropdown.ts'
 

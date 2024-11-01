@@ -1,8 +1,8 @@
 import { LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { type Ref, createRef, ref } from 'lit/directives/ref.js'
-import resetcss from '../styles/reset.css'
-import btncss from '../styles/buttons.css'
+import resetcss from '../styles/reset.css?lit'
+import btncss from '../styles/buttons.css?lit'
 
 type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 

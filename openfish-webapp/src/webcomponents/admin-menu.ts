@@ -1,6 +1,6 @@
 import { LitElement, css, html, unsafeCSS } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import resetcss from '../styles/reset.css?raw'
+import resetcss from '../styles/reset.css?lit'
 
 @customElement('admin-menu')
 export class AdminMenu extends LitElement {

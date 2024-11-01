@@ -2,7 +2,7 @@ import { LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import L from 'leaflet'
-import leafletcss from 'leaflet/dist/leaflet.css'
+import leafletcss from 'leaflet/dist/leaflet.css?lit'
 import iconUrl from 'leaflet/dist/images/marker-icon.png'
 import { fmtLatLng, parseLatLng } from '../utils/geo'
 

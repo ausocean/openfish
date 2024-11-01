@@ -1,7 +1,7 @@
 import { LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
-import resetcss from '../styles/reset.css'
+import resetcss from '../styles/reset.css?lit'
 import { formatVideoTime } from '../utils/datetime.ts'
 import type { Annotation } from '../api/annotation.ts'
 

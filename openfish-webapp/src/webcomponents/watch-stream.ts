@@ -1,8 +1,8 @@
 import { LitElement, css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import type { VideoStream } from '../utils/api.types'
-import resetcss from '../styles/reset.css'
-import btncss from '../styles/buttons.css'
+import resetcss from '../styles/reset.css?lit'
+import btncss from '../styles/buttons.css?lit'
 
 import './annotation-displayer'
 import './annotation-card'
@@ -10,7 +10,7 @@ import './playback-controls'
 import './observation-editor'
 import './bounding-box-creator'
 
-import vidstackcss from 'vidstack/player/styles/default/theme.css'
+import vidstackcss from 'vidstack/player/styles/default/theme.css?lit'
 import 'vidstack/player'
 import 'vidstack/player/ui'
 

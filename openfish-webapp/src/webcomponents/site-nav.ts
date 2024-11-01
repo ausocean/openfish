@@ -3,7 +3,7 @@ import { customElement } from 'lit/decorators.js'
 import type { User } from '../api/user'
 import { consume } from '@lit/context'
 import { userContext } from '../utils/context'
-import resetcss from '../styles/reset.css'
+import resetcss from '../styles/reset.css?lit'
 
 @customElement('site-nav')
 export class SiteNav extends LitElement {
