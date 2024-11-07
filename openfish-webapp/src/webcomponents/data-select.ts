@@ -3,8 +3,13 @@ import { customElement, property, state } from 'lit/decorators.js'
 import type { Result } from '../utils/api.types.ts'
 import { repeat } from 'lit/directives/repeat.js'
 
+type NamedItem = { name: string } & Record<string, any>
+
+// <data-select> is a select form element that will fetch data from
+// the API and present them as options.
+
 @customElement('data-select')
-export class DataSelect<T extends Record<string, any>> extends LitElement {
+export class DataSelect<T extends NamedItem> extends LitElement {
   static formAssociated = true
 
   @property()
@@ -66,6 +71,6 @@ export class DataSelect<T extends Record<string, any>> extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'data-select': DataSelect<{ id: number }>
+    'data-select': DataSelect<NamedItem>
   }
 }
