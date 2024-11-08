@@ -1,5 +1,3 @@
-import type { VideoTime } from './api.types'
-
 // Subtracts datetimes and returns difference as a number in seconds.
 export function datetimeDifference(a: DateLike, b: DateLike): number {
   return (new Date(a).getTime() - new Date(b).getTime()) / 1000
@@ -60,13 +58,13 @@ export function formatDuration(seconds: number): string {
   return `${h}h ${m}m ${s}s `
 }
 
-export function formatVideoTime(seconds: number, ms = false): VideoTime {
+export function formatVideoTime(seconds: number, ms = false): string {
   const date = new Date(0)
   date.setMilliseconds(seconds * 1000)
-  return date.toISOString().substring(11, ms ? 23 : 19) as VideoTime
+  return date.toISOString().substring(11, ms ? 23 : 19)
 }
 
-export function parseVideoTime(str: VideoTime): number {
+export function parseVideoTime(str: string): number {
   const [h, m, s, ms] = str.split(/[:\.]/)
 
   return Number(h) * 60 * 60 + Number(m) * 60 + Number(s) + Number(ms) / 1000

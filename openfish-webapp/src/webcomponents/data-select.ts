@@ -1,6 +1,6 @@
 import { LitElement, css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import type { Result } from '../utils/api.types.ts'
+import type { Result } from '../api'
 import { repeat } from 'lit/directives/repeat.js'
 
 type NamedItem = { name: string } & Record<string, any>
