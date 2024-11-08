@@ -2,7 +2,7 @@ import { LitElement, css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import resetcss from '../styles/reset.css?lit'
 import '@fooloomanzoo/datetime-picker/datetime-picker.js'
-import type { SelectCaptureSourceEvent } from './capture-source-dropdown.ts'
+import './data-select.ts'
 
 // TODO: add support for start and end times.
 export type Filter = {
@@ -45,11 +45,6 @@ export class StreamFilter extends LitElement {
     this.dispatchEvent(new CustomEvent('filterupdate', options))
   }
 
-  onSelectCaptureSource(event: SelectCaptureSourceEvent) {
-    this._captureSource = event.detail
-    this.dispatchFilterUpdateEvent()
-  }
-
   onCloseStartDatetime(event: CustomEvent) {
     this._startTime = event.detail.datetime
     this.dispatchFilterUpdateEvent()
@@ -57,6 +52,17 @@ export class StreamFilter extends LitElement {
 
   onCloseEndDatetime(event: CustomEvent) {
     this._endTime = event.detail.datetime
+    this.dispatchFilterUpdateEvent()
+  }
+
+  onSelect(event: InputEvent & { target: HTMLSelectElement }) {
+    console.log(event.target.value)
+    if (event.target.value !== '') {
+      this._captureSource = Number(event.target.value)
+    } else {
+      this._captureSource = null
+    }
+
     this.dispatchFilterUpdateEvent()
   }
 
@@ -77,7 +83,7 @@ export class StreamFilter extends LitElement {
             <fieldset>
             <legend>Filter by capture source</legend>
             <label>Capture source:</label>
-            <capture-source-dropdown @selectcapturesource=${this.onSelectCaptureSource}></capture-source-dropdown>
+            <data-select name="capturesource" src="/api/v1/capturesources" defaultText="Any" @input=${this.onSelect}></data-select>
             </fieldset>
         </form>
     </aside>

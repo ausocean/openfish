@@ -21,6 +21,12 @@ export class DataSelect<T extends NamedItem> extends LitElement {
   @property()
   pkey = 'id'
 
+  @property()
+  value = ''
+
+  @property()
+  defaultText = 'Please select'
+
   @state()
   private _items: T[] = []
 
@@ -48,12 +54,14 @@ export class DataSelect<T extends NamedItem> extends LitElement {
 
   onInput(e: InputEvent & { target: HTMLSelectElement }) {
     this._internals.setFormValue(e.target.value)
+    this.value = e.target.value
+    this.dispatchEvent(new Event('input'))
   }
 
   render() {
     return html`
-    <select @input=${this.onInput} .name=${this.name}>
-    <option .value=${null}>Any</option>
+    <select @input=${this.onInput} .name=${this.name} .value=${this.value}>
+    <option .value=${''}>${this.defaultText}</option>
     ${repeat(
       this._items,
       (item: T) => html`<option .value=${item[this.pkey]}>${item.name}</option>`
