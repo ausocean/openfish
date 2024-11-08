@@ -3,7 +3,7 @@ AUTHORS
   Scott Barnard <scott@ausocean.org>
 
 LICENSE
-  Copyright (c) 2023-2024, The OpenFish Contributors.
+  Copyright (c) 2023, The OpenFish Contributors.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -31,56 +31,45 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// Timespan struct represents a start and end time in a video.
-package timespan
+// entities package has the data types of data we keep in the datastore.
+package entities
 
 import (
-	"fmt"
-	"strings"
-
-	"github.com/ausocean/openfish/cmd/openfish/types/videotime"
+	"github.com/ausocean/openfish/datastore"
 )
 
-// TimeSpan is a pair of video timestamps - start time and end time.
-type TimeSpan struct {
-	Start videotime.VideoTime
-	End   videotime.VideoTime
+// Kind of entity to store / fetch from the datastore.
+const MEDIA_KIND = "Media"
+
+type Media struct {
+	Type              int
+	VideoStreamSource int64 // Where the image/video was taken from.
+	StartTime         int64
+	EndTime           *int64 // Optional, because images do not have an end time.
+	Bytes             []byte
 }
 
-// Valid tests if a timespan is valid. Start should be less than End.
-func (t TimeSpan) Valid() bool {
-	return t.Start.Int() <= t.End.Int()
-}
-
-func (t TimeSpan) String() string {
-	return fmt.Sprintf("%s-%s", t.Start.String(), t.End.String())
-}
-
-func Parse(s string) (*TimeSpan, error) {
-	str := strings.Split(s, "-")
-	if len(str) != 2 {
-		return nil, fmt.Errorf("invalid timespan")
+// Implements Copy from the Entity interface.
+func (m *Media) Copy(dst datastore.Entity) (datastore.Entity, error) {
+	var copy *Media
+	if dst == nil {
+		copy = new(Media)
+	} else {
+		var ok bool
+		copy, ok = dst.(*Media)
+		if !ok {
+			return nil, datastore.ErrWrongType
+		}
 	}
-	start, err := videotime.Parse(str[0])
-	if err != nil {
-		return nil, err
-	}
-	end, err := videotime.Parse(str[0])
-	if err != nil {
-		return nil, err
-	}
-	t := TimeSpan{Start: start, End: end}
-	return &t, nil
+	*copy = *m
+	return copy, nil
 }
 
-// UnmarshalText is used for decoding query params or JSON into a TimeSpan.
-func (t *TimeSpan) UnmarshalText(text []byte) error {
-	var err error
-	t, err = Parse(string(text))
-	return err
+// No caching is used.
+func (an *Media) GetCache() datastore.Cache {
+	return nil
 }
 
-// MarshalText is used for encoding a TimeSpan into JSON or query params.
-func (t TimeSpan) MarshalText() ([]byte, error) {
-	return []byte(t.String()), nil
+func NewMedia() datastore.Entity {
+	return &Media{}
 }

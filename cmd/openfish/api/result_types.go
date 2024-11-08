@@ -79,3 +79,11 @@ func Unauthorized(err error) error {
 func Forbidden(err error) error {
 	return fiber.NewError(403, fmt.Errorf("Forbidden: %w", err).Error())
 }
+
+func NotAcceptable() error {
+	return fiber.NewError(406)
+}
+
+func NotFound() error {
+	return fiber.NewError(404)
+}

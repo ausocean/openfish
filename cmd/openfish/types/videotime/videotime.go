@@ -83,6 +83,19 @@ func Parse(str string) (VideoTime, error) {
 	return New(h, m, s, ms)
 }
 
+// UncheckedParse converts a string to a VideoTime, or panics.
+//
+// This should only really be used when str is a string literal / constant,
+// where the input is not dynamic. Prefer Parse when handling dynamic
+// values, because it can return an error.
+func UncheckedParse(str string) VideoTime {
+	vt, err := Parse(str)
+	if err != nil {
+		panic(err.Error())
+	}
+	return vt
+}
+
 // New creates a new VideoTime.
 func New(h int, m int, s int, ms int) (VideoTime, error) {
 	if ms < 0 || ms >= 1000 {

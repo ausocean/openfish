@@ -51,7 +51,7 @@ func setup() {
 	_ = os.Mkdir("store/openfish/Species", os.ModePerm)
 	_ = os.Mkdir("store/openfish/Users", os.ModePerm)
 	_ = os.Mkdir("store/openfish/Task", os.ModePerm)
-
+	_ = os.Mkdir("store/openfish/Media", os.ModePerm)
 }
 
 func TestCreateCaptureSource(t *testing.T) {
