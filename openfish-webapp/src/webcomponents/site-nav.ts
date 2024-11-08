@@ -5,6 +5,11 @@ import { consume } from '@lit/context'
 import { userContext } from '../utils/context'
 import resetcss from '../styles/reset.css?lit'
 
+// We have a side-effect dependency on <user-provider> so
+// import it here to ensure it gets loaded first in the
+// created JavaScript bundle.
+import './user-provider.ts'
+
 @customElement('site-nav')
 export class SiteNav extends LitElement {
   @consume({ context: userContext, subscribe: true })
