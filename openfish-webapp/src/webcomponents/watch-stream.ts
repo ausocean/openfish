@@ -1,6 +1,6 @@
 import { LitElement, css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import type { VideoStream } from '../utils/api.types'
+import type { VideoStream } from '../api/videostream'
 import resetcss from '../styles/reset.css?lit'
 import btncss from '../styles/buttons.css?lit'
 

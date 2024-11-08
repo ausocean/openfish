@@ -1,6 +1,6 @@
 import { LitElement, css, html, svg } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import type { VideoStream } from '../utils/api.types'
+import type { VideoStream } from '../api/videostream.ts'
 import { repeat } from 'lit/directives/repeat.js'
 import { formatVideoTime } from '../utils/datetime'
 import resetcss from '../styles/reset.css?lit'
