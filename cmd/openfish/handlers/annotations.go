@@ -96,10 +96,11 @@ func FromAnnotation(annotation *entities.Annotation, id int64, format *api.Forma
 
 // GetAnnotationsQuery describes the URL query parameters required for the GetAnnotations endpoint.
 type GetAnnotationsQuery struct {
-	TimeSpan      *string           `query:"timespan"`       // Optional. TODO: choose more appropriate type.
-	CaptureSource *int64            `query:"capture_source"` // Optional.
-	Observer      *string           `query:"observer"`       // Optional.
-	Observation   map[string]string `query:"observation"`    // Optional.
+	TimeSpan      *string           `query:"timespan"`      // Optional. TODO: choose more appropriate type.
+	CaptureSource *int64            `query:"capturesource"` // Optional.
+	VideoStream   *int64            `query:"videostream"`   // Optional.
+	Observer      *string           `query:"observer"`      // Optional.
+	Observation   map[string]string `query:"observation"`   // Optional.
 	api.LimitAndOffset
 	api.Format
 	api.Sort
@@ -191,7 +192,7 @@ func GetAnnotations(ctx *fiber.Ctx) error {
 	}
 
 	// Fetch data from the datastore.
-	annotations, ids, err := services.GetAnnotations(qry.Limit, qry.Offset, qry.Observer, qry.Observation, qry.Order)
+	annotations, ids, err := services.GetAnnotations(qry.Limit, qry.Offset, qry.VideoStream, qry.Observer, qry.Observation, qry.Order)
 	if err != nil {
 		return api.DatastoreReadFailure(err)
 	}
