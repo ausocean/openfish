@@ -1,5 +1,5 @@
-import spec from '../swagger.json' assert { type: 'json' }
-import { useOpenapi } from 'vitepress-theme-openapi'
+import spec from '../swagger.json' with { type: 'json' }
+import { useOpenapi } from 'vitepress-openapi'
 
 export default {
     paths() {

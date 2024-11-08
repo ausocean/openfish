@@ -1,10 +1,10 @@
 import DefaultTheme from 'vitepress/theme'
 import type { Theme } from 'vitepress'
 
-import { theme, useOpenapi, useTheme } from 'vitepress-theme-openapi'
-import 'vitepress-theme-openapi/dist/style.css'
+import { theme, useOpenapi, useTheme } from 'vitepress-openapi'
+import 'vitepress-openapi/dist/style.css'
 
-import spec from '../../developer-docs/api/swagger.json' assert { type: 'json' }
+import spec from '../../developer-docs/api/swagger.json' with { type: 'json' }
 
 export default {
     ...DefaultTheme,
