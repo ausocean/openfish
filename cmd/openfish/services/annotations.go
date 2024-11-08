@@ -92,10 +92,15 @@ func AnnotationExists(id int64) bool {
 }
 
 // GetAnnotations gets a list of annotations, filtering by timespan, capturesource, observer & observation if specified.
-func GetAnnotations(limit int, offset int, observer *string, observation map[string]string, order *string) ([]entities.Annotation, []int64, error) {
+func GetAnnotations(limit int, offset int, videostream *int64, observer *string, observation map[string]string, order *string) ([]entities.Annotation, []int64, error) {
 	// Fetch data from the datastore.
 	store := ds_client.Get()
 	query := store.NewQuery(entities.ANNOTATION_KIND, false)
+
+	// Filter by videostream.
+	if videostream != nil {
+		query.FilterField("VideoStreamID", "=", *videostream)
+	}
 
 	// Filter by observer.
 	if observer != nil {
