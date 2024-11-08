@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="../src/styles/index.css" />
     <link rel="stylesheet" href="../src/styles/buttons.css" />
 
+    <script type="module" src="../src/webcomponents/user-provider.ts"></script>
     <script type="module" src="../src/webcomponents/site-nav.ts"></script>
     <script type="module" src="../src/webcomponents/admin-menu.ts"></script>
     <script type="module" src="../src/webcomponents/data-table.ts"></script>
@@ -82,37 +83,39 @@
     </script>
   </head>
   <body class="grid-layout">
-    <site-nav></site-nav>
-    <header>
-      <h1>Admin Settings</h1>
-      <hr>
-    </header>
-    
-    <admin-menu></admin-menu>
-
-    <main>
+    <user-provider>
+      <site-nav></site-nav>
       <header>
-        <h2>Manage Species</h2>
-        <button class="btn btn-blue" id="create-btn">+ Create new species</button>
+        <h1>Admin Settings</h1>
+        <hr>
       </header>
-      <div class="search">
-        <label for="filter">Filter Species: </label>
-        <input type="search" name="filter" id="filter" placeholder="Filter Species">
-      </div>
-      <data-table src="/api/v1/species/recommended" colwidths="1fr 1fr min-content">
-        <dt-col title="Scientific Name" key="species"></dt-col>
-        <dt-col title="Common Name" key="common_name"></dt-col>
-        <dt-btn action="deleteitem" text="Delete"></dt-btn>
-      </data-table>  
-    </main>
+      
+      <admin-menu></admin-menu>
 
-    <confirm-dialog>Are you sure you want to delete this species?</confirm-dialog>
-    <form-dialog action="/api/v1/species" title="Create a new species" btntext="Create" >
-      <label for="common_name">Common Name</label>
-      <input type="text" id="common_name" name="common_name" placeholder="Enter common name of the species" required />
+      <main>
+        <header>
+          <h2>Manage Species</h2>
+          <button class="btn btn-blue" id="create-btn">+ Create new species</button>
+        </header>
+        <div class="search">
+          <label for="filter">Filter Species: </label>
+          <input type="search" name="filter" id="filter" placeholder="Filter Species">
+        </div>
+        <data-table src="/api/v1/species/recommended" colwidths="1fr 1fr min-content">
+          <dt-col title="Scientific Name" key="species"></dt-col>
+          <dt-col title="Common Name" key="common_name"></dt-col>
+          <dt-btn action="deleteitem" text="Delete"></dt-btn>
+        </data-table>  
+      </main>
 
-      <label for="species">Scientific Name</label>
-      <input type="text" id="species" name="species" placeholder="Enter the scientific name of the species" required />
-    </form-dialog>
+      <confirm-dialog>Are you sure you want to delete this species?</confirm-dialog>
+      <form-dialog action="/api/v1/species" title="Create a new species" btntext="Create" >
+        <label for="common_name">Common Name</label>
+        <input type="text" id="common_name" name="common_name" placeholder="Enter common name of the species" required />
+
+        <label for="species">Scientific Name</label>
+        <input type="text" id="species" name="species" placeholder="Enter the scientific name of the species" required />
+      </form-dialog>
+    </user-provider>
   </body>
 </html>
