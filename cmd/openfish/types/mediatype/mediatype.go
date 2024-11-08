@@ -1,24 +1,18 @@
 /*
 AUTHORS
   Scott Barnard <scott@ausocean.org>
-
 LICENSE
   Copyright (c) 2023-2024, The OpenFish Contributors.
-
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
-
   1. Redistributions of source code must retain the above copyright notice, this
      list of conditions and the following disclaimer.
-
   2. Redistributions in binary form must reproduce the above copyright notice,
      this list of conditions and the following disclaimer in the documentation
      and/or other materials provided with the distribution.
-
   3. Neither the name of The Australian Ocean Lab Ltd. ("AusOcean")
      nor the names of its contributors may be used to endorse or promote
      products derived from this software without specific prior written permission.
-
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -31,56 +25,54 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// Timespan struct represents a start and end time in a video.
-package timespan
+package mediatype
 
-import (
-	"fmt"
-	"strings"
+type MediaType uint8
 
-	"github.com/ausocean/openfish/cmd/openfish/types/videotime"
+const (
+	JPEG MediaType = iota
+	MP4
+	Invalid
 )
 
-// TimeSpan is a pair of video timestamps - start time and end time.
-type TimeSpan struct {
-	Start videotime.VideoTime
-	End   videotime.VideoTime
+func AllMimeTypes() []string {
+	return []string{JPEG.MimeType(), MP4.MimeType()}
 }
 
-// Valid tests if a timespan is valid. Start should be less than End.
-func (t TimeSpan) Valid() bool {
-	return t.Start.Int() <= t.End.Int()
-}
-
-func (t TimeSpan) String() string {
-	return fmt.Sprintf("%s-%s", t.Start.String(), t.End.String())
-}
-
-func Parse(s string) (*TimeSpan, error) {
-	str := strings.Split(s, "-")
-	if len(str) != 2 {
-		return nil, fmt.Errorf("invalid timespan")
+func FromMimeType(s string) MediaType {
+	switch s {
+	case "image/jpeg":
+		return JPEG
+	case "video/mp4":
+		return MP4
 	}
-	start, err := videotime.Parse(str[0])
-	if err != nil {
-		return nil, err
-	}
-	end, err := videotime.Parse(str[0])
-	if err != nil {
-		return nil, err
-	}
-	t := TimeSpan{Start: start, End: end}
-	return &t, nil
+	return Invalid
 }
 
-// UnmarshalText is used for decoding query params or JSON into a TimeSpan.
-func (t *TimeSpan) UnmarshalText(text []byte) error {
-	var err error
-	t, err = Parse(string(text))
-	return err
+func (t MediaType) FileExtension() string {
+	switch t {
+	case JPEG:
+		return "jpeg"
+	case MP4:
+		return "mp4"
+	}
+	panic("unreachable")
 }
 
-// MarshalText is used for encoding a TimeSpan into JSON or query params.
-func (t TimeSpan) MarshalText() ([]byte, error) {
-	return []byte(t.String()), nil
+func (t MediaType) MimeType() string {
+	switch t {
+	case JPEG:
+		return "image/jpeg"
+	case MP4:
+		return "video/mp4"
+	}
+	panic("unreachable")
+}
+
+func (t MediaType) IsVideo() bool {
+	switch t {
+	case MP4:
+		return true
+	}
+	return false
 }

@@ -42,7 +42,10 @@ import (
 	"github.com/ausocean/openfish/cmd/openfish/api"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/services"
+	"github.com/ausocean/openfish/cmd/openfish/types/mediatype"
 	"github.com/ausocean/openfish/cmd/openfish/types/timespan"
+	"github.com/ausocean/openfish/cmd/openfish/types/videotime"
+	"github.com/ausocean/openfish/datastore"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -87,6 +90,14 @@ type GetVideoStreamsQuery struct {
 	CaptureSource *int64             `query:"capturesource"` // Optional.
 	TimeSpan      *timespan.TimeSpan `query:"timespan"`      // Optional.
 	api.LimitAndOffset
+}
+
+type GetMediaVideoQuery struct {
+	TimeSpan timespan.TimeSpan `query:"time"`
+}
+
+type GetMediaImageQuery struct {
+	Time videotime.VideoTime `query:"time"`
 }
 
 // CreateVideoStreamBody describes the JSON format required for the CreateVideoStream endpoint.
@@ -153,6 +164,72 @@ func GetVideoStreamByID(ctx *fiber.Ctx) error {
 	// Format result.
 	result := FromVideoStream(videoStream, id, format)
 	return ctx.JSON(result)
+}
+
+// GetVideoStreamMedia gets the image/video snippet from this video stream at the given time.
+//
+//	@Summary		Get video stream media
+//	@Description	Roles required: <role-tag>Admin</role-tag>
+//	@Description
+//	@Description	Gets the image or video snippet from this video stream at the given time.
+//	@Tags			Video Streams
+//	@Accept			image/jpeg,video/mp4
+//	@Param			id		path	int		true	"Video Stream ID"	example(1234567890)
+//	@Param			Accepts	header	string	true	"Accepts"			example(image/jpeg)
+//	@Param			time	query	string	true	"Time"				example(00:00:01.000-00:00:05.500)
+//	@Success		302
+//	@Header			302	{string}	Location	"/api/v1/media/1234567890"
+//	@Failure		400	{object}	api.Failure
+//	@Failure		404	{object}	api.Failure
+//	@Router			/api/v1/videostreams/{id}/media [get]
+func GetVideoStreamMedia(ctx *fiber.Ctx) error {
+	// Parse URL.
+	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
+	if err != nil {
+		return api.InvalidRequestURL(err)
+	}
+
+	// Parse accepts header.
+	accepts := ctx.Accepts(mediatype.AllMimeTypes()...)
+	if accepts == "" {
+		return api.NotAcceptable()
+	}
+	mtype := mediatype.FromMimeType(accepts)
+	if mtype == mediatype.Invalid {
+		return api.NotAcceptable()
+	}
+
+	// Parse query params.
+	var start videotime.VideoTime
+	var end *videotime.VideoTime
+	if mtype.IsVideo() {
+		qry := new(GetMediaVideoQuery)
+		if err := ctx.QueryParser(qry); err != nil {
+			return api.InvalidRequestURL(err)
+		}
+		if !qry.TimeSpan.Valid() {
+			return api.InvalidRequestURL(fmt.Errorf("invalid time span, start time must occur before end time"))
+		}
+		start = qry.TimeSpan.Start
+		end = &qry.TimeSpan.End
+	} else {
+		qry := new(GetMediaImageQuery)
+		if err := ctx.QueryParser(qry); err != nil {
+			return api.InvalidRequestURL(err)
+		}
+		start = qry.Time
+	}
+
+	// Fetch data from the datastore.
+	media, err := services.GetMediaByTypeStreamAndTime(mtype, id, start, end)
+	if err == datastore.ErrNoSuchEntity {
+		return api.NotFound()
+	}
+	if err != nil {
+		return api.DatastoreReadFailure(err)
+	}
+
+	return ctx.Redirect(fmt.Sprintf("/api/v1/media/%d", media.ID))
 }
 
 // GetVideoStreams gets a list of video streams, filtering by timespan, capture source if specified.
