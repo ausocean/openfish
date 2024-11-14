@@ -273,7 +273,8 @@ func UpdateCaptureSource(ctx *fiber.Ctx) error {
 
 	var lat, long *float64
 	if body.Location != nil {
-		*lat, *long, err = parseGeoPoint(*body.Location)
+		la, lo, err := parseGeoPoint(*body.Location)
+		lat, long = &la, &lo
 		if err != nil {
 			return api.InvalidRequestJSON(err)
 		}
