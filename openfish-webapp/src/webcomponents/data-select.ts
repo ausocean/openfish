@@ -22,7 +22,7 @@ export class DataSelect<T extends NamedItem> extends LitElement {
   pkey = 'id'
 
   @property()
-  value = ''
+  value: string
 
   @property()
   defaultText = 'Please select'
@@ -61,7 +61,7 @@ export class DataSelect<T extends NamedItem> extends LitElement {
   render() {
     return html`
     <select @input=${this.onInput} .name=${this.name} .value=${this.value}>
-    <option .value=${''}>${this.defaultText}</option>
+    <option value="">${this.defaultText}</option>
     ${repeat(
       this._items,
       (item: T) => html`<option .value=${item[this.pkey]}>${item.name}</option>`

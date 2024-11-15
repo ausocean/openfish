@@ -5,7 +5,14 @@ export function datetimeDifference(a: DateLike, b: DateLike): number {
   return (new Date(a).getTime() - new Date(b).getTime()) / 1000
 }
 
-// A Date or ISO string representation of a date.
+// toDatetimeLocal converts a Date to a format <input type="datetime-local"> can accept as a value.
+export function toDatetimeLocal(dt: DateLike): string {
+  const date = new Date(dt)
+  date.setMinutes(date.getMinutes() - date.getTimezoneOffset())
+  return date.toISOString().slice(0, 16)
+}
+
+// A Date or RFC3339 string representation of a date.
 export type DateLike = Date | string
 
 export function formatAsDate(dt: DateLike): string {
