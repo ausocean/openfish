@@ -1,5 +1,6 @@
 import { LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
+import { toDatetimeLocal } from '../utils/datetime'
 
 // An input element that wraps an <input type="datetime-local">
 // but returns a date in RFC 3339 format, using the client's default
@@ -32,7 +33,7 @@ export class InputDatetime extends LitElement {
   }
 
   render() {
-    return html`<input type="datetime-local" @input=${this.onInput} .name=${this.name} .value=${this.value} .required=${this.required}>`
+    return html`<input type="datetime-local" @input=${this.onInput} .name=${this.name} .value=${toDatetimeLocal(this.value)} .required=${this.required}>`
   }
 
   static styles = css`
