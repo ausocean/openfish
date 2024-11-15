@@ -81,14 +81,13 @@
           <button class="btn btn-blue" id="create-btn">+ Register video stream</button>
         </header>
 
-        <data-table src="/api/v1/videostreams" colwidths="3fr 1fr 1fr 1fr min-content min-content">
-          <dt-col title="Stream URL" key="stream_url"></dt-col>
-          <dt-col title="Start Time" key="startTime"></dt-col>
-          <dt-col title="End Time" key="endTime"></dt-col>
+        <data-table src="/api/v1/videostreams" colwidths="1fr 3fr 3fr min-content min-content">
           <dt-col title="Capture source" key="capturesource"></dt-col>
+          <dt-daterange-col title="Stream Time" startKey="startTime" endKey="endTime"></dt-daterange-col>
+          <dt-col title="Stream URL" key="stream_url"></dt-col>
           <dt-btn action="edititem" text="Edit"></dt-btn>
           <dt-btn action="deleteitem" text="Delete"></dt-btn>
-        </data-table>  
+        </data-table>
 
         <confirm-dialog>Are you sure you want to delete this video stream?</confirm-dialog>
         <form-dialog class="create" action="/api/v1/videostreams" title="Register a new video stream" btntext="Register" >
