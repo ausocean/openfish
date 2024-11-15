@@ -27,12 +27,13 @@ export class FormDialog extends LitElement {
   }
 
   set(data: Record<string, any>) {
-    for (const element of this.shadowRoot!.querySelector('form')!.elements) {
-      if (element.getAttribute('type') === 'submit') {
-        continue
+    for (const key in data) {
+      const element = this.shadowRoot!.querySelector(`[name="${key}"]`) as
+        | (HTMLElement & { value: string })
+        | null
+      if (element !== null) {
+        element.value = data[key] ?? ''
       }
-      ;(element as HTMLElement & { value: string }).value =
-        data[element.getAttribute('name')!] ?? ''
     }
   }
 
@@ -84,7 +85,7 @@ export class FormDialog extends LitElement {
         <form @submit=${this.submit}>
           <slot @slotchange=${this.onSlotChange}></slot>
           <footer>
-            <input class="btn-orange btn-sm" type="submit" value=${this.btntext} />
+            <input class="btn-orange btn-sm" type="submit" value=${this.btntext} >
             <button class="btn-secondary btn-sm" @click=${this.cancel}>Cancel</button>
           </footer>
         </form>
