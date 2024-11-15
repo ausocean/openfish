@@ -3,7 +3,7 @@ AUTHORS
   Scott Barnard <scott@ausocean.org>
 
 LICENSE
-  Copyright (c) 2023, The OpenFish Contributors.
+  Copyright (c) 2024, The OpenFish Contributors.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -41,6 +41,8 @@ import (
 // Kind of entity to store / fetch from the datastore.
 const MEDIA_KIND = "Media"
 
+// Media is a saved video or image, downloaded from a VideoStream to be used as
+// training data.
 type Media struct {
 	Type              int
 	VideoStreamSource int64 // Where the image/video was taken from.
@@ -65,11 +67,12 @@ func (m *Media) Copy(dst datastore.Entity) (datastore.Entity, error) {
 	return copy, nil
 }
 
-// No caching is used.
+// GetCache returns nil, because no caching is used.
 func (an *Media) GetCache() datastore.Cache {
 	return nil
 }
 
+// NewMedia returns a new Media entity.
 func NewMedia() datastore.Entity {
 	return &Media{}
 }

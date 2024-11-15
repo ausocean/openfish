@@ -69,11 +69,12 @@ func (vs *VideoStream) Copy(dst datastore.Entity) (datastore.Entity, error) {
 	return v, nil
 }
 
-// No caching is used.
+// GetCache returns nil, because no caching is used.
 func (vs *VideoStream) GetCache() datastore.Cache {
 	return nil
 }
 
+// NewVideoStream returns a new VideoStream entity.
 func NewVideoStream() datastore.Entity {
 	return &VideoStream{}
 }

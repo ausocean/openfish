@@ -70,11 +70,12 @@ func (vs *Species) Copy(dst datastore.Entity) (datastore.Entity, error) {
 	return v, nil
 }
 
-// No caching is used.
+// GetCache returns nil, because no caching is used.
 func (vs *Species) GetCache() datastore.Cache {
 	return nil
 }
 
+// NewSpecies returns a new Species entity.
 func NewSpecies() datastore.Entity {
 	return &Species{}
 }

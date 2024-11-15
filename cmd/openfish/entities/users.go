@@ -103,11 +103,12 @@ func (vs *User) Copy(dst datastore.Entity) (datastore.Entity, error) {
 	return v, nil
 }
 
-// No caching is used.
+// GetCache returns nil, because no caching is used.
 func (vs *User) GetCache() datastore.Cache {
 	return nil
 }
 
+// NewUser returns a new User entity.
 func NewUser() datastore.Entity {
 	return &User{}
 }

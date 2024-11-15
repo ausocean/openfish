@@ -45,7 +45,7 @@ type VideoTime struct {
 	value int64
 }
 
-// String converts a VideoTime to a string.
+// String returns a string representation of the time in the format "12:01:04.000".
 func (t VideoTime) String() string {
 
 	// Milliseconds are what remain.

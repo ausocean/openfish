@@ -31,6 +31,7 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// services contains the main logic for the OpenFish API.
 package services
 
 import (

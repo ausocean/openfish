@@ -68,11 +68,12 @@ func (cs *CaptureSource) Copy(dst datastore.Entity) (datastore.Entity, error) {
 	return c, nil
 }
 
-// No caching is used.
+// GetCache returns nil, because no caching is used.
 func (cs *CaptureSource) GetCache() datastore.Cache {
 	return nil
 }
 
+// NewCaptureSource returns a new CaptureSource entity.
 func NewCaptureSource() datastore.Entity {
 	return &CaptureSource{}
 }

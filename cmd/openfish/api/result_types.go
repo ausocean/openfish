@@ -72,18 +72,22 @@ func InvalidRequestURL(err error) error {
 	return fiber.NewError(400, fmt.Errorf("invalid URL in request: %w", err).Error())
 }
 
+// Unauthorized returns an error for unauthorized requests.
 func Unauthorized(err error) error {
 	return fiber.NewError(401, fmt.Errorf("Unauthorized: %w", err).Error())
 }
 
+// Forbidden returns an error for forbidden requests.
 func Forbidden(err error) error {
 	return fiber.NewError(403, fmt.Errorf("Forbidden: %w", err).Error())
 }
 
+// NotAcceptable returns an error for requests with unacceptable content types.
 func NotAcceptable() error {
 	return fiber.NewError(406)
 }
 
+// NotFound returns an error for requests for non-existent resources.
 func NotFound() error {
 	return fiber.NewError(404)
 }
