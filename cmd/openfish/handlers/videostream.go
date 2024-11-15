@@ -92,10 +92,12 @@ type GetVideoStreamsQuery struct {
 	api.LimitAndOffset
 }
 
+// GetMediaVideoQuery describes the URL query parameters required for the GetVideoStreamMedia endpoint, for video mime types.
 type GetMediaVideoQuery struct {
 	TimeSpan timespan.TimeSpan `query:"time"`
 }
 
+// GetMediaImageQuery describes the URL query parameters required for the GetVideoStreamMedia endpoint, for image mime types.
 type GetMediaImageQuery struct {
 	Time videotime.VideoTime `query:"time"`
 }

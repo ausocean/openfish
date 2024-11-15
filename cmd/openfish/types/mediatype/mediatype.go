@@ -25,20 +25,28 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// mediatype contains a mime-type enum for the types of media that can be downloaded
+// to use as training data.
 package mediatype
 
+// MediaType is a mime-type enum for the types of media that can be downloaded to
+// use as training data.
 type MediaType uint8
 
+// Accepted mime-types of media that can be downloaded to use as training data.
 const (
-	JPEG MediaType = iota
+	Invalid MediaType = iota
+	JPEG
 	MP4
-	Invalid
 )
 
+// AllMimeTypes returns a list of all accepted mime types of media that can be
+// downloaded to use as training data.
 func AllMimeTypes() []string {
 	return []string{JPEG.MimeType(), MP4.MimeType()}
 }
 
+// FromMimeType returns the MediaType for a given mime-type string.
 func FromMimeType(s string) MediaType {
 	switch s {
 	case "image/jpeg":
@@ -49,6 +57,7 @@ func FromMimeType(s string) MediaType {
 	return Invalid
 }
 
+// FileExtension returns the file extension for a given MediaType.
 func (t MediaType) FileExtension() string {
 	switch t {
 	case JPEG:
@@ -59,6 +68,7 @@ func (t MediaType) FileExtension() string {
 	panic("unreachable")
 }
 
+// MimeType returns the mime-type for a given MediaType.
 func (t MediaType) MimeType() string {
 	switch t {
 	case JPEG:
@@ -69,6 +79,7 @@ func (t MediaType) MimeType() string {
 	panic("unreachable")
 }
 
+// IsVideo returns true if the MediaType is a video.
 func (t MediaType) IsVideo() bool {
 	switch t {
 	case MP4:

@@ -130,6 +130,9 @@ func parseString(s string) (string, error) {
 
 // main creates and starts the web server.
 //
+// The following comments use swaggo notation, which is a tool that generates OpenAPI/Swagger documentation
+// from Go source code annotations. These annotations define API metadata.
+//
 //	@title				OpenFish API
 //	@version			1.0
 //	@description		OpenFish API

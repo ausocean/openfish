@@ -25,6 +25,7 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// services contains the main logic for the OpenFish API.
 package services
 
 import (
@@ -53,6 +54,7 @@ type MediaContents struct {
 	Bytes             []byte
 }
 
+// ToEntity converts a MediaContents to an entities.Media for storage in the datastore.
 func (m *MediaContents) ToEntity() entities.Media {
 	e := entities.Media{
 		Type:              int(m.Type),
@@ -70,6 +72,7 @@ func (m *MediaContents) ToEntity() entities.Media {
 	return e
 }
 
+// MediaContentsFromEntity converts an entities.Media to a MediaContents for use in the API.
 func MediaContentsFromEntity(e entities.Media) MediaContents {
 	m := MediaContents{
 		Type:              mediatype.MediaType(e.Type),

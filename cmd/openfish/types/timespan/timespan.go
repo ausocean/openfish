@@ -52,10 +52,13 @@ func (t TimeSpan) Valid() bool {
 	return t.Start.Int() <= t.End.Int()
 }
 
+// String returns a string representation of the timespan in the format "12:01:04.000-12:01:05.000".
 func (t TimeSpan) String() string {
 	return fmt.Sprintf("%s-%s", t.Start.String(), t.End.String())
 }
 
+// Parse takes a string in the format "12:01:04.000-12:01:05.000" and returns a TimeSpan.
+// Returns an error if the string is not in the correct format or if the timestamps are invalid.
 func Parse(s string) (*TimeSpan, error) {
 	str := strings.Split(s, "-")
 	if len(str) != 2 {

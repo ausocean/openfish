@@ -71,11 +71,12 @@ func (an *Annotation) Copy(dst datastore.Entity) (datastore.Entity, error) {
 	return a, nil
 }
 
-// No caching is used.
+// GetCache returns nil, because no caching is used.
 func (an *Annotation) GetCache() datastore.Cache {
 	return nil
 }
 
+// NewAnnotation returns a new Annotation entity.
 func NewAnnotation() datastore.Entity {
 	return &Annotation{}
 }

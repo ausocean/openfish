@@ -62,11 +62,12 @@ func (t *Task) Copy(dst datastore.Entity) (datastore.Entity, error) {
 	return v, nil
 }
 
-// No caching is used.
+// GetCache returns nil, because no caching is used.
 func (t *Task) GetCache() datastore.Cache {
 	return nil
 }
 
+// NewTask returns a new Task entity.
 func NewTask() datastore.Entity {
 	return &Task{}
 }
