@@ -51,6 +51,20 @@ export function formatAsTimeZone(dt: DateLike): string {
     .slice(4)
 }
 
+export function formatAsDatetimeRange(start: DateLike, end: DateLike): string {
+  const startDate = formatAsDate(start)
+  const endDate = formatAsDate(end)
+  const startTime = formatAsTime(start)
+  const endTime = formatAsTime(end)
+  const tz = formatAsTimeZone(start)
+
+  if (startDate === endDate) {
+    return `${startDate}, ${startTime} - ${endTime} [${tz}]`
+  }
+
+  return `${startDate}, ${startTime} - ${endDate}, ${endTime} [${tz}]`
+}
+
 export function formatDuration(seconds: number): string {
   const h = Math.floor(seconds / 3600)
   const m = Math.floor((seconds - h * 3600) / 60)

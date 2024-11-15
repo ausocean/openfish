@@ -4,6 +4,7 @@ import resetcss from '../styles/reset.css?lit'
 import btncss from '../styles/buttons.css?lit'
 import { repeat } from 'lit/directives/repeat.js'
 import { provide, consume, createContext } from '@lit/context'
+import { formatAsDatetimeRange } from '../utils/datetime'
 
 export type ClickRowEvent<T> = CustomEvent<T>
 
@@ -234,6 +235,29 @@ export class DataTableTextColumn<T extends Record<string, any>> extends DataTabl
 
   renderCell(item: T): TemplateResult {
     return html`${item[this.key]}`
+  }
+}
+
+@customElement('dt-daterange-col')
+export class DataTableDateColumn<T extends Record<string, any>> extends DataTableColumn<T> {
+  @property()
+  title: string
+
+  @property()
+  startKey: keyof T
+
+  @property()
+  endKey: keyof T
+
+  @property()
+  align: 'left' | 'right' | 'center' = 'left'
+
+  renderTitle(): TemplateResult {
+    return html`${this.title}`
+  }
+
+  renderCell(item: T): TemplateResult {
+    return html`${formatAsDatetimeRange(item[this.startKey], item[this.endKey])}`
   }
 }
 
