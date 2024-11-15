@@ -44,10 +44,6 @@
       const confirmDialog= document.querySelector("confirm-dialog")
       const createBtn = document.querySelector("#create-btn")
       const dt = document.querySelector("data-table")
-      const captureSourceSelect = editDialog.shadowRoot.querySelector("#capturesource")
-      const streamUrlInput = editDialog.shadowRoot.querySelector("#stream_url")
-      const startTimeInput = editDialog.shadowRoot.querySelector("#startTime")
-      const endTimeInput = editDialog.shadowRoot.querySelector("#endTime")
 
       async function deleteCaptureSource(item) {
         try {
@@ -62,10 +58,7 @@
       createDialog.addEventListener("formsubmit", () => dt.fetchData())
       dt.addEventListener("deleteitem", (e) => confirmDialog.show(()=> deleteCaptureSource(e.detail)))
       dt.addEventListener("edititem", (e) => {
-        captureSourceSelect.value = e.detail.capturesource
-        streamUrlInput.value = e.detail.stream_url
-        startTimeInput.value = e.detail.startTime
-        endTimeInput.value = e.detail.endTime
+        editDialog.set(e.detail)
         editDialog.action=`/api/v1/videostreams/${e.detail.id}`
         editDialog.show()
       })

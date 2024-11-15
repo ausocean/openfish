@@ -43,10 +43,6 @@
     const confirmDialog= document.querySelector("confirm-dialog")
     const createBtn = document.querySelector("#create-btn")
     const dt = document.querySelector("data-table")
-    const nameInput = editDialog.shadowRoot.querySelector("#name")
-    const cameraHardwareInput = editDialog.shadowRoot.querySelector("#camera_hardware")
-    const siteIdInput = editDialog.shadowRoot.querySelector("#site_id")
-    const locationInput = editDialog.shadowRoot.querySelector("#location")
 
     async function deleteCaptureSource(item) {
       try {
@@ -61,10 +57,7 @@
     createDialog.addEventListener("formsubmit", () => dt.fetchData())
     dt.addEventListener("deleteitem", (e) => confirmDialog.show(()=> deleteCaptureSource(e.detail)))
     dt.addEventListener("edititem", (e) => {
-        nameInput.value = e.detail.name
-        cameraHardwareInput.value = e.detail.camera_hardware
-        siteIdInput.value = e.detail.site_id ?? ''
-        locationInput.value = e.detail.location
+        editDialog.set(e.detail)
         editDialog.action=`/api/v1/capturesources/${e.detail.id}`
         editDialog.show()
       })

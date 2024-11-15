@@ -38,7 +38,6 @@
     <script type="module" >
       const confirmDialog = document.querySelector("confirm-dialog")
       const editDialog = document.querySelector("form-dialog")
-      const roleSelect = editDialog.shadowRoot.querySelector("#role")
       const dt = document.querySelector("data-table")
   
       async function deleteUser(item) {
@@ -52,7 +51,7 @@
   
       dt.addEventListener("deleteitem", (e) => confirmDialog.show(()=> deleteUser(e.detail)))
       dt.addEventListener("edititem", (e) => {
-        roleSelect.value = e.detail.role
+        editDialog.set(e.detail)
         editDialog.action=`/api/v1/users/${e.detail.email}`
         editDialog.show()
       })

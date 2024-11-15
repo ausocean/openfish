@@ -26,6 +26,16 @@ export class FormDialog extends LitElement {
     this.dialogRef.value?.showModal()
   }
 
+  set(data: Record<string, any>) {
+    for (const element of this.shadowRoot!.querySelector('form')!.elements) {
+      if (element.getAttribute('type') === 'submit') {
+        continue
+      }
+      ;(element as HTMLElement & { value: string }).value =
+        data[element.getAttribute('name')!] ?? ''
+    }
+  }
+
   // NOTE: Slotted content does not live in the shadow DOM, so won't appear in the
   // FormData. Here we move the elements to the shadow DOM, whenever they change.
   // See: https://stackoverflow.com/questions/53676756
