@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ausocean/openfish/cmd/openfish/api"
 	"github.com/ausocean/openfish/cmd/openfish/ds_client"
 	"github.com/gofiber/fiber/v2"
 )
@@ -19,7 +20,7 @@ func setup(t *testing.T) (*fiber.App, int64) {
 
 	// Initialize app.
 	ds_client.Init(false)
-	app := fiber.New(fiber.Config{ErrorHandler: errorHandler})
+	app := fiber.New(fiber.Config{ErrorHandler: api.ErrorHandler})
 	registerAPIRoutes(app)
 
 	// Populate datastore with capturesource for testing.

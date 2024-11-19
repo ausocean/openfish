@@ -34,7 +34,6 @@ LICENSE
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -104,23 +103,6 @@ func registerAPIRoutes(app *fiber.App) {
 
 }
 
-// errorHandler creates a HTTP response with the given status code or 500 by default.
-// The response body is JSON: {"message": "<error message here>"}
-func errorHandler(ctx *fiber.Ctx, err error) error {
-	// Status code defaults to 500.
-	code := fiber.StatusInternalServerError
-
-	// Retrieve the custom status code if it's a *fiber.Error.
-	var e *fiber.Error
-	if errors.As(err, &e) {
-		code = e.Code
-	}
-
-	// Send JSON response.
-	ctx.Status(code).JSON(api.Failure{Message: err.Error()})
-	return nil
-}
-
 func envOrFlag[T any](flagName string, envName string, description string, defaultVal T, parse func(string) (T, error), flag func(string, T, string) *T) *T {
 	v, err := parse(os.Getenv(envName))
 
@@ -186,7 +168,7 @@ func main() {
 	ds_client.Init(*useFilestore)
 
 	// Create app.
-	app := fiber.New(fiber.Config{ErrorHandler: errorHandler})
+	app := fiber.New(fiber.Config{ErrorHandler: api.ErrorHandler})
 
 	// Recover from panics.
 	app.Use(recover.New())
