@@ -121,6 +121,9 @@ func errorHandler(ctx *fiber.Ctx, err error) error {
 	return nil
 }
 
+// envOrFlag configures a setting using either an environment variable or a command-line flag.
+// The environment variable value is parsed and used as the default if valid, but a flag value takes priority.
+// Returns a pointer to the final value managed by the flag package.
 func envOrFlag[T any](flagName string, envName string, description string, defaultVal T, parse func(string) (T, error), flag func(string, T, string) *T) *T {
 	v, err := parse(os.Getenv(envName))
 
