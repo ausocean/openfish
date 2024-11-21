@@ -88,6 +88,13 @@ func NotAcceptable() error {
 }
 
 // NotFound returns an error for requests for non-existent resources.
-func NotFound() error {
-	return fiber.NewError(404)
+func NotFound(err error) error {
+	return fiber.NewError(404, fmt.Errorf("Not Found: %w", err).Error())
+}
+
+// Conflict returns an error for requests that make changes that conflict with
+// current state of the resource, e.g. creating a new user, when the user
+// exists.
+func Conflict(err error) error {
+	return fiber.NewError(409, fmt.Errorf("Conflict: %w", err).Error())
 }

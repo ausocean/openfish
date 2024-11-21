@@ -35,74 +35,63 @@ LICENSE
 package handlers
 
 import (
+	"strconv"
+
 	"github.com/ausocean/openfish/cmd/openfish/api"
-	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/services"
+	"github.com/ausocean/openfish/cmd/openfish/types/role"
 
 	"github.com/gofiber/fiber/v2"
 )
-
-// UserResult describes the JSON format for users in API responses.
-type UserResult struct {
-	Email string `json:"email" example:"user@example.com"`
-	Role  string `json:"role" example:"annotator"`
-}
-
-// FromUserEntity creates a UserResult from a entities.User.
-func FromUserEntity(user *entities.User) UserResult {
-	return UserResult{Email: user.Email, Role: user.Role.String()}
-}
 
 // GetUsersQuery describes the URL query parameters required for the GetUsers endpoint.
 type GetUsersQuery struct {
 	api.LimitAndOffset
 }
 
-// UpdateUserBody describes the JSON format required for the UpdateUser endpoint.
-type UpdateUserBody struct {
-	Role string `json:"role" example:"annotator" validate:"required" enums:"readonly,annotator,curator,admin"` // User role.
-}
-
-// GetUserByEmail gets a user when provided with an email.
+// GetUserByID gets a user when provided with an ID.
 //
-//	@Summary		Get user by email
-//	@Description	Roles required: <role-tag>Admin</role-tag>
-//	@Description
-//	@Description	Gets a user when provided with an email.
+//	@Summary		Get user by ID
+//	@Description	Gets a user when provided with an ID. When invoked by an admin, the full user object is returned, otherwise the public user only. When the user is yourself, the full user object is returned regardless of your permissions.
 //	@Tags			Users
 //	@Produce		json
-//	@Param			email	path		string	true	"Email"	example(user@example.com)
-//	@Success		200		{object}	UserResult
-//	@Failure		400		{object}	api.Failure
-//	@Failure		404		{object}	api.Failure
-//	@Router			/api/v1/users/{email} [get]
-func GetUserByEmail(ctx *fiber.Ctx) error {
+//	@Param			id	path		int	true	"ID"	example(1234567890)
+//	@Success		200	{object}	services.User
+//	@Failure		400	{object}	api.Failure
+//	@Failure		404	{object}	api.Failure
+//	@Router			/api/v1/users/{id} [get]
+func GetUserByID(ctx *fiber.Ctx) error {
 	// Parse URL.
-	email := ctx.Params("email")
+	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
+	if err != nil {
+		return api.InvalidRequestURL(err)
+	}
 
 	// Fetch data from the datastore.
-	user, err := services.GetUserByEmail(email)
+	user, err := services.GetUserByID(id)
 	if err != nil {
 		return api.DatastoreReadFailure(err)
 	}
 
-	// Format result.
-	result := FromUserEntity(user)
-	return ctx.JSON(result)
+	// Return result depending on user role.
+	loggedInUser := ctx.Locals("user").(*services.User)
+	if loggedInUser != nil && loggedInUser.Role == role.Admin {
+		return ctx.JSON(user)
+	} else {
+		return ctx.JSON(user.ToPublicUser())
+	}
 }
 
 // GetUsers gets a list of users.
 // TODO: support filtering by role.
 //
 //	@Summary		Get users
-//	@Description	Roles required: <role-tag>Admin</role-tag>
-//	@Description
-//	@Description	Get paginated users.
+//	@Description	Gets paginated users. When invoked by an admin, the full user object is returned, otherwise the public user only.
 //	@Tags			Users
 //	@Produce		json
 //	@Param			limit	query		int	false	"Number of results to return."	minimum(1)	default(20)
 //	@Param			offset	query		int	false	"Number of results to skip."	minimum(0)
-//	@Success		200		{object}	api.Result[UserResult]
+//	@Success		200		{object}	api.Result[services.User]
 //	@Failure		400		{object}	api.Failure
 //	@Router			/api/v1/users [get]
 func GetUsers(ctx *fiber.Ctx) error {
@@ -120,18 +109,29 @@ func GetUsers(ctx *fiber.Ctx) error {
 		return api.DatastoreReadFailure(err)
 	}
 
-	// Format results.
-	results := make([]UserResult, len(users))
-	for i := range users {
-		results[i] = FromUserEntity(&users[i])
+	// Return results depending on user role and identity.
+	loggedInUser := ctx.Locals("user").(*services.User)
+	if loggedInUser != nil && loggedInUser.Role == role.Admin {
+		return ctx.JSON(api.Result[services.User]{
+			Results: users,
+			Offset:  qry.Offset,
+			Limit:   qry.Limit,
+			Total:   len(users),
+		})
+	} else {
+		results := make([]services.PublicUser, len(users))
+		for i := range users {
+			results[i] = users[i].ToPublicUser()
+		}
+
+		return ctx.JSON(api.Result[services.PublicUser]{
+			Results: results,
+			Offset:  qry.Offset,
+			Limit:   qry.Limit,
+			Total:   len(results),
+		})
 	}
 
-	return ctx.JSON(api.Result[UserResult]{
-		Results: results,
-		Offset:  qry.Offset,
-		Limit:   qry.Limit,
-		Total:   len(results),
-	})
 }
 
 // UpdateUser updates a user.
@@ -142,29 +142,27 @@ func GetUsers(ctx *fiber.Ctx) error {
 //	@Description	Update a user's role.
 //	@Tags			Users
 //	@Accept			json
-//	@Param			email	path	string			true	"Email"	example(user@example.com)
-//	@Param			body	body	UpdateUserBody	true	"Update User"
+//	@Param			id		path	string							true	"ID"	example(1234567890)
+//	@Param			body	body	services.PartialUserContents	true	"Update User"
 //	@Success		200
 //	@Failure		400	{object}	api.Failure
-//	@Router			/api/v1/users/{email} [patch]
+//	@Router			/api/v1/users/{id} [patch]
 func UpdateUser(ctx *fiber.Ctx) error {
 	// Parse URL.
-	email := ctx.Params("email")
-
-	// Parse body.
-	var body UpdateUserBody
-	err := ctx.BodyParser(&body)
+	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 	if err != nil {
-		return api.InvalidRequestJSON(err)
+		return api.InvalidRequestURL(err)
 	}
 
-	role, err := entities.ParseRole(body.Role)
+	// Parse body.
+	var body services.PartialUserContents
+	err = ctx.BodyParser(&body)
 	if err != nil {
 		return api.InvalidRequestJSON(err)
 	}
 
 	// Update data in the datastore.
-	err = services.UpdateUser(email, role)
+	err = services.UpdateUser(id, body)
 	if err != nil {
 		return api.DatastoreWriteFailure(err)
 	}
@@ -177,19 +175,22 @@ func UpdateUser(ctx *fiber.Ctx) error {
 //	@Summary		Delete user
 //	@Description	Roles required: <role-tag>Admin</role-tag>
 //	@Description
-//	@Description	Delete a user by providing the user's email.
+//	@Description	Delete a user by providing the user's ID.
 //	@Tags			Users
-//	@Param			email	path	string	true	"Email"	example(user@example.com)
+//	@Param			id	path	string	true	"ID"	example(1234567890)
 //	@Success		200
 //	@Failure		400	{object}	api.Failure
 //	@Failure		404	{object}	api.Failure
-//	@Router			/api/v1/users/{email} [delete]
+//	@Router			/api/v1/users/{id} [delete]
 func DeleteUser(ctx *fiber.Ctx) error {
 	// Parse URL.
-	email := ctx.Params("email")
+	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
+	if err != nil {
+		return api.InvalidRequestURL(err)
+	}
 
 	// Delete user.
-	err := services.DeleteUser(email)
+	err = services.DeleteUser(id)
 	if err != nil {
 		return api.DatastoreWriteFailure(err)
 	}

@@ -35,9 +35,18 @@ LICENSE
 package handlers
 
 import (
-	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"fmt"
+
+	"github.com/ausocean/openfish/cmd/openfish/api"
+	"github.com/ausocean/openfish/cmd/openfish/services"
+	"github.com/ausocean/openfish/cmd/openfish/types/role"
 	"github.com/gofiber/fiber/v2"
 )
+
+// CreateSelfBody is the body of a request to create a new user.
+type CreateSelfBody struct {
+	DisplayName string `json:"display_name" example:"Coral Fischer"`
+}
 
 // GetSelf gets information about the current user.
 //
@@ -45,12 +54,52 @@ import (
 //	@Description	Gets information about the current user.
 //	@Tags			Authentication
 //	@Produce		json
-//	@Success		200	{object}	UserResult
+//	@Success		200	{object}	services.User
+//	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/auth/me [get]
 func GetSelf(ctx *fiber.Ctx) error {
-	// Return user.
-	return ctx.JSON(UserResult{
-		Email: ctx.Locals("email").(string),
-		Role:  ctx.Locals("role").(entities.Role).String(),
+	user := ctx.Locals("user").(*services.User)
+	if user == nil {
+		return api.NotFound(fmt.Errorf("user not found"))
+	}
+	return ctx.JSON(user)
+}
+
+// CreateSelf creates a new user.
+//
+//	@Summary		Create user
+//	@Description	Creates a new user.
+//	@Tags			Authentication
+//	@Accept			json
+//	@Param			body	body	CreateSelfBody	true	"New User"
+//	@Produce		json
+//	@Success		201	{object}	services.User
+//	@Router			/api/v1/auth/me [post]
+func CreateSelf(ctx *fiber.Ctx) error {
+	user := ctx.Locals("user").(*services.User)
+	if user != nil {
+		return api.Conflict(fmt.Errorf("user already exists"))
+	}
+
+	// Parse body.
+	var body CreateSelfBody
+	err := ctx.BodyParser(&body)
+	if err != nil {
+		return api.InvalidRequestJSON(err)
+	}
+
+	// Create user.
+	email := ctx.Locals("email").(string)
+	id, err := services.CreateUser(services.UserContents{
+		Email:       email,
+		Role:        role.Default,
+		DisplayName: body.DisplayName,
+	})
+	if err != nil {
+		return api.DatastoreWriteFailure(err)
+	}
+
+	return ctx.JSON(EntityIDResult{
+		ID: id,
 	})
 }

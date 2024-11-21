@@ -102,7 +102,7 @@ func GetVideoStreams(limit int, offset int, timespan *timespan.TimeSpan, capture
 }
 
 // CreateVideoStream puts a video stream in the datastore, checking if the capture source exists.
-func CreateVideoStream(streamURL string, captureSource int64, startTime time.Time, endTime *time.Time, annotatorList []string) (int64, error) {
+func CreateVideoStream(streamURL string, captureSource int64, startTime time.Time, endTime *time.Time, annotatorList []int64) (int64, error) {
 
 	// Verify CaptureSource exists.
 	if !CaptureSourceExists(captureSource) {
@@ -130,7 +130,7 @@ func CreateVideoStream(streamURL string, captureSource int64, startTime time.Tim
 }
 
 // UpdateCaptureSource updates a capture source.
-func UpdateVideoStream(id int64, streamURL *string, captureSource *int64, startTime *time.Time, endTime *time.Time, annotatorList *[]string) error {
+func UpdateVideoStream(id int64, streamURL *string, captureSource *int64, startTime *time.Time, endTime *time.Time, annotatorList *[]int64) error {
 
 	// Update data in the datastore.
 	store := ds_client.Get()
