@@ -62,7 +62,7 @@ type CaptureSourceResult struct {
 //
 //	@Description	ID of newly created entity.
 type EntityIDResult struct {
-	ID *int64 `json:"id,omitempty" example:"1234567890"` // Unique ID of the entity.
+	ID int64 `json:"id" example:"1234567890"` // Unique ID of the entity.
 }
 
 // FromCaptureSource creates a CaptureSourceResult from a entities.CaptureSource and key, formatting it according to the requested format.
@@ -241,7 +241,7 @@ func CreateCaptureSource(ctx *fiber.Ctx) error {
 
 	// Return ID of created capture source.
 	return ctx.JSON(EntityIDResult{
-		ID: &id,
+		ID: id,
 	})
 }
 

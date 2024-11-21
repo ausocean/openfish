@@ -55,7 +55,7 @@ type AnnotationResult struct {
 	ID            *int64              `json:"id,omitempty" example:"1234567890"`
 	VideoStreamID *int64              `json:"videostreamId,omitempty" example:"1234567890"`
 	Keypoints     []keypoint.KeyPoint `json:"keypoints,omitempty"`
-	Observer      *string             `json:"observer,omitempty" example:"user@example.com"`
+	Observer      *int64              `json:"observer,omitempty" example:"1234567890"`
 	Observation   map[string]string   `json:"observation,omitempty" example:"species:Girella Zebra,common_name:Zebrafish"`
 }
 
@@ -99,7 +99,7 @@ type GetAnnotationsQuery struct {
 	TimeSpan      *string           `query:"timespan"`      // Optional. TODO: choose more appropriate type.
 	CaptureSource *int64            `query:"capturesource"` // Optional.
 	VideoStream   *int64            `query:"videostream"`   // Optional.
-	Observer      *string           `query:"observer"`      // Optional.
+	Observer      *int64            `query:"observer"`      // Optional.
 	Observation   map[string]string `query:"observation"`   // Optional.
 	api.LimitAndOffset
 	api.Format
@@ -233,10 +233,7 @@ func CreateAnnotation(ctx *fiber.Ctx) error {
 	}
 
 	// Get logged in user.
-	observer := "testuser"
-	if ctx.Locals("email") != nil {
-		observer = ctx.Locals("email").(string)
-	}
+	observer := ctx.Locals("id").(int64)
 
 	// Check logged in user is in annotator_list.
 	videostream, err := services.GetVideoStreamByID(body.VideoStreamID)

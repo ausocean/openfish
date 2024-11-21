@@ -192,7 +192,7 @@ func CreateSpecies(ctx *fiber.Ctx) error {
 
 	// Return ID of created video stream.
 	return ctx.JSON(EntityIDResult{
-		ID: &id,
+		ID: id,
 	})
 }
 

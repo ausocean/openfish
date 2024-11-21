@@ -50,7 +50,7 @@ type VideoStream struct {
 	EndTime       *time.Time // Optional.
 	StreamUrl     string
 	CaptureSource int64
-	AnnotatorList []string
+	AnnotatorList []int64
 }
 
 // Implements Copy from the Entity interface.

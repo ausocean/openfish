@@ -36,15 +36,19 @@ package services_test
 import (
 	"testing"
 
-	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/services"
+	"github.com/ausocean/openfish/cmd/openfish/types/role"
 )
 
 func TestCreateUser(t *testing.T) {
 	setup()
 
 	// Create a new user entity.
-	err := services.CreateUser("test@test.com", entities.DefaultRole)
+	_, err := services.CreateUser(services.UserContents{
+		DisplayName: "Coral Fischer",
+		Email:       "coral.fischer@example.com",
+		Role:        role.Default,
+	})
 	if err != nil {
 		t.Errorf("Could not create user entity %s", err)
 	}
@@ -54,10 +58,14 @@ func TestUserExists(t *testing.T) {
 	setup()
 
 	// Create a new user entity.
-	services.CreateUser("test@test.com", entities.DefaultRole)
+	id, _ := services.CreateUser(services.UserContents{
+		DisplayName: "Coral Fischer",
+		Email:       "coral.fischer@example.com",
+		Role:        role.Default,
+	})
 
 	// Check if the user exists.
-	if !services.UserExists("test@test.com") {
+	if !services.UserExists(id) {
 		t.Errorf("Expected user to exist")
 	}
 }
@@ -67,46 +75,64 @@ func TestUserExistsForNonexistentEntity(t *testing.T) {
 
 	// Check if the user exists.
 	// We expect it to return false.
-	if services.UserExists("nonexistent@test.com") {
+	if services.UserExists(int64(1234567890)) {
 		t.Errorf("Did not expect user to exist")
+	}
+}
+
+func TestGetUserByID(t *testing.T) {
+	setup()
+
+	contents := services.UserContents{
+		DisplayName: "Coral Fischer",
+		Email:       "coral.fischer@example.com",
+		Role:        role.Default,
+	}
+	id, _ := services.CreateUser(contents)
+
+	user, err := services.GetUserByID(id)
+	if err != nil {
+		t.Errorf("Could not get user entity %s", err)
+	}
+
+	if user.ID != id {
+		t.Errorf("User ID does not match")
+	}
+
+	if user.DisplayName != contents.DisplayName {
+		t.Errorf("User display name does not match")
+	}
+
+	if user.Role != contents.Role {
+		t.Errorf("User role does not match")
 	}
 }
 
 func TestGetUserByEmail(t *testing.T) {
 	setup()
 
-	// Define test cases.
-	testCases := []struct {
-		email string
-		role  entities.Role
-	}{
-		{"admin@test.com", entities.AdminRole},
-		{"curator@test.com", entities.CuratorRole},
-		{"annotator@test.com", entities.AnnotatorRole},
-		{"readonly@test.com", entities.ReadonlyRole},
+	contents := services.UserContents{
+		DisplayName: "Coral Fischer",
+		Email:       "coral.fischer@example.com",
+		Role:        role.Default,
+	}
+	services.CreateUser(contents)
+
+	user, err := services.GetUserByEmail("coral.fischer@example.com")
+	if err != nil {
+		t.Errorf("Could not get user entity %s", err)
 	}
 
-	for _, tc := range testCases {
-		// Create user entities for each test case.
-		services.CreateUser(tc.email, tc.role)
-
-		// Check if the user can be fetched and is the same.
-		user, err := services.GetUserByEmail(tc.email)
-		if err != nil {
-			t.Errorf("Could not get user entity %s", err)
-		}
-		if user.Email != tc.email || user.Role != tc.role {
-			t.Errorf("User entity does not match created entity")
-		}
+	if user.DisplayName != contents.DisplayName {
+		t.Errorf("User display name does not match")
 	}
-}
 
-func TestGetUserByEmailForNonexistentEntity(t *testing.T) {
-	setup()
+	if user.Role != contents.Role {
+		t.Errorf("User role does not match")
+	}
 
-	user, err := services.GetUserByEmail("nonexistent@test.com")
-	if user != nil && err == nil {
-		t.Errorf("GetUserByEmail returned non-existing entity %s", err)
+	if user.Email != contents.Email {
+		t.Errorf("User email does not match")
 	}
 }
 
@@ -114,25 +140,48 @@ func TestUpdateUser(t *testing.T) {
 	setup()
 
 	// Create a new user entity.
-	services.CreateUser("test@test.com", entities.DefaultRole)
+	id, _ := services.CreateUser(services.UserContents{
+		DisplayName: "Coral Fischer",
+		Email:       "coral.fischer@example.com",
+		Role:        role.Default,
+	})
 
 	// Update the role.
-	role := entities.AdminRole
-	err := services.UpdateUser("test@test.com", role)
+	role := role.Admin
+	err := services.UpdateUser(id, services.PartialUserContents{
+		Role: &role,
+	})
 	if err != nil {
 		t.Errorf("Could not update user entity %s", err)
 	}
 
-	user, _ := services.GetUserByEmail("test@test.com")
+	user, _ := services.GetUserByID(id)
 	if user.Role != role {
 		t.Errorf("Role did not update, expected %s, actual %s", role.String(), user.Role.String())
+	}
+
+	// Update the display name.
+	displayName := "Coral Fischer"
+	err = services.UpdateUser(id, services.PartialUserContents{
+		DisplayName: &displayName,
+	})
+	if err != nil {
+		t.Errorf("Could not update user entity %s", err)
+	}
+
+	user, _ = services.GetUserByID(id)
+	if user.DisplayName != displayName {
+		t.Errorf("DisplayName did not update, expected %s, actual %s", displayName, user.DisplayName)
 	}
 }
 
 func TestUpdateUserForNonExistentEntity(t *testing.T) {
 	setup()
 
-	err := services.UpdateUser("nonexistent@test.com", entities.AdminRole)
+	role := role.Admin
+	err := services.UpdateUser(int64(1234567890), services.PartialUserContents{
+		Role: &role,
+	})
 	if err == nil {
 		t.Errorf("Did not receive expected error when updating non-existent user")
 	}
@@ -142,16 +191,20 @@ func TestDeleteUser(t *testing.T) {
 	setup()
 
 	// Create a new user entity.
-	services.CreateUser("test@test.com", entities.DefaultRole)
+	id, _ := services.CreateUser(services.UserContents{
+		DisplayName: "Coral Fischer",
+		Email:       "coral.fischer@example.com",
+		Role:        role.Default,
+	})
 
 	// Delete the capture source entity.
-	err := services.DeleteUser("test@test.com")
+	err := services.DeleteUser(id)
 	if err != nil {
 		t.Errorf("Could not delete user entity")
 	}
 
 	// Check if the capture source exists.
-	if services.UserExists("test@test.com") {
+	if services.UserExists(id) {
 		t.Errorf("User entity exists after delete")
 	}
 }
@@ -159,7 +212,7 @@ func TestDeleteUser(t *testing.T) {
 func TestDeleteUserForNonexistentEntity(t *testing.T) {
 	setup()
 
-	err := services.DeleteUser("nonexistent@test.com")
+	err := services.DeleteUser(int64(1234567890))
 	if err == nil {
 		t.Errorf("Did not receive expected error when deleting non-existent capture source")
 	}

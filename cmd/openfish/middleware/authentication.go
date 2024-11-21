@@ -38,11 +38,23 @@ import (
 	"fmt"
 
 	"github.com/ausocean/openfish/cmd/openfish/api"
-	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/services"
+	"github.com/ausocean/openfish/cmd/openfish/types/role"
 	"github.com/gofiber/fiber/v2"
 	"google.golang.org/api/idtoken"
 )
+
+// NoAuth skips authentication, for when we are running the webapp locally.
+func NoAuth() func(*fiber.Ctx) error {
+	return func(ctx *fiber.Ctx) error {
+
+		ctx.Locals("email", "no-user@localhost")
+		user, _ := services.GetUserByEmail("no-user@localhost")
+		ctx.Locals("user", user)
+
+		return ctx.Next()
+	}
+}
 
 // ValidateJWT creates a validator middleware that validate JWT tokens returned from Google IAP.
 // Otherwise, it returns a 401 Unauthorized http error.
@@ -62,42 +74,26 @@ func ValidateJWT(aud string) func(*fiber.Ctx) error {
 			return api.Unauthorized(err)
 		}
 
-		// Extract subject and email.
+		// Extract email.
 		email := payload.Claims["email"].(string)
-		subject := payload.Subject
-		role := entities.DefaultRole
-
-		// Fetch user from datastore if they exist, else
-		// create new user.
-		user, err := services.GetUserByEmail(email)
-		if err != nil {
-			services.CreateUser(email, role)
-		} else {
-			role = user.Role
-		}
-
-		// Add subject, email, and user role to ctx.Locals.
-		ctx.Locals("subject", subject)
 		ctx.Locals("email", email)
-		ctx.Locals("role", role)
+
+		// Fetch user from datastore if they exist.
+		user, _ := services.GetUserByEmail(email)
+		ctx.Locals("user", user)
 
 		return ctx.Next()
 	}
 }
 
-func Guard(requiredRole entities.Role) func(*fiber.Ctx) error {
+func Guard(requiredRole role.Role) func(*fiber.Ctx) error {
 
 	return func(ctx *fiber.Ctx) error {
-		// Skip if IAP authentication is disabled.
-		if ctx.Locals("role") == nil {
-			return ctx.Next()
-		}
-
-		userRole := ctx.Locals("role").(entities.Role)
-		if userRole >= requiredRole {
+		user := ctx.Locals("user").(*services.User)
+		if user != nil && user.Role >= requiredRole {
 			return ctx.Next()
 		} else {
-			return api.Forbidden(fmt.Errorf("this operation requires %s role, requesting user has %s role", requiredRole.String(), userRole.String()))
+			return api.Forbidden(fmt.Errorf("this operation requires %s role", requiredRole.String()))
 		}
 
 	}

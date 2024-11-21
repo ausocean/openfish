@@ -39,6 +39,7 @@ import (
 
 	"github.com/ausocean/openfish/cmd/openfish/services"
 	"github.com/ausocean/openfish/cmd/openfish/types/keypoint"
+	"github.com/ausocean/openfish/cmd/openfish/types/role"
 )
 
 // Constants.
@@ -52,7 +53,7 @@ func TestCreateVideoStream(t *testing.T) {
 
 	// Create a new video stream entity.
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	_, err := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []string{})
+	_, err := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
 	if err != nil {
 		t.Errorf("Could not create video stream entity %s", err)
 	}
@@ -63,7 +64,7 @@ func TestVideoStreamExists(t *testing.T) {
 
 	// Create a new video stream entity.
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	id, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []string{})
+	id, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
 
 	// Check if the video stream exists.
 	if !services.VideoStreamExists(int64(id)) {
@@ -85,7 +86,7 @@ func TestGetVideoStreamByID(t *testing.T) {
 	setup()
 
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	id, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []string{})
+	id, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
 
 	videoStream, err := services.GetVideoStreamByID(int64(id))
 	if err != nil {
@@ -111,7 +112,7 @@ func TestUpdateVideoStream(t *testing.T) {
 	setup()
 	// Create a new video stream entity.
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	id, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []string{})
+	id, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
 
 	// Update the url.
 	url := "http://youtube.com/watch?v=xyz789"
@@ -170,7 +171,7 @@ func TestDeleteVideoStream(t *testing.T) {
 
 	// Create a new video stream entity.
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	id, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []string{})
+	id, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
 
 	// Delete the video stream entity.
 	err := services.DeleteVideoStream(int64(id))
@@ -202,14 +203,19 @@ func TestDeleteVideoStreamWithAssociatedAnnotations(t *testing.T) {
 	setup()
 
 	// Create a new video stream entity and an annotation that references it.
+	uid, _ := services.CreateUser(services.UserContents{
+		Email:       "coral.fischer@example.com",
+		DisplayName: "Coral Fischer",
+		Role:        role.Annotator,
+	})
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	id, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []string{})
+	id, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", cs, _8am, &_4pm, []int64{})
 	services.CreateAnnotation(id,
 		[]keypoint.KeyPoint{startKp, endKp},
-		"scott@ausocean.org",
+		uid,
 		map[string]string{"species": "Sepia Apama"})
 
-	err := services.DeleteVideoStream(int64(id))
+	err := services.DeleteVideoStream(id)
 	if err == nil {
 		t.Errorf("Did not receive expected error when deleting video stream with associated annotation")
 	}

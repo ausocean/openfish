@@ -31,45 +31,59 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package entities
+// role defines the user roles that control access to the API.
+package role
 
-import (
-	"github.com/ausocean/openfish/cmd/openfish/types/role"
-	"github.com/ausocean/openfish/datastore"
+import "fmt"
+
+type Role int8
+
+const (
+	Readonly  Role = iota // Can only use GET APIs.
+	Annotator             // Can create annotations.
+	Curator               // Can create annotations and videostreams.
+	Admin                 // Can do everything.
+	Default   = Annotator
 )
 
-// Kind of entity to store / fetch from the datastore.
-const USER_KIND = "User"
-
-// User contains the user role and email address.
-type User struct {
-	DisplayName string
-	Email       string
-	Role        role.Role
-}
-
-// Implements Copy from the Entity interface.
-func (vs *User) Copy(dst datastore.Entity) (datastore.Entity, error) {
-	var v *User
-	if dst == nil {
-		v = new(User)
-	} else {
-		var ok bool
-		v, ok = dst.(*User)
-		if !ok {
-			return nil, datastore.ErrWrongType
-		}
+// String returns the string representation of a Role.
+func (r Role) String() string {
+	switch r {
+	case Readonly:
+		return "readonly"
+	case Annotator:
+		return "annotator"
+	case Curator:
+		return "curator"
+	case Admin:
+		return "admin"
 	}
-	*v = *vs
-	return v, nil
+	return "unknown"
 }
 
-// GetCache returns nil, because no caching is used.
-func (vs *User) GetCache() datastore.Cache {
-	return nil
+// Parse parses a string into a Role.
+func Parse(s string) (Role, error) {
+	switch s {
+	case "readonly":
+		return Readonly, nil
+	case "annotator":
+		return Annotator, nil
+	case "curator":
+		return Curator, nil
+	case "admin":
+		return Admin, nil
+	}
+	return Default, fmt.Errorf("invalid role provided: %s", s)
 }
 
-// NewUser returns a new User entity.
-func NewUser() datastore.Entity {
-	return &User{}
+// UnmarshalText is used for decoding query params or JSON into a Role.
+func (r *Role) UnmarshalText(text []byte) error {
+	var err error
+	*r, err = Parse(string(text))
+	return err
+}
+
+// MarshalText is used for encoding a Role into JSON or query params.
+func (r Role) MarshalText() ([]byte, error) {
+	return []byte(r.String()), nil
 }
