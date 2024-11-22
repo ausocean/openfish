@@ -173,7 +173,6 @@ export class WatchStream extends LitElement {
       @time-update=${(e: CustomEvent<{ currentTime: number }>) =>
         (this._currentTime = e.detail.currentTime)} 
       @duration-change=${(e: CustomEvent<number>) => (this._duration = e.detail)}
-      @can-play=${this.play}
       .muted=${true}
     >
       <media-provider></media-provider>
