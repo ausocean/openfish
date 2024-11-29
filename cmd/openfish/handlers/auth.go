@@ -58,7 +58,10 @@ type CreateSelfBody struct {
 //	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/auth/me [get]
 func GetSelf(ctx *fiber.Ctx) error {
-	user := ctx.Locals("user").(*services.User)
+	user, ok := ctx.Locals("user").(*services.User)
+	if !ok {
+		return fmt.Errorf("failed to assert type: expected *services.User but got %T", ctx.Locals("user"))
+	}
 	if user == nil {
 		return api.NotFound(fmt.Errorf("user not found"))
 	}
@@ -76,7 +79,10 @@ func GetSelf(ctx *fiber.Ctx) error {
 //	@Success		201	{object}	services.User
 //	@Router			/api/v1/auth/me [post]
 func CreateSelf(ctx *fiber.Ctx) error {
-	user := ctx.Locals("user").(*services.User)
+	user, ok := ctx.Locals("user").(*services.User)
+	if !ok {
+		return fmt.Errorf("failed to assert type: expected *services.User but got %T", ctx.Locals("user"))
+	}
 	if user != nil {
 		return api.Conflict(fmt.Errorf("user already exists"))
 	}
