@@ -39,7 +39,6 @@ import (
 
 	"github.com/ausocean/openfish/cmd/openfish/ds_client"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
-
 	"github.com/ausocean/openfish/cmd/openfish/types/role"
 	"github.com/ausocean/openfish/datastore"
 )

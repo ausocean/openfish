@@ -49,7 +49,10 @@ func NoAuth() func(*fiber.Ctx) error {
 	return func(ctx *fiber.Ctx) error {
 
 		ctx.Locals("email", "no-user@localhost")
-		user, _ := services.GetUserByEmail("no-user@localhost")
+		user, err := services.GetUserByEmail("no-user@localhost")
+		if err != nil {
+			return err
+		}
 		ctx.Locals("user", user)
 
 		return ctx.Next()
@@ -79,7 +82,10 @@ func ValidateJWT(aud string) func(*fiber.Ctx) error {
 		ctx.Locals("email", email)
 
 		// Fetch user from datastore if they exist.
-		user, _ := services.GetUserByEmail(email)
+		user, err := services.GetUserByEmail(email)
+		if err != nil {
+			return err
+		}
 		ctx.Locals("user", user)
 
 		return ctx.Next()
@@ -89,7 +95,10 @@ func ValidateJWT(aud string) func(*fiber.Ctx) error {
 func Guard(requiredRole role.Role) func(*fiber.Ctx) error {
 
 	return func(ctx *fiber.Ctx) error {
-		user := ctx.Locals("user").(*services.User)
+		user, ok := ctx.Locals("user").(*services.User)
+		if !ok {
+			return fmt.Errorf("failed to assert type: expected *services.User but got %T", ctx.Locals("user"))
+		}
 		if user != nil && user.Role >= requiredRole {
 			return ctx.Next()
 		} else {

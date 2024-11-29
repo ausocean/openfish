@@ -66,7 +66,7 @@ func registerAPIRoutes(app *fiber.App) {
 	// Video streams.
 	v1.Group("/videostreams").
 		Get("/:id", handlers.GetVideoStreamByID).
-		Get("/:id/media", middleware.Guard(entities.AdminRole), handlers.GetVideoStreamMedia).
+		Get("/:id/media", middleware.Guard(role.Admin), handlers.GetVideoStreamMedia).
 		Get("/", handlers.GetVideoStreams).
 		Post("/live", middleware.Guard(role.Curator), handlers.StartVideoStream).
 		Patch("/:id/live", middleware.Guard(role.Curator), handlers.EndVideoStream).
@@ -105,7 +105,7 @@ func registerAPIRoutes(app *fiber.App) {
 	v1.Get("/tasks/:id/status", handlers.PollTask)
 
 	// Media.
-	v1.Group("/media", middleware.Guard(entities.AdminRole)).
+	v1.Group("/media", middleware.Guard(role.Admin)).
 		Get("/:id", handlers.GetMediaByID).
 		Delete("/:id", handlers.DeleteMedia)
 
