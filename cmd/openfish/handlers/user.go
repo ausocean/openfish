@@ -35,6 +35,7 @@ LICENSE
 package handlers
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/ausocean/openfish/cmd/openfish/api"
@@ -74,7 +75,10 @@ func GetUserByID(ctx *fiber.Ctx) error {
 	}
 
 	// Return result depending on user role.
-	loggedInUser := ctx.Locals("user").(*services.User)
+	loggedInUser, ok := ctx.Locals("user").(*services.User)
+	if !ok {
+		return fmt.Errorf("failed to assert type: expected *services.User but got %T", ctx.Locals("user"))
+	}
 	if loggedInUser != nil && loggedInUser.Role == role.Admin {
 		return ctx.JSON(user)
 	} else {
@@ -110,7 +114,10 @@ func GetUsers(ctx *fiber.Ctx) error {
 	}
 
 	// Return results depending on user role and identity.
-	loggedInUser := ctx.Locals("user").(*services.User)
+	loggedInUser, ok := ctx.Locals("user").(*services.User)
+	if !ok {
+		return fmt.Errorf("failed to assert type: expected *services.User but got %T", ctx.Locals("user"))
+	}
 	if loggedInUser != nil && loggedInUser.Role == role.Admin {
 		return ctx.JSON(api.Result[services.User]{
 			Results: users,

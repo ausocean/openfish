@@ -67,7 +67,7 @@ func GetMediaByID(ctx *fiber.Ctx) error {
 	// Fetch data from the datastore.
 	media, err := services.GetMediaByID(id)
 	if err == datastore.ErrNoSuchEntity {
-		return api.NotFound()
+		return api.NotFound(fmt.Errorf("media %d not found", id))
 	}
 	if err != nil {
 		return api.DatastoreReadFailure(err)
@@ -103,7 +103,7 @@ func DeleteMedia(ctx *fiber.Ctx) error {
 	// Delete media.
 	err = services.DeleteMedia(id)
 	if err == datastore.ErrNoSuchEntity {
-		return api.NotFound()
+		return api.NotFound(fmt.Errorf("media %d not found", id))
 	}
 	if err != nil {
 		return api.DatastoreWriteFailure(err)

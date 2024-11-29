@@ -225,7 +225,7 @@ func GetVideoStreamMedia(ctx *fiber.Ctx) error {
 	// Fetch data from the datastore.
 	media, err := services.GetMediaByTypeStreamAndTime(mtype, id, start, end)
 	if err == datastore.ErrNoSuchEntity {
-		return api.NotFound()
+		return api.NotFound(fmt.Errorf("media %d not found", id))
 	}
 	if err != nil {
 		return api.DatastoreReadFailure(err)
