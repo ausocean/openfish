@@ -13,16 +13,17 @@ export class UserProvider extends LitElement {
   async connectedCallback() {
     super.connectedCallback()
 
-    if (import.meta.env.DEV) {
-      this.user = plainToInstance(User, { email: 'user@localhost', role: 'admin' })
-    } else {
-      try {
-        const res = await fetch('/api/v1/auth/me')
+    try {
+      const res = await fetch('/api/v1/auth/me')
+      if (res.ok) {
         const json = await res.json()
         this.user = plainToInstance(User, json)
-      } catch (error) {
-        console.error(error)
       }
+      if (res.status === 404) {
+        window.location.href = '/welcome.html'
+      }
+    } catch (error) {
+      console.error(error)
     }
   }
 

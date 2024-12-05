@@ -93,7 +93,7 @@ func AnnotationExists(id int64) bool {
 }
 
 // GetAnnotations gets a list of annotations, filtering by timespan, capturesource, observer & observation if specified.
-func GetAnnotations(limit int, offset int, videostream *int64, observer *string, observation map[string]string, order *string) ([]entities.Annotation, []int64, error) {
+func GetAnnotations(limit int, offset int, videostream *int64, observer *int64, observation map[string]string, order *string) ([]entities.Annotation, []int64, error) {
 	// Fetch data from the datastore.
 	store := ds_client.Get()
 	query := store.NewQuery(entities.ANNOTATION_KIND, false)
@@ -137,7 +137,7 @@ func GetAnnotations(limit int, offset int, videostream *int64, observer *string,
 }
 
 // CreateAnnotation creates a new annotation.
-func CreateAnnotation(videoStreamID int64, keypoints []keypoint.KeyPoint, observer string, observation map[string]string) (int64, error) {
+func CreateAnnotation(videoStreamID int64, keypoints []keypoint.KeyPoint, observer int64, observation map[string]string) (int64, error) {
 	if err := validateObservation(observation); err != nil {
 		return 0, err
 	}

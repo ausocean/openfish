@@ -55,7 +55,7 @@ type AnnotationResult struct {
 	ID            *int64              `json:"id,omitempty" example:"1234567890"`
 	VideoStreamID *int64              `json:"videostreamId,omitempty" example:"1234567890"`
 	Keypoints     []keypoint.KeyPoint `json:"keypoints,omitempty"`
-	Observer      *string             `json:"observer,omitempty" example:"user@example.com"`
+	Observer      *int64              `json:"observer,omitempty" example:"1234567890"`
 	Observation   map[string]string   `json:"observation,omitempty" example:"species:Girella Zebra,common_name:Zebrafish"`
 }
 
@@ -99,7 +99,7 @@ type GetAnnotationsQuery struct {
 	TimeSpan      *string           `query:"timespan"`      // Optional. TODO: choose more appropriate type.
 	CaptureSource *int64            `query:"capturesource"` // Optional.
 	VideoStream   *int64            `query:"videostream"`   // Optional.
-	Observer      *string           `query:"observer"`      // Optional.
+	Observer      *int64            `query:"observer"`      // Optional.
 	Observation   map[string]string `query:"observation"`   // Optional.
 	api.LimitAndOffset
 	api.Format
@@ -233,9 +233,12 @@ func CreateAnnotation(ctx *fiber.Ctx) error {
 	}
 
 	// Get logged in user.
-	observer := "testuser"
-	if ctx.Locals("email") != nil {
-		observer = ctx.Locals("email").(string)
+	observer, ok := ctx.Locals("user").(*services.User)
+	if !ok {
+		return fmt.Errorf("failed to assert type: expected *services.User but got %T", ctx.Locals("user"))
+	}
+	if observer == nil {
+		return api.Unauthorized(fmt.Errorf("user not logged in"))
 	}
 
 	// Check logged in user is in annotator_list.
@@ -243,12 +246,12 @@ func CreateAnnotation(ctx *fiber.Ctx) error {
 	if err != nil {
 		return api.DatastoreReadFailure(err)
 	}
-	if len(videostream.AnnotatorList) != 0 && !slices.Contains(videostream.AnnotatorList, observer) {
+	if len(videostream.AnnotatorList) != 0 && !slices.Contains(videostream.AnnotatorList, observer.ID) {
 		return api.Forbidden(fmt.Errorf("logged in user is not within annotator list for this videostream (%d)", body.VideoStreamID))
 	}
 
 	// Write data to the datastore.
-	id, err := services.CreateAnnotation(body.VideoStreamID, body.Keypoints, observer, body.Observation)
+	id, err := services.CreateAnnotation(body.VideoStreamID, body.Keypoints, observer.ID, body.Observation)
 	if err != nil {
 		return api.DatastoreWriteFailure(err)
 	}

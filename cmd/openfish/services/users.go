@@ -39,31 +39,119 @@ import (
 
 	"github.com/ausocean/openfish/cmd/openfish/ds_client"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
+
+	"github.com/ausocean/openfish/cmd/openfish/types/role"
 	"github.com/ausocean/openfish/datastore"
 )
 
-// GetUserByEmail gets a user when provided with an email.
-func GetUserByEmail(email string) (*entities.User, error) {
+// PublicUser is a user without private information, for public display, e.g. on annotations.
+type PublicUser struct {
+	ID          int64     `json:"id" example:"1234567890"`
+	DisplayName string    `json:"display_name" example:"Coral Fischer"`
+	Role        role.Role `json:"role" example:"annotator"`
+}
+
+// User is a complete user.
+type User struct {
+	ID int64 `json:"id" example:"1234567890"`
+	UserContents
+}
+
+// UserContents is the contents of a user in private contexts.
+type UserContents struct {
+	Email       string    `json:"email" example:"coral.fischer@example.com"`
+	DisplayName string    `json:"display_name" example:"Coral Fischer"`
+	Role        role.Role `json:"role" swaggertype:"string" example:"annotator"`
+}
+
+// PartialUserContents is for updating a user with a partial update (such as a PATCH request).
+type PartialUserContents struct {
+	Email       *string    `json:"email" validate:"optional" example:"coral.fischer@example.com"`
+	DisplayName *string    `json:"display_name" validate:"optional" example:"Coral Fischer"`
+	Role        *role.Role `json:"role" validate:"optional" example:"annotator" swaggertype:"string" enums:"readonly,annotator,curator,admin"`
+}
+
+// UserContentsFromEntity converts an entities.User to a UserContents.
+func UserContentsFromEntity(u entities.User) UserContents {
+	return UserContents{
+		Email:       u.Email,
+		DisplayName: u.DisplayName,
+		Role:        u.Role,
+	}
+}
+
+// ToEntity converts a UserContents to an entities.User for storage in the datastore.
+func (u *UserContents) ToEntity() entities.User {
+	e := entities.User{
+		Email:       u.Email,
+		DisplayName: u.DisplayName,
+		Role:        u.Role,
+	}
+
+	return e
+}
+
+// ToPublicUser converts a services.User into a services.PublicUser. This is used for hiding private information
+// such as email addresses from other users when they make use of the API.
+func (u *User) ToPublicUser() PublicUser {
+	return PublicUser{
+		ID:          u.ID,
+		DisplayName: u.DisplayName,
+		Role:        u.Role,
+	}
+}
+
+// GetUserByID gets a user when provided when provided with an ID.
+func GetUserByID(id int64) (*User, error) {
 	store := ds_client.Get()
-	key := store.NameKey(entities.USER_KIND, email)
+	key := store.IDKey(entities.USER_KIND, id)
 	var user entities.User
 	err := store.Get(context.Background(), key, &user)
 	if err != nil {
 		return nil, err
 	}
-	return &user, nil
+
+	return &User{
+		ID:           id,
+		UserContents: UserContentsFromEntity(user),
+	}, nil
 }
 
-func UserExists(email string) bool {
+// GetUserByEmail gets a user when provided with an email address.
+func GetUserByEmail(email string) (*User, error) {
 	store := ds_client.Get()
-	key := store.NameKey(entities.USER_KIND, email)
+	query := store.NewQuery(entities.USER_KIND, false)
+
+	query.FilterField("Email", "=", email)
+	query.Limit(1)
+
+	var users []entities.User
+	keys, err := store.GetAll(context.Background(), query, &users)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(keys) == 0 {
+		return nil, nil
+	}
+
+	return &User{
+		ID:           keys[0].ID,
+		UserContents: UserContentsFromEntity(users[0]),
+	}, nil
+}
+
+// UserExists checks if a user exists for a given ID.
+func UserExists(id int64) bool {
+	store := ds_client.Get()
+	key := store.IDKey(entities.USER_KIND, id)
 	var user entities.User
 	err := store.Get(context.Background(), key, &user)
 	return err == nil
 }
 
 // GetUsers gets a list of users.
-func GetUsers(limit int, offset int) ([]entities.User, error) {
+func GetUsers(limit int, offset int) ([]User, error) {
 
 	// Fetch data from the datastore.
 	store := ds_client.Get()
@@ -73,51 +161,67 @@ func GetUsers(limit int, offset int) ([]entities.User, error) {
 	query.Offset(offset)
 
 	var users []entities.User
-	_, err := store.GetAll(context.Background(), query, &users)
+	ids, err := store.GetAll(context.Background(), query, &users)
 	if err != nil {
-		return []entities.User{}, err
+		return []User{}, err
 	}
 
-	return users, nil
+	results := make([]User, len(users))
+	for i := range users {
+		results[i] = User{
+			ID:           ids[i].ID,
+			UserContents: UserContentsFromEntity(users[i]),
+		}
+	}
+
+	return results, nil
 }
 
 // CreateUser creates a new user.
-func CreateUser(email string, role entities.Role) error {
+func CreateUser(user UserContents) (int64, error) {
 
-	// Use the user's email as a unique ID.
 	store := ds_client.Get()
-	key := store.NameKey(entities.USER_KIND, email)
+	key := store.IncompleteKey(entities.USER_KIND)
 
-	user := entities.User{
-		Email: email,
-		Role:  role,
-	}
+	u := user.ToEntity()
 
 	// Add to datastore.
-	_, err := store.Put(context.Background(), key, &user)
-	return err
+	id, err := store.Put(context.Background(), key, &u)
+	if err != nil {
+		return 0, err
+	}
+
+	return id.ID, nil
 }
 
 // UpdateUser updates a user's role.
-func UpdateUser(email string, role entities.Role) error {
+func UpdateUser(id int64, updates PartialUserContents) error {
 
 	// Update data in the datastore.
 	store := ds_client.Get()
-	key := store.NameKey(entities.USER_KIND, email)
+	key := store.IDKey(entities.USER_KIND, id)
 	var user entities.User
 
 	return store.Update(context.Background(), key, func(e datastore.Entity) {
 		v, ok := e.(*entities.User)
 		if ok {
-			v.Role = role
+			if updates.DisplayName != nil {
+				v.DisplayName = *updates.DisplayName
+			}
+			if updates.Role != nil {
+				v.Role = *updates.Role
+			}
+			if updates.Email != nil {
+				v.Email = *updates.Email
+			}
 		}
 	}, &user)
 }
 
 // DeleteUser deletes a user.
-func DeleteUser(email string) error {
+func DeleteUser(id int64) error {
 	// Delete entity.
 	store := ds_client.Get()
-	key := store.NameKey(entities.USER_KIND, email)
+	key := store.IDKey(entities.USER_KIND, id)
 	return store.Delete(context.Background(), key)
 }

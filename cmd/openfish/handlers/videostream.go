@@ -58,7 +58,7 @@ type VideoStreamResult struct {
 	EndTime       *time.Time `json:"endTime,omitempty" example:"2023-05-25T16:30:00Z"`
 	StreamUrl     *string    `json:"stream_url,omitempty" example:"https://www.youtube.com/watch?v=abcdefghijk"`
 	CaptureSource *int64     `json:"capturesource,omitempty" example:"1234567890"`
-	AnnotatorList *[]string  `json:"annotator_list,omitempty" example:"user@example.com"`
+	AnnotatorList *[]int64   `json:"annotator_list,omitempty" example:"1234567890"`
 }
 
 // FromVideoStream creates a VideoStreamResult from a entities.VideoStream and key, formatting it according to the requested format.
@@ -110,7 +110,7 @@ type CreateVideoStreamBody struct {
 	EndTime       time.Time `json:"endTime" example:"2023-05-25T16:30:00Z" validate:"required"`                           // End time of stream.
 	StreamUrl     string    `json:"stream_url" example:"https://www.youtube.com/watch?v=abcdefghijk" validate:"required"` // URL of video stream.
 	CaptureSource int64     `json:"capturesource" example:"1234567890" validate:"required"`                               // ID of the capture source that produced the stream.
-	AnnotatorList []string  `json:"annotator_list" example:"user@example.com" validate:"optional"`                        // Users that are permitted to add annotations.
+	AnnotatorList []int64   `json:"annotator_list" example:"1234567890" validate:"optional"`                              // Users that are permitted to add annotations.
 }
 
 // StartVideoStreamBody describes the JSON format required for the StartVideoStream endpoint.
@@ -119,9 +119,9 @@ type CreateVideoStreamBody struct {
 // Datetime is omitted because it uses the current time.
 // Duration is omitted because it will be set once the stream concludes.
 type StartVideoStreamBody struct {
-	StreamUrl     string   `json:"stream_url" example:"https://www.youtube.com/watch?v=abcdefghijk" validate:"required"` // URL of live video stream.
-	CaptureSource int64    `json:"capturesource" example:"1234567890" validate:"required"`                               // ID of the capture source that produced the stream.
-	AnnotatorList []string `json:"annotator_list" example:"user@example.com" validate:"optional"`                        // Users that are permitted to add annotations.
+	StreamUrl     string  `json:"stream_url" example:"https://www.youtube.com/watch?v=abcdefghijk" validate:"required"` // URL of live video stream.
+	CaptureSource int64   `json:"capturesource" example:"1234567890" validate:"required"`                               // ID of the capture source that produced the stream.
+	AnnotatorList []int64 `json:"annotator_list" example:"1234567890" validate:"optional"`                              // Users that are permitted to add annotations.
 }
 
 // UpdateVideoStreamBody describes the JSON format required for the UpdateVideoStream endpoint.
@@ -130,7 +130,7 @@ type UpdateVideoStreamBody struct {
 	EndTime       *time.Time `json:"endTime" example:"2023-05-25T16:30:00Z" validate:"optional"`                           // End time of stream.
 	StreamUrl     *string    `json:"stream_url" example:"https://www.youtube.com/watch?v=abcdefghijk" validate:"optional"` // URL of video stream.
 	CaptureSource *int64     `json:"capturesource" example:"1234567890" validate:"optional"`                               // ID of the capture source that produced the stream.
-	AnnotatorList *[]string  `json:"annotator_list" example:"user@example.com" validate:"optional"`                        // Users that are permitted to add annotations.
+	AnnotatorList *[]int64   `json:"annotator_list" example:"1234567890" validate:"optional"`                              // Users that are permitted to add annotations.
 }
 
 // GetVideoStreamByID gets a video stream when provided with an ID.
@@ -320,7 +320,7 @@ func CreateVideoStream(ctx *fiber.Ctx) error {
 
 	// Return ID of created video stream.
 	return ctx.JSON(EntityIDResult{
-		ID: &id,
+		ID: id,
 	})
 }
 
@@ -353,7 +353,7 @@ func StartVideoStream(ctx *fiber.Ctx) error {
 
 	// Return ID of created video stream.
 	return ctx.JSON(EntityIDResult{
-		ID: &id,
+		ID: id,
 	})
 }
 

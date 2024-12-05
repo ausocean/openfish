@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenFish</title>
+    <link rel="stylesheet" href="./src/styles/index.css" />
+    <link rel="stylesheet" href="./src/styles/buttons.css" />
+    <script type="module">
+        document.querySelector('form').addEventListener('submit', async (e) => {
+            e.preventDefault()
+
+            const formData = new FormData(e.target)
+            const res = await fetch('/api/v1/auth/me', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    display_name: formData.get('display_name')
+                })
+            })
+
+            if (res.ok) {
+                window.location.href = '/'
+            }
+        })
+    </script>
+
+    <style>
+        main {
+            grid-row: content;
+            grid-column: page;
+            align-self: center;
+            max-width: 80ch;
+        }
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: var(--blue-600);
+        }
+        [role="doc-subtitle"] {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+        .instructions {
+            max-width: min(50ch, 50%);
+            font-size: 1.25rem;
+        }
+        input[type="text"] {
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            font-size: 1.5rem;
+            border: 1px solid var(--blue-600);
+            width: 40ch;
+            margin: 2rem 0;
+
+            &:focus {
+                outline: none;
+                box-shadow: 0 0 0 4px var(--blue-200);
+            }
+        }
+    </style>
+
+  </head>
+  <body class="grid-layout">
+      <main>
+        <h1>Welcome! </h1>
+
+        <p role="doc-subtitle">
+            Please select your display name.
+        </p>
+
+        <p class="instructions">
+            Your display name will be used to identify you in the app. It can be changed later.
+        </p>
+
+        <form>
+          <input type="text" name="display_name" id="display_name" placeholder="Enter your display name" autofocus>
+          <input type="submit" value="Continue" class="btn btn-orange">
+        </form>
+
+      </main>
+  </body>
+</html>

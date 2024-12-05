@@ -21,7 +21,7 @@ export class SiteNav extends LitElement {
       user = html`
       <li>
         <span class="tag">${this.user?.role}</span>
-        ${this.user?.email} 
+        ${this.user?.display_name} 
       </li>
       `
     }

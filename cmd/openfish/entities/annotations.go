@@ -50,7 +50,7 @@ type Annotation struct {
 		Time string
 		keypoint.BoundingBox
 	}
-	Observer         string
+	Observer         int64
 	ObservationPairs []string
 	ObservationKeys  []string // A copy of the map's keys are stored separately, so we can quickly query for annotations with a given key present.
 }

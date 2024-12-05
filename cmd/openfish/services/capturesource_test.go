@@ -49,7 +49,7 @@ func setup() {
 	_ = os.Mkdir("store/openfish/VideoStream", os.ModePerm)
 	_ = os.Mkdir("store/openfish/Annotation", os.ModePerm)
 	_ = os.Mkdir("store/openfish/Species", os.ModePerm)
-	_ = os.Mkdir("store/openfish/Users", os.ModePerm)
+	_ = os.Mkdir("store/openfish/User", os.ModePerm)
 	_ = os.Mkdir("store/openfish/Task", os.ModePerm)
 	_ = os.Mkdir("store/openfish/Media", os.ModePerm)
 }
@@ -217,9 +217,9 @@ func TestDeleteCaptureSourceWithAssociatedVideoStreams(t *testing.T) {
 
 	// Create a new capture source entity and a video stream that references it.
 	id, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(id), _8am, &_4pm, []string{})
+	services.CreateVideoStream("http://youtube.com/watch?v=abc123", id, _8am, &_4pm, []int64{})
 
-	err := services.DeleteCaptureSource(int64(id))
+	err := services.DeleteCaptureSource(id)
 	if err == nil {
 		t.Errorf("Did not receive expected error when deleting capture source with associated video stream")
 	}

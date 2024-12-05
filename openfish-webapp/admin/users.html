@@ -52,7 +52,7 @@
       dt.addEventListener("deleteitem", (e) => confirmDialog.show(()=> deleteUser(e.detail)))
       dt.addEventListener("edititem", (e) => {
         editDialog.set(e.detail)
-        editDialog.action=`/api/v1/users/${e.detail.email}`
+        editDialog.action=`/api/v1/users/${e.detail.id}`
         editDialog.show()
       })
       editDialog.addEventListener("formsubmit", () => dt.fetchData())
@@ -72,7 +72,8 @@
         <header>
           <h2>Manage users</h2>
         </header>
-        <data-table src="/api/v1/users" colwidths="1fr 12rem min-content min-content" pkey="email">
+        <data-table src="/api/v1/users" colwidths="1fr 1fr 12rem min-content min-content">
+          <dt-col title="Display name" key="display_name"></dt-col>
           <dt-col title="Email" key="email"></dt-col>
           <dt-col title="Role" key="role"></dt-col>
           <dt-btn action="edititem" text="Edit"></dt-btn>
@@ -82,6 +83,9 @@
 
       <confirm-dialog>Are you sure you want to delete this user?</confirm-dialog>
       <form-dialog method="PATCH" title="Edit user" btntext="Save changes" >
+        <label for="display_name">Display name</label>
+        <input type="text" id="display_name" name="display_name" placeholder="Enter display name" required />
+
         <label for="role">Role</label>
         <select name="role" id="role">
           <option value="annotator">Annotator</option>
