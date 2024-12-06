@@ -40,9 +40,11 @@ import (
 	"strconv"
 
 	"github.com/ausocean/openfish/cmd/openfish/api"
-	"github.com/ausocean/openfish/cmd/openfish/ds_client"
+	"github.com/ausocean/openfish/cmd/openfish/globals"
+
 	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/handlers"
+
 	"github.com/ausocean/openfish/cmd/openfish/middleware"
 
 	"github.com/gofiber/fiber/v2"
@@ -67,6 +69,7 @@ func registerAPIRoutes(app *fiber.App) {
 	v1.Group("/videostreams").
 		Get("/:id", handlers.GetVideoStreamByID).
 		Get("/:id/media", middleware.Guard(entities.AdminRole), handlers.GetVideoStreamMedia).
+		Post("/:id/media/:type/:subtype\\:download", middleware.Guard(entities.AdminRole), handlers.DownloadVideoStreamMedia).
 		Get("/", handlers.GetVideoStreams).
 		Post("/live", middleware.Guard(entities.CuratorRole), handlers.StartVideoStream).
 		Patch("/:id/live", middleware.Guard(entities.CuratorRole), handlers.EndVideoStream).
@@ -168,18 +171,21 @@ func main() {
 
 	port := envOrFlag("port", "PORT", "Port to listen on", 8080, strconv.Atoi, flag.Int)
 	useFilestore := envOrFlag("filestore", "FILESTORE", "Use local datastore", false, strconv.ParseBool, flag.Bool)
+	useCloudRun := envOrFlag("cloudrun-jobs", "CLOUDRUN-JOBS", "Use Cloud Run for background jobs", false, strconv.ParseBool, flag.Bool)
+	useBuckets := envOrFlag("cloud-bucket", "CLOUD-BUCKET", "Use Cloud Buckets for storage of large data", false, strconv.ParseBool, flag.Bool)
 	useIAP := envOrFlag("iap", "IAP", "Use Google's Identity Aware Proxy for authentication", false, strconv.ParseBool, flag.Bool)
 	jwtAudience := envOrFlag("jwt-audience", "JWT_AUDIENCE", "Audience to use to validate JWT token", "", parseString, flag.String)
 
 	flag.Parse()
 
 	// Datastore setup.
-	if *useFilestore {
-		fmt.Println("using filestore")
-	} else {
-		fmt.Println("using cloud datastore")
-	}
-	ds_client.Init(*useFilestore)
+	globals.InitStore(*useFilestore)
+
+	// Background jobs setup.
+	globals.InitRunner(!*useCloudRun)
+
+	// Bucket setup.
+	globals.InitBucket(!*useBuckets)
 
 	// Create app.
 	app := fiber.New(fiber.Config{ErrorHandler: api.ErrorHandler})

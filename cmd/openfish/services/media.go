@@ -32,8 +32,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ausocean/openfish/cmd/openfish/ds_client"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/cmd/openfish/types/mediatype"
 	"github.com/ausocean/openfish/cmd/openfish/types/videotime"
 	"github.com/ausocean/openfish/datastore"
@@ -91,7 +91,7 @@ func MediaContentsFromEntity(e entities.Media) MediaContents {
 
 // GetMediaByID gets an image or video when provided with an ID.
 func GetMediaByID(id int64) (*Media, error) {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.MEDIA_KIND, id)
 	var entity entities.Media
 	err := store.Get(context.Background(), key, &entity)
@@ -114,7 +114,7 @@ func GetMediaByTypeStreamAndTime(mtype mediatype.MediaType, source int64, start 
 		return nil, fmt.Errorf("video media types must be provided with an end time and image media types must not")
 	}
 
-	store := ds_client.Get()
+	store := globals.GetStore()
 	query := store.NewQuery(entities.MEDIA_KIND, false)
 	query.FilterField("Type", "=", int(mtype))
 	query.FilterField("VideoStreamSource", "=", source)
@@ -143,7 +143,7 @@ func GetMediaByTypeStreamAndTime(mtype mediatype.MediaType, source int64, start 
 
 // MediaExists checks if the media exists in the datastore.
 func MediaExists(id int64) bool {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.MEDIA_KIND, id)
 	var media entities.Media
 	err := store.Get(context.Background(), key, &media)
@@ -161,7 +161,7 @@ func CreateMedia(media MediaContents) (int64, error) {
 	// TODO: Check media does not already exist.
 
 	// Insert entity.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	entity := media.ToEntity()
 	key := store.IncompleteKey(entities.MEDIA_KIND)
 	key, err := store.Put(context.Background(), key, &entity)
@@ -175,7 +175,7 @@ func CreateMedia(media MediaContents) (int64, error) {
 
 // DeleteMedia deletes an image/video.
 func DeleteMedia(id int64) error {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.MEDIA_KIND, id)
 	return store.Delete(context.Background(), key)
 }

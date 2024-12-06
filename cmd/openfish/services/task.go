@@ -38,8 +38,8 @@ import (
 	"context"
 	"net/url"
 
-	"github.com/ausocean/openfish/cmd/openfish/ds_client"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/datastore"
 )
 
@@ -87,11 +87,12 @@ type Task struct {
 	ID       int64
 	Status   TaskStatus
 	Resource *url.URL
+	Error    string
 }
 
 // GetTaskByID gets a task when provided with an ID.
 func GetTaskById(id int64) (*Task, error) {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.TASK_KIND, id)
 	var t entities.Task
 	err := store.Get(context.Background(), key, &t)
@@ -111,13 +112,14 @@ func GetTaskById(id int64) (*Task, error) {
 		ID:       key.ID,
 		Status:   TaskStatus(t.Status),
 		Resource: url,
+		Error:    t.Error,
 	}
 	return &task, nil
 }
 
 // CreateTask creates a new pending task.
 func CreateTask() (int64, error) {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	t := entities.Task{
 		Status: int(Pending),
 	}
@@ -132,7 +134,7 @@ func CreateTask() (int64, error) {
 
 // CancelTask marks a task as cancelled.
 func CancelTask(id int64) error {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.TASK_KIND, id)
 
 	var ta entities.Task
@@ -144,9 +146,9 @@ func CancelTask(id int64) error {
 	}, &ta)
 }
 
-// FailTask marks a task as failed.
-func FailTask(id int64) error {
-	store := ds_client.Get()
+// FailTask marks a task as failed and optionally attaches an error message to it.
+func FailTask(id int64, err error) error {
+	store := globals.GetStore()
 	key := store.IDKey(entities.TASK_KIND, id)
 
 	var ta entities.Task
@@ -155,12 +157,15 @@ func FailTask(id int64) error {
 		if ok && t.Status == int(Pending) {
 			t.Status = int(Failed)
 		}
+		if err != nil {
+			t.Error = err.Error()
+		}
 	}, &ta)
 }
 
 // CompleteTask marks a task as complete and optionally attaches a resource URL to it.
 func CompleteTask(id int64, resource *url.URL) error {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.TASK_KIND, id)
 
 	var ta entities.Task
