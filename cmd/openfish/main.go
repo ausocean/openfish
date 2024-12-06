@@ -172,7 +172,7 @@ func main() {
 	port := envOrFlag("port", "PORT", "Port to listen on", 8080, strconv.Atoi, flag.Int)
 	useFilestore := envOrFlag("filestore", "FILESTORE", "Use local datastore", false, strconv.ParseBool, flag.Bool)
 	useCloudRun := envOrFlag("cloudrun-jobs", "CLOUDRUN-JOBS", "Use Cloud Run for background jobs", false, strconv.ParseBool, flag.Bool)
-	useBuckets := envOrFlag("cloud-bucket", "CLOUD-BUCKET", "Use Cloud Buckets for storage of large data", false, strconv.ParseBool, flag.Bool)
+	useCloudStorage := envOrFlag("cloud-storage", "CLOUD-STORAGE", "Use Cloud Buckets for storage of large data", false, strconv.ParseBool, flag.Bool)
 	useIAP := envOrFlag("iap", "IAP", "Use Google's Identity Aware Proxy for authentication", false, strconv.ParseBool, flag.Bool)
 	jwtAudience := envOrFlag("jwt-audience", "JWT_AUDIENCE", "Audience to use to validate JWT token", "", parseString, flag.String)
 
@@ -184,8 +184,8 @@ func main() {
 	// Background jobs setup.
 	globals.InitRunner(!*useCloudRun)
 
-	// Bucket setup.
-	globals.InitBucket(!*useBuckets)
+	// Storage setup.
+	globals.InitStorage(!*useCloudStorage)
 
 	// Create app.
 	app := fiber.New(fiber.Config{ErrorHandler: api.ErrorHandler})

@@ -40,10 +40,12 @@ import (
 	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/datastore"
 	"github.com/ausocean/openfish/jobrunner"
+	"github.com/ausocean/openfish/storage"
 )
 
 var store datastore.Store
 var runner jobrunner.JobRunner
+var bucket storage.Storage
 
 // GetStore returns the datastore global variable.
 func GetStore() datastore.Store {
@@ -84,12 +86,16 @@ func InitRunner(local bool) {
 	}
 }
 
-// GetBucket returns the bucket global variable and bucket API client.
-func GetBucket() {
-	// TODO: implement.
+// GetStorage returns the storage global variable and storage API client.
+func GetStorage() storage.Storage {
+	return bucket
 }
 
-// InitBucket initializes the bucket API client.
-func InitBucket(local bool) {
-	// TODO: implement.
+// InitStorage initializes the storage API client.
+func InitStorage(local bool) {
+	if local {
+		bucket = storage.NewFileStorage()
+	} else {
+		bucket = storage.NewCloudStorage()
+	}
 }
