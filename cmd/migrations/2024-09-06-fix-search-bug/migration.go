@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/ausocean/openfish/cmd/openfish/ds_client"
+	ds_client "github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/cmd/openfish/services"
 )
 

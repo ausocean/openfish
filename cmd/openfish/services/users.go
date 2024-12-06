@@ -37,14 +37,14 @@ package services
 import (
 	"context"
 
-	"github.com/ausocean/openfish/cmd/openfish/ds_client"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/datastore"
 )
 
 // GetUserByEmail gets a user when provided with an email.
 func GetUserByEmail(email string) (*entities.User, error) {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.NameKey(entities.USER_KIND, email)
 	var user entities.User
 	err := store.Get(context.Background(), key, &user)
@@ -55,7 +55,7 @@ func GetUserByEmail(email string) (*entities.User, error) {
 }
 
 func UserExists(email string) bool {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.NameKey(entities.USER_KIND, email)
 	var user entities.User
 	err := store.Get(context.Background(), key, &user)
@@ -66,7 +66,7 @@ func UserExists(email string) bool {
 func GetUsers(limit int, offset int) ([]entities.User, error) {
 
 	// Fetch data from the datastore.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	query := store.NewQuery(entities.USER_KIND, false)
 
 	query.Limit(limit)
@@ -85,7 +85,7 @@ func GetUsers(limit int, offset int) ([]entities.User, error) {
 func CreateUser(email string, role entities.Role) error {
 
 	// Use the user's email as a unique ID.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.NameKey(entities.USER_KIND, email)
 
 	user := entities.User{
@@ -102,7 +102,7 @@ func CreateUser(email string, role entities.Role) error {
 func UpdateUser(email string, role entities.Role) error {
 
 	// Update data in the datastore.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.NameKey(entities.USER_KIND, email)
 	var user entities.User
 
@@ -117,7 +117,7 @@ func UpdateUser(email string, role entities.Role) error {
 // DeleteUser deletes a user.
 func DeleteUser(email string) error {
 	// Delete entity.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.NameKey(entities.USER_KIND, email)
 	return store.Delete(context.Background(), key)
 }

@@ -37,12 +37,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ausocean/openfish/cmd/openfish/ds_client"
+	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/cmd/openfish/services"
 )
 
 func setup() {
-	ds_client.Init(true)
+	globals.InitStore(true)
 
 	// Create directories if they do not exist.
 	_ = os.Mkdir("store/openfish/CaptureSource", os.ModePerm)

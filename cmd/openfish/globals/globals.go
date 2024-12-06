@@ -32,24 +32,26 @@ LICENSE
 */
 
 // Package ds_client initializes the datastore and makes it available to other packages through the use of Get().
-package ds_client
+package globals
 
 import (
 	"context"
 
 	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/datastore"
+	"github.com/ausocean/openfish/storage"
 )
 
+var bucket storage.Storage
 var store datastore.Store
 
-// Get returns the datastore global variable.
-func Get() datastore.Store {
+// GetStore returns the datastore global variable.
+func GetStore() datastore.Store {
 	return store
 }
 
-// Init initializes the datastore global variable and datastore client.
-func Init(local bool) {
+// InitStore initializes the datastore global variable and datastore client.
+func InitStore(local bool) error {
 	ctx := context.Background()
 	var err error
 	if local {
@@ -57,13 +59,28 @@ func Init(local bool) {
 	} else {
 		store, err = datastore.NewStore(ctx, "cloud", "openfish", "")
 	}
-	if err != nil {
-		panic(err)
-	}
 
 	datastore.RegisterEntity(entities.CAPTURESOURCE_KIND, entities.NewCaptureSource)
 	datastore.RegisterEntity(entities.VIDEOSTREAM_KIND, entities.NewVideoStream)
 	datastore.RegisterEntity(entities.ANNOTATION_KIND, entities.NewAnnotation)
 	datastore.RegisterEntity(entities.SPECIES_KIND, entities.NewSpecies)
 	datastore.RegisterEntity(entities.USER_KIND, entities.NewUser)
+
+	return err
+}
+
+// GetStorage returns the storage global variable and storage API client.
+func GetStorage() storage.Storage {
+	return bucket
+}
+
+// InitStorage initializes the storage API client.
+func InitStorage(local bool) error {
+	var err error
+	if local {
+		bucket = storage.NewFileStorage("./storage")
+	} else {
+		bucket, err = storage.NewCloudStorage("gs://openfish.appspot.com")
+	}
+	return err
 }
