@@ -31,9 +31,10 @@ package services
 import (
 	"context"
 	"fmt"
+	"io"
 
-	"github.com/ausocean/openfish/cmd/openfish/ds_client"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/cmd/openfish/types/mediatype"
 	"github.com/ausocean/openfish/cmd/openfish/types/videotime"
 	"github.com/ausocean/openfish/datastore"
@@ -61,7 +62,7 @@ func (m *MediaContents) ToEntity() entities.Media {
 		VideoStreamSource: m.VideoStreamSource,
 		StartTime:         m.StartTime.Int(),
 		EndTime:           nil,
-		Bytes:             m.Bytes,
+		ObjectName:        m.ToStorageName(),
 	}
 
 	if m.EndTime != nil {
@@ -72,13 +73,21 @@ func (m *MediaContents) ToEntity() entities.Media {
 	return e
 }
 
+func (m *MediaContents) ToStorageName() string {
+	if m.EndTime == nil {
+		return fmt.Sprintf("media/images/%d[%s].%s", m.VideoStreamSource, m.StartTime.String(), m.Type.FileExtension())
+	} else {
+		return fmt.Sprintf("media/videos/%d[%s-%s].%s", m.VideoStreamSource, m.StartTime.String(), m.EndTime.String(), m.Type.FileExtension())
+	}
+}
+
 // MediaContentsFromEntity converts an entities.Media to a MediaContents for use in the API.
 func MediaContentsFromEntity(e entities.Media) MediaContents {
 	m := MediaContents{
 		Type:              mediatype.MediaType(e.Type),
 		VideoStreamSource: e.VideoStreamSource,
 		StartTime:         videotime.FromInt(e.StartTime),
-		Bytes:             e.Bytes,
+		Bytes:             []byte{},
 	}
 
 	if e.EndTime != nil {
@@ -91,7 +100,7 @@ func MediaContentsFromEntity(e entities.Media) MediaContents {
 
 // GetMediaByID gets an image or video when provided with an ID.
 func GetMediaByID(id int64) (*Media, error) {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.MEDIA_KIND, id)
 	var entity entities.Media
 	err := store.Get(context.Background(), key, &entity)
@@ -99,9 +108,26 @@ func GetMediaByID(id int64) (*Media, error) {
 		return nil, err
 	}
 
+	contents := MediaContentsFromEntity(entity)
+
+	// Get file from storage.
+	storage := globals.GetStorage()
+	handle := storage.Object(contents.ToStorageName())
+	r, err := handle.NewReader(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	bytes, err := io.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
+
+	contents.Bytes = bytes
+
 	media := Media{
 		ID:            key.ID,
-		MediaContents: MediaContentsFromEntity(entity),
+		MediaContents: contents,
 	}
 	return &media, nil
 }
@@ -114,7 +140,7 @@ func GetMediaByTypeStreamAndTime(mtype mediatype.MediaType, source int64, start 
 		return nil, fmt.Errorf("video media types must be provided with an end time and image media types must not")
 	}
 
-	store := ds_client.Get()
+	store := globals.GetStore()
 	query := store.NewQuery(entities.MEDIA_KIND, false)
 	query.FilterField("Type", "=", int(mtype))
 	query.FilterField("VideoStreamSource", "=", source)
@@ -134,16 +160,33 @@ func GetMediaByTypeStreamAndTime(mtype mediatype.MediaType, source int64, start 
 		return nil, datastore.ErrNoSuchEntity
 	}
 
+	contents := MediaContentsFromEntity(entities[0])
+
+	// Get file from storage.
+	storage := globals.GetStorage()
+	handle := storage.Object(contents.ToStorageName())
+	r, err := handle.NewReader(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	bytes, err := io.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
+
+	contents.Bytes = bytes
+
 	media := Media{
 		ID:            keys[0].ID,
-		MediaContents: MediaContentsFromEntity(entities[0]),
+		MediaContents: contents,
 	}
 	return &media, nil
 }
 
 // MediaExists checks if the media exists in the datastore.
 func MediaExists(id int64) bool {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.MEDIA_KIND, id)
 	var media entities.Media
 	err := store.Get(context.Background(), key, &media)
@@ -160,11 +203,26 @@ func CreateMedia(media MediaContents) (int64, error) {
 
 	// TODO: Check media does not already exist.
 
+	// Put binary file into storage.
+	name := media.ToStorageName()
+	storage := globals.GetStorage()
+	handle := storage.Object(name)
+	w, err := handle.NewWriter(context.Background())
+	defer w.Close()
+	if err != nil {
+		return 0, err
+	}
+
+	_, err = w.Write(media.Bytes)
+	if err != nil {
+		return 0, err
+	}
+
 	// Insert entity.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	entity := media.ToEntity()
 	key := store.IncompleteKey(entities.MEDIA_KIND)
-	key, err := store.Put(context.Background(), key, &entity)
+	key, err = store.Put(context.Background(), key, &entity)
 	if err != nil {
 		return 0, err
 	}
@@ -175,7 +233,7 @@ func CreateMedia(media MediaContents) (int64, error) {
 
 // DeleteMedia deletes an image/video.
 func DeleteMedia(id int64) error {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.MEDIA_KIND, id)
 	return store.Delete(context.Background(), key)
 }
