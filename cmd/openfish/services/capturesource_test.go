@@ -43,15 +43,18 @@ import (
 
 func setup() {
 	globals.InitStore(true)
+	globals.InitStorage(true)
 
 	// Create directories if they do not exist.
-	_ = os.Mkdir("store/openfish/CaptureSource", os.ModePerm)
-	_ = os.Mkdir("store/openfish/VideoStream", os.ModePerm)
-	_ = os.Mkdir("store/openfish/Annotation", os.ModePerm)
-	_ = os.Mkdir("store/openfish/Species", os.ModePerm)
-	_ = os.Mkdir("store/openfish/Users", os.ModePerm)
-	_ = os.Mkdir("store/openfish/Task", os.ModePerm)
-	_ = os.Mkdir("store/openfish/Media", os.ModePerm)
+	os.MkdirAll("store/openfish/CaptureSource", os.ModePerm)
+	os.MkdirAll("store/openfish/VideoStream", os.ModePerm)
+	os.MkdirAll("store/openfish/Annotation", os.ModePerm)
+	os.MkdirAll("store/openfish/Species", os.ModePerm)
+	os.MkdirAll("store/openfish/Users", os.ModePerm)
+	os.MkdirAll("store/openfish/Task", os.ModePerm)
+	os.MkdirAll("store/openfish/Media", os.ModePerm)
+	os.MkdirAll("bucket-storage/media/images", os.ModePerm)
+	os.MkdirAll("bucket-storage/media/videos", os.ModePerm)
 }
 
 func TestCreateCaptureSource(t *testing.T) {

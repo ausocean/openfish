@@ -48,7 +48,7 @@ type Media struct {
 	VideoStreamSource int64 // Where the image/video was taken from.
 	StartTime         int64
 	EndTime           *int64 // Optional, because images do not have an end time.
-	Bytes             []byte
+	ObjectName        string // Name of the object in cloud storage.
 }
 
 // Implements Copy from the Entity interface.

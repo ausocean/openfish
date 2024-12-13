@@ -51,7 +51,7 @@ const baseDir = "./test-storage"
 // TestWriteObject verifies that we can create and write to a file.
 func TestWriteObject(t *testing.T) {
 
-	os.MkdirAll(baseDir, 0755)
+	os.MkdirAll(baseDir, os.ModePerm)
 	defer os.RemoveAll(baseDir)
 
 	// File path to be used for the test

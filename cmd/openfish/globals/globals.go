@@ -31,7 +31,7 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// Package ds_client initializes the datastore and makes it available to other packages through the use of Get().
+// Package globals makes the datastore and storage available to other packages through the use of GetStore() and GetStorage().
 package globals
 
 import (
@@ -78,7 +78,7 @@ func GetStorage() storage.Storage {
 func InitStorage(local bool) error {
 	var err error
 	if local {
-		bucket = storage.NewFileStorage("./storage")
+		bucket = storage.NewFileStorage("./bucket-storage")
 	} else {
 		bucket, err = storage.NewCloudStorage("gs://openfish.appspot.com")
 	}
