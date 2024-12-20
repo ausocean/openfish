@@ -31,151 +31,99 @@ package services
 import (
 	"context"
 	"fmt"
+	"io"
 
-	"github.com/ausocean/openfish/cmd/openfish/ds_client"
-	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/cmd/openfish/types/mediatype"
 	"github.com/ausocean/openfish/cmd/openfish/types/videotime"
-	"github.com/ausocean/openfish/datastore"
 )
 
-// Media is a saved video or image.
-type Media struct {
-	ID int64
-	MediaContents
+// MediaKey is a composite key with all the attributes that define media.
+// All media are uniquely identified by the combination of these three parameters.
+type MediaKey struct {
+	Type          mediatype.MediaType
+	VideoStreamID int64
+	StartTime     videotime.VideoTime
+	EndTime       *videotime.VideoTime
 }
 
-// MediaContents represents Media without an ID.
-type MediaContents struct {
-	Type              mediatype.MediaType
-	VideoStreamSource int64
-	StartTime         videotime.VideoTime
-	EndTime           *videotime.VideoTime
-	Bytes             []byte
+// Valid tests a MediaKey has a valid VideoStreamID and either has an end time for the case
+// of videos, or does not have an end time in the case of images.
+func (q *MediaKey) Valid() bool {
+	return q.Type.IsVideo() == (q.EndTime != nil) && VideoStreamExists(q.VideoStreamID)
 }
 
-// ToEntity converts a MediaContents to an entities.Media for storage in the datastore.
-func (m *MediaContents) ToEntity() entities.Media {
-	e := entities.Media{
-		Type:              int(m.Type),
-		VideoStreamSource: m.VideoStreamSource,
-		StartTime:         m.StartTime.Int(),
-		EndTime:           nil,
-		Bytes:             m.Bytes,
+// ToStorageName returns the name used to store the media in a bucket.
+func (q *MediaKey) ToStorageName() string {
+	if q.EndTime == nil {
+		return fmt.Sprintf("images/%d[%s].%s", q.VideoStreamID, q.StartTime.String(), q.Type.FileExtension())
+	} else {
+		return fmt.Sprintf("videos/%d[%s-%s].%s", q.VideoStreamID, q.StartTime.String(), q.EndTime.String(), q.Type.FileExtension())
 	}
-
-	if m.EndTime != nil {
-		end := m.EndTime.Int()
-		e.EndTime = &end
-	}
-
-	return e
 }
 
-// MediaContentsFromEntity converts an entities.Media to a MediaContents for use in the API.
-func MediaContentsFromEntity(e entities.Media) MediaContents {
-	m := MediaContents{
-		Type:              mediatype.MediaType(e.Type),
-		VideoStreamSource: e.VideoStreamSource,
-		StartTime:         videotime.FromInt(e.StartTime),
-		Bytes:             e.Bytes,
-	}
+// GetMedia gets the media with the specified type, source video stream and time.
+func GetMedia(q MediaKey) ([]byte, error) {
 
-	if e.EndTime != nil {
-		endTime := videotime.FromInt(*e.EndTime)
-		m.EndTime = &endTime
-	}
-
-	return m
-}
-
-// GetMediaByID gets an image or video when provided with an ID.
-func GetMediaByID(id int64) (*Media, error) {
-	store := ds_client.Get()
-	key := store.IDKey(entities.MEDIA_KIND, id)
-	var entity entities.Media
-	err := store.Get(context.Background(), key, &entity)
-	if err != nil {
-		return nil, err
-	}
-
-	media := Media{
-		ID:            key.ID,
-		MediaContents: MediaContentsFromEntity(entity),
-	}
-	return &media, nil
-}
-
-// GetMediaByTypeStreamAndTime gets the media with the specified type, source video stream and time.
-// It can do so because media is uniquely identified by the combination of these three parameters.
-func GetMediaByTypeStreamAndTime(mtype mediatype.MediaType, source int64, start videotime.VideoTime, end *videotime.VideoTime) (*Media, error) {
-
-	if mtype.IsVideo() == (end == nil) {
+	if !q.Valid() {
 		return nil, fmt.Errorf("video media types must be provided with an end time and image media types must not")
 	}
 
-	store := ds_client.Get()
-	query := store.NewQuery(entities.MEDIA_KIND, false)
-	query.FilterField("Type", "=", int(mtype))
-	query.FilterField("VideoStreamSource", "=", source)
-	query.FilterField("StartTime", "=", start.Int())
-	if end != nil {
-		query.FilterField("EndTime", "=", end.Int())
-	}
-	query.Limit(1)
-
-	var entities []entities.Media
-	keys, err := store.GetAll(context.Background(), query, &entities)
+	// Get file from storage.
+	storage := globals.GetStorage()
+	name := q.ToStorageName()
+	handle := storage.Object(name)
+	r, err := handle.NewReader(context.Background())
 	if err != nil {
 		return nil, err
 	}
 
-	if len(keys) == 0 {
-		return nil, datastore.ErrNoSuchEntity
+	bytes, err := io.ReadAll(r)
+	if err != nil {
+		return nil, err
 	}
-
-	media := Media{
-		ID:            keys[0].ID,
-		MediaContents: MediaContentsFromEntity(entities[0]),
-	}
-	return &media, nil
+	return bytes, nil
 }
 
 // MediaExists checks if the media exists in the datastore.
-func MediaExists(id int64) bool {
-	store := ds_client.Get()
-	key := store.IDKey(entities.MEDIA_KIND, id)
-	var media entities.Media
-	err := store.Get(context.Background(), key, &media)
-	return err == nil
+func MediaExists(q MediaKey) bool {
+	name := q.ToStorageName()
+	storage := globals.GetStorage()
+	handle := storage.Object(name)
+	exists, _ := handle.Exists(context.Background())
+	return exists
 }
 
 // CreateMedia puts an image or video in the datastore.
-func CreateMedia(media MediaContents) (int64, error) {
+func CreateMedia(q MediaKey, data []byte) (string, error) {
 
-	// Verify VideoStream exists.
-	if !VideoStreamExists(media.VideoStreamSource) {
-		return 0, fmt.Errorf("video stream does not exist")
+	if !q.Valid() {
+		return "", fmt.Errorf("video media types must be provided with an end time and image media types must not")
 	}
 
-	// TODO: Check media does not already exist.
-
-	// Insert entity.
-	store := ds_client.Get()
-	entity := media.ToEntity()
-	key := store.IncompleteKey(entities.MEDIA_KIND)
-	key, err := store.Put(context.Background(), key, &entity)
+	// Put binary file into storage.
+	name := q.ToStorageName()
+	storage := globals.GetStorage()
+	handle := storage.Object(name)
+	w, err := handle.NewWriter(context.Background())
 	if err != nil {
-		return 0, err
+		return "", err
+	}
+	defer w.Close()
+
+	_, err = w.Write(data)
+	if err != nil {
+		return "", err
 	}
 
-	// Return ID of created media.
-	return key.ID, nil
+	// Return name of created media.
+	return name, nil
 }
 
 // DeleteMedia deletes an image/video.
-func DeleteMedia(id int64) error {
-	store := ds_client.Get()
-	key := store.IDKey(entities.MEDIA_KIND, id)
-	return store.Delete(context.Background(), key)
+func DeleteMedia(q MediaKey) error {
+	name := q.ToStorageName()
+	storage := globals.GetStorage()
+	handle := storage.Object(name)
+	return handle.Delete(context.Background())
 }
