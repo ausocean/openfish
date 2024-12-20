@@ -40,7 +40,7 @@ import (
 	"strconv"
 
 	"github.com/ausocean/openfish/cmd/openfish/api"
-	"github.com/ausocean/openfish/cmd/openfish/ds_client"
+	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/cmd/openfish/handlers"
 	"github.com/ausocean/openfish/cmd/openfish/middleware"
 	"github.com/ausocean/openfish/cmd/openfish/types/role"
@@ -66,7 +66,8 @@ func registerAPIRoutes(app *fiber.App) {
 	// Video streams.
 	v1.Group("/videostreams").
 		Get("/:id", handlers.GetVideoStreamByID).
-		Get("/:id/media", middleware.Guard(role.Admin), handlers.GetVideoStreamMedia).
+		Get("/:id/media/:type/:subtype", middleware.Guard(role.Admin), handlers.GetVideoStreamMedia).
+		Delete("/:id/media/:type/:subtype", middleware.Guard(role.Admin), handlers.DeleteVideoStreamMedia).
 		Get("/", handlers.GetVideoStreams).
 		Post("/live", middleware.Guard(role.Curator), handlers.StartVideoStream).
 		Patch("/:id/live", middleware.Guard(role.Curator), handlers.EndVideoStream).
@@ -103,11 +104,6 @@ func registerAPIRoutes(app *fiber.App) {
 
 	// Tasks.
 	v1.Get("/tasks/:id/status", handlers.PollTask)
-
-	// Media.
-	v1.Group("/media", middleware.Guard(role.Admin)).
-		Get("/:id", handlers.GetMediaByID).
-		Delete("/:id", handlers.DeleteMedia)
 
 }
 
@@ -196,18 +192,20 @@ func main() {
 
 	port := envOrFlag("port", "PORT", "Port to listen on", 8080, strconv.Atoi, flag.Int)
 	useFilestore := envOrFlag("filestore", "FILESTORE", "Use local datastore", false, strconv.ParseBool, flag.Bool)
+	useCloudStorage := envOrFlag("cloud-storage", "CLOUD-STORAGE", "Use Cloud Buckets for storage of large data", false, strconv.ParseBool, flag.Bool)
 	useIAP := envOrFlag("iap", "IAP", "Use Google's Identity Aware Proxy for authentication", false, strconv.ParseBool, flag.Bool)
 	jwtAudience := envOrFlag("jwt-audience", "JWT_AUDIENCE", "Audience to use to validate JWT token", "", parseString, flag.String)
 
 	flag.Parse()
 
 	// Datastore setup.
-	if *useFilestore {
-		fmt.Println("using filestore")
-	} else {
-		fmt.Println("using cloud datastore")
+	globals.InitStore(*useFilestore)
+
+	// Storage setup.
+	err := globals.InitStorage(!*useCloudStorage)
+	if err != nil {
+		panic(err.Error())
 	}
-	ds_client.Init(*useFilestore)
 
 	// Create app.
 	app := fiber.New(fiber.Config{ErrorHandler: api.ErrorHandler})

@@ -37,8 +37,8 @@ package services
 import (
 	"context"
 
-	"github.com/ausocean/openfish/cmd/openfish/ds_client"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/cmd/openfish/types/role"
 	"github.com/ausocean/openfish/datastore"
 )
@@ -102,7 +102,7 @@ func (u *User) ToPublicUser() PublicUser {
 
 // GetUserByID gets a user when provided when provided with an ID.
 func GetUserByID(id int64) (*User, error) {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.USER_KIND, id)
 	var user entities.User
 	err := store.Get(context.Background(), key, &user)
@@ -118,7 +118,7 @@ func GetUserByID(id int64) (*User, error) {
 
 // GetUserByEmail gets a user when provided with an email address.
 func GetUserByEmail(email string) (*User, error) {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	query := store.NewQuery(entities.USER_KIND, false)
 
 	query.FilterField("Email", "=", email)
@@ -142,7 +142,7 @@ func GetUserByEmail(email string) (*User, error) {
 
 // UserExists checks if a user exists for a given ID.
 func UserExists(id int64) bool {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.USER_KIND, id)
 	var user entities.User
 	err := store.Get(context.Background(), key, &user)
@@ -153,7 +153,7 @@ func UserExists(id int64) bool {
 func GetUsers(limit int, offset int) ([]User, error) {
 
 	// Fetch data from the datastore.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	query := store.NewQuery(entities.USER_KIND, false)
 
 	query.Limit(limit)
@@ -179,7 +179,7 @@ func GetUsers(limit int, offset int) ([]User, error) {
 // CreateUser creates a new user.
 func CreateUser(user UserContents) (int64, error) {
 
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IncompleteKey(entities.USER_KIND)
 
 	u := user.ToEntity()
@@ -197,7 +197,7 @@ func CreateUser(user UserContents) (int64, error) {
 func UpdateUser(id int64, updates PartialUserContents) error {
 
 	// Update data in the datastore.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.USER_KIND, id)
 	var user entities.User
 
@@ -220,7 +220,7 @@ func UpdateUser(id int64, updates PartialUserContents) error {
 // DeleteUser deletes a user.
 func DeleteUser(id int64) error {
 	// Delete entity.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.USER_KIND, id)
 	return store.Delete(context.Background(), key)
 }

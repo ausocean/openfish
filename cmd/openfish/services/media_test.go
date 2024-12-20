@@ -48,13 +48,12 @@ func TestCreateImageMedia(t *testing.T) {
 	// Create a new media entity.
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
-	_, err := services.CreateMedia(services.MediaContents{
-		Type:              mediatype.JPEG,
-		VideoStreamSource: vs,
-		StartTime:         videotime.UncheckedParse("00:00:01.000"),
-		EndTime:           nil,
-		Bytes:             []byte{},
-	})
+	_, err := services.CreateMedia(services.MediaKey{
+		Type:          mediatype.JPEG,
+		VideoStreamID: vs,
+		StartTime:     videotime.UncheckedParse("00:00:01.000"),
+		EndTime:       nil,
+	}, []byte{})
 	if err != nil {
 		t.Errorf("Could not create media entity %s", err)
 	}
@@ -67,13 +66,12 @@ func TestCreateVideoMedia(t *testing.T) {
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
 	end := videotime.UncheckedParse("00:00:01.500")
-	_, err := services.CreateMedia(services.MediaContents{
-		Type:              mediatype.MP4,
-		VideoStreamSource: vs,
-		StartTime:         videotime.UncheckedParse("00:00:01.000"),
-		EndTime:           &end,
-		Bytes:             []byte{},
-	})
+	_, err := services.CreateMedia(services.MediaKey{
+		Type:          mediatype.MP4,
+		VideoStreamID: vs,
+		StartTime:     videotime.UncheckedParse("00:00:01.000"),
+		EndTime:       &end,
+	}, []byte{})
 	if err != nil {
 		t.Errorf("Could not create media entity %s", err)
 	}
@@ -85,59 +83,72 @@ func TestMediaExists(t *testing.T) {
 	// Create a new media entity.
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
-	id, _ := services.CreateMedia(services.MediaContents{
-		Type:              mediatype.JPEG,
-		VideoStreamSource: vs,
-		StartTime:         videotime.UncheckedParse("00:00:01.000"),
-		EndTime:           nil,
-		Bytes:             []byte{},
-	})
+	mq := services.MediaKey{
+		Type:          mediatype.JPEG,
+		VideoStreamID: vs,
+		StartTime:     videotime.UncheckedParse("00:00:01.000"),
+		EndTime:       nil,
+	}
+	services.CreateMedia(mq, []byte{})
 
 	// Check if the media exists.
-	if !services.MediaExists(id) {
+	if !services.MediaExists(mq) {
 		t.Errorf("Expected media to exist")
 	}
 }
 
-func TestMediaExistsForNonexistentEntity(t *testing.T) {
+func TestMediaExistsForNonexistentObject(t *testing.T) {
 	setup()
 
 	// Check if the media exists.
 	// We expect it to return false.
-	if services.MediaExists(int64(123456789)) {
+	mq := services.MediaKey{
+		Type:          mediatype.JPEG,
+		VideoStreamID: 1234567890,
+		StartTime:     videotime.UncheckedParse("00:00:01.000"),
+		EndTime:       nil,
+	}
+	if services.MediaExists(mq) {
 		t.Errorf("Did not expect media to exist")
 	}
 }
 
-func TestGetMediaByID(t *testing.T) {
+func TestGetMedia(t *testing.T) {
 	setup()
 
+	// Create a new media entity.
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
-	contents := services.MediaContents{
-		Type:              mediatype.JPEG,
-		VideoStreamSource: vs,
-		StartTime:         videotime.UncheckedParse("00:00:01.000"),
-		EndTime:           nil,
-		Bytes:             []byte{},
+	mq := services.MediaKey{
+		Type:          mediatype.JPEG,
+		VideoStreamID: vs,
+		StartTime:     videotime.UncheckedParse("00:00:01.000"),
+		EndTime:       nil,
 	}
-	id, _ := services.CreateMedia(contents)
+	expected := []byte{1, 2, 3, 4, 5}
+	services.CreateMedia(mq, expected)
 
-	media, err := services.GetMediaByID(id)
+	bytes, err := services.GetMedia(mq)
 	if err != nil {
-		t.Errorf("Could not get media entity %s", err)
+		t.Errorf("Could not get media object: %s", err)
 	}
-	if !reflect.DeepEqual(media.MediaContents, contents) {
-		t.Errorf("Video stream entity does not match created entity, %+v, %+v", media.MediaContents, contents)
+	if !reflect.DeepEqual(expected, bytes) {
+		t.Errorf("Media object does not match expected object, %+v, %+v", bytes, expected)
 	}
 }
 
-func TestGetMediaByIDForNonexistentEntity(t *testing.T) {
+func TestGetMediaForNonexistentObject(t *testing.T) {
 	setup()
 
-	videoStream, err := services.GetMediaByID(int64(123456789))
-	if videoStream != nil && err == nil {
-		t.Errorf("GetMediaByID returned non-existing entity %s", err)
+	mq := services.MediaKey{
+		Type:          mediatype.JPEG,
+		VideoStreamID: 1234567890,
+		StartTime:     videotime.UncheckedParse("00:00:01.000"),
+		EndTime:       nil,
+	}
+	_, err := services.GetMedia(mq)
+	if err == nil {
+		t.Errorf("GetMediaByID returned non-existing object %s", err)
 	}
 }
 
@@ -147,30 +158,36 @@ func TestDeleteMedia(t *testing.T) {
 	// Create a new media entity.
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
-	id, _ := services.CreateMedia(services.MediaContents{
-		Type:              mediatype.JPEG,
-		VideoStreamSource: vs,
-		StartTime:         videotime.UncheckedParse("00:00:01.000"),
-		EndTime:           nil,
-		Bytes:             []byte{},
-	})
+	mq := services.MediaKey{
+		Type:          mediatype.JPEG,
+		VideoStreamID: vs,
+		StartTime:     videotime.UncheckedParse("00:00:01.000"),
+		EndTime:       nil,
+	}
+	services.CreateMedia(mq, []byte{})
 
 	// Delete the media entity.
-	err := services.DeleteMedia(int64(id))
+	err := services.DeleteMedia(mq)
 	if err != nil {
-		t.Errorf("Could not delete media entity %d: %s", id, err)
+		t.Errorf("Could not delete media object: %s", err)
 	}
 
 	// Check if the media exists.
-	if services.MediaExists(int64(id)) {
+	if services.MediaExists(mq) {
 		t.Errorf("Video stream entity exists after delete")
 	}
 }
 
-func TestDeleteMediaForNonexistentEntity(t *testing.T) {
+func TestDeleteMediaForNonexistentObject(t *testing.T) {
 	setup()
 
-	err := services.DeleteMedia(int64(123456789))
+	mq := services.MediaKey{
+		Type:          mediatype.JPEG,
+		VideoStreamID: 1234567890,
+		StartTime:     videotime.UncheckedParse("00:00:01.000"),
+		EndTime:       nil,
+	}
+	err := services.DeleteMedia(mq)
 	if err == nil {
 		t.Errorf("Did not receive expected error when deleting non-existent media")
 	}

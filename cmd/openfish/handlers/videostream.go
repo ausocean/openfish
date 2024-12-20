@@ -45,7 +45,6 @@ import (
 	"github.com/ausocean/openfish/cmd/openfish/types/mediatype"
 	"github.com/ausocean/openfish/cmd/openfish/types/timespan"
 	"github.com/ausocean/openfish/cmd/openfish/types/videotime"
-	"github.com/ausocean/openfish/datastore"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -174,16 +173,15 @@ func GetVideoStreamByID(ctx *fiber.Ctx) error {
 //	@Description	Roles required: <role-tag>Admin</role-tag>
 //	@Description
 //	@Description	Gets the image or video snippet from this video stream at the given time.
-//	@Tags			Video Streams
-//	@Accept			image/jpeg,video/mp4
+//	@Tags			Media
 //	@Param			id		path	int		true	"Video Stream ID"	example(1234567890)
-//	@Param			Accepts	header	string	true	"Accepts"			example(image/jpeg)
+//	@Param			type		path	string		true	"Type"	example(image)
+//	@Param			subtype		path	string		true	"Subtype"	example(jpeg)
 //	@Param			time	query	string	true	"Time"				example(00:00:01.000-00:00:05.500)
-//	@Success		302
-//	@Header			302	{string}	Location	"/api/v1/media/1234567890"
+//	@Success		200
 //	@Failure		400	{object}	api.Failure
 //	@Failure		404	{object}	api.Failure
-//	@Router			/api/v1/videostreams/{id}/media [get]
+//	@Router			/api/v1/videostreams/{id}/media/{type}/{subtype} [get]
 func GetVideoStreamMedia(ctx *fiber.Ctx) error {
 	// Parse URL.
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
@@ -191,14 +189,9 @@ func GetVideoStreamMedia(ctx *fiber.Ctx) error {
 		return api.InvalidRequestURL(err)
 	}
 
-	// Parse accepts header.
-	accepts := ctx.Accepts(mediatype.AllMimeTypes()...)
-	if accepts == "" {
-		return api.NotAcceptable()
-	}
-	mtype := mediatype.FromMimeType(accepts)
-	if mtype == mediatype.Invalid {
-		return api.NotAcceptable()
+	mtype, err := mediatype.ParseMimeType(fmt.Sprintf("%s/%s", ctx.Params("type"), ctx.Params("subtype")))
+	if err != nil {
+		return api.InvalidRequestURL(err)
 	}
 
 	// Parse query params.
@@ -222,16 +215,79 @@ func GetVideoStreamMedia(ctx *fiber.Ctx) error {
 		start = qry.Time
 	}
 
-	// Fetch data from the datastore.
-	media, err := services.GetMediaByTypeStreamAndTime(mtype, id, start, end)
-	if err == datastore.ErrNoSuchEntity {
-		return api.NotFound(fmt.Errorf("media %d not found", id))
-	}
+	// Fetch data from storage
+	bytes, err := services.GetMedia(services.MediaKey{
+		Type:          mtype,
+		VideoStreamID: id,
+		StartTime:     start,
+		EndTime:       end,
+	})
 	if err != nil {
-		return api.DatastoreReadFailure(err)
+		return err
 	}
 
-	return ctx.Redirect(fmt.Sprintf("/api/v1/media/%d", media.ID))
+	ctx.Type(mtype.FileExtension())
+	ctx.Attachment(fmt.Sprintf("%d.%s", id, mtype.FileExtension()))
+	ctx.Write(bytes)
+
+	return nil
+}
+
+// DeleteVideoStreamMedia deletes the cached image/video snippet from this video stream at the given time.
+//
+//	@Summary		Delete video stream media
+//	@Description	Roles required: <role-tag>Admin</role-tag>
+//	@Description
+//	@Description	Deletes the cached image or video snippet from this video stream at the given time.
+//	@Tags			Media
+//	@Param			id		path	int		true	"Video Stream ID"	example(1234567890)
+//	@Param			type		path	string		true	"Type"	example(image)
+//	@Param			subtype		path	string		true	"Subtype"	example(jpeg)
+//	@Param			time	query	string	true	"Time"				example(00:00:01.000-00:00:05.500)
+//	@Success		200
+//	@Failure		400	{object}	api.Failure
+//	@Failure		404	{object}	api.Failure
+//	@Router			/api/v1/videostreams/{id}/media/{type}/{subtype} [delete]
+func DeleteVideoStreamMedia(ctx *fiber.Ctx) error {
+	// Parse URL.
+	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
+	if err != nil {
+		return api.InvalidRequestURL(err)
+	}
+
+	mtype, err := mediatype.ParseMimeType(fmt.Sprintf("%s/%s", ctx.Params("type"), ctx.Params("subtype")))
+	if err != nil {
+		return api.InvalidRequestURL(err)
+	}
+
+	// Parse query params.
+	var start videotime.VideoTime
+	var end *videotime.VideoTime
+	if mtype.IsVideo() {
+		qry := new(GetMediaVideoQuery)
+		if err := ctx.QueryParser(qry); err != nil {
+			return api.InvalidRequestURL(err)
+		}
+		if !qry.TimeSpan.Valid() {
+			return api.InvalidRequestURL(fmt.Errorf("invalid time span, start time must occur before end time"))
+		}
+		start = qry.TimeSpan.Start
+		end = &qry.TimeSpan.End
+	} else {
+		qry := new(GetMediaImageQuery)
+		if err := ctx.QueryParser(qry); err != nil {
+			return api.InvalidRequestURL(err)
+		}
+		start = qry.Time
+	}
+
+	// Delete media from storage.
+	return services.DeleteMedia(services.MediaKey{
+		Type:          mtype,
+		VideoStreamID: id,
+		StartTime:     start,
+		EndTime:       end,
+	})
 }
 
 // GetVideoStreams gets a list of video streams, filtering by timespan, capture source if specified.

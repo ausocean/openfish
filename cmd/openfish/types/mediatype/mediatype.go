@@ -29,6 +29,8 @@ LICENSE
 // to use as training data.
 package mediatype
 
+import "fmt"
+
 // MediaType is a mime-type enum for the types of media that can be downloaded to
 // use as training data.
 type MediaType uint8
@@ -46,15 +48,15 @@ func AllMimeTypes() []string {
 	return []string{JPEG.MimeType(), MP4.MimeType()}
 }
 
-// FromMimeType returns the MediaType for a given mime-type string.
-func FromMimeType(s string) MediaType {
+// ParseMimeType returns the MediaType for a given mime-type string.
+func ParseMimeType(s string) (MediaType, error) {
 	switch s {
 	case "image/jpeg":
-		return JPEG
+		return JPEG, nil
 	case "video/mp4":
-		return MP4
+		return MP4, nil
 	}
-	return Invalid
+	return Invalid, fmt.Errorf("invalid or unsupported mime type %s", s)
 }
 
 // FileExtension returns the file extension for a given MediaType.

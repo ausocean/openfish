@@ -39,14 +39,14 @@ import (
 
 	googlestore "cloud.google.com/go/datastore"
 
-	"github.com/ausocean/openfish/cmd/openfish/ds_client"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/datastore"
 )
 
 // GetCaptureSourceByID gets a capture source when provided with an ID.
 func GetCaptureSourceByID(id int64) (*entities.CaptureSource, error) {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.CAPTURESOURCE_KIND, id)
 	var captureSource entities.CaptureSource
 	err := store.Get(context.Background(), key, &captureSource)
@@ -57,7 +57,7 @@ func GetCaptureSourceByID(id int64) (*entities.CaptureSource, error) {
 }
 
 func CaptureSourceExists(id int64) bool {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.CAPTURESOURCE_KIND, id)
 	var captureSource entities.CaptureSource
 	err := store.Get(context.Background(), key, &captureSource)
@@ -67,7 +67,7 @@ func CaptureSourceExists(id int64) bool {
 // GetCaptureSources gets a list of capture sources, filtering by name, location if specified.
 func GetCaptureSources(limit int, offset int, name *string) ([]entities.CaptureSource, []int64, error) {
 	// Fetch data from the datastore.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	query := store.NewQuery(entities.CAPTURESOURCE_KIND, false)
 
 	if name != nil {
@@ -96,7 +96,7 @@ func GetCaptureSources(limit int, offset int, name *string) ([]entities.CaptureS
 func CreateCaptureSource(name string, lat float64, long float64, cameraHardware string, siteID *int64) (int64, error) {
 
 	// Get a unique ID for the new capturesource.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IncompleteKey(entities.CAPTURESOURCE_KIND)
 
 	cs := entities.CaptureSource{
@@ -119,7 +119,7 @@ func UpdateCaptureSource(id int64, name *string, lat *float64, long *float64, ca
 	// TODO: Check that capture source has no video streams associated with it.
 
 	// Update data in the datastore.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.CAPTURESOURCE_KIND, id)
 	var captureSource entities.CaptureSource
 
@@ -147,7 +147,7 @@ func DeleteCaptureSource(id int64) error {
 	// TODO: Check that capture source has no video streams associated with it.
 
 	// Delete entity.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.CAPTURESOURCE_KIND, id)
 	return store.Delete(context.Background(), key)
 }

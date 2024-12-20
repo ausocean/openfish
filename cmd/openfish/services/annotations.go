@@ -40,8 +40,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ausocean/openfish/cmd/openfish/ds_client"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/cmd/openfish/types/keypoint"
 	"github.com/ausocean/openfish/datastore"
 )
@@ -73,7 +73,7 @@ func validateObservation(observation map[string]string) error {
 
 // GetAnnotationByID gets an annotation from datastore when provided with an ID.
 func GetAnnotationByID(id int64) (*entities.Annotation, error) {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.ANNOTATION_KIND, id)
 	var annotation entities.Annotation
 	err := store.Get(context.Background(), key, &annotation)
@@ -85,7 +85,7 @@ func GetAnnotationByID(id int64) (*entities.Annotation, error) {
 }
 
 func AnnotationExists(id int64) bool {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.ANNOTATION_KIND, id)
 	var annotation entities.Annotation
 	err := store.Get(context.Background(), key, &annotation)
@@ -95,7 +95,7 @@ func AnnotationExists(id int64) bool {
 // GetAnnotations gets a list of annotations, filtering by timespan, capturesource, observer & observation if specified.
 func GetAnnotations(limit int, offset int, videostream *int64, observer *int64, observation map[string]string, order *string) ([]entities.Annotation, []int64, error) {
 	// Fetch data from the datastore.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	query := store.NewQuery(entities.ANNOTATION_KIND, false)
 
 	// Filter by videostream.
@@ -182,7 +182,7 @@ func CreateAnnotation(videoStreamID int64, keypoints []keypoint.KeyPoint, observ
 	}
 
 	// Get a unique ID for the new annotation.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IncompleteKey(entities.ANNOTATION_KIND)
 	key, err := store.Put(context.Background(), key, &an)
 	if err != nil {
@@ -197,7 +197,7 @@ func CreateAnnotation(videoStreamID int64, keypoints []keypoint.KeyPoint, observ
 func UpdateAnnotation(id int64, streamURL *string, captureSource *int64, startTime *time.Time, endTime *time.Time) error {
 
 	// Update data in the datastore.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.VIDEOSTREAM_KIND, id)
 	var videoStream entities.VideoStream
 
@@ -226,7 +226,7 @@ func DeleteAnnotation(id int64) error {
 	// TODO: Check that annotation exists.
 
 	// Delete entity.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.ANNOTATION_KIND, id)
 	return store.Delete(context.Background(), key)
 }

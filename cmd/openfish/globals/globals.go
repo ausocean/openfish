@@ -3,7 +3,7 @@ AUTHORS
   Scott Barnard <scott@ausocean.org>
 
 LICENSE
-  Copyright (c) 2024, The OpenFish Contributors.
+  Copyright (c) 2023, The OpenFish Contributors.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -31,48 +31,56 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// entities package has the data types of data we keep in the datastore.
-package entities
+// Package globals makes the datastore and storage available to other packages through the use of GetStore() and GetStorage().
+package globals
 
 import (
+	"context"
+
+	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/datastore"
+	"github.com/ausocean/openfish/storage"
 )
 
-// Kind of entity to store / fetch from the datastore.
-const MEDIA_KIND = "Media"
+var bucket storage.Storage
+var store datastore.Store
 
-// Media is a saved video or image, downloaded from a VideoStream to be used as
-// training data.
-type Media struct {
-	Type              int
-	VideoStreamSource int64 // Where the image/video was taken from.
-	StartTime         int64
-	EndTime           *int64 // Optional, because images do not have an end time.
-	Bytes             []byte
+// GetStore returns the datastore global variable.
+func GetStore() datastore.Store {
+	return store
 }
 
-// Implements Copy from the Entity interface.
-func (m *Media) Copy(dst datastore.Entity) (datastore.Entity, error) {
-	var copy *Media
-	if dst == nil {
-		copy = new(Media)
+// InitStore initializes the datastore global variable and datastore client.
+func InitStore(local bool) error {
+	ctx := context.Background()
+	var err error
+	if local {
+		store, err = datastore.NewStore(ctx, "file", "openfish", "./store")
 	} else {
-		var ok bool
-		copy, ok = dst.(*Media)
-		if !ok {
-			return nil, datastore.ErrWrongType
-		}
+		store, err = datastore.NewStore(ctx, "cloud", "openfish", "")
 	}
-	*copy = *m
-	return copy, nil
+
+	datastore.RegisterEntity(entities.CAPTURESOURCE_KIND, entities.NewCaptureSource)
+	datastore.RegisterEntity(entities.VIDEOSTREAM_KIND, entities.NewVideoStream)
+	datastore.RegisterEntity(entities.ANNOTATION_KIND, entities.NewAnnotation)
+	datastore.RegisterEntity(entities.SPECIES_KIND, entities.NewSpecies)
+	datastore.RegisterEntity(entities.USER_KIND, entities.NewUser)
+
+	return err
 }
 
-// GetCache returns nil, because no caching is used.
-func (an *Media) GetCache() datastore.Cache {
-	return nil
+// GetStorage returns the storage global variable and storage API client.
+func GetStorage() storage.Storage {
+	return bucket
 }
 
-// NewMedia returns a new Media entity.
-func NewMedia() datastore.Entity {
-	return &Media{}
+// InitStorage initializes the storage API client.
+func InitStorage(local bool) error {
+	var err error
+	if local {
+		bucket = storage.NewFileStorage("./openfish-media")
+	} else {
+		bucket, err = storage.NewCloudStorage("openfish-media")
+	}
+	return err
 }

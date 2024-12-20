@@ -39,15 +39,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ausocean/openfish/cmd/openfish/ds_client"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/cmd/openfish/types/timespan"
 	"github.com/ausocean/openfish/datastore"
 )
 
 // GetVideoStreamByID gets a video stream when provided with an ID.
 func GetVideoStreamByID(id int64) (*entities.VideoStream, error) {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.VIDEOSTREAM_KIND, id)
 	var videoStream entities.VideoStream
 	err := store.Get(context.Background(), key, &videoStream)
@@ -59,7 +59,7 @@ func GetVideoStreamByID(id int64) (*entities.VideoStream, error) {
 }
 
 func VideoStreamExists(id int64) bool {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.VIDEOSTREAM_KIND, id)
 	var videoStream entities.VideoStream
 	err := store.Get(context.Background(), key, &videoStream)
@@ -69,7 +69,7 @@ func VideoStreamExists(id int64) bool {
 // GetVideoStreams gets a list of video streams, filtering by timespan, capturesource if specified.
 func GetVideoStreams(limit int, offset int, timespan *timespan.TimeSpan, captureSource *int64) ([]entities.VideoStream, []int64, error) {
 	// Fetch data from the datastore.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	query := store.NewQuery(entities.VIDEOSTREAM_KIND, false)
 
 	if captureSource != nil {
@@ -110,7 +110,7 @@ func CreateVideoStream(streamURL string, captureSource int64, startTime time.Tim
 	}
 
 	// Create VideoStream entity.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IncompleteKey(entities.VIDEOSTREAM_KIND)
 
 	vs := entities.VideoStream{
@@ -133,7 +133,7 @@ func CreateVideoStream(streamURL string, captureSource int64, startTime time.Tim
 func UpdateVideoStream(id int64, streamURL *string, captureSource *int64, startTime *time.Time, endTime *time.Time, annotatorList *[]int64) error {
 
 	// Update data in the datastore.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.VIDEOSTREAM_KIND, id)
 	var videoStream entities.VideoStream
 
@@ -165,7 +165,7 @@ func DeleteVideoStream(id int64) error {
 	// TODO: Check that video stream has no annotations associated with it.
 
 	// Delete entity.
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.VIDEOSTREAM_KIND, id)
 	return store.Delete(context.Background(), key)
 }
