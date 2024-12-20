@@ -86,7 +86,8 @@ func (t TaskStatus) String() string {
 type Task struct {
 	ID       int64
 	Status   TaskStatus
-	Resource *url.URL
+	Resource *string
+	Error    string
 }
 
 // GetTaskByID gets a task when provided with an ID.
@@ -99,18 +100,11 @@ func GetTaskById(id int64) (*Task, error) {
 		return nil, err
 	}
 
-	var url *url.URL
-	if t.Resource != "" {
-		url, err = url.Parse(t.Resource)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	task := Task{
 		ID:       key.ID,
 		Status:   TaskStatus(t.Status),
-		Resource: url,
+		Resource: &t.Resource,
+		Error:    t.Error,
 	}
 	return &task, nil
 }
@@ -144,8 +138,8 @@ func CancelTask(id int64) error {
 	}, &ta)
 }
 
-// FailTask marks a task as failed.
-func FailTask(id int64) error {
+// FailTask marks a task as failed and optionally attaches an error message to it.
+func FailTask(id int64, err error) error {
 	store := globals.GetStore()
 	key := store.IDKey(entities.TASK_KIND, id)
 
@@ -154,6 +148,9 @@ func FailTask(id int64) error {
 		t, ok := e.(*entities.Task)
 		if ok && t.Status == int(Pending) {
 			t.Status = int(Failed)
+		}
+		if err != nil {
+			t.Error = err.Error()
 		}
 	}, &ta)
 }
@@ -169,7 +166,7 @@ func CompleteTask(id int64, resource *url.URL) error {
 		if ok {
 			t.Status = int(Complete)
 			if resource != nil {
-				t.Resource = resource.String()
+				t.Resource = resource.RequestURI()
 			}
 		}
 	}, &ta)

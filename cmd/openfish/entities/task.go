@@ -44,6 +44,7 @@ const TASK_KIND = "Task"
 type Task struct {
 	Status   int
 	Resource string
+	Error    string
 }
 
 // Implements Copy from the Entity interface.
