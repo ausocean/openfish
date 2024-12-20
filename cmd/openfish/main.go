@@ -68,6 +68,7 @@ func registerAPIRoutes(app *fiber.App) {
 		Get("/:id", handlers.GetVideoStreamByID).
 		Get("/:id/media/:type/:subtype", middleware.Guard(role.Admin), handlers.GetVideoStreamMedia).
 		Delete("/:id/media/:type/:subtype", middleware.Guard(role.Admin), handlers.DeleteVideoStreamMedia).
+		Post("/:id/media/:type/:subtype\\:download", middleware.Guard(role.Admin), handlers.DownloadVideoStreamMedia).
 		Get("/", handlers.GetVideoStreams).
 		Post("/live", middleware.Guard(role.Curator), handlers.StartVideoStream).
 		Patch("/:id/live", middleware.Guard(role.Curator), handlers.EndVideoStream).
@@ -193,16 +194,26 @@ func main() {
 	port := envOrFlag("port", "PORT", "Port to listen on", 8080, strconv.Atoi, flag.Int)
 	useFilestore := envOrFlag("filestore", "FILESTORE", "Use local datastore", false, strconv.ParseBool, flag.Bool)
 	useCloudStorage := envOrFlag("cloud-storage", "CLOUD-STORAGE", "Use Cloud Buckets for storage of large data", false, strconv.ParseBool, flag.Bool)
+	useCloudRun := envOrFlag("cloudrun-jobs", "CLOUDRUN-JOBS", "Use Cloud Run for background jobs", false, strconv.ParseBool, flag.Bool)
 	useIAP := envOrFlag("iap", "IAP", "Use Google's Identity Aware Proxy for authentication", false, strconv.ParseBool, flag.Bool)
 	jwtAudience := envOrFlag("jwt-audience", "JWT_AUDIENCE", "Audience to use to validate JWT token", "", parseString, flag.String)
 
 	flag.Parse()
 
 	// Datastore setup.
-	globals.InitStore(*useFilestore)
+	err := globals.InitStore(*useFilestore)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// Background jobs setup.
+	err = globals.InitRunner(!*useCloudRun)
+	if err != nil {
+		panic(err.Error())
+	}
 
 	// Storage setup.
-	err := globals.InitStorage(!*useCloudStorage)
+	err = globals.InitStorage(!*useCloudStorage)
 	if err != nil {
 		panic(err.Error())
 	}

@@ -59,27 +59,27 @@ func (t TimeSpan) String() string {
 
 // Parse takes a string in the format "12:01:04.000-12:01:05.000" and returns a TimeSpan.
 // Returns an error if the string is not in the correct format or if the timestamps are invalid.
-func Parse(s string) (*TimeSpan, error) {
+func Parse(s string) (TimeSpan, error) {
 	str := strings.Split(s, "-")
 	if len(str) != 2 {
-		return nil, fmt.Errorf("invalid timespan")
+		return TimeSpan{}, fmt.Errorf("invalid timespan")
 	}
 	start, err := videotime.Parse(str[0])
 	if err != nil {
-		return nil, err
+		return TimeSpan{}, err
 	}
-	end, err := videotime.Parse(str[0])
+	end, err := videotime.Parse(str[1])
 	if err != nil {
-		return nil, err
+		return TimeSpan{}, err
 	}
 	t := TimeSpan{Start: start, End: end}
-	return &t, nil
+	return t, nil
 }
 
 // UnmarshalText is used for decoding query params or JSON into a TimeSpan.
 func (t *TimeSpan) UnmarshalText(text []byte) error {
 	var err error
-	t, err = Parse(string(text))
+	*t, err = Parse(string(text))
 	return err
 }
 

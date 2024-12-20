@@ -89,3 +89,15 @@ func (t MediaType) IsVideo() bool {
 	}
 	return false
 }
+
+// UnmarshalText is used for decoding query params or JSON into a MediaType.
+func (t *MediaType) UnmarshalText(text []byte) error {
+	var err error
+	*t, err = ParseMimeType(string(text))
+	return err
+}
+
+// MarshalText is used for encoding a MediaType into JSON or query params.
+func (t MediaType) MarshalText() ([]byte, error) {
+	return []byte(t.MimeType()), nil
+}

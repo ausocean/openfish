@@ -41,6 +41,7 @@ import (
 
 	"github.com/ausocean/openfish/cmd/openfish/api"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/cmd/openfish/services"
 	"github.com/ausocean/openfish/cmd/openfish/types/mediatype"
 	"github.com/ausocean/openfish/cmd/openfish/types/timespan"
@@ -505,4 +506,92 @@ func DeleteVideoStream(ctx *fiber.Ctx) error {
 	}
 
 	return nil
+}
+
+// handlers package handles HTTP requests.
+// VideoStreamResult  describes the JSON format for video streams in API responses.
+// Fields use pointers because they are optional (this is what the format URL param is for).
+// FromVideoStream creates a VideoStreamResult from a entities.VideoStream and key, formatting it according to the requested format.
+// GetVideoStreamsQuery describes the URL query parameters required for the GetVideoStreams endpoint.
+// GetMediaVideoQuery describes the URL query parameters required for the GetVideoStreamMedia endpoint, for video mime types.
+// GetMediaImageQuery describes the URL query parameters required for the GetVideoStreamMedia endpoint, for image mime types.
+type DownloadMediaQuery struct {
+	Type mediatype.MediaType `query:"type"`
+	Time string              `query:"time"`
+}
+type DownloadMediaBody struct {
+	TaskID int64 `json:"task_id"`
+}
+
+func DownloadVideoStreamMedia(ctx *fiber.Ctx) error {
+
+	// Parse URL path.
+	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
+	if err != nil {
+		return api.InvalidRequestURL(err)
+	}
+
+	mtype, err := mediatype.ParseMimeType(fmt.Sprintf("%s/%s", ctx.Params("type"), ctx.Params("subtype")))
+	if err != nil {
+		return api.InvalidRequestURL(err)
+	}
+
+	// Parse query params.
+	var start videotime.VideoTime
+	var end *videotime.VideoTime
+	if ctx.Params("type") == "video" {
+		qry := new(GetMediaVideoQuery)
+		if err := ctx.QueryParser(qry); err != nil {
+			return api.InvalidRequestURL(err)
+		}
+		if !qry.TimeSpan.Valid() {
+			return api.InvalidRequestURL(fmt.Errorf("invalid time span, start time must occur before end time"))
+		}
+		start = qry.TimeSpan.Start
+		end = &qry.TimeSpan.End
+	} else if ctx.Params("type") == "image" {
+		qry := new(GetMediaImageQuery)
+		if err := ctx.QueryParser(qry); err != nil {
+			return api.InvalidRequestURL(err)
+		}
+		start = qry.Time
+	} else {
+		return api.InvalidRequestURL(fmt.Errorf("invalid type"))
+	}
+
+	// Fetch data from the datastore.
+	videoStream, err := services.GetVideoStreamByID(id)
+	if err != nil {
+		return api.DatastoreReadFailure(err)
+	}
+
+	// Start download task.
+	taskID, err := services.CreateTask()
+	if err != nil {
+		return api.DatastoreWriteFailure(err)
+	}
+
+	args := []string{
+		fmt.Sprintf("--task-id=%d", taskID),
+		fmt.Sprintf("--videostream-id=%d", id),
+		fmt.Sprintf("--url=%s", videoStream.StreamUrl),
+		fmt.Sprintf("--type=%s", mtype.MimeType()),
+		fmt.Sprintf("--start=%s", start.String()),
+	}
+	if end != nil {
+		args = append(args, fmt.Sprintf("--end=%s", end.String()))
+	}
+
+	// Run task as a background job.
+	runner := globals.GetRunner()
+	err = runner.Run("yt-dl-task", args...)
+
+	if err != nil {
+		services.FailTask(taskID, err)
+		return err
+	}
+
+	return ctx.JSON(DownloadMediaBody{
+		TaskID: taskID,
+	})
 }

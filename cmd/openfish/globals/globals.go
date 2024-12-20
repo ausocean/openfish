@@ -31,7 +31,7 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// Package globals makes the datastore and storage available to other packages through the use of GetStore() and GetStorage().
+// Package globals makes various variables available to other packages through the use of Get*().
 package globals
 
 import (
@@ -39,11 +39,13 @@ import (
 
 	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/datastore"
+	"github.com/ausocean/openfish/jobrunner"
 	"github.com/ausocean/openfish/storage"
 )
 
 var bucket storage.Storage
 var store datastore.Store
+var runner jobrunner.JobRunner
 
 // GetStore returns the datastore global variable.
 func GetStore() datastore.Store {
@@ -83,4 +85,20 @@ func InitStorage(local bool) error {
 		bucket, err = storage.NewCloudStorage("openfish-media")
 	}
 	return err
+}
+
+// GetRunner returns the job runner global variable.
+func GetRunner() jobrunner.JobRunner {
+	return runner
+}
+
+// InitRunner initializes the job runner global variable.
+func InitRunner(local bool) error {
+	if local {
+		runner = jobrunner.NewDockerJobRunner()
+	} else {
+		runner = jobrunner.NewCloudRunJobRunner("openfish", "southeast-1")
+	}
+
+	return nil
 }
