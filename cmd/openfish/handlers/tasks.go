@@ -65,7 +65,7 @@ func PollTask(ctx *fiber.Ctx) error {
 	}
 
 	if task.Status == services.Complete {
-		return ctx.Redirect(task.Resource.String())
+		return ctx.Redirect(task.Resource.RequestURI())
 	}
 
 	return nil

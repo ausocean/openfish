@@ -34,6 +34,7 @@ LICENSE
 package services_test
 
 import (
+	"fmt"
 	"net/url"
 	"testing"
 
@@ -88,7 +89,7 @@ func TestFailTask(t *testing.T) {
 
 	id, _ := services.CreateTask()
 
-	err := services.FailTask(id)
+	err := services.FailTask(id, fmt.Errorf("failed for an unknown reason"))
 	if err != nil {
 		t.Errorf("Could not fail task entity %s", err)
 	}
@@ -104,9 +105,9 @@ func TestCompleteTask(t *testing.T) {
 
 	id, _ := services.CreateTask()
 
-	url, _ := url.Parse("http://openfish.appspot.com/api/v1/media/123")
+	r, _ := url.ParseRequestURI("/api/v1/media/123")
 
-	err := services.CompleteTask(id, url)
+	err := services.CompleteTask(id, r)
 	if err != nil {
 		t.Errorf("Could not complete task %s", err)
 	}
@@ -115,7 +116,7 @@ func TestCompleteTask(t *testing.T) {
 	if err != nil {
 		t.Errorf("Could not get task %s", err)
 	}
-	if task.Resource.String() != url.String() || task.Status != services.Complete {
+	if task.Resource.RequestURI() != r.RequestURI() || task.Status != services.Complete || task.Error != "" {
 		t.Errorf("Task entity does not match expected")
 	}
 }
