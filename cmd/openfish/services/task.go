@@ -38,8 +38,8 @@ import (
 	"context"
 	"net/url"
 
-	"github.com/ausocean/openfish/cmd/openfish/ds_client"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
+	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/datastore"
 )
 
@@ -91,7 +91,7 @@ type Task struct {
 
 // GetTaskByID gets a task when provided with an ID.
 func GetTaskById(id int64) (*Task, error) {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.TASK_KIND, id)
 	var t entities.Task
 	err := store.Get(context.Background(), key, &t)
@@ -117,7 +117,7 @@ func GetTaskById(id int64) (*Task, error) {
 
 // CreateTask creates a new pending task.
 func CreateTask() (int64, error) {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	t := entities.Task{
 		Status: int(Pending),
 	}
@@ -132,7 +132,7 @@ func CreateTask() (int64, error) {
 
 // CancelTask marks a task as cancelled.
 func CancelTask(id int64) error {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.TASK_KIND, id)
 
 	var ta entities.Task
@@ -146,7 +146,7 @@ func CancelTask(id int64) error {
 
 // FailTask marks a task as failed.
 func FailTask(id int64) error {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.TASK_KIND, id)
 
 	var ta entities.Task
@@ -160,7 +160,7 @@ func FailTask(id int64) error {
 
 // CompleteTask marks a task as complete and optionally attaches a resource URL to it.
 func CompleteTask(id int64, resource *url.URL) error {
-	store := ds_client.Get()
+	store := globals.GetStore()
 	key := store.IDKey(entities.TASK_KIND, id)
 
 	var ta entities.Task

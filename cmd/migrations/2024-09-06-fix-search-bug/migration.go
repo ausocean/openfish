@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 
-	"github.com/ausocean/openfish/cmd/openfish/ds_client"
+	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/cmd/openfish/services"
 )
 
 func main() {
-	ds_client.Init(false)
+	globals.InitStore(false)
 
 	for i := 0; ; i += 100 {
 		fmt.Printf("Updated %d species\n", i)
