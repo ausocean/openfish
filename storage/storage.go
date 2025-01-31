@@ -73,7 +73,6 @@ type CloudObjectHandle struct {
 
 // NewCloudStorage creates a new CloudStorage, using name as the bucket URI.
 func NewCloudStorage(name string) (Storage, error) {
-
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx)
 	if err != nil {
