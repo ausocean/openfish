@@ -1,12 +1,15 @@
 import { defineConfig } from "vitepress";
 
-import { useSidebar, useOpenapi } from "vitepress-openapi";
+import { useOpenapi } from "vitepress-openapi/client";
 import spec from "../developer-docs/api/swagger.json" with { type: "json" };
+import { useSidebar } from "vitepress-openapi";
 import type { DefaultTheme } from "vitepress";
 
 useOpenapi({ spec});
 
-const apiItems: DefaultTheme.SidebarItem[] = useSidebar()
+const apiItems: DefaultTheme.SidebarItem[] = useSidebar({
+	spec
+})
 	.generateSidebarGroups()
 	.map((s: DefaultTheme.SidebarItem) => ({
 		...s,

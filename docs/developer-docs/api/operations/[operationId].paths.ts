@@ -1,4 +1,4 @@
-import { useOpenapi } from 'vitepress-openapi'
+import { useOpenapi } from 'vitepress-openapi/client'
 import spec from '../swagger.json' with { type: 'json' }
 
 export default {
