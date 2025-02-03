@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	cloud.google.com/go/datastore v1.20.0
-	cloud.google.com/go/run v1.8.0
+	cloud.google.com/go/run v1.8.1
 	cloud.google.com/go/storage v1.50.0
 	github.com/gofiber/fiber/v2 v2.52.6
 	google.golang.org/api v0.219.0
