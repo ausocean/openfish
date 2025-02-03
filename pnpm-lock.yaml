@@ -30,8 +30,8 @@ importers:
         specifier: 1.12.12
         version: 1.12.12
       vitepress-openapi:
-        specifier: 0.0.3-alpha.60
-        version: 0.0.3-alpha.60(typescript@5.6.3)(vitepress@1.5.0(@algolia/client-search@5.15.0)(@types/node@20.14.11)(axios@1.7.2)(postcss@8.5.1)(search-insights@2.14.0)(typescript@5.6.3))(vue@3.5.13(typescript@5.6.3))
+        specifier: 0.0.3-alpha.61
+        version: 0.0.3-alpha.61(typescript@5.6.3)(vitepress@1.5.0(@algolia/client-search@5.15.0)(@types/node@20.14.11)(axios@1.7.2)(postcss@8.5.1)(search-insights@2.14.0)(typescript@5.6.3))(vue@3.5.13(typescript@5.6.3))
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.9.4
@@ -712,11 +712,11 @@ packages:
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
 
-  '@tanstack/virtual-core@3.11.3':
-    resolution: {integrity: sha512-v2mrNSnMwnPJtcVqNvV0c5roGCBqeogN8jDtgtuHCphdwBasOZ17x8UV8qpHUh+u0MLfX43c0uUHKje0s+Zb0w==}
+  '@tanstack/virtual-core@3.12.0':
+    resolution: {integrity: sha512-7mDINtua3v/pOnn6WUmuT9dPXYSO7WidFej7JzoAfqEOcbbpt/iZ1WPqd+eg+FnrL9nUJK8radqj4iAU51Zchg==}
 
-  '@tanstack/vue-virtual@3.11.3':
-    resolution: {integrity: sha512-BVZ00i5XBucetRj2doVd32jOPtJthvZSVJvx9GL4gSQsyngliSCtzlP1Op7TFrEtmebRKT8QUQE1tRhOQzWecQ==}
+  '@tanstack/vue-virtual@3.12.0':
+    resolution: {integrity: sha512-+XaB92VXHggiMTP9b0ZoTEvKl2YhxfWaF2BW9xYYt2N4e+gyvz0Phmjdz7oVSbKCDdI0oKSUp/z+KzJ6JZYjCg==}
     peerDependencies:
       vue: ^2.7.0 || ^3.0.0
 
@@ -1502,8 +1502,8 @@ packages:
       yaml:
         optional: true
 
-  vitepress-openapi@0.0.3-alpha.60:
-    resolution: {integrity: sha512-WMxRTKD5VpYj0Qjei8ohGYlPWV9N+rW4vDmV6aTPWM9aInptQK7hz8SW9k01ciSP6VaCk5Ui3TO5oNGfyvaxRg==}
+  vitepress-openapi@0.0.3-alpha.61:
+    resolution: {integrity: sha512-x7qfkjAUT0NqcvDINtGrwX+w3up2Ui9SZf8svD5nC5BMUr7BcRo75QFxSvWMDs4gJTfxElT9xL+5vwRAIjWLtw==}
     peerDependencies:
       vitepress: '>=1.0.0'
       vue: ^3.0.0
@@ -2125,11 +2125,11 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@tanstack/virtual-core@3.11.3': {}
+  '@tanstack/virtual-core@3.12.0': {}
 
-  '@tanstack/vue-virtual@3.11.3(vue@3.5.13(typescript@5.6.3))':
+  '@tanstack/vue-virtual@3.12.0(vue@3.5.13(typescript@5.6.3))':
     dependencies:
-      '@tanstack/virtual-core': 3.11.3
+      '@tanstack/virtual-core': 3.12.0
       vue: 3.5.13(typescript@5.6.3)
 
   '@types/estree@1.0.6': {}
@@ -2750,7 +2750,7 @@ snapshots:
       '@floating-ui/vue': 1.1.6(vue@3.5.13(typescript@5.6.3))
       '@internationalized/date': 3.7.0
       '@internationalized/number': 3.6.0
-      '@tanstack/vue-virtual': 3.11.3(vue@3.5.13(typescript@5.6.3))
+      '@tanstack/vue-virtual': 3.12.0(vue@3.5.13(typescript@5.6.3))
       '@vueuse/core': 10.11.1(vue@3.5.13(typescript@5.6.3))
       '@vueuse/shared': 10.11.1(vue@3.5.13(typescript@5.6.3))
       aria-hidden: 1.2.4
@@ -2983,7 +2983,7 @@ snapshots:
       '@types/node': 20.14.11
       fsevents: 2.3.3
 
-  vitepress-openapi@0.0.3-alpha.60(typescript@5.6.3)(vitepress@1.5.0(@algolia/client-search@5.15.0)(@types/node@20.14.11)(axios@1.7.2)(postcss@8.5.1)(search-insights@2.14.0)(typescript@5.6.3))(vue@3.5.13(typescript@5.6.3)):
+  vitepress-openapi@0.0.3-alpha.61(typescript@5.6.3)(vitepress@1.5.0(@algolia/client-search@5.15.0)(@types/node@20.14.11)(axios@1.7.2)(postcss@8.5.1)(search-insights@2.14.0)(typescript@5.6.3))(vue@3.5.13(typescript@5.6.3)):
     dependencies:
       '@vueuse/core': 12.5.0(typescript@5.6.3)
       class-variance-authority: 0.7.1
