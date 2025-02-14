@@ -47,7 +47,7 @@ import (
 type PublicUser struct {
 	ID          int64     `json:"id" example:"1234567890"`
 	DisplayName string    `json:"display_name" example:"Coral Fischer"`
-	Role        role.Role `json:"role" example:"annotator"`
+	Role        role.Role `json:"role" swaggertype:"string" example:"annotator"`
 }
 
 // User is a complete user.

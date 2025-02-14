@@ -38,82 +38,21 @@ import (
 	"fmt"
 	"slices"
 	"strconv"
-	"strings"
 
 	"github.com/ausocean/openfish/cmd/openfish/api"
-	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/services"
 	"github.com/ausocean/openfish/cmd/openfish/types/keypoint"
-	"github.com/ausocean/openfish/cmd/openfish/types/videotime"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-// AnnotationResult describes the JSON format for annotations in API responses.
-// Fields use pointers because they are optional (this is what the format URL param is for).
-type AnnotationResult struct {
-	ID            *int64              `json:"id,omitempty" example:"1234567890"`
-	VideoStreamID *int64              `json:"videostreamId,omitempty" example:"1234567890"`
-	Keypoints     []keypoint.KeyPoint `json:"keypoints,omitempty"`
-	Observer      *int64              `json:"observer,omitempty" example:"1234567890"`
-	Observation   map[string]string   `json:"observation,omitempty" example:"species:Girella Zebra,common_name:Zebrafish"`
-}
-
-// FromAnnotation creates an AnnotationResult from a entities.Annotation and key, formatting it according to the requested format.
-func FromAnnotation(annotation *entities.Annotation, id int64, format *api.Format) AnnotationResult {
-	var result AnnotationResult
-	if format.Requires("id") {
-		result.ID = &id
-	}
-	if format.Requires("videostream_id") {
-		result.VideoStreamID = &annotation.VideoStreamID
-	}
-	if format.Requires("keypoints") {
-		result.Keypoints = make([]keypoint.KeyPoint, 0, len(annotation.Keypoints))
-
-		for _, k := range annotation.Keypoints {
-			t, _ := videotime.Parse(k.Time)
-			result.Keypoints = append(result.Keypoints, keypoint.KeyPoint{
-				Time:        t,
-				BoundingBox: k.BoundingBox,
-			})
-		}
-	}
-	if format.Requires("observer") {
-		result.Observer = &annotation.Observer
-	}
-	if format.Requires("observation") {
-		observation := make(map[string]string)
-		for _, o := range annotation.ObservationPairs {
-			parts := strings.Split(o, ":")
-			observation[parts[0]] = parts[1]
-		}
-		result.Observation = observation
-	}
-
-	return result
-}
-
 // GetAnnotationsQuery describes the URL query parameters required for the GetAnnotations endpoint.
 type GetAnnotationsQuery struct {
-	TimeSpan      *string           `query:"timespan"`      // Optional. TODO: choose more appropriate type.
-	CaptureSource *int64            `query:"capturesource"` // Optional.
-	VideoStream   *int64            `query:"videostream"`   // Optional.
-	Observer      *int64            `query:"observer"`      // Optional.
-	Observation   map[string]string `query:"observation"`   // Optional.
+	// TimeSpan      *string           `query:"timespan"`      // Optional. TODO: choose more appropriate type.
+	// CaptureSource *int64            `query:"capturesource"` // Optional.
+	VideoStream *int64 `query:"videostream"` // Optional.
 	api.LimitAndOffset
-	api.Format
 	api.Sort
-}
-
-// CreateAnnotationBody describes the JSON format required for the CreateAnnotation endpoint.
-//
-// ID is omitted because it is chosen automatically.
-// Observer is omitted because it is set to currently logged in user automatically.
-type CreateAnnotationBody struct {
-	VideoStreamID int64               `json:"videostreamId" example:"1234567890" validate:"required"`
-	Keypoints     []keypoint.KeyPoint `json:"keypoints" validate:"required"`
-	Observation   map[string]string   `json:"observation" example:"species:Girella Zebra,common_name:Zebrafish" validate:"required"`
 }
 
 // GetAnnotationByID gets an annotation when provided with an ID.
@@ -123,7 +62,7 @@ type CreateAnnotationBody struct {
 //	@Tags			Annotations
 //	@Produce		json
 //	@Param			id	path		int	true	"Annotation ID"	example(1234567890)
-//	@Success		200	{object}	AnnotationResult
+//	@Success		200	{object}	services.AnnotationWithJoins
 //	@Failure		400	{object}	api.Failure
 //	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/annotations/{id} [get]
@@ -146,25 +85,25 @@ func GetAnnotationByID(ctx *fiber.Ctx) error {
 		return api.DatastoreReadFailure(err)
 	}
 
-	// Format result.
-	result := FromAnnotation(annotation, id, format)
-	return ctx.JSON(result)
+	joined, err := annotation.JoinFields()
+	if err != nil {
+		return api.DatastoreReadFailure(err)
+	}
+
+	return ctx.JSON(joined)
 }
 
-// GetAnnotations gets a list of annotations, filtering by videostream, capturesource, observer & observation if specified.
+// GetAnnotations gets a list of annotations, filtering by videostream if specified.
 //
 //	@Summary		Get annotations
-//	@Description	Get paginated annotations, with options to filter by video stream, capture source, observer and observation.
+//	@Description	Get paginated annotations, with options to filter by video stream.
 //	@Tags			Annotations
 //	@Produce		json
 //	@Param			limit				query		int		false	"Number of results to return."	minimum(1)	default(20)
 //	@Param			offset				query		int		false	"Number of results to skip."	minimum(0)
 //	@Param			name				query		string	false	"Name to filter by."
 //	@Param			videostream			query		int		false	"Video stream to filter by."
-//	@Param			capturesource		query		int		false	"Capture source to filter by."
-//	@Param			observer			query		string	false	"Observer to filter by."
-//	@Param			observation[<key>]	query		string	false	"Observation key/value to filter by. Use * to filter on presence of the key only."
-//	@Success		200					{object}	api.Result[AnnotationResult]
+//	@Success		200					{object}	api.Result[services.AnnotationWithJoins]
 //	@Failure		400					{object}	api.Failure
 //	@Router			/api/v1/annotations [get]
 func GetAnnotations(ctx *fiber.Ctx) error {
@@ -180,35 +119,35 @@ func GetAnnotations(ctx *fiber.Ctx) error {
 		return api.InvalidRequestURL(err)
 	}
 
-	// NOTE: fiber's QueryParser does not handle map[string]string so we need to parse the query manually.
-	// This can be revisited if PR https://github.com/gofiber/fiber/issues/2524 is merged.
-	qry.Observation = make(map[string]string)
-	for k, v := range ctx.Queries() {
-		if strings.HasPrefix(k, "observation[") && strings.HasSuffix(k, "]") {
-			k = strings.TrimPrefix(k, "observation[")
-			k = strings.TrimSuffix(k, "]")
-			qry.Observation[k] = v
-		}
-	}
-
 	// Fetch data from the datastore.
-	annotations, ids, err := services.GetAnnotations(qry.Limit, qry.Offset, qry.VideoStream, qry.Observer, qry.Observation, qry.Order)
+	annotations, err := services.GetAnnotations(qry.Limit, qry.Offset, qry.Order, qry.VideoStream)
 	if err != nil {
 		return api.DatastoreReadFailure(err)
 	}
 
-	// Format results.
-	results := make([]AnnotationResult, len(annotations))
-	for i := range annotations {
-		results[i] = FromAnnotation(&annotations[i], ids[i], format)
+	// Apply Joins.
+	joined := make([]services.AnnotationWithJoins, len(annotations))
+	for i, annotation := range annotations {
+		j, err := annotation.JoinFields()
+		if err != nil {
+			return api.DatastoreReadFailure(err)
+		}
+		joined[i] = *j
 	}
 
-	return ctx.JSON(api.Result[AnnotationResult]{
-		Results: results,
+	return ctx.JSON(api.Result[services.AnnotationWithJoins]{
+		Results: joined,
 		Offset:  qry.Offset,
 		Limit:   qry.Limit,
-		Total:   len(results),
+		Total:   len(joined),
 	})
+}
+
+// NewAnnotationBody describes the JSON body required for the CreateAnnotation endpoint.
+type NewAnnotationBody struct {
+	KeyPoints      []keypoint.KeyPoint `json:"keypoints"`
+	Identification *int64              `json:"identification" example:"1234567890" validate:"optional"`
+	VideostreamID  int64               `json:"videostream_id" example:"1234567890"`
 }
 
 // CreateAnnotation creates a new annotation.
@@ -220,49 +159,167 @@ func GetAnnotations(ctx *fiber.Ctx) error {
 //	@Tags			Annotations
 //	@Accept			json
 //	@Produce		json
-//	@Param			body	body		CreateAnnotationBody	true	"New Annotation"
-//	@Success		201		{object}	EntityIDResult
+//	@Param			body	body		NewAnnotationBody	true	"New Annotation"
+//	@Success		201		{object}	services.AnnotationWithJoins
 //	@Failure		400		{object}	api.Failure
 //	@Router			/api/v1/annotations [post]
 func CreateAnnotation(ctx *fiber.Ctx) error {
 	// Parse URL.
-	var body CreateAnnotationBody
+	var body NewAnnotationBody
 	err := ctx.BodyParser(&body)
 	if err != nil {
 		return api.InvalidRequestJSON(err)
 	}
 
 	// Get logged in user.
-	observer, ok := ctx.Locals("user").(*services.User)
+	annotator, ok := ctx.Locals("user").(*services.User)
 	if !ok {
 		return fmt.Errorf("failed to assert type: expected *services.User but got %T", ctx.Locals("user"))
 	}
-	if observer == nil {
+	if annotator == nil {
 		return api.Unauthorized(fmt.Errorf("user not logged in"))
 	}
 
 	// Check logged in user is in annotator_list.
-	videostream, err := services.GetVideoStreamByID(body.VideoStreamID)
+	videostream, err := services.GetVideoStreamByID(body.VideostreamID)
 	if err != nil {
 		return api.DatastoreReadFailure(err)
 	}
-	if len(videostream.AnnotatorList) != 0 && !slices.Contains(videostream.AnnotatorList, observer.ID) {
-		return api.Forbidden(fmt.Errorf("logged in user is not within annotator list for this videostream (%d)", body.VideoStreamID))
+	if len(videostream.AnnotatorList) != 0 && !slices.Contains(videostream.AnnotatorList, annotator.ID) {
+		return api.Forbidden(fmt.Errorf("logged in user is not within annotator list for this videostream (%d)", body.VideostreamID))
 	}
 
 	// Write data to the datastore.
-	id, err := services.CreateAnnotation(body.VideoStreamID, body.Keypoints, observer.ID, body.Observation)
+	annotation := services.AnnotationContents{
+		KeyPoints:     body.KeyPoints,
+		VideostreamID: body.VideostreamID,
+		CreatedByID:   annotator.ID,
+		Identifications: map[int64][]int64{
+			*body.Identification: {annotator.ID},
+		},
+	}
+
+	created, err := services.CreateAnnotation(annotation)
 	if err != nil {
 		return api.DatastoreWriteFailure(err)
 	}
 
-	// Return ID of created video stream.
-	return ctx.JSON(AnnotationResult{
-		ID: &id,
-	})
+	// Return joined form.
+	joined, err := created.JoinFields()
+	if err != nil {
+		return api.DatastoreReadFailure(err)
+	}
+
+	return ctx.JSON(joined)
 }
 
-// TODO: Implement UpdateAnnotation.
+// AddIdentification adds a new identification to an annotation.
+//
+//	@Summary		Add Identification
+//	@Description	Roles required: <role-tag>Annotator</role-tag>, <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
+//	@Description
+//	@Description	Adds a new identification to an existing annotation.
+//	@Tags			Annotations
+//	@Produce		json
+//	@Param			id	path		int	true	"Annotation ID"	example(1234567890)
+//	@Param			species	path		int	true	"Species ID"	example(1234567890)
+//	@Success		201		{object}	services.AnnotationWithJoins
+//	@Failure		400		{object}	api.Failure
+//	@Router			/api/v1/annotations/{id}/identifications/{species_id} [post]
+func AddIdentification(ctx *fiber.Ctx) error {
+	// Parse URL.
+	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
+	if err != nil {
+		return api.InvalidRequestURL(err)
+	}
+
+	speciesID, err := strconv.ParseInt(ctx.Params("species_id"), 10, 64)
+	if err != nil {
+		return api.InvalidRequestURL(err)
+	}
+
+	// Get logged in user.
+	creator, ok := ctx.Locals("user").(*services.User)
+	if !ok {
+		return fmt.Errorf("failed to assert type: expected *services.User but got %T", ctx.Locals("user"))
+	}
+	if creator == nil {
+		return api.Unauthorized(fmt.Errorf("user not logged in"))
+	}
+
+	// Write data to the datastore.
+	err = services.AddIdentification(id, creator.ID, speciesID)
+	if err != nil {
+		return err
+	}
+
+	// Get updated annotation.
+	modified, err := services.GetAnnotationByID(id)
+	if err != nil {
+		return api.DatastoreReadFailure(err)
+	}
+
+	joined, err := modified.JoinFields()
+	if err != nil {
+		return api.DatastoreReadFailure(err)
+	}
+
+	return ctx.JSON(joined)
+}
+
+// DeleteIdentification removes an identification from an annotation.
+//
+//	@Summary		Remove Identification
+//	@Description	Roles required: <role-tag>Annotator</role-tag>, <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
+//	@Description
+//	@Description	Removes an identification from an annotation.
+//	@Tags			Annotations
+//	@Produce		json
+//	@Param			id	path		int	true	"Annotation ID"	example(1234567890)
+//	@Param			species	path		int	true	"Species ID"	example(1234567890)
+//	@Success		201		{object}	services.AnnotationWithJoins
+//	@Failure		400		{object}	api.Failure
+//	@Router			/api/v1/annotations/{id}/identifications/{species_id} [delete]
+func DeleteIdentification(ctx *fiber.Ctx) error {
+	// Parse URL.
+	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
+	if err != nil {
+		return api.InvalidRequestURL(err)
+	}
+
+	speciesID, err := strconv.ParseInt(ctx.Params("species_id"), 10, 64)
+	if err != nil {
+		return api.InvalidRequestURL(err)
+	}
+
+	// Get logged in user.
+	creator, ok := ctx.Locals("user").(*services.User)
+	if !ok {
+		return fmt.Errorf("failed to assert type: expected *services.User but got %T", ctx.Locals("user"))
+	}
+	if creator == nil {
+		return api.Unauthorized(fmt.Errorf("user not logged in"))
+	}
+
+	// Write data to the datastore.
+	err = services.DeleteIdentification(id, creator.ID, speciesID)
+	if err != nil {
+		return err
+	}
+
+	// Get updated annotation.
+	modified, err := services.GetAnnotationByID(id)
+	if err != nil {
+		return api.DatastoreReadFailure(err)
+	}
+
+	joined, err := modified.JoinFields()
+	if err != nil {
+		return api.DatastoreReadFailure(err)
+	}
+
+	return ctx.JSON(joined)
+}
 
 // DeleteAnnotation deletes an annotation.
 //

@@ -80,6 +80,8 @@ func registerAPIRoutes(app *fiber.App) {
 		Get("/:id", handlers.GetAnnotationByID).
 		Get("/", handlers.GetAnnotations).
 		Post("/", middleware.Guard(role.Annotator), handlers.CreateAnnotation).
+		Post("/:id/identifications/:species_id", middleware.Guard(role.Annotator), handlers.AddIdentification).
+		Delete("/:id/identifications/:species_id", middleware.Guard(role.Annotator), handlers.DeleteIdentification).
 		Delete("/:id", middleware.Guard(role.Admin), handlers.DeleteAnnotation)
 
 	// Species.

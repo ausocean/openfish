@@ -40,6 +40,7 @@ import (
 	"github.com/ausocean/openfish/cmd/openfish/services"
 	"github.com/ausocean/openfish/cmd/openfish/types/keypoint"
 	"github.com/ausocean/openfish/cmd/openfish/types/role"
+	"github.com/ausocean/openfish/cmd/openfish/types/videotime"
 )
 
 // Constants.
@@ -210,10 +211,20 @@ func TestDeleteVideoStreamWithAssociatedAnnotations(t *testing.T) {
 	})
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	id, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", cs, _8am, &_4pm, []int64{})
-	services.CreateAnnotation(id,
-		[]keypoint.KeyPoint{startKp, endKp},
-		uid,
-		map[string]string{"species": "Sepia Apama"})
+	services.CreateAnnotation(services.AnnotationContents{
+		KeyPoints: []keypoint.KeyPoint{
+			{
+				BoundingBox: keypoint.BoundingBox{X1: 10, X2: 20, Y1: 70, Y2: 80},
+				Time:        videotime.UncheckedParse("00:00:01.000"),
+			},
+			{
+				BoundingBox: keypoint.BoundingBox{X1: 20, X2: 30, Y1: 60, Y2: 70},
+				Time:        videotime.UncheckedParse("00:00:02.000"),
+			},
+		},
+		VideostreamID: id,
+		CreatedByID:   uid,
+	})
 
 	err := services.DeleteVideoStream(id)
 	if err == nil {
