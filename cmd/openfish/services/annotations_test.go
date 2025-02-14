@@ -34,6 +34,7 @@ LICENSE
 package services_test
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/ausocean/openfish/cmd/openfish/entities"
@@ -43,18 +44,35 @@ import (
 	"github.com/ausocean/openfish/cmd/openfish/types/videotime"
 )
 
-// Constants
-var startTime, _ = videotime.Parse("00:00:01")
-var endTime, _ = videotime.Parse("00:01:00")
+func createTestAnnotation() services.Annotation {
+	uid, _ := services.CreateUser(services.UserContents{
+		Email:       "coral.fischer@example.com",
+		DisplayName: "Coral Fischer",
+		Role:        role.Annotator,
+	})
+	sp, _ := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
+	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
+	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
+	contents := services.AnnotationContents{
+		KeyPoints: []keypoint.KeyPoint{
+			{
+				BoundingBox: keypoint.BoundingBox{X1: 10, X2: 20, Y1: 70, Y2: 80},
+				Time:        videotime.UncheckedParse("00:00:01.000"),
+			},
+			{
+				BoundingBox: keypoint.BoundingBox{X1: 20, X2: 30, Y1: 60, Y2: 70},
+				Time:        videotime.UncheckedParse("00:00:02.000"),
+			},
+		},
+		VideostreamID: vs,
+		Identifications: map[int64][]int64{
+			sp: {uid},
+		},
+		CreatedByID: uid,
+	}
+	created, _ := services.CreateAnnotation(contents)
 
-var startKp = keypoint.KeyPoint{
-	BoundingBox: keypoint.BoundingBox{X1: 10, X2: 20, Y1: 70, Y2: 80},
-	Time:        startTime,
-}
-
-var endKp = keypoint.KeyPoint{
-	BoundingBox: keypoint.BoundingBox{X1: 10, X2: 20, Y1: 70, Y2: 80},
-	Time:        endTime,
+	return *created
 }
 
 func TestCreateAnnotation(t *testing.T) {
@@ -66,13 +84,26 @@ func TestCreateAnnotation(t *testing.T) {
 		DisplayName: "Coral Fischer",
 		Role:        role.Annotator,
 	})
-	services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
+	sp, _ := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
 	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
 	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
-	_, err := services.CreateAnnotation(vs,
-		[]keypoint.KeyPoint{startKp, endKp},
-		uid,
-		map[string]string{"species": "Sepioteuthis australis", "common_name": "Southern Reef Squid"})
+	_, err := services.CreateAnnotation(services.AnnotationContents{
+		KeyPoints: []keypoint.KeyPoint{
+			{
+				BoundingBox: keypoint.BoundingBox{X1: 10, X2: 20, Y1: 70, Y2: 80},
+				Time:        videotime.UncheckedParse("00:00:01.000"),
+			},
+			{
+				BoundingBox: keypoint.BoundingBox{X1: 20, X2: 30, Y1: 60, Y2: 70},
+				Time:        videotime.UncheckedParse("00:00:02.000"),
+			},
+		},
+		VideostreamID: vs,
+		Identifications: map[int64][]int64{
+			sp: {uid},
+		},
+		CreatedByID: uid,
+	})
 
 	if err != nil {
 		t.Errorf("Could not create annotation entity %s", err)
@@ -83,21 +114,10 @@ func TestAnnotationExists(t *testing.T) {
 	setup()
 
 	// Create a new annotation entity.
-	uid, _ := services.CreateUser(services.UserContents{
-		Email:       "coral.fischer@example.com",
-		DisplayName: "Coral Fischer",
-		Role:        role.Annotator,
-	})
-	services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
-	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
-	id, _ := services.CreateAnnotation(vs,
-		[]keypoint.KeyPoint{startKp, endKp},
-		uid,
-		map[string]string{"species": "Sepioteuthis australis", "common_name": "Southern Reef Squid"})
+	annotation := createTestAnnotation()
 
 	// Check if the annotation exists.
-	if !services.AnnotationExists(int64(id)) {
+	if !services.AnnotationExists(annotation.ID) {
 		t.Errorf("Expected annotation to exist")
 	}
 }
@@ -115,66 +135,89 @@ func TestAnnotationExistsForNonexistentEntity(t *testing.T) {
 func TestGetAnnotationByID(t *testing.T) {
 	setup()
 
-	// Create a new annotation entity.
-	uid, _ := services.CreateUser(services.UserContents{
-		Email:       "coral.fischer@example.com",
-		DisplayName: "Coral Fischer",
-		Role:        role.Annotator,
-	})
-	services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
-	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
-	id, _ := services.CreateAnnotation(vs,
-		[]keypoint.KeyPoint{startKp, endKp},
-		uid,
-		map[string]string{"species": "Sepioteuthis australis", "common_name": "Southern Reef Squid"})
+	// Create a new expected entity.
+	expected := createTestAnnotation()
 
-	annotation, err := services.GetAnnotationByID(int64(id))
+	actual, err := services.GetAnnotationByID(expected.ID)
 	if err != nil {
 		t.Errorf("Could not get annotation entity %s", err)
 	}
-	if annotation.VideoStreamID != vs || annotation.Observer != uid {
-		// TODO: verify keypoints and observations are the same
-		t.Errorf("Annotation entity does not match created entity")
+	if !reflect.DeepEqual(expected, *actual) {
+		t.Errorf("Annotation does not match created, expected %v, got %v", expected, *actual)
 	}
 }
 
 func TestGetAnnotationByIDForNonexistentEntity(t *testing.T) {
 	setup()
 
-	annotation, err := services.GetAnnotationByID(int64(123456789))
-	if annotation != nil && err == nil {
+	actual, err := services.GetAnnotationByID(int64(123456789))
+	if actual != nil && err == nil {
 		t.Errorf("GetAnnotationByID returned non-existing entity %s", err)
 	}
 }
 
 // TODO: Write tests for GetAnnotations. Test limit, offset and filtering.
 
+func TestAnnotationApplyJoin(t *testing.T) {
+	setup()
+	annotation := createTestAnnotation()
+
+	_, err := annotation.JoinFields()
+	if err != nil {
+		t.Errorf("Could not join fields %s", err)
+	}
+}
+
+func TestAnnotationAddIdentification(t *testing.T) {
+	setup()
+	original := createTestAnnotation()
+	uid, _ := services.CreateUser(services.UserContents{
+		Email:       "sandy.whiting@example.com",
+		DisplayName: "Sandy Whiting",
+		Role:        role.Annotator,
+	})
+	sp, _ := services.CreateSpecies("Rhincodon typus", "Whale Shark", []entities.Image{}, nil)
+
+	services.AddIdentification(original.ID, uid, sp)
+
+	modified, _ := services.GetAnnotationByID(original.ID)
+	if len(modified.Identifications) != len(original.Identifications)+1 {
+		t.Errorf("Expected an additional identification to be added")
+	}
+}
+
+func TestAnnotationRemoveIdentification(t *testing.T) {
+	setup()
+	original := createTestAnnotation()
+	uid, _ := services.CreateUser(services.UserContents{
+		Email:       "sandy.whiting@example.com",
+		DisplayName: "Sandy Whiting",
+		Role:        role.Annotator,
+	})
+	sp, _ := services.CreateSpecies("Rhincodon typus", "Whale Shark", []entities.Image{}, nil)
+	services.AddIdentification(original.ID, uid, sp)
+	services.DeleteIdentification(original.ID, uid, sp)
+
+	modified, _ := services.GetAnnotationByID(original.ID)
+	if len(modified.Identifications) != len(original.Identifications) {
+		t.Errorf("Expected identification to be removed")
+	}
+}
+
 func TestDeleteAnnotation(t *testing.T) {
 	setup()
 
 	// Create a new annotation entity.
-	uid, _ := services.CreateUser(services.UserContents{
-		Email:       "coral.fischer@example.com",
-		DisplayName: "Coral Fischer",
-		Role:        role.Annotator,
-	})
-	services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
-	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
-	id, _ := services.CreateAnnotation(vs,
-		[]keypoint.KeyPoint{startKp, endKp},
-		uid,
-		map[string]string{"species": "Sepioteuthis australis", "common_name": "Southern Reef Squid"})
+	created := createTestAnnotation()
 
 	// Delete the annotation entity.
-	err := services.DeleteAnnotation(int64(id))
+	err := services.DeleteAnnotation(created.ID)
 	if err != nil {
-		t.Errorf("Could not delete annotation entity %d: %s", id, err)
+		t.Errorf("Could not delete annotation entity %d: %s", created.ID, err)
 	}
 
 	// Check if the annotation exists.
-	if services.AnnotationExists(int64(id)) {
+	if services.AnnotationExists(created.ID) {
 		t.Errorf("Video stream entity exists after delete")
 	}
 }
