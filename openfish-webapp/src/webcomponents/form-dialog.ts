@@ -1,13 +1,12 @@
-import { LitElement, css, html } from 'lit'
+import { TailwindElement } from './tailwind-element'
+import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { type Ref, createRef, ref } from 'lit/directives/ref.js'
-import resetcss from '../styles/reset.css?lit'
-import btncss from '../styles/buttons.css?lit'
 
 type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
 @customElement('form-dialog')
-export class FormDialog extends LitElement {
+export class FormDialog extends TailwindElement {
   dialogRef: Ref<HTMLDialogElement> = createRef()
 
   @property()
@@ -80,64 +79,18 @@ export class FormDialog extends LitElement {
 
   render() {
     return html`
-      <dialog ${ref(this.dialogRef)}>
-        <h3>${this.title}</h3>
-        <form @submit=${this.submit}>
+      <dialog ${ref(this.dialogRef)} class="dialog min-w-120 text-slate-800">
+        <h3 class="text-lg font-bold">${this.title}</h3>
+        <form @submit=${this.submit} class="mt-4 flex flex-col gap-2">
           <slot @slotchange=${this.onSlotChange}></slot>
-          <footer>
-            <input class="btn-orange btn-sm" type="submit" value=${this.btntext} >
-            <button class="btn-secondary btn-sm" @click=${this.cancel}>Cancel</button>
+          <footer class="flex mt-2 justify-end gap-2 w-full">
+            <input class="btn variant-orange" type="submit" value=${this.btntext} >
+            <button class="btn variant-slate" @click=${this.cancel}>Cancel</button>
           </footer>
         </form>
       </dialog>
     `
   }
-
-  static styles = css`
-  ${resetcss}
-  ${btncss}
-
-  dialog {
-    border: none;
-    border-radius: 0.5rem;
-    min-width: 30rem;
-  }
-
-  ::backdrop {
-    background-color: var(--gray-950);
-    opacity: 0.5;
-  }
-
-  form {
-    margin-top: 1rem;
-    padding: 1.5rem 0.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  ::slotted(input) {
-    display: block;
-    width: 100%;
-  }
-
-  ::slotted(label) {
-    display: block;
-    width: 100%;
-  }
-
-  ::slotted(label:not(:first-child)) {
-    margin-top: 1rem;
-  }
-
-  footer {
-    margin-top: 1rem;
-    display: flex;
-    width: 100%;
-    justify-content: flex-end;
-    gap: 1rem;
-  }
-  `
 }
 
 declare global {

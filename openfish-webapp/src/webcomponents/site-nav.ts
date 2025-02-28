@@ -1,9 +1,9 @@
-import { LitElement, css, html } from 'lit'
+import { TailwindElement } from './tailwind-element'
+import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import type { User } from '../api/user'
 import { consume } from '@lit/context'
 import { userContext } from '../utils/context'
-import resetcss from '../styles/reset.css?lit'
 
 // We have a side-effect dependency on <user-provider> so
 // import it here to ensure it gets loaded first in the
@@ -11,7 +11,7 @@ import resetcss from '../styles/reset.css?lit'
 import './user-provider.ts'
 
 @customElement('site-nav')
-export class SiteNav extends LitElement {
+export class SiteNav extends TailwindElement {
   @consume({ context: userContext, subscribe: true })
   user: User | null = null
 
@@ -20,77 +20,44 @@ export class SiteNav extends LitElement {
     if (this.user !== null) {
       user = html`
       <li>
-        <span class="tag">${this.user?.role}</span>
+        <span class="uppercase bg-blue-300 text-blue-900 text-xs rounded px-2 py-1">
+          ${this.user?.role}
+        </span>
         ${this.user?.display_name} 
       </li>
       `
     }
 
     return html`
-    <h1><a href="/">OpenFish</a></h1>
-    <menu>
-        <li><a href="/streams.html">View streams</a></li>
-        ${
-          this.user?.role === 'admin'
-            ? html`
-          <li><a href="/admin/capturesources.html">Admin Settings</a></li> 
-        `
-            : html``
-        }
-        |
-        ${user}       
-    </menu>
+    <div class="contain px-8 py-4 h-16 z-1000 flex">
+      <h1 class="text-xl self-center flex-1">
+        <a href="/" class="link font-bold">
+          OpenFish
+        </a>
+      </h1>
+      <menu class="flex justify-end gap-4 self-center">
+          <li>
+            <a href="/streams.html" class="link whitespace-nowrap">
+              View streams
+            </a>
+          </li>
+          ${
+            this.user?.role === 'admin'
+              ? html`
+            <li>
+              <a href="/admin/capturesources.html" class="link whitespace-nowrap">
+                Admin Settings
+              </a>
+            </li> 
+          `
+              : html``
+          }
+          |
+          ${user}
+      </menu>
+    </div>
     `
   }
-
-  static styles = css`
-  ${resetcss}
-  
-  :host {
-    grid-column: fullwidth;
-    grid-row-start: 1;
-    grid-row-end: 2;
-    display: grid;
-    grid-template-columns: subgrid;
-    border-bottom: 1px solid;
-    padding: 1rem 0;
-  }
-  h1 {
-    grid-column: left-aside;
-    font-size: 1.25rem;
-    font-weight: 600;
-    align-self: end;
-  }
-  menu {
-    grid-column: right-content;
-    display: flex;
-    justify-content: flex-end;
-    align-self: center;
-    gap: 1rem;
-    font-weight: 500;
-
-    & li {
-      list-style-type: none;
-      padding: 0;
-    }
-  }
-  a {
-    text-decoration: none;
-    color: currentColor;
-  }
-  a:hover {
-    color: var(--bright-blue-500);
-    text-decoration: underline;
-  }
-  .tag {
-      text-transform: uppercase;
-      background-color: var(--blue-300);
-      color: var(--blue-900);
-      font-size: 0.7rem;
-      border-radius: 4px;
-      padding: 0.25em 0.5em;
-  }
-  `
 }
 
 declare global {

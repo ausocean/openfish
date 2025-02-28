@@ -1,10 +1,10 @@
-import { LitElement, css, html } from 'lit'
+import { TailwindElement } from './tailwind-element'
+import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import type { VideoStream } from '../api/videostream.ts'
 import type { Result } from '../api'
 import type { CaptureSource } from '../api/capturesource.ts'
 import { repeat } from 'lit/directives/repeat.js'
-import resetcss from '../styles/reset.css?lit'
 import { datetimeDifference, formatAsDate, formatDuration } from '../utils/datetime.ts'
 import type { Filter } from './stream-filter.ts'
 import { extractVideoID } from '../utils/youtube.ts'
@@ -15,7 +15,7 @@ type VideoStreamItem = Omit<VideoStream, 'capturesource'> & {
 }
 
 @customElement('stream-list')
-export class StreamList extends LitElement {
+export class StreamList extends TailwindElement {
   @property({ type: Object })
   set filter(val: Filter) {
     this._filter = val
@@ -97,8 +97,10 @@ export class StreamList extends LitElement {
 
   render() {
     const streams = (stream: VideoStreamItem) => html`
-    <article onclick="window.location = '/watch.html?id=${stream.id}'" class="${stream.first ? 'first-item' : ''}">
-      <div class="img-container">
+    <article 
+      class="border border-blue-300 hover:border-blue-400 shadow-sm hover:shadow-lg hover:shadow-sky-500/25 ${stream.first ? 'first-item' : ''}"
+      onclick="window.location = '/watch.html?id=${stream.id}'">
+      <div class="img-contain">
         <img src="https://i.ytimg.com/vi/${extractVideoID(stream.stream_url)}/maxresdefault.jpg">
         <span class="duration">${formatDuration(datetimeDifference(stream.endTime, stream.startTime))}</span>
       </div>
@@ -110,23 +112,26 @@ export class StreamList extends LitElement {
     `
 
     const pagination = html`   
-    <span class="mr-1">Page ${this._page} of ${this._totalPages}</span>
-    <button @click="${this.next}" .disabled=${this._page === 1}>Prev</button>
-    <button @click="${this.prev}" .disabled=${this._page === this._totalPages}>Next</button>
+    <span>Page ${this._page} of ${this._totalPages}</span>
+    <span class="flex gap-1">
+      <button class="btn variant-slate" @click="${this.next}" .disabled=${this._page === 1}>Prev</button>
+      <button class="btn variant-slate" @click="${this.prev}" .disabled=${this._page === this._totalPages}>Next</button>
+    </span>
     `
 
     return html`
     <main>
       ${repeat(this._items, streams)}
     </main>
-    <footer class="pagination">
+    <footer class="flex gap-1 pt-4 justify-between items-baseline border-t border-slate-300">
       ${pagination}
     </footer>
     `
   }
 
-  static styles = css`
-    ${resetcss}
+  static styles = [
+    TailwindElement.styles!,
+    css`
 
     main {
       display: grid;
@@ -152,16 +157,10 @@ export class StreamList extends LitElement {
       flex-direction: column;
       cursor: pointer;
       border-radius: 0.5rem;
-      background-color: var(--gray-100);
-      border: 1px solid var(--blue-400);
+      background-color: var(--color-slate-100);
       overflow: clip;
-      box-shadow: var(--shadow-soft-sm);
       transition: box-shadow;
       transition-duration: 200ms;
-
-      &:hover {
-        box-shadow: var(--shadow-soft-md);
-      }
       
       footer {
         padding: 0.5rem;
@@ -178,7 +177,7 @@ export class StreamList extends LitElement {
         width: 100%;
       }
 
-      .img-container {
+      .img-contain {
         position: relative;
       }
 
@@ -196,13 +195,8 @@ export class StreamList extends LitElement {
       }
     }
 
-    footer.pagination {
-      display: flex;
-      justify-content: center;
-      gap: 0.25rem;
-      padding: 1rem 0;
-    }
-    `
+    `,
+  ]
 }
 
 declare global {

@@ -5,29 +5,14 @@
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OpenFish | Streams</title>
-    <link rel="stylesheet" href="./src/styles/index.css" />
+    
+    <link rel="stylesheet" href="./src/app.css" />
 
     <script type="module" src="./src/webcomponents/user-provider.ts"></script>
     <script type="module" src="./src/webcomponents/site-nav.ts"></script>
+    <script type="module" src="./src/webcomponents/site-footer.ts"></script>
     <script type="module" src="./src/webcomponents/stream-list.ts"></script>
     <script type="module" src="./src/webcomponents/stream-filter.ts"></script>
-
-    <style>
-      site-nav {
-        background-color: var(--bg);
-        border-color: var(--gray-100);
-      }
-      h1 {
-        grid-column: page;
-      }
-      stream-filter {
-        grid-column: left-aside;
-        height: min-content;
-      }
-      stream-list {
-        grid-column: right-content;
-      }
-    </style>
 
     <script type="module">
       window.onload = () => {
@@ -41,12 +26,17 @@
       }
     </script>
   </head>
-  <body class="grid-layout">
+  <body class="bg-blue-200">
     <user-provider>
-      <site-nav></site-nav>
-      <h1>View streams</h1>
-      <stream-filter></stream-filter>
-      <stream-list></stream-list>
+      <site-nav class="text-blue-700"></site-nav>
+      <div class="contain px-4">
+        <main class="card-lg grid-page-with-aside-left gap-y-4 gap-x-8">
+          <h1 class="h1 col-[fullwidth]">View streams</h1>
+          <stream-filter class="col-[aside]"></stream-filter>
+          <stream-list class="col-[content]"></stream-list>
+        </main>
+      </div>
+      <site-footer class="text-blue-700"></site-footer>
     </user-provider>
   </body>
 </html>

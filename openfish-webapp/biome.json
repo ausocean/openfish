@@ -16,6 +16,9 @@
       },
       "style": {
         "noNonNullAssertion": "off"
+      },
+      "correctness": {
+        "noUnusedImports": "error"
       }
     }
   },
@@ -30,6 +33,14 @@
       "quoteStyle": "single",
       "semicolons": "asNeeded",
       "trailingCommas": "es5"
+    }
+  },
+  "css": {
+    "formatter": {
+      "enabled": false
+    },
+    "linter": {
+      "enabled": false
     }
   }
 }
