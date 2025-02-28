@@ -63,9 +63,9 @@ export class AnnotationCard extends TailwindElement {
       <span class="bg-slate-200 rounded-sm text-sm py-0.5 px-2 place-self-start">${this.annotation.observer}</span>
       <span class="text-sm">${species}</span>
       <span class="text-sm text-nowrap place-self-end">
-        <button class="link cursor-pointer" @click=${() => this.dispatchSeekEvent(this.annotation.start)}>${start}</button>
+        <button class="link cursor-pointer" @click=${() => this.dispatchSeekEvent(this.annotation?.start ?? 0)}>${start}</button>
         -
-        <button class="link cursor-pointer" @click=${() => this.dispatchSeekEvent(this.annotation.end)}>${end}</button>
+        <button class="link cursor-pointer" @click=${() => this.dispatchSeekEvent(this.annotation?.end ?? 0)}>${end}</button>
       </span>
       
       ${Object.entries(rest).length > 0 ? table : html``}
