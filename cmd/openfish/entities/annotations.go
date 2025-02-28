@@ -50,9 +50,13 @@ type Annotation struct {
 		Time string
 		keypoint.BoundingBox
 	}
-	Observer         int64
-	ObservationPairs []string
-	ObservationKeys  []string // A copy of the map's keys are stored separately, so we can quickly query for annotations with a given key present.
+	CreatedBy int64
+
+	// User ID and Species ID are stored separately, so we can query for annotations made
+	// by a particular user or with a particular species. NOTE: a species ID may appear
+	// multiple times if it is identified by many users.
+	IdentificationUserID    []int64
+	IdentificationSpeciesID []int64
 }
 
 // Implements Copy from the Entity interface.

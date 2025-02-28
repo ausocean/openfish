@@ -3,7 +3,7 @@ AUTHORS
   Scott Barnard <scott@ausocean.org>
 
 LICENSE
-  Copyright (c) 2023, The OpenFish Contributors.
+  Copyright (c) 2023-2025, The OpenFish Contributors.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -31,59 +31,206 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// services contains the main logic for the OpenFish API.
 package services
 
 import (
 	"context"
 	"errors"
-	"fmt"
-	"time"
 
 	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/cmd/openfish/types/keypoint"
+	"github.com/ausocean/openfish/cmd/openfish/types/videotime"
 	"github.com/ausocean/openfish/datastore"
 )
 
-// validateObservation checks that an observation contains a species
-// that is within our datastore.
-func validateObservation(observation map[string]string) error {
-	return nil
-
-	species, ok := observation["species"]
-	if !ok {
-		return errors.New("species key required in observation")
-	}
-	commonName, ok := observation["common_name"]
-	if !ok {
-		return errors.New("common_name key required in observation")
-	}
-
-	entity, _, err := GetSpeciesByScientificName(species)
-	if entity == nil {
-		return fmt.Errorf("species (%s) does not exist", species)
-	}
-	if entity.CommonName != commonName {
-		return fmt.Errorf("common name provided (%s) does not match expected: %s", commonName, entity.CommonName)
-	}
-
-	return err
+// SpeciesSummary is a summary of a species.
+type SpeciesSummary struct {
+	ID             int64  `json:"id" example:"1234567890"`
+	CommonName     string `json:"common_name" example:"Whale Shark"`
+	ScientificName string `json:"scientific_name" example:"Rhincodon typus"`
 }
 
-// GetAnnotationByID gets an annotation from datastore when provided with an ID.
-func GetAnnotationByID(id int64) (*entities.Annotation, error) {
+// VideoStreamSummary is a summary of a video stream.
+type VideoStreamSummary struct {
+	ID        int64  `json:"id" example:"1234567890"`
+	StreamUrl string `json:"stream_url" example:"https://www.youtube.com/watch?v=abcdefghijk"`
+}
+
+// Identification is a species suggestion made by users.
+type Identification struct {
+	Species      SpeciesSummary `json:"species"`
+	IdentifiedBy []PublicUser   `json:"identified_by"`
+}
+
+// Annotation is a bounding box added to a video with one or many identifications.
+// Users can suggest additional identifications for this annotation.
+type Annotation struct {
+	ID int64
+	AnnotationContents
+}
+
+// AnnotationContents is the contents of an annotation.
+type AnnotationContents struct {
+	KeyPoints       []keypoint.KeyPoint
+	Identifications map[int64][]int64
+	VideostreamID   int64
+	CreatedByID     int64
+}
+
+// AnnotationWithJoins is an annotation with its foreign key fields joined with
+// their respective entities.
+type AnnotationWithJoins struct {
+	ID              int64               `json:"id" example:"1234567890"`
+	KeyPoints       []keypoint.KeyPoint `json:"keypoints"`
+	Identifications []Identification    `json:"identifications"`
+	Videostream     VideoStreamSummary  `json:"videostream"`
+	CreatedBy       PublicUser          `json:"created_by"`
+}
+
+// JoinFields joins the foreign key fields of an annotation with their respective entities.
+func (a *Annotation) JoinFields() (*AnnotationWithJoins, error) {
+
+	// Get video stream details.
+	videostream, err := GetVideoStreamByID(a.VideostreamID)
+	if err != nil {
+		return nil, err // TODO: More informative message.
+	}
+	videostreamSummary := VideoStreamSummary{
+		ID:        a.VideostreamID,
+		StreamUrl: videostream.StreamUrl,
+	}
+
+	// Get user details.
+	user, err := GetUserByID(a.CreatedByID)
+	if err != nil {
+		return nil, err // TODO: More informative message.
+	}
+	createdBy := user.ToPublicUser()
+
+	// Get identifications.
+	identifications := make([]Identification, 0, len(a.Identifications))
+	for speciesID, userIDs := range a.Identifications {
+		species, err := GetSpeciesByID(speciesID)
+		if err != nil {
+			return nil, err
+		}
+
+		users := make([]PublicUser, 0, len(userIDs))
+		for _, userID := range userIDs {
+			user, err := GetUserByID(userID)
+			if err != nil {
+				return nil, err
+			}
+			users = append(users, user.ToPublicUser())
+		}
+		identifications = append(identifications, Identification{
+			Species: SpeciesSummary{
+				ID:             speciesID,
+				CommonName:     species.CommonName,
+				ScientificName: species.Species,
+			},
+			IdentifiedBy: users,
+		})
+	}
+
+	return &AnnotationWithJoins{
+		ID:              a.ID,
+		KeyPoints:       a.KeyPoints,
+		Videostream:     videostreamSummary,
+		Identifications: identifications,
+		CreatedBy:       createdBy,
+	}, nil
+}
+
+// ToEntity converts an AnnotationContents struct to an entities.Annotation struct.
+func (a *AnnotationContents) ToEntity() entities.Annotation {
+
+	// Convert keypoints into storable format.
+	kp := make([]struct {
+		Time string
+		keypoint.BoundingBox
+	}, len(a.KeyPoints))
+	for i := range a.KeyPoints {
+		kp[i] = struct {
+			Time string
+			keypoint.BoundingBox
+		}{
+			Time:        a.KeyPoints[i].Time.String(),
+			BoundingBox: a.KeyPoints[i].BoundingBox,
+		}
+	}
+
+	// Convert identifications map into storable format (two arrays).
+	users := make([]int64, 0, len(a.Identifications))
+	species := make([]int64, 0, len(a.Identifications))
+	for speciesID, userIDs := range a.Identifications {
+		for _, userID := range userIDs {
+			users = append(users, userID)
+			species = append(species, speciesID)
+		}
+	}
+
+	return entities.Annotation{
+		VideoStreamID:           a.VideostreamID,
+		Start:                   a.KeyPoints[0].Time.Int(),
+		CreatedBy:               a.CreatedByID,
+		Keypoints:               kp,
+		IdentificationUserID:    users,
+		IdentificationSpeciesID: species,
+	}
+}
+
+// AnnotationContentsFromEntity converts an entity to an AnnotationContents struct.
+func AnnotationContentsFromEntity(e entities.Annotation) AnnotationContents {
+
+	identifications := make(map[int64][]int64)
+	for i := range e.IdentificationUserID {
+		userID := e.IdentificationUserID[i]
+		speciesID := e.IdentificationSpeciesID[i]
+		if _, exists := identifications[speciesID]; exists {
+			identifications[speciesID] = append(identifications[speciesID], userID)
+		} else {
+			identifications[speciesID] = []int64{userID}
+		}
+	}
+
+	keypoints := make([]keypoint.KeyPoint, len(e.Keypoints))
+	for i, k := range e.Keypoints {
+		keypoints[i] = keypoint.KeyPoint{
+			BoundingBox: k.BoundingBox,
+			Time:        videotime.UncheckedParse(k.Time),
+		}
+	}
+
+	return AnnotationContents{
+		KeyPoints:       keypoints,
+		Identifications: identifications,
+		VideostreamID:   e.VideoStreamID,
+		CreatedByID:     e.CreatedBy,
+	}
+}
+
+// GetAnnotationByID returns an annotation by ID.
+func GetAnnotationByID(id int64) (*Annotation, error) {
+
 	store := globals.GetStore()
 	key := store.IDKey(entities.ANNOTATION_KIND, id)
-	var annotation entities.Annotation
-	err := store.Get(context.Background(), key, &annotation)
+	var e entities.Annotation
+	err := store.Get(context.Background(), key, &e)
 	if err != nil {
 		return nil, err
+	}
+
+	annotation := Annotation{
+		ID:                 id,
+		AnnotationContents: AnnotationContentsFromEntity(e),
 	}
 
 	return &annotation, nil
 }
 
+// AnnotationExists checks if an annotation exists.
 func AnnotationExists(id int64) bool {
 	store := globals.GetStore()
 	key := store.IDKey(entities.ANNOTATION_KIND, id)
@@ -92,139 +239,114 @@ func AnnotationExists(id int64) bool {
 	return err == nil
 }
 
-// GetAnnotations gets a list of annotations, filtering by timespan, capturesource, observer & observation if specified.
-func GetAnnotations(limit int, offset int, videostream *int64, observer *int64, observation map[string]string, order *string) ([]entities.Annotation, []int64, error) {
-	// Fetch data from the datastore.
+// GetAnnotations gets a list of annotations, filtering by videostream if specified.
+func GetAnnotations(limit int, offset int, order *string, videostream *int64) ([]Annotation, error) {
 	store := globals.GetStore()
 	query := store.NewQuery(entities.ANNOTATION_KIND, false)
 
-	// Filter by videostream.
+	// Apply filters.
 	if videostream != nil {
 		query.FilterField("VideoStreamID", "=", *videostream)
 	}
 
-	// Filter by observer.
-	if observer != nil {
-		query.FilterField("Observer", "=", *observer)
-	}
-
-	// Filter by observation records.
-	for k, v := range observation {
-		if v == "*" {
-			query.FilterField("ObservationKeys", "=", k)
-		} else {
-			query.FilterField("ObservationPairs", "=", fmt.Sprintf("%s:%s", k, v))
-		}
-	}
-
+	// Apply pagination and ordering.
 	query.Limit(limit)
 	query.Offset(offset)
 	if order != nil {
 		query.Order(*order)
 	}
 
-	var annotations []entities.Annotation
-	keys, err := store.GetAll(context.Background(), query, &annotations)
+	// Fetch entities from the datastore.
+	var ents []entities.Annotation
+	keys, err := store.GetAll(context.Background(), query, &ents)
 	if err != nil {
-		return []entities.Annotation{}, []int64{}, err
-	}
-	ids := make([]int64, len(annotations))
-	for i, k := range keys {
-		ids[i] = k.ID
+		return []Annotation{}, err
 	}
 
-	return annotations, ids, nil
+	// Convert entities.
+	annotations := make([]Annotation, len(ents))
+	for i := range ents {
+		annotations[i] = Annotation{
+			ID:                 keys[i].ID,
+			AnnotationContents: AnnotationContentsFromEntity(ents[i]),
+		}
+	}
+
+	return annotations, nil
 }
 
 // CreateAnnotation creates a new annotation.
-func CreateAnnotation(videoStreamID int64, keypoints []keypoint.KeyPoint, observer int64, observation map[string]string) (int64, error) {
-	if err := validateObservation(observation); err != nil {
-		return 0, err
-	}
-
-	// Convert observation map into a format the datastore can take.
-	obsKeys := make([]string, 0, len(observation))
-	obsPairs := make([]string, 0, len(observation))
-
-	for k, v := range observation {
-		obsKeys = append(obsKeys, k)
-		obsPairs = append(obsPairs, fmt.Sprintf("%s:%s", k, v))
-	}
-
-	// Convert keypoints into storable format.
-	kp := make([]struct {
-		Time string
-		keypoint.BoundingBox
-	}, 0, len(keypoints))
-	for _, k := range keypoints {
-		kp = append(kp, struct {
-			Time string
-			keypoint.BoundingBox
-		}{
-			Time:        k.Time.String(),
-			BoundingBox: k.BoundingBox,
-		})
-	}
-
-	// Create annotation entity and add to the datastore.
-	an := entities.Annotation{
-		VideoStreamID:    videoStreamID,
-		Start:            keypoints[0].Time.Int(),
-		Keypoints:        kp,
-		Observer:         observer,
-		ObservationPairs: obsPairs,
-		ObservationKeys:  obsKeys,
-	}
+func CreateAnnotation(contents AnnotationContents) (*Annotation, error) {
 
 	// Verify VideoStream exists.
-	if !VideoStreamExists(int64(videoStreamID)) {
-		return 0, errors.New("VideoStream does not exist")
+	if !VideoStreamExists(contents.VideostreamID) {
+		return nil, errors.New("VideoStream does not exist")
 	}
 
 	// Get a unique ID for the new annotation.
 	store := globals.GetStore()
 	key := store.IncompleteKey(entities.ANNOTATION_KIND)
-	key, err := store.Put(context.Background(), key, &an)
+	ent := contents.ToEntity()
+	key, err := store.Put(context.Background(), key, &ent)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	// Return ID of created video stream.
-	return key.ID, nil
+	// Return newly created annotation.
+	created := Annotation{
+		ID:                 key.ID,
+		AnnotationContents: contents,
+	}
+	return &created, nil
 }
 
-// UpdateAnnotation updates an Annotation.
-func UpdateAnnotation(id int64, streamURL *string, captureSource *int64, startTime *time.Time, endTime *time.Time) error {
-
+func AddIdentification(id int64, userID int64, speciesID int64) error {
 	// Update data in the datastore.
 	store := globals.GetStore()
-	key := store.IDKey(entities.VIDEOSTREAM_KIND, id)
-	var videoStream entities.VideoStream
+	key := store.IDKey(entities.ANNOTATION_KIND, id)
+	var annotation entities.Annotation
 
 	return store.Update(context.Background(), key, func(e datastore.Entity) {
-		v, ok := e.(*entities.VideoStream)
+		ent, ok := e.(*entities.Annotation)
 		if ok {
-			if streamURL != nil {
-				v.StreamUrl = *streamURL
+			a := AnnotationContentsFromEntity(*ent)
+			if _, exists := a.Identifications[speciesID]; exists {
+				a.Identifications[speciesID] = append(a.Identifications[speciesID], userID)
+			} else {
+				a.Identifications[speciesID] = []int64{userID}
 			}
-			if captureSource != nil {
-				// TODO: Check that captureSource exists.
-				v.CaptureSource = *captureSource
-			}
-			if startTime != nil {
-				v.StartTime = *startTime
-			}
-			if endTime != nil {
-				v.EndTime = endTime
-			}
+			*ent = a.ToEntity()
 		}
-	}, &videoStream)
+	}, &annotation)
+}
+
+func DeleteIdentification(id int64, userID int64, speciesID int64) error {
+	// Update data in the datastore.
+	store := globals.GetStore()
+	key := store.IDKey(entities.ANNOTATION_KIND, id)
+	var annotation entities.Annotation
+
+	return store.Update(context.Background(), key, func(e datastore.Entity) {
+		ent, ok := e.(*entities.Annotation)
+		if ok {
+			a := AnnotationContentsFromEntity(*ent)
+			if len(a.Identifications[speciesID]) == 1 {
+				delete(a.Identifications, speciesID)
+			} else {
+				for i, id := range a.Identifications[speciesID] {
+					if id == userID {
+						a.Identifications[speciesID] = append(a.Identifications[speciesID][:i], a.Identifications[speciesID][i+1:]...)
+						break
+					}
+				}
+			}
+			*ent = a.ToEntity()
+		}
+	}, &annotation)
 }
 
 // DeleteAnnotation deletes an annotation.
 func DeleteAnnotation(id int64) error {
-	// TODO: Check that annotation exists.
-
 	// Delete entity.
 	store := globals.GetStore()
 	key := store.IDKey(entities.ANNOTATION_KIND, id)
