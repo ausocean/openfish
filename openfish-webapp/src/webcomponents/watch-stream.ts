@@ -196,9 +196,6 @@ export class WatchStream extends TailwindElement {
       @seek=${this.onSeek}
     ></playback-controls>`
 
-    const speciesGuide = html`
-      <div class="bg-blue-500 rounded-lg p-4 min-w-96">species guide todo</div>
-    `
     const asideContents =
       this._mode === 'playback'
         ? html`
