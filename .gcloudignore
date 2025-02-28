@@ -9,7 +9,8 @@
 !go.sum
 !cmd/
 !datastore/
-
+!storage/
+!jobrunner/
 
 # Vite output directory.
 # Include only openfish-webapp/dist, but nothing else from openfish-webapp.
