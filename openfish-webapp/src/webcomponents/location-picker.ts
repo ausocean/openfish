@@ -1,4 +1,5 @@
-import { LitElement, css, html } from 'lit'
+import { TailwindElement } from './tailwind-element'
+import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import L from 'leaflet'
@@ -19,7 +20,7 @@ const defaultIcon = new L.Icon({
 })
 
 @customElement('location-picker')
-export class LocationPicker extends LitElement {
+export class LocationPicker extends TailwindElement {
   static formAssociated = true
 
   private _internals: ElementInternals
@@ -98,7 +99,8 @@ export class LocationPicker extends LitElement {
     return html`
     <div><small>Click to pick location or paste lat-long coordinates</small></div>
     <input 
-        type="text" 
+        type="text"
+        class="w-full mb-2"
         placeholder="Lat-long coordinates"
         name="location"
         .value=${this.value} 
@@ -107,16 +109,15 @@ export class LocationPicker extends LitElement {
     `
   }
 
-  static styles = css`
-    ${leafletcss} 
-    #map {
-      aspect-ratio: 4/3;
-    }
-    input {
-      width: 100%;
-      margin-bottom: 0.5rem;
-    }
-  `
+  static styles = [
+    TailwindElement.styles!,
+    leafletcss,
+    css`
+      #map {
+        aspect-ratio: 4/3;
+      }
+    `,
+  ]
 }
 
 declare global {

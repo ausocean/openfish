@@ -1,4 +1,5 @@
-import { LitElement, css, html } from 'lit'
+import { TailwindElement } from './tailwind-element'
+import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import type { Result } from '../api'
 import { repeat } from 'lit/directives/repeat.js'
@@ -9,7 +10,7 @@ type NamedItem = { name: string } & Record<string, any>
 // the API and present them as options.
 
 @customElement('data-select')
-export class DataSelect<T extends NamedItem> extends LitElement {
+export class DataSelect<T extends NamedItem> extends TailwindElement {
   static formAssociated = true
 
   @property()
@@ -60,7 +61,7 @@ export class DataSelect<T extends NamedItem> extends LitElement {
 
   render() {
     return html`
-    <select @input=${this.onInput} .name=${this.name} .value=${this.value}>
+    <select @input=${this.onInput} .name=${this.name} .value=${this.value} class="w-full">
     <option value="">${this.defaultText}</option>
     ${repeat(
       this._items,
@@ -69,12 +70,6 @@ export class DataSelect<T extends NamedItem> extends LitElement {
     </select>
     `
   }
-
-  static styles = css`
-    select {
-      width: 100%;
-    }
-  `
 }
 
 declare global {

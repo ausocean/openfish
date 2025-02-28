@@ -1,13 +1,13 @@
-import { LitElement, css, html, unsafeCSS } from 'lit'
+import { TailwindElement } from './tailwind-element'
+import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import resetcss from '../styles/reset.css?lit'
 
 @customElement('admin-menu')
-export class AdminMenu extends LitElement {
+export class AdminMenu extends TailwindElement {
   render() {
     return html`
-    <aside>
-      <menu>
+    <aside class="pr-4 h-full">
+      <menu class="flex flex-col gap-1 text-slate-800 *:transition-colors *:rounded-md *:overflow-clip *:hover:bg-slate-200 *:hover:text-blue-700">
           <li><a href="/admin/capturesources.html">Manage Capture Sources</a></li>
           <li><a href="/admin/users.html">Manage Users</a></li>
           <li><a href="/admin/species.html">Manage Species</a></li>
@@ -17,37 +17,15 @@ export class AdminMenu extends LitElement {
     `
   }
 
-  static styles = css`
-    ${unsafeCSS(resetcss)}
-    aside {
-      border-right: 1px solid var(--gray-200);
-      padding-right: 1rem;
-      padding-top: 1rem;
-      height: 100%
-    }   
-    menu {
-      font-weight: 500;
-      display: flex;
-      flex-direction: column;
-      gap: .25rem;
-
-      & li {
-        list-style-type: none;
-        padding: 0;
+  static styles = [
+    TailwindElement.styles!,
+    css`
+      a {
+        padding: .25rem .5rem;
+        display: block;
       }
-    }
-    a {
-      text-decoration: none;
-      color: currentColor;
-      padding: .25rem .5rem;
-      border-radius: .25rem;
-      display: block;
-    }
-    a:hover {
-      color: var(--blue-500);
-      background-color: var(--gray-100);
-    }
-    `
+    `,
+  ]
 }
 
 declare global {

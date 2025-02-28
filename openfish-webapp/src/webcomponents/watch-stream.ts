@@ -1,8 +1,7 @@
-import { LitElement, css, html } from 'lit'
+import { TailwindElement } from './tailwind-element'
+import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import type { VideoStream } from '../api/videostream'
-import resetcss from '../styles/reset.css?lit'
-import btncss from '../styles/buttons.css?lit'
 
 import './annotation-displayer'
 import './annotation-card'
@@ -27,7 +26,7 @@ import { Annotation, BoundingBox, Keypoint } from '../api/annotation'
 import { formatVideoTime } from '../utils/datetime'
 
 @customElement('watch-stream')
-export class WatchStream extends LitElement {
+export class WatchStream extends TailwindElement {
   @property({ type: Number })
   set streamID(val: number) {
     this.fetchVideoStream(val)
@@ -129,6 +128,10 @@ export class WatchStream extends LitElement {
     this.play()
   }
 
+  private onSeek(e: CustomEvent) {
+    this._seekTo = e.detail
+  }
+
   async fetchVideoStream(id: number) {
     try {
       // Fetch video stream with ID.
@@ -190,19 +193,18 @@ export class WatchStream extends LitElement {
       .editMode=${this._mode === 'editor'}
       @play=${this.play} 
       @pause=${this.pause}
-      @seek=${(e: CustomEvent) => {
-        console.log(e)
-        this._seekTo = e.detail
-      }}
+      @seek=${this.onSeek}
     ></playback-controls>`
 
-    const aside =
+    const speciesGuide = html`
+      <div class="bg-blue-500 rounded-lg p-4 min-w-96">species guide todo</div>
+    `
+    const asideContents =
       this._mode === 'playback'
         ? html`
-      <aside>
-        <header>
-          <h3>Annotations</h3>
-          <button class="btn btn-orange" @click=${this.addAnnotation}>+ Add annotation</button>
+        <header class="bg-blue-600">
+          <h3 class="text-blue-50">Annotations</h3>
+          <button class="btn variant-orange" @click=${this.addAnnotation}>+ Add annotation</button>
         </header>
         <div class="scrollable">
           <annotation-list
@@ -210,16 +212,15 @@ export class WatchStream extends LitElement {
             .currentTime=${this._currentTime}
             .activeAnnotation=${this._activeId}
             @mouseover-annotation=${(e: MouseoverAnnotationEvent) => (this._activeId = e.detail)}
+            @seek=${this.onSeek}
             >
           </annotation-list>
-        </div>
-      </aside>`
+        </div>`
         : html`
-      <aside>
-        <header>
-          <h3>Add Annotation</h3>
-          <button class="btn btn-secondary" @click=${this.cancelAnnotation}>Cancel</button>
-          <button class="btn btn-orange" @click=${this.confirmAnnotation} .disabled=${
+        <header class="bg-blue-600">
+          <h3 class="text-blue-50">Add Annotation</h3>
+          <button class="btn variant-slate" @click=${this.cancelAnnotation}>Cancel</button>
+          <button class="btn variant-orange" @click=${this.confirmAnnotation} .disabled=${
             this._keypoints.length === 0 || Object.keys(this._observation).length === 0
           }>Done</button>
         </header>
@@ -227,8 +228,7 @@ export class WatchStream extends LitElement {
           ev: ObservationEvent
         ) => {
           this._observation = ev.detail
-        }}>
-      </aside>`
+        }}>`
 
     const overlay =
       this._mode === 'playback'
@@ -243,14 +243,20 @@ export class WatchStream extends LitElement {
         : html`
           <bounding-box-creator @updateboundingbox=${(e: UpdateBoundingBoxEvent) =>
             (this._boundingBox = e.detail)}></bounding-box-creator>
-          <div class="keypoint-container">
-            <button class="btn btn-transparent" @click=${this.addKeyPoint} .disabled=${this._boundingBox === null || this._keypoints.map((k) => k.time).includes(this._currentTime)}>Add keypoint</button>
+          <div class="keypoint-contain">
+            <button 
+              class="btn variant-slate"
+              @click=${this.addKeyPoint}
+              .disabled=${this._boundingBox === null || this._keypoints.map((k) => k.time).includes(this._currentTime)}
+            >
+              Add keypoint
+            </button>
             ${repeat(
               this._keypoints,
               (k: Keypoint) => html`
-                <span class="keypoint">
+                <span class="bg-slate-300 rounded-lg text-sm whitespace-nowrap w-min h-8 pl-2 gap-2 flex items-center justify-center">
                   ${formatVideoTime(k.time, true)}
-                  <button class="btn-icon btn-transparent" @click=${() => {
+                  <button class="btn variant-slate px-0 aspect-square" @click=${() => {
                     this._keypoints = this._keypoints.filter((v) => v.time !== k.time)
                   }}>✕</button>
                 </span>
@@ -260,56 +266,32 @@ export class WatchStream extends LitElement {
           `
 
     return html`
-      <div class="root">
-        <div class="row">  
-          <div class="video">
-            ${video}
-            ${overlay}
+        <main class="bg-blue-700 overflow-clip rounded-lg h-full">
+          <div class="flex h-[calc(100%-3rem)]">  
+            <div class="video relative bg-blue-950">
+              ${video}
+              ${overlay}
+            </div>
+            <aside class="w-full flex flex-col bg-blue-700 overflow-y-hidden">
+              ${asideContents}
+            </aside>
           </div>
-          ${aside}
-        </div>
-        ${playbackControls}
-      </div>`
+          ${playbackControls}
+        </main>
+      `
   }
 
-  static styles = css`
-    ${resetcss}
-    ${btncss}
-    ${vidstackcss}
+  static styles = [
+    TailwindElement.styles!,
+    vidstackcss,
+    css`
 
-    .root {
+    :host {
       --video-ratio: 4 / 3;
-      
-      height: calc(100vh - 12.75rem);
-      border-radius: 0.5rem;
-      overflow: clip;
-      display: flex;
-      flex-direction: column;
     }
 
-    .row {
-      display: flex;
-      height: calc(100% - 3.5rem);
-    }
-    h2 {
-      margin: 0;
-      padding: .25rem .5rem; 
-      border-bottom: 1px solid var(--gray-100);
-    }
-    span.subtitle {
-      color: var(--gray-300);
-      font-weight: normal;
-    }
-    aside {
-      background-color: var(--blue-700);
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-    }
     .video {
       aspect-ratio: var(--video-ratio);
-      height: 100%;
-      position: relative;
     }
     media-player, annotation-overlay, bounding-box-creator {
       aspect-ratio: var(--video-ratio);
@@ -320,7 +302,7 @@ export class WatchStream extends LitElement {
     annotation-overlay, bounding-box-creator {
       z-index: 100;
     }
-    .keypoint-container {
+    .keypoint-contain {
       position: absolute;
       left: 0;
       right: 0;
@@ -355,7 +337,6 @@ export class WatchStream extends LitElement {
     }
     aside header {
       padding: 0.75rem 1rem;
-      background: var(--blue-500);
       display: flex;
       align-items: center;
       justify-content: end;
@@ -377,31 +358,11 @@ export class WatchStream extends LitElement {
       inset: 0;
     }
 
-    annotation-list {
-      width: 100%;
-    }
-
     observation-editor {
       height: calc(100% - 4rem);
       overflow: hidden;
     }
 
-    h3 {
-      margin-top: 0;
-      margin-bottom: 0;
-      margin-left: 0.5rem;
-      color: var(--blue-50)
-    }
-
-    h4 {
-      margin: 0;
-      color: var(--gray-50);
-    }
-
-    section {
-      padding: 0.5rem;
-      color: var(--gray-50);
-    }
 
     table {
       width: 100%;
@@ -410,11 +371,8 @@ export class WatchStream extends LitElement {
         width: 0;
       }
     }
-
-    .w-full { 
-      width: 100%;
-    }
-  `
+  `,
+  ]
 }
 
 declare global {

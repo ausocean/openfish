@@ -1,7 +1,6 @@
-import { LitElement, type TemplateResult, css, html } from 'lit'
+import { TailwindElement } from './tailwind-element'
+import { type TemplateResult, css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import resetcss from '../styles/reset.css?lit'
-import btncss from '../styles/buttons.css?lit'
 import { repeat } from 'lit/directives/repeat.js'
 import { provide, consume, createContext } from '@lit/context'
 import { formatAsDatetimeRange } from '../utils/datetime'
@@ -15,7 +14,7 @@ export const pkeyContext = createContext(Symbol('pkey'))
 export const hoverContext = createContext(Symbol('hover-row'))
 
 @customElement('data-table')
-export class DataTable<T extends Record<string, any>> extends LitElement {
+export class DataTable<T extends Record<string, any>> extends TailwindElement {
   @state()
   protected _page = 1
 
@@ -85,46 +84,39 @@ export class DataTable<T extends Record<string, any>> extends LitElement {
 
   render() {
     const pagination = html`   
-    <span class="mr-1">Page ${this._page} of ${this._totalPages}</span>
-    <button @click="${this.next}" .disabled=${this._page === 1}>Prev</button>
-    <button @click="${this.prev}" .disabled=${this._page === this._totalPages}>Next</button>
+    <span class="text-slate-800">Page ${this._page} of ${this._totalPages}</span>
+    <span class="flex gap-1">
+      <button class="btn variant-slate" @click="${this.next}" .disabled=${this._page === 1}>Prev</button>
+      <button class="btn variant-slate" @click="${this.prev}" .disabled=${this._page === this._totalPages}>Next</button>
+    </span>
     `
 
     return html`
-    <div class="table" style="--colwidths: ${this.colwidths}" @hoverItem=${this.onHoverItem}>
+    <div class="table border border-slate-300 rounded-md overflow-clip" style="--colwidths: ${this.colwidths}" @hoverItem=${this.onHoverItem}>
       <slot></slot>
-      <footer>
+      <footer class="flex px-4 gap-1 justify-between items-center h-12 bg-slate-100">
         ${pagination}
       </footer>
     </div>
     `
   }
 
-  static styles = css`
-    ${resetcss}
-    ${btncss}
-
-    .table {
-      display: grid;
-      grid-template-columns: var(--colwidths, "");
-      border-radius: 0.25rem;
-      border: 1px solid var(--gray-100);
-    }
-
-    footer {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 1rem;
-      height: 3rem;
-      background-color: var(--gray-50);
-      grid-column: 1/-1;
-      gap: 0.25rem
-    }
-    `
+  static styles = [
+    TailwindElement.styles!,
+    css`
+      .table {
+        display: grid;
+        grid-template-columns: var(--colwidths, "");
+      }
+      
+      footer {
+        grid-column: 1/-1;
+      }
+    `,
+  ]
 }
 
-abstract class DataTableColumn<T extends Record<string, any>> extends LitElement {
+abstract class DataTableColumn<T extends Record<string, any>> extends TailwindElement {
   @consume({ context: dataContext, subscribe: true })
   @state()
   protected _items: T[] = []
@@ -165,14 +157,14 @@ abstract class DataTableColumn<T extends Record<string, any>> extends LitElement
 
   render() {
     return html`
-    <div class="th" style="justify-content: ${this.align}">
+    <div class="flex items-center px-4 h-12 bg-slate-200 border-b border-b-slate-300 cursor-pointer font-bold text-slate-700" style="justify-content: ${this.align}">
       ${this.renderTitle()}
     </div>
     ${repeat(
       this._items,
       (item) => html`
       <div 
-        class="td ${this._hover === item[this._pkey].toString() ? 'hover' : ''}" 
+        class="td flex items-center px-4 h-12 border-b border-b-slate-300 cursor-pointer transition-colors ${this._hover === item[this._pkey].toString() ? 'hover' : ''}" 
         style="justify-content: ${this.align}" 
         @click=${() => this.clickItem(item)} 
         @mouseenter=${() => this.hoverItem(item[this._pkey].toString())}
@@ -185,37 +177,19 @@ abstract class DataTableColumn<T extends Record<string, any>> extends LitElement
     `
   }
 
-  static styles = css`
-    ${resetcss}
-    
-    :host {
-      width: 1fr
-    }
-
-    .th {
-      display: flex;
-      align-items: center;
-      padding: 0 1rem;
-      height: 3rem;
-      font-weight: bold;
-      background-color: var(--gray-50);
-      border-bottom: 1px solid var(--gray-100);
-    }
-
-    .td {
-      display: flex;
-      align-items: center;
-      padding: 0 1rem;
-      height: 3rem;
-      border-bottom: 1px solid var(--gray-100);
-      cursor: pointer;
-
-      &.hover {
-        background-color: var(--gray-50);
-        color: var(--blue-700);
+  static styles = [
+    TailwindElement.styles!,
+    css`
+      :host {
+        width: 1fr
       }
-    }
-    `
+
+      .td.hover {
+        background-color: var(--color-blue-100);
+        color: var(--color-blue-800);
+      }
+    `,
+  ]
 }
 
 @customElement('dt-col')
@@ -285,14 +259,9 @@ export class DataTableButton<T extends Record<string, any>> extends DataTableCol
 
   renderCell(item: T): TemplateResult {
     return html`
-    <button type="button" class="btn btn-sm btn-secondary" @click=${() => this.clickButton(item)}>${this.text}</button>
+    <button type="button" class="btn size-sm variant-slate" @click=${() => this.clickButton(item)}>${this.text}</button>
     `
   }
-
-  static styles = css`
-    ${DataTableColumn.styles}
-    ${btncss}
-  `
 }
 
 declare global {
