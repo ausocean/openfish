@@ -1,10 +1,11 @@
-import { LitElement, css, html, svg } from 'lit'
+import { TailwindElement } from './tailwind-element'
+import { html, svg, type TemplateResult } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 
 export type UpdateBoundingBoxEvent = CustomEvent<[number, number, number, number]>
 
 @customElement('bounding-box-creator')
-export class BoundingBoxCreator extends LitElement {
+export class BoundingBoxCreator extends TailwindElement {
   @state()
   private _box: [number, number, number, number] | null = null
 
@@ -131,96 +132,75 @@ export class BoundingBoxCreator extends LitElement {
   }
 
   render() {
-    const rect = this._box
-      ? svg`
+    let rect: TemplateResult = html``
+
+    if (this._box !== null) {
+      rect = svg`
         <g> 
-          <line x1="${this._box!.at(0)}%" x2="${this._box!.at(0)}%" y1="${this._box!.at(
-            1
-          )}%" y2="${this._box!.at(3)}%" stroke-width="4" class="ew" @mousedown=${(e: MouseEvent) =>
-            this.startEditEdge(0, e)}/>
-          <line x1="${this._box!.at(0)}%" x2="${this._box!.at(2)}%" y1="${this._box!.at(
-            1
-          )}%" y2="${this._box!.at(1)}%" stroke-width="4" class="ns" @mousedown=${(e: MouseEvent) =>
-            this.startEditEdge(1, e)}/>
-          <line x1="${this._box!.at(2)}%" x2="${this._box!.at(2)}%" y1="${this._box!.at(
-            1
-          )}%" y2="${this._box!.at(3)}%" stroke-width="4" class="ew" @mousedown=${(e: MouseEvent) =>
-            this.startEditEdge(2, e)}/>
-          <line x1="${this._box!.at(0)}%" x2="${this._box!.at(2)}%" y1="${this._box!.at(
-            3
-          )}%" y2="${this._box!.at(3)}%" stroke-width="4" class="ns" @mousedown=${(e: MouseEvent) =>
-            this.startEditEdge(3, e)}/>
-          
-          <rect 
-            x="${this._box!.at(0)}%" y="${this._box!.at(1)}%" width="${
-              this._box!.at(2)! - this._box!.at(0)!
-            }%" height="${this._box!.at(3)! - this._box!.at(1)!}%" 
+          <line 
+            x1="${this._box[0]}%" x2="${this._box[0]}%" 
+            y1="${this._box[1]}%" y2="${this._box[3]}%" 
+            stroke-width="2" class="stroke-sky-400 hover:stroke-sky-600 cursor-ew-resize" 
+            @mousedown=${(e: MouseEvent) => this.startEditEdge(0, e)}
+          />
+          <line 
+            x1="${this._box[0]}%" x2="${this._box[2]}%" 
+            y1="${this._box[1]}%" y2="${this._box[1]}%" 
+            stroke-width="2" class="stroke-sky-400 hover:stroke-sky-600 cursor-ns-resize"
+            @mousedown=${(e: MouseEvent) => this.startEditEdge(1, e)}
+          />
+          <line
+            x1="${this._box[2]}%" x2="${this._box[2]}%" 
+            y1="${this._box[1]}%" y2="${this._box[3]}%"
+            stroke-width="2" class="stroke-sky-400 hover:stroke-sky-600 cursor-ew-resize"
+            @mousedown=${(e: MouseEvent) => this.startEditEdge(2, e)}
+          />
+          <line x1="${this._box[0]}%" x2="${this._box[2]}%" 
+            y1="${this._box[3]}%" y2="${this._box[3]}%"
+            stroke-width="2" class="stroke-sky-400 hover:stroke-sky-600 cursor-ns-resize"
+            @mousedown=${(e: MouseEvent) => this.startEditEdge(3, e)}
+          />
+          <rect
+            class="cursor-move"
+            x="${this._box[0]}%" y="${this._box[1]}%" 
+            width="${this._box[2] - this._box[0]}%"
+            height="${this._box[3] - this._box[1]}%" 
             fill="#00000000" 
             @mousedown=${this.startDrag}
           />
 
-          <circle cx="${this._box!.at(0)}%" cy="${this._box!.at(
-            1
-          )}%" r="5" class="nwse" @mousedown=${(e: MouseEvent) => this.startEditCorner(0, e)}/>
-          <circle cx="${this._box!.at(0)}%" cy="${this._box!.at(
-            3
-          )}%" r="5" class="nesw" @mousedown=${(e: MouseEvent) => this.startEditCorner(1, e)}/>
-          <circle cx="${this._box!.at(2)}%" cy="${this._box!.at(
-            1
-          )}%" r="5" class="nesw" @mousedown=${(e: MouseEvent) => this.startEditCorner(2, e)}/>
-          <circle cx="${this._box!.at(2)}%" cy="${this._box!.at(
-            3
-          )}%" r="5" class="nwse" @mousedown=${(e: MouseEvent) => this.startEditCorner(3, e)}/>
+          <circle 
+            cx="${this._box[0]}%" cy="${this._box[1]}%" r="5" 
+            class="fill-blue-800 cursor-nwse-resize" 
+            @mousedown=${(e: MouseEvent) => this.startEditCorner(0, e)}
+          />
+          <circle 
+            cx="${this._box[0]}%" cy="${this._box[3]}%" r="5" 
+            class="fill-blue-800 cursor-nesw-resize" 
+            @mousedown=${(e: MouseEvent) => this.startEditCorner(1, e)}
+          />
+          <circle 
+            cx="${this._box[2]}%" cy="${this._box[1]}%" r="5"
+            class="fill-blue-800 cursor-nesw-resize" 
+            @mousedown=${(e: MouseEvent) => this.startEditCorner(2, e)}
+          />
+          <circle 
+            cx="${this._box[2]}%" cy="${this._box[3]}%" r="5"
+            class="fill-blue-800 cursor-nwse-resize"
+            @mousedown=${(e: MouseEvent) => this.startEditCorner(3, e)}
+          />
         </g>`
-      : ''
-
-    return html`
-          <svg width="100%" height="100%" @mousedown=${this.startDrawBox} @mouseup=${this.endBox} @mousemove=${this.updateBox}>
-            ${rect}
-          </svg>`
-  }
-
-  static styles = css`
-
-
-  svg {
-    cursor: crosshair;
-  }
-
-  .nesw {
-    cursor: nesw-resize;
-  }
-
-  .nwse {
-    cursor: nwse-resize;
-  }
-  
-  .ew {
-    cursor: ew-resize;
-  }
-
-  .ns {
-    cursor: ns-resize;
-  }
-
-  line {
-    stroke: var(--bright-blue-400);
-
-    &:hover {
-      stroke: var(--bright-blue-600);
     }
 
+    return html`
+      <svg 
+        class="cursor-crosshair"
+        width="100%" height="100%" 
+        @mousedown=${this.startDrawBox} @mouseup=${this.endBox} @mousemove=${this.updateBox}
+      >
+        ${rect}
+      </svg>`
   }
-  
-  rect {
-    cursor: move;
-  }
-
-  circle {
-    fill: var(--blue-800);
-  }
-
-  `
 }
 
 declare global {

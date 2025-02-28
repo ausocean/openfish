@@ -1,11 +1,10 @@
-import { LitElement, css, html } from 'lit'
+import { TailwindElement } from './tailwind-element'
+import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { type Ref, createRef, ref } from 'lit/directives/ref.js'
-import resetcss from '../styles/reset.css?lit'
-import btncss from '../styles/buttons.css?lit'
 
 @customElement('confirm-dialog')
-export class ConfirmDialog extends LitElement {
+export class ConfirmDialog extends TailwindElement {
   @property({ type: String })
   confirmMessage = 'Yes'
 
@@ -32,38 +31,16 @@ export class ConfirmDialog extends LitElement {
 
   render() {
     return html`
-      <dialog ${ref(this.dialogRef)}>
-      <slot></slot>
-      <footer>
-        <button class="btn-orange btn-sm" @click=${this.confirm}>${this.confirmMessage}</button>
-        <button class="btn-secondary btn-sm" @click=${this.cancel}>${this.cancelMessage}</button>
-      </footer>
+      <dialog ${ref(this.dialogRef)} class="dialog">
+        <slot></slot>
+
+        <footer class="flex mt-2 justify-end gap-2 w-full">
+          <button class="btn variant-orange" @click=${this.confirm}>${this.confirmMessage}</button>
+          <button class="btn variant-slate" @click=${this.cancel}>${this.cancelMessage}</button>
+        </footer>
       </dialog>
     `
   }
-
-  static styles = css`
-  ${resetcss}
-  ${btncss}
-
-  dialog {
-    border: none;
-    border-radius: 0.5rem;
-  }
-
-  ::backdrop {
-    background-color: var(--gray-950);
-    opacity: 0.5;
-  }
-
-  footer {
-    margin-top: 0.5rem;
-    display: flex;
-    width: 100%;
-    justify-content: flex-end;
-    gap: 1rem;
-  }
-  `
 }
 
 declare global {

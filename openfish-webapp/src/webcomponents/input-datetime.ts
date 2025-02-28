@@ -1,4 +1,5 @@
-import { LitElement, css, html } from 'lit'
+import { TailwindElement } from './tailwind-element'
+import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { toDatetimeLocal } from '../utils/datetime'
 
@@ -7,7 +8,7 @@ import { toDatetimeLocal } from '../utils/datetime'
 // timezone.
 
 @customElement('input-datetime')
-export class InputDatetime extends LitElement {
+export class InputDatetime extends TailwindElement {
   static formAssociated = true
 
   @property()
