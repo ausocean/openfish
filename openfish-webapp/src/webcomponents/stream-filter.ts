@@ -1,6 +1,6 @@
-import { LitElement, css, html } from 'lit'
+import { TailwindElement } from './tailwind-element'
+import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import resetcss from '../styles/reset.css?lit'
 import '@fooloomanzoo/datetime-picker/datetime-picker.js'
 import './data-select.ts'
 
@@ -14,7 +14,7 @@ export type Filter = {
 export type FilterUpdateEvent = CustomEvent<Filter>
 
 @customElement('stream-filter')
-export class StreamFilter extends LitElement {
+export class StreamFilter extends TailwindElement {
   @state()
   protected _captureSource: number | null = null
 
@@ -68,63 +68,27 @@ export class StreamFilter extends LitElement {
 
   render() {
     return html`
-    <aside>
-        <h3>Filter Options</h3>
-        <form>
+    <aside class="">
+        <h3 class="text-blue-800 font-bold">Filter Options</h3>
+        <form class="flex flex-col gap-2">
             <fieldset>
-            <legend>Filter by time of stream</legend>
-            <label>From:</label>
-            <datetime-picker locale="en-AU" @input-picker-closed=${this.onCloseStartDatetime}></datetime-picker>
+              <legend class="text-blue-800">Filter by time of stream</legend>
+              <label class="block text-slate-800">From:</label>
+              <datetime-picker locale="en-AU" @input-picker-closed=${this.onCloseStartDatetime}></datetime-picker>
 
-            <label>Until:</label>
-            <datetime-picker locale="en-AU" @input-picker-closed=${this.onCloseEndDatetime}></datetime-picker>
+              <label class="block text-slate-800">Until:</label>
+              <datetime-picker locale="en-AU" @input-picker-closed=${this.onCloseEndDatetime}></datetime-picker>
             </fieldset>
 
             <fieldset>
-            <legend>Filter by capture source</legend>
-            <label>Capture source:</label>
-            <data-select name="capturesource" src="/api/v1/capturesources" defaultText="Any" @input=${this.onSelect}></data-select>
+              <legend class="text-blue-800">Filter by capture source</legend>
+              <label class="block text-slate-800">Capture source:</label>
+              <data-select name="capturesource" src="/api/v1/capturesources" defaultText="Any" @input=${this.onSelect}></data-select>
             </fieldset>
         </form>
     </aside>
     `
   }
-
-  static styles = css`
-    ${resetcss}
-    aside {
-      background-color: var(--gray-50);
-      border-radius: 0.25rem;
-      border: 1px solid var(--gray-200);
-    }
-
-    h3 {
-        margin-top: 0;
-        margin-bottom: 0;
-        padding: .5rem 1.5rem; 
-        background-color: var(--gray-50);
-        border-bottom: 1px solid var(--gray-200);
-    }
-
-    form {
-        padding: .5rem .5rem; 
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    datetime-picker {
-        margin-top: .25rem;
-    }
-
-    capture-source-dropdown {
-        width: 100%;
-    }
-
-    fieldset {
-        border-radius: 0.25rem;
-    }
-    `
 }
 
 declare global {

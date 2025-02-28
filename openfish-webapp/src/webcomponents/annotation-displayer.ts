@@ -1,14 +1,14 @@
-import { LitElement, css, html, svg } from 'lit'
+import { TailwindElement } from './tailwind-element'
+import { css, html, svg } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
-import resetcss from '../styles/reset.css?lit'
 import { createRef, ref, type Ref } from 'lit/directives/ref.js'
 import { findClosestKeypointPair, interpolateKeypoints } from '../utils/keypoints.ts'
 import type { Annotation } from '../api/annotation.ts'
 
 export type MouseoverAnnotationEvent = CustomEvent<number | null>
 
-abstract class AnnotationDisplayer extends LitElement {
+abstract class AnnotationDisplayer extends TailwindElement {
   @property({ type: Array })
   annotations: Annotation[] = []
 
@@ -32,110 +32,82 @@ export class AnnotationOverlay extends AnnotationDisplayer {
       const box = interpolateKeypoints(kpPair, this.currentTime)
 
       return svg`
-          <g 
-            @mouseover="${() => this.dispatchMouseOverAnnotation(annotation.id)}" 
-            @mouseout=${() => this.dispatchMouseOverAnnotation(null)}
-          > 
-            <rect 
-              class="annotation-rect ${annotation.id === this.activeAnnotation ? 'active' : ''}" 
-              x="${box.xmin}%" y="${box.ymin}%" width="${box.w}%" height="${box.h}%" 
-              stroke-width="3px" fill="#00000000" 
-            />
-            <foreignobject x="${box.xmin}%" y="${box.ymin}%" width="${box.w}%" height="${box.h}%" >
-              <span class="annotation-label">
-                <span>${annotation.observation.common_name}</span>
-                <span>(${annotation.observation.species})</span>
-              </span>              
-            </foreignobject>
-          </g>`
+        <g 
+          @mouseover="${() => this.dispatchMouseOverAnnotation(annotation.id)}" 
+          @mouseout=${() => this.dispatchMouseOverAnnotation(null)}
+        > 
+
+          <foreignobject x="${box.xmin}%" y="${box.ymin}%" width="${box.w}%" height="${box.h}%" class="relative">
+            <span class="px-1 py-0.5 text-xs bg-slate-900/50 text-white w-full absolute top-0 right-0 text-center text-nowrap">
+              ${annotation.observation.common_name}
+            </span>
+          </foreignobject>
+          <rect 
+            class="annotation-rect stroke-sky-400 data-active:fill-white/25 transition-colors" 
+            x="${box.xmin}%" y="${box.ymin}%" width="${box.w}%" height="${box.h}%" 
+            stroke-width="2px" fill="#00000000"
+            ?data-active=${annotation.id === this.activeAnnotation}
+          />
+        </g>`
     })
 
     return html`
-          <svg width="100%" height="100%">
-            ${rects}
-          </svg>`
+      <svg width="100%" height="100%">
+        ${rects}
+      </svg>`
   }
 
-  static styles = css`
-    ${resetcss}
-
-    svg {
-      pointer-events: none;
-    }
-    .annotation-rect {
-      transition: fill 0.25s;
-      stroke: var(--bright-blue-400);
-    }
-    .annotation-rect.active {
-      fill: #CCEEEE20;
-    }
-    .annotation-label {
-      font-size: 0.75rem;
-      padding: 0.1rem 0.2rem;
-      background-color: var(--bright-blue-400);
-      color: var(--content);
-      width: 100%;
-      top: -1px;
-      position: absolute;
-    }
-    .annotation-label>span {
-      text-wrap: nowrap;
-    }
-    `
+  static styles = [
+    TailwindElement.styles!,
+    css`
+      svg {
+        pointer-events: none;
+      }
+    `,
+  ]
 }
 
 @customElement('annotation-list')
 export class AnnotationList extends AnnotationDisplayer {
-  listContainer: Ref<HTMLElement> = createRef()
+  listcontain: Ref<HTMLElement> = createRef()
 
   render() {
     const currentIdx = this.annotations.findIndex((a) => this.currentTime < a.end)
-
-    const items = repeat(
-      this.annotations,
-      (a) => a.id,
-      (a: Annotation, i: number) => html`
-      ${currentIdx === i ? html`<hr class="playback-hr"/>` : html``}
-    <annotation-card
-      .annotation=${a}
-      .glow=${this.activeAnnotation === a.id}
-      .outline=${a.start <= this.currentTime && this.currentTime <= a.end}
-      @mouseover=${() => this.dispatchMouseOverAnnotation(a.id)}
-      @mouseout=${() => this.dispatchMouseOverAnnotation(null)}
-    />`
-    )
+    const renderItem = (a: Annotation, i: number) => html`
+      <li class="contents">
+      <div class="pt-2 flex flex-col items-center gap-2">
+        <div class="rounded-full w-3 aspect-square border-2 border-blue-300 ${currentIdx === i ? 'bg-blue-300' : ''}"></div>
+        ${i === this.annotations.length - 1 ? html`` : html`<div class="bg-blue-600 w-0.5 h-full"></div>`}
+      </div>
+           
+      <annotation-card
+        class="pb-3"
+        .annotation=${a}
+        .glow=${this.activeAnnotation === a.id}
+        .outline=${a.start <= this.currentTime && this.currentTime <= a.end}
+        @mouseover=${() => this.dispatchMouseOverAnnotation(a.id)}
+        @mouseout=${() => this.dispatchMouseOverAnnotation(null)}
+      />
+      
+      </li>`
 
     return html`
-    <div ${ref(this.listContainer)}>
-        ${items}
-    </div>
+    <ul ${ref(this.listcontain)} class="grid p-2 overflow-x-scroll">
+        ${repeat(this.annotations, (a) => a.id, renderItem)}
+    </ul>
     `
   }
 
-  static styles = css`
-    ${resetcss}
-    div {
-      height: 100%;
-      overflow-y: scroll;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      padding: 1rem 1rem;
-      overflow: visible; 
-    }
-
-    annotation-card.active {
-      border: 1px solid var(--bright-blue-400)
-    }
-
-    .playback-hr {
-      border: 1px solid var(--red-500);
-      width: 100%;
-      height: 0;
-      margin-top: -0.5rem;
-      margin-bottom: -0.5rem;
-    }
-    `
+  static styles = [
+    TailwindElement.styles!,
+    css`
+      ul {
+        grid-template-columns: 1.5rem 1fr;
+        grid-auto-rows: auto;
+        column-gap: 0.5rem;
+      }
+    `,
+  ]
 }
 
 declare global {

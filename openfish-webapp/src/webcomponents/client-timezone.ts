@@ -1,8 +1,9 @@
-import { LitElement, css, html } from 'lit'
+import { TailwindElement } from './tailwind-element'
+import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 @customElement('client-timezone')
-export class ClientTimezone extends LitElement {
+export class ClientTimezone extends TailwindElement {
   value = Intl.DateTimeFormat().resolvedOptions().timeZone
 
   render() {

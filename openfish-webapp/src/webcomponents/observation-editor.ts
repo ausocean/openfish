@@ -1,4 +1,5 @@
-import { LitElement, css, html } from 'lit'
+import { TailwindElement } from './tailwind-element'
+import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import { zip } from '../utils/array-utils'
@@ -10,7 +11,7 @@ type Image = { src: string; attribution: string }
 
 export type ObservationEvent = CustomEvent<Record<string, string>>
 
-abstract class AbstractObservationEditor extends LitElement {
+abstract class AbstractObservationEditor extends TailwindElement {
   @state()
   protected _keys: string[] = []
 
@@ -45,18 +46,18 @@ export class ObservationEditor extends AbstractObservationEditor {
 
   render() {
     return html`
-    <menu>
-    <h4>Observation</h4>
-    <button class="btn-sm ${
-      this._editorMode === 'simple' ? ' btn-secondary' : 'btn-outline'
-    }"  @click=${() => {
-      this._editorMode = 'simple'
-    }}>Select species</button>
-    <button class="btn-sm ${
-      this._editorMode === 'advanced' ? ' btn-secondary' : 'btn-outline'
-    }" @click=${() => {
-      this._editorMode = 'advanced'
-    }}>Additional observations</button>
+    <menu class="text-slate-50 flex py-2 px-4 gap-2 bg-blue-600">
+      <h4 class="flex-1">Observation</h4>
+      <button class="btn size-sm ${
+        this._editorMode === 'simple' ? 'variant-slate' : 'variant-blue'
+      }"  @click=${() => {
+        this._editorMode = 'simple'
+      }}>Select species</button>
+      <button class="btn size-sm ${
+        this._editorMode === 'advanced' ? 'variant-slate' : 'variant-blue'
+      }" @click=${() => {
+        this._editorMode = 'advanced'
+      }}>Additional observations</button>
     </menu>
 
       ${
@@ -66,34 +67,6 @@ export class ObservationEditor extends AbstractObservationEditor {
       }
     `
   }
-
-  static styles = css`
-  ${resetcss}
-  ${btncss}
-  menu {
-    display: flex;
-    justify-content: end;
-    margin: 0;
-    padding: 0.5rem 1rem;
-    gap: 0.5rem;
-    background-color: var(--blue-600);
-
-    & > h4 {
-      color: var(--gray-50);
-      margin-right: auto;
-    }  
-
-    & button[data-active="true"] {
-      background-color: var(--gray-50);
-      color: var(--gray-900);
-    }
-
-    & button[data-active="false"] {
-      background-color: transparent;
-      color: var(--gray-50);
-    }
-  }
-  `
 }
 
 @customElement('species-selection')
@@ -144,143 +117,41 @@ export class SpeciesSelection extends AbstractObservationEditor {
   }
 
   render() {
-    const items = repeat(
-      this._speciesList,
-      ({ species, common_name, images }) => html`
-        <li class="card" @click=${() => this.selectSpecies(species)} data-selected=${
-          this.observation.species === species
-        }>
-          <span class="attribution">${images?.at(0)?.attribution ?? 'No image available'}</span>
-          <img src=${images?.at(0)?.src ?? 'placeholder.svg'} />
-          <div class="common_name">${common_name}</div>
-          <div class="species">${species}</div>
-        </li>
-    `
-    )
+    const renderSpecies = ({ species, common_name, images }: Species) => html`
+      <li class="card overflow-clip relative p-0 transition-colors hover:bg-blue-200 data-selected:bg-blue-200 data-selected:border-sky-400 data-selected:shadow-md data-selected:shadow-sky-500/50 cursor-pointer" 
+        @click=${() => this.selectSpecies(species)}
+        ?data-selected=${this.observation.species === species}
+        >
+        <div title=${images?.at(0)?.attribution} class="aspect-square rounded-full w-5 flex items-center justify-center text-sm bg-slate-950/75 text-white absolute top-2 right-2">&copy;</div>
+        <img src=${images?.at(0)?.src ?? 'placeholder.svg'} class="w-full object-cover aspect-[4/3]"/>
+        <div class="px-2 font-bold mt-1">${common_name}</div>
+        <div class="px-2 pb-2 text-sm">${species}</div>
+      </li>
+  `
 
     return html`
-    <header>
-      <input type="text" placeholder="Search species" @input=${this.search}></input>
+    <header class="bg-blue-600 px-3 py-2 border-b border-b-blue-500 shadow-sm">
+      <input 
+        type="text"
+        class="bg-blue-700 border border-blue-800 text-blue-50 w-full rounded-md placeholder:text-blue-300"
+        placeholder="Search species" 
+        @input=${this.search} 
+      />
     </header>
-    <div class="scrollable">
-    <div>
-      <ul>
-          ${items}
-      </ul>
-      <footer>
-        <button class="btn btn-blue" @click=${this.fetchMore}>Load more</button>
-      </footer>
-    </div>
+    <div class="relative overflow-y-scroll h-[calc(100%-6rem)]">
+      <div class="absolute inset-0">
+        <ul class="grid overflow-y-scroll gap-4 p-4 grid-cols-2 auto-rows-auto">
+          ${repeat(this._speciesList, renderSpecies)}
+        </ul>
+        <footer class="w-full pb-4">
+          <button class="mx-auto btn variant-slate" @click=${this.fetchMore}>Load more</button>
+        </footer>
+      </div>
     </div>
     `
   }
 
-  static styles = css`
-    ${resetcss}
-    ${btncss}
-
-    .scrollable {
-      position: relative;
-      height: calc(100% - 6rem);
-      overflow-y: scroll;
-    }
-    .scrollable > * {
-      position: absolute;
-      left: 0;
-      top: 0;
-    }
-    
-    header {
-      background-color: var(--blue-600);
-      padding: 0.5rem 1rem;
-      border-bottom: 1px solid var(--blue-500);
-      box-shadow: var(--shadow-sm);
-    }
-
-    input {
-      width: 100%;
-      padding: 0.5rem;
-      font-size: 1rem;
-      background-color: var(--blue-700);
-      border: 1px solid var(--blue-800);
-      border-radius: 0.25rem;
-      color: var(--blue-100);
-
-      &:focus {
-        outline: none;
-        color: var(--blue-50);
-        border-color: var(--blue-400);
-      }
-    }
-
-    ul {
-        list-style-type: none;
-        margin:0;
-        overflow-y: scroll;
-        
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: auto;
-        gap: 1rem;
-        padding: 1rem;
-    }
-
-    footer {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        padding-bottom: 1rem;
-    }
-
-    .card {
-        background-color: var(--gray-50);
-        border: 2px solid var(--blue-300);
-        border-radius: .5rem;
-        box-shadow:  var(--shadow-sm);
-        overflow: clip;
-        cursor: pointer;
-        color: var(--gray-900);
-        position: relative;
-
-        & img {
-            width: 100%;
-            aspect-ratio:  4 / 3;
-            object-fit: cover;
-        }
-
-        & .common_name {
-            padding: 0 .5rem;
-            font-weight: bold;
-        }
-
-        & .species {
-            padding: 0 .5rem;
-            padding-bottom: 0.5rem;
-            font-size: 0.8rem;
-        }
-
-        & .attribution {  
-          font-size: 0.5rem;
-          background-color: rgba(0, 0, 0, 0.5);
-          color: var(--bg);
-          padding: 0.5em 1em;
-          border-radius: 999999px;
-          position: absolute;
-          top: 0.5em;
-          right: 0.5em;
-          white-space: pre-line;
-        }
-    }
-
-    .card[data-selected="true"] {
-      background-color: var(--blue-200);
-      color: black;
-      border-color: var(--bright-blue-400);
-      box-shadow:  var(--shadow-lg), 0px 0px 10px 2px color-mix(in srgb, var(--bright-blue-400) 80%, transparent);
-
-    }
-
-  `
+  static styles = TailwindElement.styles
 }
 
 type TextInputEvent = InputEvent & { target: HTMLInputElement }

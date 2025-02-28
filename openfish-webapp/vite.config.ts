@@ -5,6 +5,7 @@ import litcss from 'vite-plugin-lit-css'
 import { globSync } from 'glob'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import tailwindcss from '@tailwindcss/vite'
 
 const input = Object.fromEntries(
   globSync('{admin/*,*}.html').map((file) => [
@@ -15,6 +16,7 @@ const input = Object.fromEntries(
 
 export default defineConfig({
   plugins: [
+    tailwindcss(),
     vidstack(),
     litcss({
       include: /[?&]lit\b/,
