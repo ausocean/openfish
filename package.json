@@ -6,7 +6,7 @@
     "leaflet": "^1.9.4",
     "lit": "^3.2.1",
     "reflect-metadata": "^0.2.2",
-    "vidstack": "1.12.12",
+    "vidstack": "1.12.13",
     "vitepress-openapi": "0.0.3-alpha.63"
   },
   "devDependencies": {
