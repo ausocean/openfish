@@ -22,7 +22,7 @@ jobs:
     - name: Test
       run: go test -v ./... -short
 
-  webapp:
+  site:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -37,13 +37,13 @@ jobs:
         run_install: true
       
     - name: Build
-      run: pnpm --filter ./openfish-webapp build
+      run: pnpm site build
     
     - name: Check formatting
-      run: pnpm --filter ./openfish-webapp ci:fmt
+      run: pnpm site ci:fmt
 
     - name: Lint
-      run: pnpm --filter ./openfish-webapp ci:check
+      run: pnpm site ci:check
 
     - name: Test
-      run: pnpm --filter ./openfish-webapp ci:test
+      run: pnpm site ci:test

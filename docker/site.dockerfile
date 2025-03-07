@@ -7,10 +7,10 @@ RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm i
 
-# Build webapp.
-COPY openfish-webapp ./openfish-webapp
-RUN pnpm --filter ./openfish-webapp build
+# Build site.
+COPY site ./site
+RUN pnpm site build
 
 # Production container.
 FROM nginx as production-stage
-COPY --from=build-stage /src/openfish-webapp/dist /usr/share/nginx/html
+COPY --from=build-stage /src/site/dist /usr/share/nginx/html

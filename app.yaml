@@ -15,11 +15,11 @@ handlers:
   
   # Serve index.html as /
   - url: /
-    static_files: openfish-webapp/dist/index.html  
-    upload: openfish-webapp/dist/index.html
+    static_files: site/dist/index.html  
+    upload: site/dist/index.html
 
   # TODO: Serve watch.html and streams.html from /watch and /streams urls.
   
   # Serve all files in dist.
   - url: /
-    static_dir: openfish-webapp/dist
+    static_dir: site/dist

@@ -44,7 +44,7 @@ import (
 	"google.golang.org/api/idtoken"
 )
 
-// NoAuth skips authentication, for when we are running the webapp locally.
+// NoAuth skips authentication, for when we are running the OpenFish API locally.
 func NoAuth() func(*fiber.Ctx) error {
 	return func(ctx *fiber.Ctx) error {
 

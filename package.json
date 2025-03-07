@@ -21,5 +21,9 @@
     "vite-plugin-lit-css": "^2.0.0",
     "vitepress": "^1.6.3",
     "vitest": "^3.0.8"
+  },
+  "scripts": {
+    "site": "pnpm --filter site",
+    "docsite": "pnpm --filter docs"
   }
 }
