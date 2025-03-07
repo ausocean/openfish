@@ -65,6 +65,7 @@ func InitStore(local bool) error {
 	datastore.RegisterEntity(entities.ANNOTATION_KIND, entities.NewAnnotation)
 	datastore.RegisterEntity(entities.SPECIES_KIND, entities.NewSpecies)
 	datastore.RegisterEntity(entities.USER_KIND, entities.NewUser)
+	datastore.RegisterEntity(entities.TASK_KIND, entities.NewTask)
 
 	return err
 }

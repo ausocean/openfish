@@ -1,5 +1,6 @@
-/cmd/openfish/store/**
 go.work
 **.http
 .vscode/*
 node_modules/
+**/store/**
+**/openfish-media/**

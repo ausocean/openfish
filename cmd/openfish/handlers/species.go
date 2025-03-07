@@ -39,41 +39,13 @@ import (
 	"strconv"
 
 	"github.com/ausocean/openfish/cmd/openfish/api"
-	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/services"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-// SpeciesResult describes the JSON format for species in API responses.
-// Fields use pointers because they are optional (this is what the format URL param is for).
-type SpeciesResult struct {
-	ID         *int64            `json:"id,omitempty" example:"1234567890"`                   // Unique ID of the species.
-	Species    *string           `json:"species,omitempty" example:"Sepioteuthis australis"`  // Scientific name of the species.
-	CommonName *string           `json:"common_name,omitempty" example:"Southern Reef Squid"` // Common name (in English) of the species.
-	Images     *[]entities.Image `json:"images,omitempty"`                                    // Image or images of the species.
-}
-
-// FromSpecies creates a SpeciesResult from a entities.Species and key, formatting it according to the requested format.
-func FromSpecies(species *entities.Species, id int64, format *api.Format) SpeciesResult {
-	var result SpeciesResult
-	if format.Requires("id") {
-		result.ID = &id
-	}
-	if format.Requires("species") {
-		result.Species = &species.Species
-	}
-	if format.Requires("common_name") {
-		result.CommonName = &species.CommonName
-	}
-	if format.Requires("images") {
-		result.Images = &species.Images
-	}
-	return result
-}
-
-// GetRecommendedSpeciesQuery describes the URL query parameters required for the GetRecommendedSpecies endpoint.
-type GetRecommendedSpeciesQuery struct {
+// GetSpeciesQuery describes the URL query parameters required for the GetRecommendedSpecies endpoint.
+type GetSpeciesQuery struct {
 	VideoStream   *int64  `query:"videostream"`   // Optional.
 	CaptureSource *int64  `query:"capturesource"` // Optional.
 	Search        *string `query:"search"`        // Optional.
@@ -84,15 +56,6 @@ type ImportFromINaturalistQuery struct {
 	DescendantsOf []string `query:"descendants_of"`
 }
 
-// CreateSpeciesBody describes the JSON format required for the CreateSpecies endpoint.
-//
-// ID is omitted because it is chosen automatically.
-type CreateSpeciesBody struct {
-	Species    string           `json:"species" example:"Sepioteuthis australis"`  // Scientific name of the species.
-	CommonName string           `json:"common_name" example:"Southern Reef Squid"` // Common name (in English) of the species.
-	Images     []entities.Image `json:"images"`                                    // Image or images of the species.
-}
-
 // GetSpeciesByID gets a species when provided with an ID.
 //
 //	@Summary		Get species by ID
@@ -100,18 +63,12 @@ type CreateSpeciesBody struct {
 //	@Tags			Species
 //	@Produce		json
 //	@Param			id	path		int	true	"Species ID"	example(1234567890)
-//	@Success		200	{object}	SpeciesResult
+//	@Success		200	{object}	services.Species
 //	@Failure		400	{object}	api.Failure
 //	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/species/{id} [get]
 func GetSpeciesByID(ctx *fiber.Ctx) error {
 	// Parse URL.
-	format := new(api.Format)
-
-	if err := ctx.QueryParser(format); err != nil {
-		return api.InvalidRequestURL(err)
-	}
-
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 	if err != nil {
 		return api.InvalidRequestURL(err)
@@ -123,43 +80,42 @@ func GetSpeciesByID(ctx *fiber.Ctx) error {
 		return api.DatastoreReadFailure(err)
 	}
 
-	// Format result.
-	result := FromSpecies(species, id, format)
-	return ctx.JSON(result)
+	return ctx.JSON(species)
 }
 
-// GetRecommendedSpecies gets a list of species, most relevant for the specified stream and capture source.
-func GetRecommendedSpecies(ctx *fiber.Ctx) error {
+// GetSpecies gets a list of species.
+//
+//	@Summary		Get species
+//	@Description	Get paginated species, with options to filter by name and location.
+//	@Tags			Species
+//	@Produce		json
+//	@Param			limit	query		int		false	"Number of results to return."	minimum(1)	default(20)
+//	@Param			offset	query		int		false	"Number of results to skip."	minimum(0)
+//	@Success		200		{object}	api.Result[services.Species]
+//	@Failure		400		{object}	api.Failure
+//	@Failure		401		{object}	api.Failure
+//	@Failure		403		{object}	api.Failure
+//	@Router			/api/v1/species [get]
+func GetSpecies(ctx *fiber.Ctx) error {
 	// Parse URL.
-	qry := new(GetRecommendedSpeciesQuery)
+	qry := new(GetSpeciesQuery)
 	qry.SetLimit()
 
 	if err := ctx.QueryParser(qry); err != nil {
 		return api.InvalidRequestURL(err)
 	}
 
-	format := new(api.Format)
-	if err := ctx.QueryParser(format); err != nil {
-		return api.InvalidRequestURL(err)
-	}
-
 	// Fetch data from the datastore.
-	species, ids, err := services.GetRecommendedSpecies(qry.Limit, qry.Offset, qry.VideoStream, qry.CaptureSource, qry.Search)
+	species, err := services.GetSpecies(qry.Limit, qry.Offset, qry.VideoStream, qry.CaptureSource, qry.Search)
 	if err != nil {
 		return api.DatastoreReadFailure(err)
 	}
 
-	// Format results.
-	results := make([]SpeciesResult, len(species))
-	for i := range species {
-		results[i] = FromSpecies(&species[i], int64(ids[i]), format)
-	}
-
-	return ctx.JSON(api.Result[SpeciesResult]{
-		Results: results,
+	return ctx.JSON(api.Result[services.Species]{
+		Results: species,
 		Offset:  qry.Offset,
 		Limit:   qry.Limit,
-		Total:   len(results),
+		Total:   len(species),
 	})
 }
 
@@ -172,30 +128,28 @@ func GetRecommendedSpecies(ctx *fiber.Ctx) error {
 //	@Tags			Species
 //	@Accept			json
 //	@Produce		json
-//	@Param			body	body		CreateSpeciesBody	true	"New Species"
-//	@Success		201		{object}	EntityIDResult
+//	@Param			body	body		services.SpeciesContents	true	"New Species"
+//	@Success		201		{object}	services.Species
 //	@Failure		400		{object}	api.Failure
 //	@Failure		401		{object}	api.Failure
 //	@Failure		403		{object}	api.Failure
 //	@Router			/api/v1/species [post]
 func CreateSpecies(ctx *fiber.Ctx) error {
 	// Parse body.
-	var body CreateSpeciesBody
+	var body services.SpeciesContents
 	err := ctx.BodyParser(&body)
 	if err != nil {
 		return api.InvalidRequestJSON(err)
 	}
 
 	// Create video stream entity and add to the datastore.
-	id, err := services.CreateSpecies(body.Species, body.CommonName, body.Images, nil)
+	created, err := services.CreateSpecies(body)
 	if err != nil {
 		return api.DatastoreWriteFailure(err)
 	}
 
 	// Return ID of created video stream.
-	return ctx.JSON(EntityIDResult{
-		ID: id,
-	})
+	return ctx.JSON(created)
 }
 
 // ImportFromINaturalist imports species from INaturalist's taxa API.
@@ -238,14 +192,32 @@ func ImportFromINaturalist(ctx *fiber.Ctx) error {
 				continue
 			}
 
-			img := entities.Image{Src: s.DefaultPhoto.MediumURL, Attribution: s.DefaultPhoto.Attribution}
-
-			species, id, _ := services.GetSpeciesByINaturalistID(s.ID)
+			species, _ := services.GetSpeciesByINaturalistID(s.ID)
 			if species == nil {
-				services.CreateSpecies(s.Name, s.PreferredCommonName, []entities.Image{img}, &s.ID)
+				services.CreateSpecies(services.SpeciesContents{
+					ScientificName: s.Name,
+					CommonName:     s.PreferredCommonName,
+					Images: []services.SpeciesImage{
+						{
+							Src:         s.DefaultPhoto.MediumURL,
+							Attribution: s.DefaultPhoto.Attribution,
+						},
+					},
+					INaturalistTaxonID: &s.ID,
+				})
+			} else {
+				services.UpdateSpecies(species.ID, services.PartialSpeciesContents{
+					ScientificName: &s.Name,
+					CommonName:     &s.PreferredCommonName,
+					Images: &[]services.SpeciesImage{
+						{
+							Src:         s.DefaultPhoto.MediumURL,
+							Attribution: s.DefaultPhoto.Attribution,
+						},
+					},
+					INaturalistTaxonID: &s.ID,
+				})
 			}
-
-			services.UpdateSpecies(id, &s.Name, &s.PreferredCommonName, &[]entities.Image{img}, nil)
 		}
 	}
 
