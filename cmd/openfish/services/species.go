@@ -3,7 +3,7 @@ AUTHORS
   Scott Barnard <scott@ausocean.org>
 
 LICENSE
-  Copyright (c) 2023-2024, The OpenFish Contributors.
+  Copyright (c) 2023-2025, The OpenFish Contributors.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -44,61 +44,147 @@ import (
 	"github.com/ausocean/openfish/datastore"
 )
 
+// Species describes a species that can be chosen in identifications on a stream.
+type Species struct {
+	ID int64 `json:"id" example:"1234567890"` // Unique ID of the species.
+	SpeciesContents
+}
+
+// SpeciesContents is the contents of a Species.
+type SpeciesContents struct {
+	ScientificName     string         `json:"scientific_name" example:"Rhincodon typus"` // Scientific name of the species.
+	CommonName         string         `json:"common_name" example:"Whale Shark"`         // Common name (in English) of the species.
+	Images             []SpeciesImage `json:"images"`                                    // Image or images of the species.
+	INaturalistTaxonID *int           `json:"inaturalist_taxon_id" example:"1234567890"`
+}
+
+// PartialSpeciesContents is for updating a species with a partial update (such as a PATCH request).
+type PartialSpeciesContents struct {
+	ScientificName     *string         `json:"scientific_name,omitempty" example:"Rhincodon typus"` // Scientific name of the species.
+	CommonName         *string         `json:"common_name,omitempty" example:"Whale Shark"`         // Common name (in English) of the species.
+	Images             *[]SpeciesImage `json:"images,omitempty"`                                    // Image or images of the species.
+	INaturalistTaxonID *int            `json:"inaturalist_taxon_id" example:"1234567890"`
+}
+
+// SpeciesImage represents an image URL and attribution pair.
+type SpeciesImage struct {
+	Src         string `json:"src" example:"https://inaturalist-open-data.s3.amazonaws.com/photos/340064435/medium.jpg"`
+	Attribution string `json:"attribution" example:"Tiffany Kosch, CC BY-NC-SA 4.0"`
+}
+
+// SpeciesSummary is a summary of a species.
+type SpeciesSummary struct {
+	ID             int64  `json:"id" example:"1234567890"`
+	CommonName     string `json:"common_name" example:"Whale Shark"`
+	ScientificName string `json:"scientific_name" example:"Rhincodon typus"`
+}
+
+// SpeciesContentsFromEntity converts an entities.Species to a SpeciesContents.
+func SpeciesContentsFromEntity(e entities.Species) SpeciesContents {
+	images := make([]SpeciesImage, len(e.ImageSources))
+	for i, _ := range e.ImageSources {
+		images[i].Src = e.ImageSources[i]
+		images[i].Attribution = e.ImageAttributions[i]
+	}
+
+	return SpeciesContents{
+		ScientificName:     e.ScientificName,
+		CommonName:         e.CommonName,
+		Images:             images,
+		INaturalistTaxonID: e.INaturalistTaxonID,
+	}
+}
+
+// ToEntity converts a SpeciesContents to an entities.Species for storage in the datastore.
+func (s *SpeciesContents) ToEntity() entities.Species {
+	sources := make([]string, len(s.Images))
+	attributions := make([]string, len(s.Images))
+	for i, img := range s.Images {
+		sources[i] = img.Src
+		attributions[i] = img.Attribution
+	}
+
+	e := entities.Species{
+		ScientificName:     s.ScientificName,
+		CommonName:         s.CommonName,
+		ImageSources:       sources,
+		ImageAttributions:  attributions,
+		INaturalistTaxonID: s.INaturalistTaxonID,
+		SearchIndex:        makeSearchIndex(s.ScientificName, s.CommonName),
+	}
+
+	return e
+}
+
+// ToSummary converts a Species to a SpeciesSummary.
+func (s *Species) ToSummary() SpeciesSummary {
+	return SpeciesSummary{
+		ID:             s.ID,
+		CommonName:     s.CommonName,
+		ScientificName: s.ScientificName,
+	}
+}
+
+// makeSearchIndex derives the search index field from the scientific name and common name.
+func makeSearchIndex(scientificName string, commonName string) []string {
+	searchableStrings := make([]string, 0, 10)
+
+	for subslice := range sliceutils.WindowPermutations(strings.Split(scientificName, " ")) {
+		str := strings.ToLower(strings.Join(subslice, " "))
+		searchableStrings = append(searchableStrings, str)
+	}
+
+	for subslice := range sliceutils.WindowPermutations(strings.Split(commonName, " ")) {
+		str := strings.ToLower(strings.Join(subslice, " "))
+		searchableStrings = append(searchableStrings, str)
+	}
+	return searchableStrings
+}
+
 // GetSpeciesByID gets a species when provided with an ID.
-func GetSpeciesByID(id int64) (*entities.Species, error) {
+func GetSpeciesByID(id int64) (*Species, error) {
 	store := globals.GetStore()
 	key := store.IDKey(entities.SPECIES_KIND, id)
-	var species entities.Species
-	err := store.Get(context.Background(), key, &species)
+	var e entities.Species
+	err := store.Get(context.Background(), key, &e)
 	if err != nil {
 		return nil, err
+	}
+
+	species := Species{
+		ID:              id,
+		SpeciesContents: SpeciesContentsFromEntity(e),
 	}
 
 	return &species, nil
 }
 
 // GetSpeciesByINaturalist gets a species when provided with an iNaturalist ID.
-func GetSpeciesByINaturalistID(id int) (*entities.Species, int64, error) {
+func GetSpeciesByINaturalistID(id int) (*Species, error) {
 	store := globals.GetStore()
 	query := store.NewQuery(entities.SPECIES_KIND, false)
 
 	query.FilterField("INaturalistTaxonID", "=", id)
 	query.Limit(1)
 
-	var species []entities.Species
-	keys, err := store.GetAll(context.Background(), query, &species)
+	var ents []entities.Species
+	keys, err := store.GetAll(context.Background(), query, &ents)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
-
 	if len(keys) == 0 {
-		return nil, 0, nil
+		return nil, nil
 	}
 
-	return &species[0], keys[0].ID, nil
+	species := Species{
+		ID:              keys[0].ID,
+		SpeciesContents: SpeciesContentsFromEntity(ents[0]),
+	}
+
+	return &species, nil
 }
 
-// GetSpeciesByINaturalist gets a species when provided with its scientific name.
-func GetSpeciesByScientificName(name string) (*entities.Species, int64, error) {
-	store := globals.GetStore()
-	query := store.NewQuery(entities.SPECIES_KIND, false)
-
-	query.FilterField("Species", "=", name)
-	query.Limit(1)
-
-	var species []entities.Species
-	keys, err := store.GetAll(context.Background(), query, &species)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	if len(keys) == 0 {
-		return nil, 0, nil
-	}
-
-	return &species[0], keys[0].ID, nil
-}
-
+// SpeciesExists checks if a species exists with the given ID.
 func SpeciesExists(id int64) bool {
 	store := globals.GetStore()
 	key := store.IDKey(entities.SPECIES_KIND, id)
@@ -107,8 +193,8 @@ func SpeciesExists(id int64) bool {
 	return err == nil
 }
 
-// GetRecommendedSpecies gets a list of species, most relevant for the specified stream and capture source.
-func GetRecommendedSpecies(limit int, offset int, videostream *int64, captureSource *int64, search *string) ([]entities.Species, []int64, error) {
+// GetSpecies gets a list of species, most relevant for the specified stream and capture source.
+func GetSpecies(limit int, offset int, videostream *int64, captureSource *int64, search *string) ([]Species, error) {
 	// Fetch data from the datastore.
 	store := globals.GetStore()
 	query := store.NewQuery(entities.SPECIES_KIND, false)
@@ -125,49 +211,49 @@ func GetRecommendedSpecies(limit int, offset int, videostream *int64, captureSou
 		query.FilterField("SearchIndex", "<=", string(bytes))
 	}
 
-	// TODO: implement returning most relevant species.
+	// TODO: implement ordering by most relevant species.
 
 	query.Limit(limit)
 	query.Offset(offset)
 
-	var species []entities.Species
-	keys, err := store.GetAll(context.Background(), query, &species)
+	var ents []entities.Species
+	keys, err := store.GetAll(context.Background(), query, &ents)
 	if err != nil {
-		return []entities.Species{}, []int64{}, err
+		return []Species{}, err
 	}
-	ids := make([]int64, len(species))
-	for i, k := range keys {
-		ids[i] = k.ID
+	species := make([]Species, len(ents))
+	for i, key := range keys {
+		species[i] = Species{
+			ID:              key.ID,
+			SpeciesContents: SpeciesContentsFromEntity(ents[i]),
+		}
 	}
 
-	return species, ids, nil
+	return species, nil
 }
 
 // CreateSpecies puts a species in the datastore.
-func CreateSpecies(species string, commonName string, images []entities.Image, iNaturalistTaxonID *int) (int64, error) {
+func CreateSpecies(contents SpeciesContents) (*Species, error) {
 
 	// Create Species entity.
 	store := globals.GetStore()
 	key := store.IncompleteKey(entities.SPECIES_KIND)
-
-	sp := entities.Species{
-		Species:            species,
-		CommonName:         commonName,
-		Images:             images,
-		INaturalistTaxonID: iNaturalistTaxonID,
-		SearchIndex:        makeSearchIndex(species, commonName),
-	}
-	key, err := store.Put(context.Background(), key, &sp)
+	ent := contents.ToEntity()
+	key, err := store.Put(context.Background(), key, &ent)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	// Return ID of created species.
-	return key.ID, nil
+	species := Species{
+		ID:              key.ID,
+		SpeciesContents: contents,
+	}
+
+	return &species, nil
 }
 
-// UpdateSpecies finds the species with a given
-func UpdateSpecies(id int64, species *string, commonName *string, images *[]entities.Image, iNaturalistTaxonID *int) error {
+// UpdateSpecies updates existing species with partial species data
+func UpdateSpecies(id int64, updates PartialSpeciesContents) error {
 	store := globals.GetStore()
 	key := store.IDKey(entities.SPECIES_KIND, id)
 
@@ -176,19 +262,13 @@ func UpdateSpecies(id int64, species *string, commonName *string, images *[]enti
 	return store.Update(context.Background(), key, func(e datastore.Entity) {
 		s, ok := e.(*entities.Species)
 		if ok {
-			if species != nil {
-				s.Species = *species
+			if updates.ScientificName != nil {
+				s.ScientificName = *updates.ScientificName
 			}
-			if commonName != nil {
-				s.CommonName = *commonName
+			if updates.CommonName != nil {
+				s.CommonName = *updates.CommonName
 			}
-			if images != nil {
-				s.Images = *images
-			}
-			if iNaturalistTaxonID != nil {
-				s.INaturalistTaxonID = iNaturalistTaxonID
-			}
-			s.SearchIndex = makeSearchIndex(s.Species, s.CommonName)
+			s.SearchIndex = makeSearchIndex(s.ScientificName, s.CommonName)
 		}
 	}, &sp)
 
@@ -200,20 +280,4 @@ func DeleteSpecies(id int64) error {
 	store := globals.GetStore()
 	key := store.IDKey(entities.SPECIES_KIND, id)
 	return store.Delete(context.Background(), key)
-}
-
-// makeSearchIndex derives the search index field from the species and common name fields.
-func makeSearchIndex(species string, commonName string) []string {
-	searchableStrings := make([]string, 0, 10)
-
-	for subslice := range sliceutils.WindowPermutations(strings.Split(species, " ")) {
-		str := strings.ToLower(strings.Join(subslice, " "))
-		searchableStrings = append(searchableStrings, str)
-	}
-
-	for subslice := range sliceutils.WindowPermutations(strings.Split(commonName, " ")) {
-		str := strings.ToLower(strings.Join(subslice, " "))
-		searchableStrings = append(searchableStrings, str)
-	}
-	return searchableStrings
 }

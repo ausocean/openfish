@@ -39,6 +39,8 @@ import (
 
 	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/cmd/openfish/services"
+	"github.com/ausocean/openfish/cmd/openfish/types/latlong"
+	"github.com/ausocean/openfish/cmd/openfish/types/timezone"
 )
 
 func setup() {
@@ -56,11 +58,25 @@ func setup() {
 	os.MkdirAll("openfish-media/videos", os.ModePerm)
 }
 
+// createTestCaptureSource creates a capture source in the datastore for use in tests.
+func createTestCaptureSource() services.CaptureSource {
+	cs, _ := services.CreateCaptureSource(services.CaptureSourceContents{
+		Name:           "Stony Point camera 1",
+		Location:       latlong.UncheckedParse("-37.000,145.000"),
+		CameraHardware: "RPI camera",
+	})
+	return *cs
+}
+
 func TestCreateCaptureSource(t *testing.T) {
 	setup()
 
 	// Create a new capture source entity.
-	_, err := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
+	_, err := services.CreateCaptureSource(services.CaptureSourceContents{
+		Name:           "Stony Point camera 1",
+		Location:       latlong.UncheckedParse("-37.000,145.000"),
+		CameraHardware: "RPI camera",
+	})
 	if err != nil {
 		t.Errorf("Could not create capture source entity %s", err)
 	}
@@ -70,10 +86,10 @@ func TestCaptureSourceExists(t *testing.T) {
 	setup()
 
 	// Create a new capture source entity.
-	id, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
+	cs := createTestCaptureSource()
 
 	// Check if the capture source exists.
-	if !services.CaptureSourceExists(int64(id)) {
+	if !services.CaptureSourceExists(cs.ID) {
 		t.Errorf("Expected capture source to exist")
 	}
 }
@@ -94,25 +110,31 @@ func TestGetCaptureSourceByID(t *testing.T) {
 	// Define test cases.
 	testCases := []struct {
 		name           string
-		lat            float64
-		long           float64
+		location       string
 		cameraHardware string
 	}{
-		{"Stony Point camera 1", 0.0, 0.0, "RPI camera"},
-		{"CuttleCam", -100.0, 100.0, "wide angle camera"},
+		{"Stony Point camera 1", "-37.00000000,145.00000000", "RPI camera"},
+		{"CuttleCam", "45.00000000,-20.00000000", "wide angle camera"},
 	}
 
 	for _, tc := range testCases {
 		// Create capture source entities for each test case.
-		id, _ := services.CreateCaptureSource(tc.name, tc.lat, tc.long, tc.cameraHardware, nil)
+		cs, err := services.CreateCaptureSource(services.CaptureSourceContents{
+			Name:           tc.name,
+			Location:       latlong.UncheckedParse(tc.location),
+			CameraHardware: tc.cameraHardware,
+		})
+		if err != nil {
+			t.Errorf("Could not create capture source entity %s", err)
+		}
 
 		// Check if the capture sources can be fetched and is the same.
-		captureSource, err := services.GetCaptureSourceByID(int64(id))
+		captureSource, err := services.GetCaptureSourceByID(cs.ID)
 		if err != nil {
 			t.Errorf("Could not get capture source entity %s", err)
 		}
-		if captureSource.Name != tc.name || captureSource.Location.Lat != tc.lat || captureSource.Location.Lng != tc.long || captureSource.CameraHardware != tc.cameraHardware {
-			t.Errorf("Capture source entity does not match created entity")
+		if captureSource.CameraHardware != tc.cameraHardware || captureSource.Name != tc.name || captureSource.Location.String() != tc.location {
+			t.Errorf("Capture source entity does not match created entity: expected: %v, actual %v", tc, captureSource)
 		}
 	}
 }
@@ -132,40 +154,62 @@ func TestUpdateCaptureSource(t *testing.T) {
 	setup()
 
 	// Create a new capture source entity.
-	id, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
+	cs, err := services.CreateCaptureSource(services.CaptureSourceContents{
+		Name:           "Stony Point camera 1",
+		Location:       latlong.UncheckedParse("-37.000,145.000"),
+		CameraHardware: "RPI camera",
+	})
+	if err != nil {
+		t.Errorf("Could not create capture source entity %s", err)
+	}
 
 	// Update the name.
 	name := "new name"
-	err := services.UpdateCaptureSource(int64(id), &name, nil, nil, nil, nil)
+	err = services.UpdateCaptureSource(cs.ID, services.PartialCaptureSourceContents{
+		Name: &name,
+	})
 	if err != nil {
 		t.Errorf("Could not update capture source entity %s", err)
 	}
 
-	captureSource, _ := services.GetCaptureSourceByID(int64(id))
+	captureSource, err := services.GetCaptureSourceByID(cs.ID)
+	if err != nil {
+		t.Errorf("Could not get capture source entity %s", err)
+	}
 	if captureSource.Name != name {
 		t.Errorf("Name did not update, expected %s, actual %s", name, captureSource.Name)
 	}
 
 	// Update latitude and longitude.
-	lat, long := -37.0, 145.0
-	err = services.UpdateCaptureSource(int64(id), nil, &lat, &long, nil, nil)
+	location := latlong.UncheckedParse("-37.0,145.0")
+	err = services.UpdateCaptureSource(cs.ID, services.PartialCaptureSourceContents{
+		Location: &location,
+	})
 	if err != nil {
 		t.Errorf("Could not update capture source entity %s", err)
 	}
 
-	captureSource, _ = services.GetCaptureSourceByID(int64(id))
-	if captureSource.Location.Lat != lat || captureSource.Location.Lng != long {
-		t.Errorf("Location did not update, expected %f %f, actual %f %f", lat, long, captureSource.Location.Lat, captureSource.Location.Lng)
+	captureSource, err = services.GetCaptureSourceByID(cs.ID)
+	if err != nil {
+		t.Errorf("Could not get capture source entity %s", err)
+	}
+	if captureSource.Location.String() != location.String() {
+		t.Errorf("Location did not update, expected %s, actual %s", location, captureSource.Location)
 	}
 
 	// Update cameraHardware.
 	cameraHardware := "RPI wide angle camera"
-	err = services.UpdateCaptureSource(int64(id), nil, nil, nil, &cameraHardware, nil)
+	err = services.UpdateCaptureSource(cs.ID, services.PartialCaptureSourceContents{
+		CameraHardware: &cameraHardware,
+	})
 	if err != nil {
 		t.Errorf("Could not update capture source entity %s", err)
 	}
 
-	captureSource, _ = services.GetCaptureSourceByID(int64(id))
+	captureSource, err = services.GetCaptureSourceByID(cs.ID)
+	if err != nil {
+		t.Errorf("Could not get capture source entity %s", err)
+	}
 	if captureSource.CameraHardware != cameraHardware {
 		t.Errorf("CameraHardware did not update, expected %s, actual %s", cameraHardware, captureSource.CameraHardware)
 	}
@@ -176,7 +220,7 @@ func TestUpdateCaptureSource(t *testing.T) {
 func TestUpdateCaptureSourceForNonExistentEntity(t *testing.T) {
 	setup()
 
-	err := services.UpdateCaptureSource(int64(123456789), nil, nil, nil, nil, nil)
+	err := services.UpdateCaptureSource(int64(123456789), services.PartialCaptureSourceContents{})
 	if err == nil {
 		t.Errorf("Did not receive expected error when updating non-existent capture source")
 	}
@@ -186,16 +230,23 @@ func TestDeleteCaptureSource(t *testing.T) {
 	setup()
 
 	// Create a new capture source entity.
-	id, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
+	cs, err := services.CreateCaptureSource(services.CaptureSourceContents{
+		Name:           "Stony Point camera 1",
+		Location:       latlong.UncheckedParse("-37.0,145.0"),
+		CameraHardware: "RPI camera",
+	})
+	if err != nil {
+		t.Errorf("Could not create capture source entity %s", err)
+	}
 
 	// Delete the capture source entity.
-	err := services.DeleteCaptureSource(int64(id))
+	err = services.DeleteCaptureSource(cs.ID)
 	if err != nil {
-		t.Errorf("Could not delete capture source entity %d: %s", id, err)
+		t.Errorf("Could not delete capture source entity %d: %s", cs.ID, err)
 	}
 
 	// Check if the capture source exists.
-	if services.CaptureSourceExists(int64(id)) {
+	if services.CaptureSourceExists(cs.ID) {
 		t.Errorf("Capture source entity exists after delete")
 	}
 }
@@ -218,10 +269,19 @@ func TestDeleteCaptureSourceWithAssociatedVideoStreams(t *testing.T) {
 	setup()
 
 	// Create a new capture source entity and a video stream that references it.
-	id, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	services.CreateVideoStream("http://youtube.com/watch?v=abc123", id, _8am, &_4pm, []int64{})
+	cs := createTestCaptureSource()
+	services.CreateVideoStream(services.VideoStreamContents{
+		StartTime:     _8am,
+		EndTime:       &_4pm,
+		AnnotatorList: []int64{},
+		BaseVideoStreamFields: services.BaseVideoStreamFields{
+			TimeZone:      timezone.UncheckedParse("Australia/Adelaide"),
+			StreamURL:     "http://youtube.com/watch?v=abc123",
+			CaptureSource: cs.ID,
+		},
+	})
 
-	err := services.DeleteCaptureSource(id)
+	err := services.DeleteCaptureSource(cs.ID)
 	if err == nil {
 		t.Errorf("Did not receive expected error when deleting capture source with associated video stream")
 	}

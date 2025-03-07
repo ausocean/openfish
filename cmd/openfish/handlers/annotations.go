@@ -70,12 +70,6 @@ type GetAnnotationsQuery struct {
 //	@Router			/api/v1/annotations/{id} [get]
 func GetAnnotationByID(ctx *fiber.Ctx) error {
 	// Parse URL.
-	format := new(api.Format)
-
-	if err := ctx.QueryParser(format); err != nil {
-		return api.InvalidRequestURL(err)
-	}
-
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 	if err != nil {
 		return api.InvalidRequestURL(err)
@@ -115,11 +109,6 @@ func GetAnnotations(ctx *fiber.Ctx) error {
 	qry.SetLimit()
 
 	if err := ctx.QueryParser(qry); err != nil {
-		return api.InvalidRequestURL(err)
-	}
-
-	format := new(api.Format)
-	if err := ctx.QueryParser(format); err != nil {
 		return api.InvalidRequestURL(err)
 	}
 
