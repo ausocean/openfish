@@ -1,9 +1,8 @@
 import { defineConfig } from "vitepress";
-
-import { useOpenapi } from "vitepress-openapi/client";
-import spec from "../developer-docs/api/swagger.json" with { type: "json" };
-import { useSidebar } from "vitepress-openapi";
 import type { DefaultTheme } from "vitepress";
+import { useOpenapi } from "vitepress-openapi/client";
+import { useSidebar } from "vitepress-openapi";
+import spec from '@openfish/client/swagger.json' with { type: 'json' }
 
 useOpenapi({ spec});
 
