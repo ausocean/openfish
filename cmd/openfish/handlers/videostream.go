@@ -141,6 +141,8 @@ type UpdateVideoStreamBody struct {
 //	@Param			id	path		int	true	"Video Stream ID"	example(1234567890)
 //	@Success		200	{object}	VideoStreamResult
 //	@Failure		400	{object}	api.Failure
+//	@Failure		401	{object}	api.Failure
+//	@Failure		403	{object}	api.Failure
 //	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/videostreams/{id} [get]
 func GetVideoStreamByID(ctx *fiber.Ctx) error {
@@ -175,11 +177,13 @@ func GetVideoStreamByID(ctx *fiber.Ctx) error {
 //	@Description	Gets the image or video snippet from this video stream at the given time.
 //	@Tags			Media
 //	@Param			id		path	int		true	"Video Stream ID"	example(1234567890)
-//	@Param			type		path	string		true	"Type"	example(image)
-//	@Param			subtype		path	string		true	"Subtype"	example(jpeg)
+//	@Param			type	path	string	true	"Type"				example(image)
+//	@Param			subtype	path	string	true	"Subtype"			example(jpeg)
 //	@Param			time	query	string	true	"Time"				example(00:00:01.000-00:00:05.500)
 //	@Success		200
 //	@Failure		400	{object}	api.Failure
+//	@Failure		401	{object}	api.Failure
+//	@Failure		403	{object}	api.Failure
 //	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/videostreams/{id}/media/{type}/{subtype} [get]
 func GetVideoStreamMedia(ctx *fiber.Ctx) error {
@@ -241,11 +245,13 @@ func GetVideoStreamMedia(ctx *fiber.Ctx) error {
 //	@Description	Deletes the cached image or video snippet from this video stream at the given time.
 //	@Tags			Media
 //	@Param			id		path	int		true	"Video Stream ID"	example(1234567890)
-//	@Param			type		path	string		true	"Type"	example(image)
-//	@Param			subtype		path	string		true	"Subtype"	example(jpeg)
+//	@Param			type	path	string	true	"Type"				example(image)
+//	@Param			subtype	path	string	true	"Subtype"			example(jpeg)
 //	@Param			time	query	string	true	"Time"				example(00:00:01.000-00:00:05.500)
 //	@Success		200
 //	@Failure		400	{object}	api.Failure
+//	@Failure		401	{object}	api.Failure
+//	@Failure		403	{object}	api.Failure
 //	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/videostreams/{id}/media/{type}/{subtype} [delete]
 func DeleteVideoStreamMedia(ctx *fiber.Ctx) error {
@@ -303,6 +309,8 @@ func DeleteVideoStreamMedia(ctx *fiber.Ctx) error {
 //	@Param			timespan[end]	query		string	false	"End time to filter by."
 //	@Success		200				{object}	api.Result[VideoStreamResult]
 //	@Failure		400				{object}	api.Failure
+//	@Failure		401				{object}	api.Failure
+//	@Failure		403				{object}	api.Failure
 //	@Router			/api/v1/videostreams [get]
 func GetVideoStreams(ctx *fiber.Ctx) error {
 	// Parse URL.
@@ -359,6 +367,8 @@ func GetVideoStreams(ctx *fiber.Ctx) error {
 //	@Param			body	body		CreateVideoStreamBody	true	"New Video Stream"
 //	@Success		201		{object}	EntityIDResult
 //	@Failure		400		{object}	api.Failure
+//	@Failure		401		{object}	api.Failure
+//	@Failure		403		{object}	api.Failure
 //	@Router			/api/v1/videostreams [post]
 func CreateVideoStream(ctx *fiber.Ctx) error {
 	// Parse body.
@@ -392,6 +402,8 @@ func CreateVideoStream(ctx *fiber.Ctx) error {
 //	@Param			body	body		StartVideoStreamBody	true	"New Video Stream"
 //	@Success		201		{object}	EntityIDResult
 //	@Failure		400		{object}	api.Failure
+//	@Failure		401		{object}	api.Failure
+//	@Failure		403		{object}	api.Failure
 //	@Router			/api/v1/videostreams/live [post]
 func StartVideoStream(ctx *fiber.Ctx) error {
 	// Parse body.
@@ -423,6 +435,11 @@ func StartVideoStream(ctx *fiber.Ctx) error {
 //	@Param			id	path	int	true	"Video Stream ID"	Example(1234567890)
 //	@Success		200
 //	@Failure		400	{object}	api.Failure
+//	@Failure		401	{object}	api.Failure
+//	@Failure		403	{object}	api.Failure
+//	@Failure		401	{object}	api.Failure
+//	@Failure		403	{object}	api.Failure
+//	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/videostreams/{id}/live [patch]
 func EndVideoStream(ctx *fiber.Ctx) error {
 	now := time.Now()
@@ -454,6 +471,9 @@ func EndVideoStream(ctx *fiber.Ctx) error {
 //	@Param			body	body	UpdateVideoStreamBody	true	"Update Video Stream"
 //	@Success		200
 //	@Failure		400	{object}	api.Failure
+//	@Failure		401	{object}	api.Failure
+//	@Failure		403	{object}	api.Failure
+//	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/videostreams/{id} [patch]
 func UpdateVideoStream(ctx *fiber.Ctx) error {
 	// Parse URL.
@@ -489,6 +509,8 @@ func UpdateVideoStream(ctx *fiber.Ctx) error {
 //	@Param			id	path	int	true	"Video Stream ID"	example(1234567890)
 //	@Success		200
 //	@Failure		400	{object}	api.Failure
+//	@Failure		401	{object}	api.Failure
+//	@Failure		403	{object}	api.Failure
 //	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/videostreams/{id} [delete]
 func DeleteVideoStream(ctx *fiber.Ctx) error {

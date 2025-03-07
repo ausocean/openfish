@@ -64,6 +64,8 @@ type GetAnnotationsQuery struct {
 //	@Param			id	path		int	true	"Annotation ID"	example(1234567890)
 //	@Success		200	{object}	services.AnnotationWithJoins
 //	@Failure		400	{object}	api.Failure
+//	@Failure		401	{object}	api.Failure
+//	@Failure		403	{object}	api.Failure
 //	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/annotations/{id} [get]
 func GetAnnotationByID(ctx *fiber.Ctx) error {
@@ -99,12 +101,14 @@ func GetAnnotationByID(ctx *fiber.Ctx) error {
 //	@Description	Get paginated annotations, with options to filter by video stream.
 //	@Tags			Annotations
 //	@Produce		json
-//	@Param			limit				query		int		false	"Number of results to return."	minimum(1)	default(20)
-//	@Param			offset				query		int		false	"Number of results to skip."	minimum(0)
-//	@Param			name				query		string	false	"Name to filter by."
-//	@Param			videostream			query		int		false	"Video stream to filter by."
-//	@Success		200					{object}	api.Result[services.AnnotationWithJoins]
-//	@Failure		400					{object}	api.Failure
+//	@Param			limit		query		int		false	"Number of results to return."	minimum(1)	default(20)
+//	@Param			offset		query		int		false	"Number of results to skip."	minimum(0)
+//	@Param			name		query		string	false	"Name to filter by."
+//	@Param			videostream	query		int		false	"Video stream to filter by."
+//	@Success		200			{object}	api.Result[services.AnnotationWithJoins]
+//	@Failure		400			{object}	api.Failure
+//	@Failure		401			{object}	api.Failure
+//	@Failure		403			{object}	api.Failure
 //	@Router			/api/v1/annotations [get]
 func GetAnnotations(ctx *fiber.Ctx) error {
 	qry := new(GetAnnotationsQuery)
@@ -162,6 +166,8 @@ type NewAnnotationBody struct {
 //	@Param			body	body		NewAnnotationBody	true	"New Annotation"
 //	@Success		201		{object}	services.AnnotationWithJoins
 //	@Failure		400		{object}	api.Failure
+//	@Failure		401		{object}	api.Failure
+//	@Failure		403		{object}	api.Failure
 //	@Router			/api/v1/annotations [post]
 func CreateAnnotation(ctx *fiber.Ctx) error {
 	// Parse URL.
@@ -221,10 +227,13 @@ func CreateAnnotation(ctx *fiber.Ctx) error {
 //	@Description	Adds a new identification to an existing annotation.
 //	@Tags			Annotations
 //	@Produce		json
-//	@Param			id	path		int	true	"Annotation ID"	example(1234567890)
+//	@Param			id		path		int	true	"Annotation ID"	example(1234567890)
 //	@Param			species	path		int	true	"Species ID"	example(1234567890)
 //	@Success		201		{object}	services.AnnotationWithJoins
 //	@Failure		400		{object}	api.Failure
+//	@Failure		401		{object}	api.Failure
+//	@Failure		403		{object}	api.Failure
+//	@Failure		404		{object}	api.Failure
 //	@Router			/api/v1/annotations/{id}/identifications/{species_id} [post]
 func AddIdentification(ctx *fiber.Ctx) error {
 	// Parse URL.
@@ -275,10 +284,13 @@ func AddIdentification(ctx *fiber.Ctx) error {
 //	@Description	Removes an identification from an annotation.
 //	@Tags			Annotations
 //	@Produce		json
-//	@Param			id	path		int	true	"Annotation ID"	example(1234567890)
+//	@Param			id		path		int	true	"Annotation ID"	example(1234567890)
 //	@Param			species	path		int	true	"Species ID"	example(1234567890)
 //	@Success		201		{object}	services.AnnotationWithJoins
 //	@Failure		400		{object}	api.Failure
+//	@Failure		401		{object}	api.Failure
+//	@Failure		403		{object}	api.Failure
+//	@Failure		404		{object}	api.Failure
 //	@Router			/api/v1/annotations/{id}/identifications/{species_id} [delete]
 func DeleteIdentification(ctx *fiber.Ctx) error {
 	// Parse URL.
@@ -331,6 +343,8 @@ func DeleteIdentification(ctx *fiber.Ctx) error {
 //	@Param			id	path	int	true	"Annotation ID"	example(1234567890)
 //	@Success		200
 //	@Failure		400	{object}	api.Failure
+//	@Failure		401	{object}	api.Failure
+//	@Failure		403	{object}	api.Failure
 //	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/annotations/{id} [delete]
 func DeleteAnnotation(ctx *fiber.Ctx) error {
