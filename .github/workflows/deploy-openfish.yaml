@@ -36,10 +36,10 @@ jobs:
         run: pnpm i
 
       - name: Build with Vite
-        run: pnpm --filter webapp build
+        run: pnpm site build
 
       - name: List contents of static directory
-        run: find openfish-webapp/dist
+        run: find site/dist
 
       - name: Authenticate
         uses: 'google-github-actions/auth@v2'

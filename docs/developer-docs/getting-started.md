@@ -23,13 +23,13 @@ You will need installed:
 
 2) Build docker images:
    ```bash
-   docker build . -t openfish-webapp -f ./docker/webapp
-   docker build . -t openfish-api -f ./docker/api
+   docker build . -t openfish-site -f ./docker/site.dockerfile
+   docker build . -t openfish-api -f ./docker/api.dockerfile
    ```
 
 3) Run both containers:
    ```bash      
-   docker run -p 80:80 openfish-webapp
+   docker run -p 80:80 openfish-site
    docker run -p 8080:8080 -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcloud.json -v $GOOGLE_APPLICATION_CREDENTIALS:/tmp/gcloud.json:z openfish-api
    ```
 4) Open the browser and visit http://localhost.
