@@ -7,6 +7,8 @@
     "class-transformer": "^0.5.1",
     "leaflet": "^1.9.4",
     "lit": "^3.2.1",
+    "openapi-fetch": "^0.13.4",
+    "openapi-typescript": "^7.6.1",
     "reflect-metadata": "^0.2.2",
     "tailwindcss": "^4.0.6",
     "vidstack": "1.12.13",
@@ -24,6 +26,7 @@
   },
   "scripts": {
     "site": "pnpm --filter site",
-    "docsite": "pnpm --filter docs"
+    "docsite": "pnpm --filter docs",
+    "client": "pnpm --filter client"
   }
 }
