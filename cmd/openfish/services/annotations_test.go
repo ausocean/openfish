@@ -37,7 +37,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/services"
 	"github.com/ausocean/openfish/cmd/openfish/types/keypoint"
 	"github.com/ausocean/openfish/cmd/openfish/types/role"
@@ -50,9 +49,8 @@ func createTestAnnotation() services.Annotation {
 		DisplayName: "Coral Fischer",
 		Role:        role.Annotator,
 	})
-	sp, _ := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
-	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
+	sp := createTestSpecies()
+	vs := createTestVideoStream()
 	contents := services.AnnotationContents{
 		KeyPoints: []keypoint.KeyPoint{
 			{
@@ -64,9 +62,9 @@ func createTestAnnotation() services.Annotation {
 				Time:        videotime.UncheckedParse("00:00:02.000"),
 			},
 		},
-		VideostreamID: vs,
+		VideostreamID: vs.ID,
 		Identifications: map[int64][]int64{
-			sp: {uid},
+			sp.ID: {uid},
 		},
 		CreatedByID: uid,
 	}
@@ -84,9 +82,8 @@ func TestCreateAnnotation(t *testing.T) {
 		DisplayName: "Coral Fischer",
 		Role:        role.Annotator,
 	})
-	sp, _ := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
-	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
+	sp := createTestSpecies()
+	vs := createTestVideoStream()
 	_, err := services.CreateAnnotation(services.AnnotationContents{
 		KeyPoints: []keypoint.KeyPoint{
 			{
@@ -98,9 +95,9 @@ func TestCreateAnnotation(t *testing.T) {
 				Time:        videotime.UncheckedParse("00:00:02.000"),
 			},
 		},
-		VideostreamID: vs,
+		VideostreamID: vs.ID,
 		Identifications: map[int64][]int64{
-			sp: {uid},
+			sp.ID: {uid},
 		},
 		CreatedByID: uid,
 	})
@@ -176,13 +173,36 @@ func TestAnnotationAddIdentification(t *testing.T) {
 		DisplayName: "Sandy Whiting",
 		Role:        role.Annotator,
 	})
-	sp, _ := services.CreateSpecies("Rhincodon typus", "Whale Shark", []entities.Image{}, nil)
+	sp, _ := services.CreateSpecies(services.SpeciesContents{
+		ScientificName: "Rhincodon typus",
+		CommonName:     "Rhincodon typus",
+	})
 
-	services.AddIdentification(original.ID, uid, sp)
+	services.AddIdentification(original.ID, uid, sp.ID)
 
 	modified, _ := services.GetAnnotationByID(original.ID)
 	if len(modified.Identifications) != len(original.Identifications)+1 {
 		t.Errorf("Expected an additional identification to be added")
+	}
+}
+
+func TestAnnotationAddNonExistingSpeciesIdentification(t *testing.T) {
+	// TODO: Run test in CI when issue is fixed.
+	if testing.Short() {
+		t.Skip("skipping testing in short mode")
+	}
+
+	setup()
+	original := createTestAnnotation()
+	uid, _ := services.CreateUser(services.UserContents{
+		Email:       "sandy.whiting@example.com",
+		DisplayName: "Sandy Whiting",
+		Role:        role.Annotator,
+	})
+
+	err := services.AddIdentification(original.ID, uid, int64(123456789))
+	if err == nil {
+		t.Errorf("Did not receive expected error when adding non-existent species as an identification")
 	}
 }
 
@@ -194,9 +214,12 @@ func TestAnnotationRemoveIdentification(t *testing.T) {
 		DisplayName: "Sandy Whiting",
 		Role:        role.Annotator,
 	})
-	sp, _ := services.CreateSpecies("Rhincodon typus", "Whale Shark", []entities.Image{}, nil)
-	services.AddIdentification(original.ID, uid, sp)
-	services.DeleteIdentification(original.ID, uid, sp)
+	sp, _ := services.CreateSpecies(services.SpeciesContents{
+		ScientificName: "Rhincodon typus",
+		CommonName:     "Rhincodon typus",
+	})
+	services.AddIdentification(original.ID, uid, sp.ID)
+	services.DeleteIdentification(original.ID, uid, sp.ID)
 
 	modified, _ := services.GetAnnotationByID(original.ID)
 	if len(modified.Identifications) != len(original.Identifications) {

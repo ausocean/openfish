@@ -44,19 +44,6 @@ import (
 	"github.com/ausocean/openfish/datastore"
 )
 
-// SpeciesSummary is a summary of a species.
-type SpeciesSummary struct {
-	ID             int64  `json:"id" example:"1234567890"`
-	CommonName     string `json:"common_name" example:"Whale Shark"`
-	ScientificName string `json:"scientific_name" example:"Rhincodon typus"`
-}
-
-// VideoStreamSummary is a summary of a video stream.
-type VideoStreamSummary struct {
-	ID        int64  `json:"id" example:"1234567890"`
-	StreamUrl string `json:"stream_url" example:"https://www.youtube.com/watch?v=abcdefghijk"`
-}
-
 // Identification is a species suggestion made by users.
 type Identification struct {
 	Species      SpeciesSummary `json:"species"`
@@ -96,17 +83,12 @@ func (a *Annotation) JoinFields() (*AnnotationWithJoins, error) {
 	if err != nil {
 		return nil, err // TODO: More informative message.
 	}
-	videostreamSummary := VideoStreamSummary{
-		ID:        a.VideostreamID,
-		StreamUrl: videostream.StreamUrl,
-	}
 
 	// Get user details.
 	user, err := GetUserByID(a.CreatedByID)
 	if err != nil {
 		return nil, err // TODO: More informative message.
 	}
-	createdBy := user.ToPublicUser()
 
 	// Get identifications.
 	identifications := make([]Identification, 0, len(a.Identifications))
@@ -125,11 +107,7 @@ func (a *Annotation) JoinFields() (*AnnotationWithJoins, error) {
 			users = append(users, user.ToPublicUser())
 		}
 		identifications = append(identifications, Identification{
-			Species: SpeciesSummary{
-				ID:             speciesID,
-				CommonName:     species.CommonName,
-				ScientificName: species.Species,
-			},
+			Species:      species.ToSummary(),
 			IdentifiedBy: users,
 		})
 	}
@@ -137,9 +115,9 @@ func (a *Annotation) JoinFields() (*AnnotationWithJoins, error) {
 	return &AnnotationWithJoins{
 		ID:              a.ID,
 		KeyPoints:       a.KeyPoints,
-		Videostream:     videostreamSummary,
+		Videostream:     videostream.ToSummary(),
 		Identifications: identifications,
-		CreatedBy:       createdBy,
+		CreatedBy:       user.ToPublicUser(),
 	}, nil
 }
 

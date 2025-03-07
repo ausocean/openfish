@@ -46,11 +46,10 @@ func TestCreateImageMedia(t *testing.T) {
 	setup()
 
 	// Create a new media entity.
-	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
+	vs := createTestVideoStream()
 	_, err := services.CreateMedia(services.MediaKey{
 		Type:          mediatype.JPEG,
-		VideoStreamID: vs,
+		VideoStreamID: vs.ID,
 		StartTime:     videotime.UncheckedParse("00:00:01.000"),
 		EndTime:       nil,
 	}, []byte{})
@@ -63,13 +62,13 @@ func TestCreateVideoMedia(t *testing.T) {
 	setup()
 
 	// Create a new media entity.
-	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
+	vs := createTestVideoStream()
+	start := videotime.UncheckedParse("00:00:01.000")
 	end := videotime.UncheckedParse("00:00:01.500")
 	_, err := services.CreateMedia(services.MediaKey{
 		Type:          mediatype.MP4,
-		VideoStreamID: vs,
-		StartTime:     videotime.UncheckedParse("00:00:01.000"),
+		VideoStreamID: vs.ID,
+		StartTime:     start,
 		EndTime:       &end,
 	}, []byte{})
 	if err != nil {
@@ -81,11 +80,10 @@ func TestMediaExists(t *testing.T) {
 	setup()
 
 	// Create a new media entity.
-	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
+	vs := createTestVideoStream()
 	mq := services.MediaKey{
 		Type:          mediatype.JPEG,
-		VideoStreamID: vs,
+		VideoStreamID: vs.ID,
 		StartTime:     videotime.UncheckedParse("00:00:01.000"),
 		EndTime:       nil,
 	}
@@ -117,11 +115,10 @@ func TestGetMedia(t *testing.T) {
 	setup()
 
 	// Create a new media entity.
-	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
+	vs := createTestVideoStream()
 	mq := services.MediaKey{
 		Type:          mediatype.JPEG,
-		VideoStreamID: vs,
+		VideoStreamID: vs.ID,
 		StartTime:     videotime.UncheckedParse("00:00:01.000"),
 		EndTime:       nil,
 	}
@@ -156,11 +153,10 @@ func TestDeleteMedia(t *testing.T) {
 	setup()
 
 	// Create a new media entity.
-	cs, _ := services.CreateCaptureSource("Stony Point camera 1", 0.0, 0.0, "RPI camera", nil)
-	vs, _ := services.CreateVideoStream("http://youtube.com/watch?v=abc123", int64(cs), _8am, &_4pm, []int64{})
+	vs := createTestVideoStream()
 	mq := services.MediaKey{
 		Type:          mediatype.JPEG,
-		VideoStreamID: vs,
+		VideoStreamID: vs.ID,
 		StartTime:     videotime.UncheckedParse("00:00:01.000"),
 		EndTime:       nil,
 	}

@@ -42,16 +42,12 @@ const SPECIES_KIND = "Species"
 
 // Species is used for our guide.
 type Species struct {
-	Species            string
+	ScientificName     string
 	CommonName         string
-	Images             []Image
+	ImageSources       []string
+	ImageAttributions  []string
 	INaturalistTaxonID *int // Optional.
 	SearchIndex        []string
-}
-
-type Image struct {
-	Src         string `json:"src" example:"https://inaturalist-open-data.s3.amazonaws.com/photos/340064435/medium.jpg"`
-	Attribution string `json:"attribution" example:"Tiffany Kosch, CC BY-NC-SA 4.0"`
 }
 
 // Implements Copy from the Entity interface.

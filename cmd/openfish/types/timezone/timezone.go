@@ -3,7 +3,7 @@ AUTHORS
   Scott Barnard <scott@ausocean.org>
 
 LICENSE
-  Copyright (c) 2023, The OpenFish Contributors.
+  Copyright (c) 2025, The OpenFish Contributors.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -31,51 +31,44 @@ LICENSE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package entities
+// timezone extends time.Location so it can be serialised and deserialised
+package timezone
 
 import (
 	"time"
-
-	"github.com/ausocean/openfish/datastore"
 )
 
-// Kind of entity to store / fetch from the datastore.
-const VIDEOSTREAM_KIND = "VideoStream"
-
-// VideoStream holds the information about a single video stream.
-// VideoStream contains the url for a live or completed stream off of youtube, the start time,
-// the end time (unless it is still ongoing), and the ID of its capture source.
-type VideoStream struct {
-	StartTime     time.Time
-	EndTime       *time.Time // Optional.
-	TimeZone      string
-	StreamURL     string
-	CaptureSource int64
-	AnnotatorList []int64
+type TimeZone struct {
+	time.Location
 }
 
-// Implements Copy from the Entity interface.
-func (vs *VideoStream) Copy(dst datastore.Entity) (datastore.Entity, error) {
-	var v *VideoStream
-	if dst == nil {
-		v = new(VideoStream)
-	} else {
-		var ok bool
-		v, ok = dst.(*VideoStream)
-		if !ok {
-			return nil, datastore.ErrWrongType
-		}
+// Parse parses a string as a TimeZone.
+func Parse(str string) (TimeZone, error) {
+	l, err := time.LoadLocation(str)
+	return TimeZone{Location: *l}, err
+}
+
+// UncheckedParse converts a string to a TimeZone, or panics.
+//
+// This should only really be used when str is a string literal / constant,
+// where the input is not dynamic. Prefer Parse when handling dynamic
+// values, because it can return an error.
+func UncheckedParse(str string) TimeZone {
+	vt, err := Parse(str)
+	if err != nil {
+		panic(err.Error())
 	}
-	*v = *vs
-	return v, nil
+	return vt
 }
 
-// GetCache returns nil, because no caching is used.
-func (vs *VideoStream) GetCache() datastore.Cache {
-	return nil
+// UnmarshalText is used for decoding query params or JSON into a TimeZone.
+func (tz *TimeZone) UnmarshalText(text []byte) error {
+	var err error
+	*tz, err = Parse(string(text))
+	return err
 }
 
-// NewVideoStream returns a new VideoStream entity.
-func NewVideoStream() datastore.Entity {
-	return &VideoStream{}
+// MarshalText is used for encoding a TimeZone into JSON or query params.
+func (tz TimeZone) MarshalText() ([]byte, error) {
+	return []byte(tz.String()), nil
 }
