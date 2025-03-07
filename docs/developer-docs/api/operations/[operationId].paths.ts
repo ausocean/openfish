@@ -1,5 +1,5 @@
 import { useOpenapi } from 'vitepress-openapi/client'
-import spec from '../swagger.json' with { type: 'json' }
+import spec from '@openfish/client/swagger.json' with { type: 'json' }
 
 export default {
     paths() {

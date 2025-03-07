@@ -1,12 +1,14 @@
 {
-    "name": "@openfish/docs",
-    "private": true,
-    "version": "0.0.0",
-    "type": "module",
-    "scripts": {
-        "dev": "pnpm build:openapi && vitepress dev .",
-        "build": "vitepress build .",
-        "preview": "vitepress preview .",
-        "build:openapi": "swag init --dir ../cmd/openfish --output ./developer-docs/api --outputTypes json --v3.1"
-      }
+	"name": "@openfish/docs",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vitepress dev .",
+		"build": "vitepress build .",
+		"preview": "vitepress preview ."
+	},
+	"dependencies": {
+		"@openfish/client": "workspace:^"
+	}
 }
