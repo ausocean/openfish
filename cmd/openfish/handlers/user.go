@@ -59,6 +59,8 @@ type GetUsersQuery struct {
 //	@Param			id	path		int	true	"ID"	example(1234567890)
 //	@Success		200	{object}	services.User
 //	@Failure		400	{object}	api.Failure
+//	@Failure		401	{object}	api.Failure
+//	@Failure		403	{object}	api.Failure
 //	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/users/{id} [get]
 func GetUserByID(ctx *fiber.Ctx) error {
@@ -97,6 +99,8 @@ func GetUserByID(ctx *fiber.Ctx) error {
 //	@Param			offset	query		int	false	"Number of results to skip."	minimum(0)
 //	@Success		200		{object}	api.Result[services.User]
 //	@Failure		400		{object}	api.Failure
+//	@Failure		401		{object}	api.Failure
+//	@Failure		403		{object}	api.Failure
 //	@Router			/api/v1/users [get]
 func GetUsers(ctx *fiber.Ctx) error {
 	// Parse URL.
@@ -153,6 +157,9 @@ func GetUsers(ctx *fiber.Ctx) error {
 //	@Param			body	body	services.PartialUserContents	true	"Update User"
 //	@Success		200
 //	@Failure		400	{object}	api.Failure
+//	@Failure		401	{object}	api.Failure
+//	@Failure		403	{object}	api.Failure
+//	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/users/{id} [patch]
 func UpdateUser(ctx *fiber.Ctx) error {
 	// Parse URL.
@@ -187,6 +194,8 @@ func UpdateUser(ctx *fiber.Ctx) error {
 //	@Param			id	path	string	true	"ID"	example(1234567890)
 //	@Success		200
 //	@Failure		400	{object}	api.Failure
+//	@Failure		401	{object}	api.Failure
+//	@Failure		403	{object}	api.Failure
 //	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/users/{id} [delete]
 func DeleteUser(ctx *fiber.Ctx) error {

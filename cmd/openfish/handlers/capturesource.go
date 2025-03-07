@@ -140,6 +140,8 @@ func parseGeoPoint(location string) (float64, float64, error) {
 //	@Param			id	path		int	true	"Capture Source ID"	example(1234567890)
 //	@Success		200	{object}	CaptureSourceResult
 //	@Failure		400	{object}	api.Failure
+//	@Failure		401	{object}	api.Failure
+//	@Failure		403	{object}	api.Failure
 //	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/capturesources/{id} [get]
 func GetCaptureSourceByID(ctx *fiber.Ctx) error {
@@ -174,6 +176,8 @@ func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 //	@Param			name	query		string	false	"Name to filter by."
 //	@Success		200		{object}	api.Result[CaptureSourceResult]
 //	@Failure		400		{object}	api.Failure
+//	@Failure		401		{object}	api.Failure
+//	@Failure		403		{object}	api.Failure
 //	@Router			/api/v1/capturesources [get]
 func GetCaptureSources(ctx *fiber.Ctx) error {
 	// Parse URL.
@@ -221,6 +225,8 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 //	@Param			body	body		CreateCaptureSourceBody	true	"New Capture Source"
 //	@Success		201		{object}	EntityIDResult
 //	@Failure		400		{object}	api.Failure
+//	@Failure		401		{object}	api.Failure
+//	@Failure		403		{object}	api.Failure
 //	@Router			/api/v1/capturesources [post]
 func CreateCaptureSource(ctx *fiber.Ctx) error {
 	// Parse body.
@@ -257,6 +263,9 @@ func CreateCaptureSource(ctx *fiber.Ctx) error {
 //	@Param			body	body	UpdateCaptureSourceBody	true	"Update Capture Source"
 //	@Success		200
 //	@Failure		400	{object}	api.Failure
+//	@Failure		401	{object}	api.Failure
+//	@Failure		403	{object}	api.Failure
+//	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/capturesources/{id} [patch]
 func UpdateCaptureSource(ctx *fiber.Ctx) error {
 	// Parse URL.
@@ -299,6 +308,8 @@ func UpdateCaptureSource(ctx *fiber.Ctx) error {
 //	@Param			id	path	int	true	"Capture Source ID"	example(1234567890)
 //	@Success		200
 //	@Failure		400	{object}	api.Failure
+//	@Failure		401	{object}	api.Failure
+//	@Failure		403	{object}	api.Failure
 //	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/capturesources/{id} [delete]
 func DeleteCaptureSource(ctx *fiber.Ctx) error {

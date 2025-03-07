@@ -175,6 +175,8 @@ func GetRecommendedSpecies(ctx *fiber.Ctx) error {
 //	@Param			body	body		CreateSpeciesBody	true	"New Species"
 //	@Success		201		{object}	EntityIDResult
 //	@Failure		400		{object}	api.Failure
+//	@Failure		401		{object}	api.Failure
+//	@Failure		403		{object}	api.Failure
 //	@Router			/api/v1/species [post]
 func CreateSpecies(ctx *fiber.Ctx) error {
 	// Parse body.
@@ -260,6 +262,9 @@ func ImportFromINaturalist(ctx *fiber.Ctx) error {
 //	@Param			id	path	int	true	"Species ID"	example(1234567890)
 //	@Success		200
 //	@Failure		400	{object}	api.Failure
+//	@Failure		401	{object}	api.Failure
+//	@Failure		403	{object}	api.Failure
+//	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/species/{id} [delete]
 func DeleteSpecies(ctx *fiber.Ctx) error {
 	// Parse URL.

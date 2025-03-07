@@ -51,6 +51,10 @@ import (
 //	@Param			id	path	int	true	"Task ID"	example(1234567890)
 //	@Success		200
 //	@Success		301
+//	@Failure		400	{object}	api.Failure
+//	@Failure		401	{object}	api.Failure
+//	@Failure		403	{object}	api.Failure
+//	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/tasks/{id}/status [get]
 func PollTask(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)

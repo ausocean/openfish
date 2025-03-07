@@ -77,6 +77,8 @@ func GetSelf(ctx *fiber.Ctx) error {
 //	@Param			body	body	CreateSelfBody	true	"New User"
 //	@Produce		json
 //	@Success		201	{object}	services.User
+//	@Failure		400	{object}	api.Failure
+//	@Failure		409	{object}	api.Failure
 //	@Router			/api/v1/auth/me [post]
 func CreateSelf(ctx *fiber.Ctx) error {
 	user, ok := ctx.Locals("user").(*services.User)
