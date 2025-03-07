@@ -1,12 +1,12 @@
-# Openfish Webapp
-Openfish Webapp is a web interface for interacting with the Openfish API.
+# Openfish Site
+Site is a web interface for interacting with the Openfish API.
 
 
 ## Development guide
 
 #### Linting / formatting
-- `pnpm --filter ./openfish-webapp fmt` to format code.
-- `pnpm --filter ./openfish-webapp check` to check for common issues.
+- `pnpm site fmt` to format code.
+- `pnpm site check` to check for common issues.
 
 
 ## Tools and libraries

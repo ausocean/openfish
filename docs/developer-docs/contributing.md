@@ -43,21 +43,21 @@ You will need installed:
    pnpm install
    ```
 
-3) Start the API:
+3) Start the OpenFish API:
    ```bash
-   go run ./api
+   go run ./cmd/openfish
    ```
 
-4) Start the webapp using vite's development server:
+4) Start the site using vite's development server:
    ```bash
-   pnpm --filter ./openfish-webapp dev
+   pnpm site dev
    ```
 
 5) Open the browser and visit http://localhost:5173/watch.html.
 
 6) (Optional) Serve the documentation website using:
     ```bash
-    pnpm --filter ./docs dev
+    pnpm docsite dev
     ```
 
 ## Common tasks
@@ -67,7 +67,7 @@ You will need installed:
 go fmt ./... && swag fmt
 ```
 ```bash [Front-end project]
-pnpm --filter webapp fmt
+pnpm site fmt
 ```
 :::
 
@@ -77,17 +77,17 @@ pnpm --filter webapp fmt
 go test -v ./... -short  
 ```
 ```bash [Front-end project]
-pnpm --filter webapp test
+pnpm site test
 ```
 :::
 
 ### Linting (Front-end only)
 ::: code-group
 ```bash [Checking code]
-pnpm --filter webapp check
+pnpm site check
 ```
 ```bash [Applying fixes automatically]
-pnpm --filter webapp check --fix
+pnpm site check --fix
 ```
 :::
 

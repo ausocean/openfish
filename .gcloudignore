@@ -13,7 +13,7 @@
 !jobrunner/
 
 # Vite output directory.
-# Include only openfish-webapp/dist, but nothing else from openfish-webapp.
-!openfish-webapp
-openfish-webapp/*
-!openfish-webapp/dist
+# Include only site/dist, but nothing else from site.
+!site
+site/*
+!site/dist
