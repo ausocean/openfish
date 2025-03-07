@@ -40,6 +40,7 @@ import (
 	"strconv"
 
 	"github.com/ausocean/openfish/cmd/openfish/api"
+	"github.com/ausocean/openfish/cmd/openfish/features"
 	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/cmd/openfish/handlers"
 	"github.com/ausocean/openfish/cmd/openfish/middleware"
@@ -85,11 +86,12 @@ func registerAPIRoutes(app *fiber.App) {
 		Delete("/:id", middleware.Guard(role.Admin), handlers.DeleteAnnotation)
 
 	// Species.
-	v1.Group("/species").
+	species := v1.Group("/species")
+	features.RegisterINaturalistImport(species)
+	species.
 		Get("/recommended", handlers.GetRecommendedSpecies).
 		Get("/:id", handlers.GetSpeciesByID).
 		Post("/", middleware.Guard(role.Admin), handlers.CreateSpecies).
-		Post(":import-from-inaturalist", middleware.Guard(role.Admin), handlers.ImportFromINaturalist).
 		Delete("/:id", middleware.Guard(role.Admin), handlers.DeleteSpecies)
 
 	// Users.

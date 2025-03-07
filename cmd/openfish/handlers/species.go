@@ -206,7 +206,7 @@ func CreateSpecies(ctx *fiber.Ctx) error {
 //	@Param			descendants_of	query	string	true	"Phylum/Class/Order/etc to import"	example(Infraorder Cetacea)
 //	@Success		200
 //	@Failure		400	{object}	api.Failure
-//	@Router			/api/v1/species:import-from-inaturalist [post]
+//	@Router			/api/v1/species/inaturalist-import [post]
 func ImportFromINaturalist(ctx *fiber.Ctx) error {
 
 	qry := new(ImportFromINaturalistQuery)
