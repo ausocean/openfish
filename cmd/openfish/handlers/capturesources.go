@@ -97,7 +97,7 @@ func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 //	@Param			limit	query		int		false	"Number of results to return."	minimum(1)	default(20)
 //	@Param			offset	query		int		false	"Number of results to skip."	minimum(0)
 //	@Param			name	query		string	false	"Name to filter by."
-//	@Success		200		{object}	api.Result[CaptureSourceResult]
+//	@Success		200		{object}	api.Result[services.CaptureSource]
 //	@Failure		400		{object}	api.Failure
 //	@Failure		401		{object}	api.Failure
 //	@Failure		403		{object}	api.Failure

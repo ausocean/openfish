@@ -63,7 +63,7 @@ type ImportFromINaturalistQuery struct {
 //	@Tags			Species
 //	@Produce		json
 //	@Param			id	path		int	true	"Species ID"	example(1234567890)
-//	@Success		200	{object}	SpeciesResult
+//	@Success		200	{object}	services.Species
 //	@Failure		400	{object}	api.Failure
 //	@Failure		404	{object}	api.Failure
 //	@Router			/api/v1/species/{id} [get]

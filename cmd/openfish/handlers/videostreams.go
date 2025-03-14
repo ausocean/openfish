@@ -47,9 +47,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// VideoStreamResult  describes the JSON format for video streams in API responses.
-// Fields use pointers because they are optional (this is what the format URL param is for).
-// FromVideoStream creates a VideoStreamResult from a entities.VideoStream and key, formatting it according to the requested format.
 // GetVideoStreamsQuery describes the URL query parameters required for the GetVideoStreams endpoint.
 type GetVideoStreamsQuery struct {
 	CaptureSource *int64             `query:"capturesource"` // Optional.
@@ -81,7 +78,6 @@ type StartVideoStreamBody struct {
 	AnnotatorList []int64 `json:"annotator_list" example:"1234567890" validate:"optional"`                              // Users that are permitted to add annotations.
 }
 
-// UpdateVideoStreamBody describes the JSON format required for the UpdateVideoStream endpoint.
 // GetVideoStreamByID gets a video stream when provided with an ID.
 //
 //	@Summary		Get video stream by ID
@@ -89,7 +85,7 @@ type StartVideoStreamBody struct {
 //	@Tags			Video Streams
 //	@Produce		json
 //	@Param			id	path		int	true	"Video Stream ID"	example(1234567890)
-//	@Success		200	{object}	VideoStreamResult
+//	@Success		200	{object}	services.VideoStreamWithJoins
 //	@Failure		400	{object}	api.Failure
 //	@Failure		401	{object}	api.Failure
 //	@Failure		403	{object}	api.Failure
@@ -254,7 +250,7 @@ func DeleteVideoStreamMedia(ctx *fiber.Ctx) error {
 //	@Param			capturesource	query		int		false	"Capture source ID to filter by."
 //	@Param			timespan[start]	query		string	false	"Start time to filter by."
 //	@Param			timespan[end]	query		string	false	"End time to filter by."
-//	@Success		200				{object}	api.Result[VideoStreamResult]
+//	@Success		200				{object}	api.Result[services.VideoStreamWithJoins]
 //	@Failure		400				{object}	api.Failure
 //	@Failure		401				{object}	api.Failure
 //	@Failure		403				{object}	api.Failure
@@ -299,57 +295,6 @@ func GetVideoStreams(ctx *fiber.Ctx) error {
 	})
 }
 
-// CreateVideoStream creates a new video stream.
-// BUG: start and end time are required but this is not being enforced.
-// https://github.com/ausocean/openfish/issues/18
-//
-//	@Summary		Register video stream
-//	@Description	Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
-//	@Description
-//	@Description	Registers a new video stream with OpenFish.
-//	@Tags			Video Streams
-//	@Accept			json
-//	@Produce		json
-//	@Param			body	body		CreateVideoStreamBody	true	"New Video Stream"
-//	@Success		201		{object}	EntityIDResult
-//	@Failure		400		{object}	api.Failure
-//	@Failure		401		{object}	api.Failure
-//	@Failure		403		{object}	api.Failure
-//	@Router			/api/v1/videostreams [post]
-//
-// StartVideoStream creates a new video stream at the current time.
-//
-//	@Summary		Register live stream
-//	@Description	Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
-//	@Description
-//	@Description	Registers a new live video stream with OpenFish. The API takes the current time as the start time of the video stream.
-//	@Tags			Video Streams (Live)
-//	@Accept			json
-//	@Produce		json
-//	@Param			body	body		StartVideoStreamBody	true	"New Video Stream"
-//	@Success		201		{object}	EntityIDResult
-//	@Failure		400		{object}	api.Failure
-//	@Failure		401		{object}	api.Failure
-//	@Failure		403		{object}	api.Failure
-//	@Router			/api/v1/videostreams/live [post]
-//
-// EndVideoStream updates the video stream's duration.
-//
-//	@Summary		Finish live stream
-//	@Description	Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
-//	@Description
-//	@Description	Notify OpenFish that a live video stream has finished. The API takes the current time as the end time.
-//	@Tags			Video Streams (Live)
-//	@Param			id	path	int	true	"Video Stream ID"	Example(1234567890)
-//	@Success		200
-//	@Failure		400	{object}	api.Failure
-//	@Failure		401	{object}	api.Failure
-//	@Failure		403	{object}	api.Failure
-//	@Failure		401	{object}	api.Failure
-//	@Failure		403	{object}	api.Failure
-//	@Failure		404	{object}	api.Failure
-//	@Router			/api/v1/videostreams/{id}/live [patch]
-//
 // UpdateVideoStream updates a video stream.
 //
 //	@Summary		Update video stream
@@ -359,7 +304,7 @@ func GetVideoStreams(ctx *fiber.Ctx) error {
 //	@Tags			Video Streams
 //	@Accept			json
 //	@Param			id		path	int						true	"Video Stream ID"	example(1234567890)
-//	@Param			body	body	UpdateVideoStreamBody	true	"Update Video Stream"
+//	@Param			body	body	services.PartialVideoStreamContents	true	"Update Video Stream"
 //	@Success		200
 //	@Failure		400	{object}	api.Failure
 //	@Failure		401	{object}	api.Failure
@@ -388,91 +333,6 @@ func UpdateVideoStream(ctx *fiber.Ctx) error {
 	return nil
 }
 
-// DeleteVideoStream deletes a video stream.
-// BUG: endpoint returns 200 ok for nonexistent IDs.
-// https://github.com/ausocean/openfish/issues/17
-//
-//	@Summary		Delete video stream
-//	@Description	Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
-//	@Description
-//	@Description	Delete a video stream by providing the video stream ID.
-//	@Tags			Video Streams
-//	@Param			id	path	int	true	"Video Stream ID"	example(1234567890)
-//	@Success		200
-//	@Failure		400	{object}	api.Failure
-//	@Failure		401	{object}	api.Failure
-//	@Failure		403	{object}	api.Failure
-//	@Failure		404	{object}	api.Failure
-//	@Router			/api/v1/videostreams/{id} [delete]
-//
-// handlers package handles HTTP requests.
-// GetVideoStreamsQuery describes the URL query parameters required for the GetVideoStreams endpoint.
-// GetMediaVideoQuery describes the URL query parameters required for the GetVideoStreamMedia endpoint, for video mime types.
-// GetMediaImageQuery describes the URL query parameters required for the GetVideoStreamMedia endpoint, for image mime types.
-// StartVideoStreamBody describes the JSON format required for the StartVideoStream endpoint.
-//
-// ID is omitted because it is chosen automatically.
-// Datetime is omitted because it uses the current time.
-// Duration is omitted because it will be set once the stream concludes.
-// GetVideoStreamByID gets a video stream when provided with an ID.
-//
-//	@Summary		Get video stream by ID
-//	@Description	Gets a video stream when provided with an ID.
-//	@Tags			Video Streams
-//	@Produce		json
-//	@Param			id	path		int	true	"Video Stream ID"	example(1234567890)
-//	@Success		200	{object}	services.VideoStreamWithJoins
-//	@Failure		400	{object}	api.Failure
-//	@Failure		404	{object}	api.Failure
-//	@Router			/api/v1/videostreams/{id} [get]
-//
-// GetVideoStreamMedia gets the image/video snippet from this video stream at the given time.
-//
-//	@Summary		Get video stream media
-//	@Description	Roles required: <role-tag>Admin</role-tag>
-//	@Description
-//	@Description	Gets the image or video snippet from this video stream at the given time.
-//	@Tags			Media
-//	@Param			id		path	int		true	"Video Stream ID"	example(1234567890)
-//	@Param			type	path	string	true	"Type"				example(image)
-//	@Param			subtype	path	string	true	"Subtype"			example(jpeg)
-//	@Param			time	query	string	true	"Time"				example(00:00:01.000-00:00:05.500)
-//	@Success		200
-//	@Failure		400	{object}	api.Failure
-//	@Failure		404	{object}	api.Failure
-//	@Router			/api/v1/videostreams/{id}/media/{type}/{subtype} [get]
-//
-// DeleteVideoStreamMedia deletes the cached image/video snippet from this video stream at the given time.
-//
-//	@Summary		Delete video stream media
-//	@Description	Roles required: <role-tag>Admin</role-tag>
-//	@Description
-//	@Description	Deletes the cached image or video snippet from this video stream at the given time.
-//	@Tags			Media
-//	@Param			id		path	int		true	"Video Stream ID"	example(1234567890)
-//	@Param			type	path	string	true	"Type"				example(image)
-//	@Param			subtype	path	string	true	"Subtype"			example(jpeg)
-//	@Param			time	query	string	true	"Time"				example(00:00:01.000-00:00:05.500)
-//	@Success		200
-//	@Failure		400	{object}	api.Failure
-//	@Failure		404	{object}	api.Failure
-//	@Router			/api/v1/videostreams/{id}/media/{type}/{subtype} [delete]
-//
-// GetVideoStreams gets a list of video streams, filtering by timespan, capture source if specified.
-//
-//	@Summary		Get video streams
-//	@Description	Get paginated video streams, with options to filter by timespan and capturesource.
-//	@Tags			Video Streams
-//	@Produce		json
-//	@Param			limit			query		int		false	"Number of results to return."	minimum(1)	default(20)
-//	@Param			offset			query		int		false	"Number of results to skip."	minimum(0)
-//	@Param			capturesource	query		int		false	"Capture source ID to filter by."
-//	@Param			timespan[start]	query		string	false	"Start time to filter by."
-//	@Param			timespan[end]	query		string	false	"End time to filter by."
-//	@Success		200				{object}	api.Result[services.VideoStreamWithJoins]
-//	@Failure		400				{object}	api.Failure
-//	@Router			/api/v1/videostreams [get]
-//
 // CreateVideoStream creates a new video stream.
 // BUG: start and end time are required but this is not being enforced.
 // https://github.com/ausocean/openfish/issues/18
@@ -485,8 +345,10 @@ func UpdateVideoStream(ctx *fiber.Ctx) error {
 //	@Accept			json
 //	@Produce		json
 //	@Param			body	body		services.VideoStreamContents	true	"New Video Stream"
-//	@Success		201		{object}	services.VideoStreamWithJoins
+//	@Success		201		{object}	services.VideoStream
 //	@Failure		400		{object}	api.Failure
+//	@Failure		401		{object}	api.Failure
+//	@Failure		403		{object}	api.Failure
 //	@Router			/api/v1/videostreams [post]
 func CreateVideoStream(ctx *fiber.Ctx) error {
 	// Parse body.
@@ -511,20 +373,19 @@ func CreateVideoStream(ctx *fiber.Ctx) error {
 	return ctx.JSON(joined)
 }
 
-// // StartVideoStream creates a new video stream at the current time.
-// //
-// //	@Summary		Register live stream
-// //	@Description	Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
-// //	@Description
-// //	@Description	Registers a new live video stream with OpenFish. The API takes the current time as the start time of the video stream.
-// //	@Tags			Video Streams (Live)
-// //	@Accept			json
-// //	@Produce		json
-// //	@Param			body	body		StartVideoStreamBody	true	"New Video Stream"
-// //	@Success		201		{object}	EntityIDResult
-// //	@Failure		400		{object}	api.Failure
-// //	@Router			/api/v1/videostreams/live [post]
+// StartVideoStream creates a new video stream at the current time.
 //
+//	@Summary		Register live stream
+//	@Description	Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
+//	@Description
+//	@Description	Registers a new live video stream with OpenFish. The API takes the current time as the start time of the video stream.
+//	@Tags			Video Streams (Live)
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body		StartVideoStreamBody	true	"New Video Stream"
+//	@Success		201		{object}	EntityIDResult
+//	@Failure		400		{object}	api.Failure
+//	@Router			/api/v1/videostreams/live [post]
 //	func StartVideoStream(ctx *fiber.Ctx) error {
 //		// Parse body.
 //		var body StartVideoStreamBody
@@ -542,19 +403,18 @@ func CreateVideoStream(ctx *fiber.Ctx) error {
 //			ID: id,
 //		})
 //	}
+
+// EndVideoStream updates the video stream's duration.
 //
-// // EndVideoStream updates the video stream's duration.
-// //
-// //	@Summary		Finish live stream
-// //	@Description	Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
-// //	@Description
-// //	@Description	Notify OpenFish that a live video stream has finished. The API takes the current time as the end time.
-// //	@Tags			Video Streams (Live)
-// //	@Param			id	path	int	true	"Video Stream ID"	Example(1234567890)
-// //	@Success		200
-// //	@Failure		400	{object}	api.Failure
-// //	@Router			/api/v1/videostreams/{id}/live [patch]
-//
+//	@Summary		Finish live stream
+//	@Description	Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
+//	@Description
+//	@Description	Notify OpenFish that a live video stream has finished. The API takes the current time as the end time.
+//	@Tags			Video Streams (Live)
+//	@Param			id	path	int	true	"Video Stream ID"	Example(1234567890)
+//	@Success		200
+//	@Failure		400	{object}	api.Failure
+//	@Router			/api/v1/videostreams/{id}/live [patch]
 //	func EndVideoStream(ctx *fiber.Ctx) error {
 //		now := time.Now()
 //		// Parse URL.
@@ -569,21 +429,7 @@ func CreateVideoStream(ctx *fiber.Ctx) error {
 //		}
 //		return nil
 //	}
-//
-// UpdateVideoStream updates a video stream.
-//
-//	@Summary		Update video stream
-//	@Description	Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
-//	@Description
-//	@Description	Partially update a video stream by specifying the properties to update.
-//	@Tags			Video Streams
-//	@Accept			json
-//	@Param			id		path	int						true	"Video Stream ID"	example(1234567890)
-//	@Param			body	body	UpdateVideoStreamBody	true	"Update Video Stream"
-//	@Success		200
-//	@Failure		400	{object}	api.Failure
-//	@Router			/api/v1/videostreams/{id} [patch]
-//
+
 // DeleteVideoStream deletes a video stream.
 // BUG: endpoint returns 200 ok for nonexistent IDs.
 // https://github.com/ausocean/openfish/issues/17

@@ -51,17 +51,17 @@ type CaptureSource struct {
 
 // CaptureSourceContents is the contents of a CaptureSource in private contexts.
 type CaptureSourceContents struct {
-	Name           string          `json:"name" example:"Stony Point Cuttle Cam"`                 // Name of rig or camera.
-	Location       latlong.LatLong `json:"location" example:"-32.12345,139.12345"`                // Where the rig or camera is located.
-	CameraHardware string          `json:"camera_hardware" example:"pi cam v2 (wide angle lens)"` // Short description of the camera hardware.
+	Name           string          `json:"name" example:"Stony Point Cuttle Cam"`                       // Name of rig or camera.
+	Location       latlong.LatLong `json:"location" swaggertype:"string" example:"-32.12345,139.12345"` // Where the rig or camera is located.
+	CameraHardware string          `json:"camera_hardware" example:"pi cam v2 (wide angle lens)"`       // Short description of the camera hardware.
 	SiteID         *int64          `json:"site_id" example:"246813579"`
 }
 
 // PartialCaptureSourceContents is for updating a capture source with a partial update (such as a PATCH request).
 type PartialCaptureSourceContents struct {
-	Name           *string          `json:"name,omitempty" example:"Stony Point Cuttle Cam"`                 // Name of rig or camera.
-	Location       *latlong.LatLong `json:"location,omitempty" example:"-32.12345,139.12345"`                // Where the rig or camera is located.
-	CameraHardware *string          `json:"camera_hardware,omitempty" example:"pi cam v2 (wide angle lens)"` // Short description of the camera hardware.
+	Name           *string          `json:"name,omitempty" example:"Stony Point Cuttle Cam"`                       // Name of rig or camera.
+	Location       *latlong.LatLong `json:"location,omitempty" swaggertype:"string" example:"-32.12345,139.12345"` // Where the rig or camera is located.
+	CameraHardware *string          `json:"camera_hardware,omitempty" example:"pi cam v2 (wide angle lens)"`       // Short description of the camera hardware.
 	SiteID         *int64           `json:"site_id,omitempty" example:"246813579"`
 }
 

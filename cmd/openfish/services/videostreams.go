@@ -54,7 +54,7 @@ type VideoStream struct {
 type VideoStreamContents struct {
 	StartTime     time.Time         `json:"startTime" example:"2023-05-25T08:00:00Z"`
 	EndTime       time.Time         `json:"endTime" example:"2023-05-25T16:30:00Z"`
-	TimeZone      timezone.TimeZone `json:"timezone" example:"Australia/Adelaide"`
+	TimeZone      timezone.TimeZone `json:"timezone" swaggertype:"string" example:"Australia/Adelaide"`
 	StreamURL     string            `json:"stream_url" example:"https://www.youtube.com/watch?v=abcdefghijk"`
 	CaptureSource int64             `json:"capturesource" example:"1234567890"`
 	AnnotatorList []int64           `json:"annotator_list" example:"1234567890"`
@@ -63,7 +63,7 @@ type VideoStreamContents struct {
 type PartialVideoStreamContents struct {
 	StartTime     *time.Time         `json:"startTime,omitempty" example:"2023-05-25T08:00:00Z"`
 	EndTime       *time.Time         `json:"endTime,omitempty" example:"2023-05-25T16:30:00Z"`
-	TimeZone      *timezone.TimeZone `json:"timezone" example:"Australia/Adelaide"`
+	TimeZone      *timezone.TimeZone `json:"timezone" swaggertype:"string" example:"Australia/Adelaide"`
 	StreamURL     *string            `json:"stream_url,omitempty" example:"https://www.youtube.com/watch?v=abcdefghijk"`
 	CaptureSource *int64             `json:"capturesource,omitempty" example:"1234567890"`
 	AnnotatorList *[]int64           `json:"annotator_list,omitempty" example:"1234567890"`
@@ -73,10 +73,10 @@ type VideoStreamWithJoins struct {
 	ID            int64                `json:"id,omitempty" example:"1234567890"`
 	StartTime     time.Time            `json:"startTime" example:"2023-05-25T08:00:00Z"`
 	EndTime       time.Time            `json:"endTime" example:"2023-05-25T16:30:00Z"`
-	TimeZone      timezone.TimeZone    `json:"timezone" example:"Australia/Adelaide"`
+	TimeZone      timezone.TimeZone    `json:"timezone" swaggertype:"string" example:"Australia/Adelaide"`
 	StreamURL     string               `json:"stream_url" example:"https://www.youtube.com/watch?v=abcdefghijk"`
-	CaptureSource CaptureSourceSummary `json:"capturesource" example:"1234567890"`
-	AnnotatorList []PublicUser         `json:"annotator_list" example:"1234567890"`
+	CaptureSource CaptureSourceSummary `json:"capturesource"`
+	AnnotatorList []PublicUser         `json:"annotator_list"`
 }
 
 // VideoStreamSummary is a summary of a video stream.
