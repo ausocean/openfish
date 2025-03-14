@@ -70,8 +70,8 @@ func registerAPIRoutes(app *fiber.App) {
 		Get("/:id/media/:type/:subtype", middleware.Guard(role.Admin), handlers.GetVideoStreamMedia).
 		Delete("/:id/media/:type/:subtype", middleware.Guard(role.Admin), handlers.DeleteVideoStreamMedia).
 		Get("/", handlers.GetVideoStreams).
-		Post("/live", middleware.Guard(role.Curator), handlers.StartVideoStream).
-		Patch("/:id/live", middleware.Guard(role.Curator), handlers.EndVideoStream).
+		// Post("/live", middleware.Guard(role.Curator), handlers.StartVideoStream).
+		// Patch("/:id/live", middleware.Guard(role.Curator), handlers.EndVideoStream).
 		Post("/", middleware.Guard(role.Curator), handlers.CreateVideoStream).
 		Patch("/:id", middleware.Guard(role.Curator), handlers.UpdateVideoStream).
 		Delete("/:id", middleware.Guard(role.Admin), handlers.DeleteVideoStream)
@@ -89,7 +89,7 @@ func registerAPIRoutes(app *fiber.App) {
 	species := v1.Group("/species")
 	features.RegisterINaturalistImport(species)
 	species.
-		Get("/recommended", handlers.GetRecommendedSpecies).
+		Get("/recommended", handlers.GetSpecies).
 		Get("/:id", handlers.GetSpeciesByID).
 		Post("/", middleware.Guard(role.Admin), handlers.CreateSpecies).
 		Delete("/:id", middleware.Guard(role.Admin), handlers.DeleteSpecies)

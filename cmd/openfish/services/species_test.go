@@ -34,17 +34,31 @@ LICENSE
 package services_test
 
 import (
+	"reflect"
 	"testing"
 
-	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/services"
 )
+
+func createTestSpecies() services.Species {
+	species, _ := services.CreateSpecies(services.SpeciesContents{
+		ScientificName: "Sepioteuthis australis",
+		CommonName:     "Southern Reef Squid",
+		Images:         []services.SpeciesImage{},
+	})
+
+	return *species
+}
 
 func TestCreateSpecies(t *testing.T) {
 	setup()
 
 	// Create a new species entity.
-	_, err := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
+	_, err := services.CreateSpecies(services.SpeciesContents{
+		ScientificName: "Sepioteuthis australis",
+		CommonName:     "Southern Reef Squid",
+		Images:         []services.SpeciesImage{},
+	})
 	if err != nil {
 		t.Errorf("Could not create species entity %s", err)
 	}
@@ -54,10 +68,10 @@ func TestSpeciesExists(t *testing.T) {
 	setup()
 
 	// Create a new species entity.
-	id, _ := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
+	species := createTestSpecies()
 
 	// Check if the species exists.
-	if !services.SpeciesExists(int64(id)) {
+	if !services.SpeciesExists(species.ID) {
 		t.Errorf("Expected species to exist")
 	}
 }
@@ -76,29 +90,14 @@ func TestGetSpeciesByID(t *testing.T) {
 	setup()
 
 	// Create a new species entity.
-	id, _ := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
+	expected := createTestSpecies()
 
-	species, err := services.GetSpeciesByID(int64(id))
+	found, err := services.GetSpeciesByID(expected.ID)
 	if err != nil {
 		t.Errorf("Could not get species entity %s", err)
 	}
-	if species.CommonName != "Southern Reef Squid" && species.Species != "Sepioteuthis australis" && len(species.Images) != 0 {
-		t.Errorf("Video stream entity does not match created entity")
-	}
-}
-
-func TestGetSpeciesByScientificName(t *testing.T) {
-	setup()
-
-	// Create a new species entity.
-	services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
-
-	species, _, err := services.GetSpeciesByScientificName("Sepioteuthis australis")
-	if err != nil {
-		t.Errorf("Could not get species entity %s", err)
-	}
-	if species.CommonName != "Southern Reef Squid" && species.Species != "Sepioteuthis australis" && len(species.Images) != 0 {
-		t.Errorf("Video stream entity does not match created entity")
+	if !reflect.DeepEqual(expected, *found) {
+		t.Errorf("Found species does not match expected, expected: %+v, found: %+v", expected, *found)
 	}
 }
 
@@ -111,22 +110,51 @@ func TestGetSpeciesByIDForNonexistentEntity(t *testing.T) {
 	}
 }
 
-// TODO: Write tests for GetRecommendedSpecies. Test limit, offset, and sorting.
+func TestGetSpeciesByINaturalistTaxonID(t *testing.T) {
+	// TODO: Run test in CI when issue is fixed.
+	if testing.Short() {
+		t.Skip("skipping testing in short mode")
+	}
+
+	setup()
+
+	// Create a new species entity.
+	taxonID := 314239870
+	expected, _ := services.CreateSpecies(services.SpeciesContents{
+		ScientificName:     "Sepioteuthis australis",
+		CommonName:         "Southern Reef Squid",
+		Images:             []services.SpeciesImage{},
+		INaturalistTaxonID: &taxonID,
+	})
+
+	found, err := services.GetSpeciesByINaturalistID(taxonID)
+	if err != nil {
+		t.Errorf("Could not get species entity %s", err)
+	}
+	if found == nil {
+		t.Errorf("Species entity was not found")
+	}
+	if !reflect.DeepEqual(expected, *found) {
+		t.Errorf("Found species does not match expected, expected: %+v, found: %+v", expected, *found)
+	}
+}
+
+// TODO: Write tests for GetSpecies. Test limit, offset, and sorting.
 
 func TestDeleteSpecies(t *testing.T) {
 	setup()
 
 	// Create a new species entity.
-	id, _ := services.CreateSpecies("Sepioteuthis australis", "Southern Reef Squid", make([]entities.Image, 0), nil)
+	species := createTestSpecies()
 
 	// Delete the species entity.
-	err := services.DeleteSpecies(int64(id))
+	err := services.DeleteSpecies(species.ID)
 	if err != nil {
-		t.Errorf("Could not delete species entity %d: %s", id, err)
+		t.Errorf("Could not delete species entity %d: %s", species.ID, err)
 	}
 
 	// Check if the species exists.
-	if services.SpeciesExists(int64(id)) {
+	if services.SpeciesExists(species.ID) {
 		t.Errorf("Video stream entity exists after delete")
 	}
 }

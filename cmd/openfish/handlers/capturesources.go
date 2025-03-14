@@ -35,28 +35,14 @@ LICENSE
 package handlers
 
 import (
-	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/ausocean/openfish/cmd/openfish/api"
-	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/services"
+	"github.com/ausocean/openfish/cmd/openfish/types/latlong"
 
 	"github.com/gofiber/fiber/v2"
 )
-
-// CaptureSourceResult describes the JSON format for capture sources in API responses.
-// Fields use pointers because they are optional (this is what the format URL param is for).
-//
-//	@Description	contains information about something that produces a video stream
-type CaptureSourceResult struct {
-	ID             *int64  `json:"id,omitempty" example:"1234567890"`                               // Unique ID of the capture source.
-	Name           *string `json:"name,omitempty" example:"Stony Point Cuttle Cam"`                 // Name of rig or camera.
-	Location       *string `json:"location,omitempty" example:"-32.12345,139.12345"`                // Where the rig or camera is located.
-	CameraHardware *string `json:"camera_hardware,omitempty" example:"pi cam v2 (wide angle lens)"` // Short description of the camera hardware.
-	SiteID         *int64  `json:"site_id,omitempty" example:"246813579"`                           // Site ID is used to reference sites in OceanBench. Optional.
-}
 
 // EntityIDResult contains the ID of a newly created entity.
 //
@@ -65,70 +51,12 @@ type EntityIDResult struct {
 	ID int64 `json:"id" example:"1234567890"` // Unique ID of the entity.
 }
 
-// FromCaptureSource creates a CaptureSourceResult from a entities.CaptureSource and key, formatting it according to the requested format.
-func FromCaptureSource(captureSource *entities.CaptureSource, id int64, format *api.Format) CaptureSourceResult {
-	var result CaptureSourceResult
-	if format.Requires("id") {
-		result.ID = &id
-	}
-	if format.Requires("name") {
-		result.Name = &captureSource.Name
-	}
-	if format.Requires("location") {
-		location := fmt.Sprintf("%f,%f", captureSource.Location.Lat, captureSource.Location.Lng)
-		result.Location = &location
-	}
-	if format.Requires("camera_hardware") {
-		result.CameraHardware = &captureSource.CameraHardware
-	}
-	if format.Requires("site_id") {
-		result.SiteID = captureSource.SiteID
-	}
-	return result
-}
-
 // GetCaptureSourcesQuery describes the URL query parameters required for the GetCaptureSources endpoint.
 type GetCaptureSourcesQuery struct {
-	Name     *string `query:"name"`     // Optional.
-	Location *string `query:"location"` // Optional.
+	Name     *string          `query:"name"`     // Optional.
+	Location *latlong.LatLong `query:"location"` // Optional.
 	api.LimitAndOffset
 	// TODO: Code could be simplified if api.Format could be embedded here. Testing shows it cannot, reason unknown.
-}
-
-// CreateCaptureSourceBody describes the JSON format required for the CreateCaptureSource endpoint.
-// ID is omitted because it is chosen automatically. All other fields are required.
-type CreateCaptureSourceBody struct {
-	Name           string `json:"name" example:"Stony Point Cuttle Cam" validate:"required"`                 // Name of rig or camera.
-	Location       string `json:"location" example:"-32.12345,139.12345" validate:"required"`                // Location of the rig or camera.
-	CameraHardware string `json:"camera_hardware" example:"pi cam v2 (wide angle lens)" validate:"required"` // Short description of the camera hardware.
-	SiteID         *int64 `json:"site_id" example:"246813579" validate:"optional"`                           // ID used to reference sites in OceanBench.
-}
-
-// UpdateCaptureSourceBody describes the JSON format required for the UpdateCaptureSource endpoint.
-type UpdateCaptureSourceBody struct {
-	Name           *string `json:"name" example:"Stony Point Cuttle Cam" validate:"optional"`                 // Name of rig or camera.
-	Location       *string `json:"location" example:"-32.12345,139.12345" validate:"optional"`                // Location of the rig or camera.
-	CameraHardware *string `json:"camera_hardware" example:"pi cam v2 (wide angle lens)" validate:"optional"` // Short description of the camera hardware.
-	SiteID         *int64  `json:"site_id" example:"246813579" validate:"optional"`                           // ID used to reference sites in OceanBench.
-}
-
-// parseGeoPoint converts a string containing two comma-separated values into a GeoPoint.
-func parseGeoPoint(location string) (float64, float64, error) {
-	errMsg := "invalid location string: %w"
-
-	parts := strings.Split(location, ",")
-	if len(parts) != 2 {
-		return 0, 0, fmt.Errorf(errMsg, "string split failed")
-	}
-	lat, err := strconv.ParseFloat(parts[0], 64)
-	if err != nil {
-		return 0, 0, fmt.Errorf(errMsg, err)
-	}
-	long, err := strconv.ParseFloat(parts[1], 64)
-	if err != nil {
-		return 0, 0, fmt.Errorf(errMsg, err)
-	}
-	return lat, long, nil
 }
 
 // GetCaptureSourceByID gets a capture source when provided with an ID.
@@ -138,7 +66,7 @@ func parseGeoPoint(location string) (float64, float64, error) {
 //	@Tags			Capture Sources
 //	@Produce		json
 //	@Param			id	path		int	true	"Capture Source ID"	example(1234567890)
-//	@Success		200	{object}	CaptureSourceResult
+//	@Success		200	{object}	services.CaptureSource
 //	@Failure		400	{object}	api.Failure
 //	@Failure		401	{object}	api.Failure
 //	@Failure		403	{object}	api.Failure
@@ -146,23 +74,18 @@ func parseGeoPoint(location string) (float64, float64, error) {
 //	@Router			/api/v1/capturesources/{id} [get]
 func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 	// Parse URL.
-	format := new(api.Format)
-
-	if err := ctx.QueryParser(format); err != nil {
-		return api.InvalidRequestURL(err)
-	}
-
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 	if err != nil {
 		return api.InvalidRequestURL(err)
 	}
 
 	// Fetch data from the datastore.
-	captureSource, err := services.GetCaptureSourceByID(id)
+	src, err := services.GetCaptureSourceByID(id)
+	if err != nil {
+		return api.InvalidRequestURL(err)
+	}
 
-	// Format result.
-	result := FromCaptureSource(captureSource, id, format)
-	return ctx.JSON(result)
+	return ctx.JSON(src)
 }
 
 // GetCaptureSources gets a list of capture sources, filtering by name, location if specified.
@@ -174,7 +97,7 @@ func GetCaptureSourceByID(ctx *fiber.Ctx) error {
 //	@Param			limit	query		int		false	"Number of results to return."	minimum(1)	default(20)
 //	@Param			offset	query		int		false	"Number of results to skip."	minimum(0)
 //	@Param			name	query		string	false	"Name to filter by."
-//	@Success		200		{object}	api.Result[CaptureSourceResult]
+//	@Success		200		{object}	api.Result[services.CaptureSource]
 //	@Failure		400		{object}	api.Failure
 //	@Failure		401		{object}	api.Failure
 //	@Failure		403		{object}	api.Failure
@@ -188,28 +111,18 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 		return api.InvalidRequestURL(err)
 	}
 
-	format := new(api.Format)
-	if err := ctx.QueryParser(format); err != nil {
-		return api.InvalidRequestURL(err)
-	}
-
 	// Fetch data from the datastore.
-	captureSources, ids, err := services.GetCaptureSources(qry.Limit, qry.Offset, qry.Name)
+	srcs, err := services.GetCaptureSources(qry.Limit, qry.Offset, qry.Name)
 	if err != nil {
 		return api.DatastoreReadFailure(err)
 	}
 
 	// Format results.
-	results := make([]CaptureSourceResult, len(captureSources))
-	for i := range captureSources {
-		results[i] = FromCaptureSource(&captureSources[i], ids[i], format)
-	}
-
-	return ctx.JSON(api.Result[CaptureSourceResult]{
-		Results: results,
+	return ctx.JSON(api.Result[services.CaptureSource]{
+		Results: srcs,
 		Offset:  qry.Offset,
 		Limit:   qry.Limit,
-		Total:   len(results),
+		Total:   len(srcs),
 	})
 }
 
@@ -222,33 +135,29 @@ func GetCaptureSources(ctx *fiber.Ctx) error {
 //	@Tags			Capture Sources
 //	@Accept			json
 //	@Produce		json
-//	@Param			body	body		CreateCaptureSourceBody	true	"New Capture Source"
-//	@Success		201		{object}	EntityIDResult
+//	@Param			body	body		services.CaptureSourceContents	true	"New Capture Source"
+//	@Success		201		{object}	services.CaptureSource
 //	@Failure		400		{object}	api.Failure
 //	@Failure		401		{object}	api.Failure
 //	@Failure		403		{object}	api.Failure
 //	@Router			/api/v1/capturesources [post]
 func CreateCaptureSource(ctx *fiber.Ctx) error {
 	// Parse body.
-	var body CreateCaptureSourceBody
+	var body services.CaptureSourceContents
 
 	err := ctx.BodyParser(&body)
 	if err != nil {
 		return api.InvalidRequestJSON(err)
 	}
 
-	lat, long, err := parseGeoPoint(body.Location)
+	// Create capture source entity and add to the datastore.
+	created, err := services.CreateCaptureSource(body)
 	if err != nil {
-		return api.InvalidRequestJSON(err)
+		return api.DatastoreWriteFailure(err)
 	}
 
-	// Create capture source entity and add to the datastore.
-	id, err := services.CreateCaptureSource(body.Name, lat, long, body.CameraHardware, body.SiteID)
-
 	// Return ID of created capture source.
-	return ctx.JSON(EntityIDResult{
-		ID: id,
-	})
+	return ctx.JSON(created)
 }
 
 // UpdateCaptureSource updates a capture source.
@@ -259,8 +168,8 @@ func CreateCaptureSource(ctx *fiber.Ctx) error {
 //	@Description	Partially update a capture source by specifying the properties to update.
 //	@Tags			Capture Sources
 //	@Accept			json
-//	@Param			id		path	int						true	"Capture Source ID"	example(1234567890)
-//	@Param			body	body	UpdateCaptureSourceBody	true	"Update Capture Source"
+//	@Param			id		path	int										true	"Capture Source ID"	example(1234567890)
+//	@Param			body	body	services.PartialCaptureSourceContents	true	"Update Capture Source"
 //	@Success		200
 //	@Failure		400	{object}	api.Failure
 //	@Failure		401	{object}	api.Failure
@@ -275,22 +184,13 @@ func UpdateCaptureSource(ctx *fiber.Ctx) error {
 	}
 
 	// Parse body.
-	var body UpdateCaptureSourceBody
+	var body services.PartialCaptureSourceContents
 	if ctx.BodyParser(&body) != nil {
 		return api.InvalidRequestJSON(err)
 	}
 
-	var lat, long *float64
-	if body.Location != nil {
-		la, lo, err := parseGeoPoint(*body.Location)
-		lat, long = &la, &lo
-		if err != nil {
-			return api.InvalidRequestJSON(err)
-		}
-	}
-
 	// Update data in the datastore.
-	err = services.UpdateCaptureSource(id, body.Name, lat, long, body.CameraHardware, body.SiteID)
+	err = services.UpdateCaptureSource(id, body)
 	if err != nil {
 		return api.DatastoreWriteFailure(err)
 	}
