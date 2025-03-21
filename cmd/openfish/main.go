@@ -89,7 +89,7 @@ func registerAPIRoutes(app *fiber.App) {
 	species := v1.Group("/species")
 	features.RegisterINaturalistImport(species)
 	species.
-		Get("/recommended", handlers.GetRecommendedSpecies).
+		Get("/recommended", handlers.GetSpecies).
 		Get("/:id", handlers.GetSpeciesByID).
 		Post("/", middleware.Guard(role.Admin), handlers.CreateSpecies).
 		Delete("/:id", middleware.Guard(role.Admin), handlers.DeleteSpecies)
