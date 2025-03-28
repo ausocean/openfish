@@ -51,7 +51,7 @@ func setup() {
 	os.MkdirAll("store/openfish/CaptureSource", os.ModePerm)
 	os.MkdirAll("store/openfish/VideoStream", os.ModePerm)
 	os.MkdirAll("store/openfish/Annotation", os.ModePerm)
-	os.MkdirAll("store/openfish/Species", os.ModePerm)
+	os.MkdirAll("store/openfish/Species_v2", os.ModePerm)
 	os.MkdirAll("store/openfish/User", os.ModePerm)
 	os.MkdirAll("store/openfish/Task", os.ModePerm)
 	os.MkdirAll("openfish-media/images", os.ModePerm)
