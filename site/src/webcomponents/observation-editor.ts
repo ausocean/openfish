@@ -3,8 +3,6 @@ import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import { zip } from '../utils/array-utils'
-import resetcss from '../styles/reset.css?lit'
-import btncss from '../styles/buttons.css?lit'
 
 type Species = { species: string; common_name: string; images?: Image[] }
 type Image = { src: string; attribution: string }
@@ -118,7 +116,7 @@ export class SpeciesSelection extends AbstractObservationEditor {
 
   render() {
     const renderSpecies = ({ species, common_name, images }: Species) => html`
-      <li class="card overflow-clip relative p-0 transition-colors hover:bg-blue-200 data-selected:bg-blue-200 data-selected:border-sky-400 data-selected:shadow-md data-selected:shadow-sky-500/50 cursor-pointer" 
+      <li class="card overflow-clip relative p-0 transition-colors hover:bg-blue-200 data-selected:bg-blue-200 data-selected:border-sky-400 data-selected:shadow-md data-selected:shadow-sky-500/50 cursor-pointer"
         @click=${() => this.selectSpecies(species)}
         ?data-selected=${this.observation.species === species}
         >
@@ -131,11 +129,11 @@ export class SpeciesSelection extends AbstractObservationEditor {
 
     return html`
     <header class="bg-blue-600 px-3 py-2 border-b border-b-blue-500 shadow-sm">
-      <input 
+      <input
         type="text"
         class="bg-blue-700 border border-blue-800 text-blue-50 w-full rounded-md placeholder:text-blue-300"
-        placeholder="Search species" 
-        @input=${this.search} 
+        placeholder="Search species"
+        @input=${this.search}
       />
     </header>
     <div class="relative overflow-y-scroll h-[calc(100%-6rem)]">
@@ -215,8 +213,6 @@ export class AdvancedEditor extends AbstractObservationEditor {
   }
 
   static styles = css`
-    ${resetcss}
-    ${btncss}
     .root {
       padding: 1rem;
     }
@@ -253,7 +249,7 @@ export class AdvancedEditor extends AbstractObservationEditor {
     }
     .btn-fullwidth {
       text-align: center;
-      width: 100%;  
+      width: 100%;
     }
 
     input {
