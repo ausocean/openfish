@@ -1,8 +1,9 @@
 import { TailwindElement } from './tailwind-element'
 import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import type { Result } from '../api'
+import { client } from '../api'
 import { repeat } from 'lit/directives/repeat.js'
+import type { PaginatedPath } from '@openfish/client'
 
 type NamedItem = { name: string } & Record<string, any>
 
@@ -10,14 +11,14 @@ type NamedItem = { name: string } & Record<string, any>
 // the API and present them as options.
 
 @customElement('data-select')
-export class DataSelect<T extends NamedItem> extends TailwindElement {
+export class DataSelect extends TailwindElement {
   static formAssociated = true
 
   @property()
   name: string
 
   @property()
-  src: string
+  src: PaginatedPath
 
   @property()
   pkey = 'id'
@@ -29,7 +30,7 @@ export class DataSelect<T extends NamedItem> extends TailwindElement {
   defaultText = 'Please select'
 
   @state()
-  private _items: T[] = []
+  private _items: NamedItem[] = []
 
   private _internals: ElementInternals
 
@@ -42,14 +43,15 @@ export class DataSelect<T extends NamedItem> extends TailwindElement {
   async connectedCallback() {
     super.connectedCallback()
 
-    try {
-      const url = new URL(this.src, document.location.origin)
-      url.searchParams.set('limit', String(999))
-      const res = await fetch(url)
-      const data = (await res.json()) as Result<T>
-      this._items = data.results
-    } catch (error) {
+    const { data, error } = await client.GET(this.src, {
+      params: { query: { limit: 100 } },
+    })
+
+    if (error !== undefined) {
       console.error(error)
+    }
+    if (data !== undefined) {
+      this._items = data.results as NamedItem[]
     }
   }
 
@@ -61,19 +63,24 @@ export class DataSelect<T extends NamedItem> extends TailwindElement {
 
   render() {
     return html`
-    <select @input=${this.onInput} .name=${this.name} .value=${this.value} class="w-full">
-    <option value="">${this.defaultText}</option>
-    ${repeat(
-      this._items,
-      (item: T) => html`<option .value=${item[this.pkey]}>${item.name}</option>`
-    )}
-    </select>
+      <select
+        @input=${this.onInput}
+        .name=${this.name}
+        .value=${this.value}
+        class="w-full"
+      >
+        <option value="">${this.defaultText}</option>
+        ${repeat(
+          this._items,
+          (item: NamedItem) => html`<option .value=${item[this.pkey]}>${item.name}</option>`
+        )}
+      </select>
     `
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'data-select': DataSelect<NamedItem>
+    'data-select': DataSelect
   }
 }
