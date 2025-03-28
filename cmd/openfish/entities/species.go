@@ -38,7 +38,7 @@ import (
 )
 
 // Kind of entity to store / fetch from the datastore.
-const SPECIES_KIND = "Species"
+const SPECIES_KIND = "Species_v2"
 
 // Species is used for our guide.
 type Species struct {
