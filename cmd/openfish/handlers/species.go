@@ -91,6 +91,7 @@ func GetSpeciesByID(ctx *fiber.Ctx) error {
 //	@Produce		json
 //	@Param			limit	query		int		false	"Number of results to return."	minimum(1)	default(20)
 //	@Param			offset	query		int		false	"Number of results to skip."	minimum(0)
+//	@Param			search	query		string		false	"Search Query"
 //	@Success		200		{object}	api.Result[services.Species]
 //	@Failure		400		{object}	api.Failure
 //	@Failure		401		{object}	api.Failure
