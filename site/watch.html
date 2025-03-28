@@ -1,59 +1,80 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OpenFish | Watch</title>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>OpenFish | Watch</title>
 
-    <link rel="stylesheet" href="./src/app.css" />
+        <link rel="stylesheet" href="./src/app.css" />
+        <script type="module">
+            if (!("anchorName" in document.documentElement.style)) {
+                import("https://unpkg.com/@oddbird/css-anchor-positioning");
+            }
+        </script>
 
-    <script type="module" src="./src/webcomponents/user-provider.ts"></script>
-    <script type="module" src="./src/webcomponents/site-nav.ts"></script>
-    <script type="module" src="./src/webcomponents/watch-stream.ts"></script>
-    <script type="module" src="./src/webcomponents/site-footer.ts"></script>
+        <script
+            type="module"
+            src="./src/webcomponents/user-provider.ts"
+        ></script>
+        <script type="module" src="./src/webcomponents/site-nav.ts"></script>
+        <script
+            type="module"
+            src="./src/webcomponents/watch-stream.ts"
+        ></script>
+        <script type="module" src="./src/webcomponents/site-footer.ts"></script>
 
-    <style>
-      header {
-        display: grid;
-        grid-template-columns: 1fr minmax(auto, calc(360 * 0.25rem - 1rem)) 1fr;
-      }
-    </style>
+        <style>
+            header {
+                display: grid;
+                grid-template-columns: 1fr minmax(
+                        auto,
+                        calc(360 * 0.25rem - 1rem)
+                    ) 1fr;
+            }
+        </style>
 
-  
-    <script type="module">
-       window.onload = () => {
-          const url = new URL(document.location.href)
-          const id = url.searchParams.get('id')
+        <script type="module">
+            window.onload = () => {
+                const url = new URL(document.location.href);
+                const id = url.searchParams.get("id");
 
-          const watchStream = document.querySelector('watch-stream')
-          watchStream.streamID = Number(id)
+                const watchStream = document.querySelector("watch-stream");
+                watchStream.streamID = Number(id);
 
-          const streamID = document.querySelector('.stream-id')
-          streamID.textContent = `#${id}`
-       }
-    </script>
-  </head>
-  <body class="bg-blue-800">
-    <user-provider>
-      <div class="border-b border-b-blue-300/50">
-        <site-nav class="text-blue-50" style="--decoration-color: var(--color-blue-600)"></site-nav>
-      </div>
-      <header class="pt-4 pb-6 px-4">
-        <a class="btn size-sm variant-light-outline place-self-center" href="/streams.html">
-          &leftarrow; Back
-        </a>
-        <h1 class="text-2xl font-bold text-blue-200 ml-4">Watching stream: <span class="stream-id">-</span></h1>
-      </header>
+                const streamID = document.querySelector(".stream-id");
+                streamID.textContent = `#${id}`;
+            };
+        </script>
+    </head>
+    <body class="bg-blue-800">
+        <user-provider>
+            <div class="border-b border-b-blue-300/50">
+                <site-nav
+                    class="text-blue-50"
+                    style="--decoration-color: var(--color-blue-600)"
+                ></site-nav>
+            </div>
+            <header class="pt-4 pb-6 px-4">
+                <a
+                    class="btn size-sm variant-light-outline place-self-center"
+                    href="/streams.html"
+                >
+                    &leftarrow; Back
+                </a>
+                <h1 class="text-2xl font-bold text-blue-200 ml-4">
+                    Watching stream: <span class="stream-id">-</span>
+                </h1>
+            </header>
 
-      <div class="px-4 contain" style="height: calc(100vh - 12.75rem);">
-        <watch-stream class="mx-auto h-full block"></watch-stream>
-      </div>
+            <div class="px-4 contain" style="height: calc(100vh - 12.75rem)">
+                <watch-stream class="mx-auto h-full block"></watch-stream>
+            </div>
 
-      <site-footer class="text-blue-50" style="--decoration-color: var(--color-blue-600)"></site-footer>
-
-    </user-provider>
-  </body>
+            <site-footer
+                class="text-blue-50"
+                style="--decoration-color: var(--color-blue-600)"
+            ></site-footer>
+        </user-provider>
+    </body>
 </html>
-
-

@@ -40,10 +40,10 @@ import (
 // BoundingBox is a rectangle enclosing something interesting in a video.
 // It is represented using two x y coordinates, top left corner and bottom right corner of the rectangle.
 type BoundingBox struct {
-	X1 int `json:"x1" example:"10"`
-	X2 int `json:"x2" example:"50"`
-	Y1 int `json:"y1" example:"25"`
-	Y2 int `json:"y2" example:"75"`
+	X1 float32 `json:"x1" example:"10.00`
+	X2 float32 `json:"x2" example:"50.00"`
+	Y1 float32 `json:"y1" example:"25.00"`
+	Y2 float32 `json:"y2" example:"75.00"`
 }
 
 // KeyPoint is a bounding box and time within the video.

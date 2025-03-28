@@ -383,7 +383,7 @@ func CreateVideoStream(ctx *fiber.Ctx) error {
 //	@Tags			Video Streams (Live)
 //	@Accept			json
 //	@Produce		json
-//	@Param			body	body		services.StartLiveVideoStream	true	"New Video Stream"
+//	@Param			body	body		services.BaseVideoStreamFields	true	"New Video Stream"
 //	@Success		201		{object}	services.VideoStream
 //	@Failure		400		{object}	api.Failure
 //	@Failure		401		{object}	api.Failure
