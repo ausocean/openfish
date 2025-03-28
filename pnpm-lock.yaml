@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@floating-ui/dom':
+        specifier: ^1.6.13
+        version: 1.6.13
       '@fooloomanzoo/datetime-picker':
         specifier: ^3.0.9
         version: 3.0.9
