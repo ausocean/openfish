@@ -1,10 +1,10 @@
 {
-    "name": "@openfish/client",
-    "private": true,
-    "version": "0.0.0",
-    "type": "module",
-    "scripts": {
-        "generate:openapi": "swag init --dir ../cmd/openfish --output . --outputTypes json --v3.1",
-        "generate:ts": "openapi-typescript swagger.json -o schema.ts"
-      }
+  "name": "@openfish/client",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "generate:openapi": "swag init --dir ../cmd/openfish --output . --outputTypes json --v3.1",
+    "generate:ts": "openapi-typescript swagger.json -o schema.ts --properties-required-by-default"
+  }
 }
