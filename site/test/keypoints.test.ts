@@ -1,6 +1,11 @@
 import { expect, test } from 'vitest'
-import { findClosestKeypointPair, interpolateKeypoints, lerp } from '../src/utils/keypoints'
-import { BoundingBox, Keypoint } from '../src/api/annotation'
+import {
+  findClosestKeypointPair,
+  interpolateKeypoints,
+  lerp,
+  BoundingBox,
+  Keypoint,
+} from '../src/utils/keypoints'
 import { instanceToPlain } from 'class-transformer'
 
 test(' instanceToPlain formats time as string', () => {

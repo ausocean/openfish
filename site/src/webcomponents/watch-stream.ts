@@ -20,8 +20,9 @@ import type { MediaPlayerElement } from 'vidstack/elements'
 import { extractVideoID } from '../utils/youtube'
 import { repeat } from 'lit/directives/repeat.js'
 import { instanceToPlain, plainToInstance } from 'class-transformer'
-import { Annotation, BoundingBox, Keypoint } from '../api/annotation'
+import { Annotation } from '../api/annotation'
 import { formatVideoTime } from '../utils/datetime'
+import { BoundingBox, Keypoint } from '../utils/keypoints'
 
 @customElement('watch-stream')
 export class WatchStream extends TailwindElement {
@@ -167,12 +168,12 @@ export class WatchStream extends TailwindElement {
 
     const video = html`
     <media-player
-      ${ref(this.playerRef)} 
-      title="Openfish Video" 
+      ${ref(this.playerRef)}
+      title="Openfish Video"
       src="youtube/${videoID}"
       .currentTime="${this._seekTo}"
       @time-update=${(e: CustomEvent<{ currentTime: number }>) =>
-        (this._currentTime = e.detail.currentTime)} 
+        (this._currentTime = e.detail.currentTime)}
       @duration-change=${(e: CustomEvent<number>) => (this._duration = e.detail)}
       .muted=${true}
     >
@@ -182,14 +183,14 @@ export class WatchStream extends TailwindElement {
     `
 
     const playbackControls = html`
-    <playback-controls 
-      .playing=${this._playing} 
-      .duration=${this._duration} 
+    <playback-controls
+      .playing=${this._playing}
+      .duration=${this._duration}
       .currentTime=${this._currentTime}
       .annotations=${this._annotations}
       .videostream=${this._videostream}
       .editMode=${this._mode === 'editor'}
-      @play=${this.play} 
+      @play=${this.play}
       @pause=${this.pause}
       @seek=${this.onSeek}
     ></playback-controls>`
@@ -235,7 +236,7 @@ export class WatchStream extends TailwindElement {
           <bounding-box-creator @updateboundingbox=${(e: UpdateBoundingBoxEvent) =>
             (this._boundingBox = e.detail)}></bounding-box-creator>
           <div class="keypoint-contain">
-            <button 
+            <button
               class="btn variant-slate"
               @click=${this.addKeyPoint}
               .disabled=${this._boundingBox === null || this._keypoints.map((k) => k.time).includes(this._currentTime)}
@@ -258,7 +259,7 @@ export class WatchStream extends TailwindElement {
 
     return html`
         <main class="bg-blue-700 overflow-clip rounded-lg h-full">
-          <div class="flex h-[calc(100%-3rem)]">  
+          <div class="flex h-[calc(100%-3rem)]">
             <div class="video relative bg-blue-950">
               ${video}
               ${overlay}
@@ -305,7 +306,7 @@ export class WatchStream extends TailwindElement {
       padding-top: 0;
       gap: 1rem;
       overflow-x: scroll;
-      
+
 
       & button {
         pointer-events: auto;
@@ -357,7 +358,7 @@ export class WatchStream extends TailwindElement {
 
     table {
       width: 100%;
-      
+
       & tbody tr :nth-child(3) {
         width: 0;
       }
