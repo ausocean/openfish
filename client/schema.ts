@@ -569,7 +569,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["api.Result-handlers_CaptureSourceResult"];
+                        "application/json": components["schemas"]["api.Result-services_CaptureSource"];
                     };
                 };
                 /** @description Bad Request */
@@ -618,7 +618,7 @@ export interface paths {
             /** @description New Capture Source */
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["handlers.CreateCaptureSourceBody"];
+                    "application/json": components["schemas"]["services.CaptureSourceContents"];
                 };
             };
             responses: {
@@ -628,7 +628,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["handlers.EntityIDResult"];
+                        "application/json": components["schemas"]["services.CaptureSource"];
                     };
                 };
                 /** @description Bad Request */
@@ -698,7 +698,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["handlers.CaptureSourceResult"];
+                        "application/json": components["schemas"]["services.CaptureSource"];
                     };
                 };
                 /** @description Bad Request */
@@ -831,7 +831,7 @@ export interface paths {
             /** @description Update Capture Source */
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["handlers.UpdateCaptureSourceBody"];
+                    "application/json": components["schemas"]["services.PartialCaptureSourceContents"];
                 };
             };
             responses: {
@@ -889,7 +889,62 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Get species
+         * @description Get paginated species, with options to filter by name and location.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Number of results to return. */
+                    limit?: number;
+                    /** @description Number of results to skip. */
+                    offset?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["api.Result-services_Species"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["api.Failure"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["api.Failure"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["api.Failure"];
+                    };
+                };
+            };
+        };
         put?: never;
         /**
          * Create species
@@ -907,7 +962,7 @@ export interface paths {
             /** @description New Species */
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["handlers.CreateSpeciesBody"];
+                    "application/json": components["schemas"]["services.SpeciesContents"];
                 };
             };
             responses: {
@@ -917,7 +972,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["handlers.EntityIDResult"];
+                        "application/json": components["schemas"]["services.Species"];
                     };
                 };
                 /** @description Bad Request */
@@ -1041,7 +1096,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["handlers.SpeciesResult"];
+                        "application/json": components["schemas"]["services.Species"];
                     };
                 };
                 /** @description Bad Request */
@@ -1547,7 +1602,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["api.Result-handlers_VideoStreamResult"];
+                        "application/json": components["schemas"]["api.Result-services_VideoStreamWithJoins"];
                     };
                 };
                 /** @description Bad Request */
@@ -1596,7 +1651,7 @@ export interface paths {
             /** @description New Video Stream */
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["handlers.CreateVideoStreamBody"];
+                    "application/json": components["schemas"]["services.VideoStreamContents"];
                 };
             };
             responses: {
@@ -1606,7 +1661,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["handlers.EntityIDResult"];
+                        "application/json": components["schemas"]["services.VideoStream"];
                     };
                 };
                 /** @description Bad Request */
@@ -1669,7 +1724,7 @@ export interface paths {
             /** @description New Video Stream */
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["handlers.StartVideoStreamBody"];
+                    "application/json": components["schemas"]["services.BaseVideoStreamFields"];
                 };
             };
             responses: {
@@ -1679,7 +1734,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["handlers.EntityIDResult"];
+                        "application/json": components["schemas"]["services.VideoStream"];
                     };
                 };
                 /** @description Bad Request */
@@ -1749,7 +1804,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["handlers.VideoStreamResult"];
+                        "application/json": components["schemas"]["services.VideoStreamWithJoins"];
                     };
                 };
                 /** @description Bad Request */
@@ -1829,24 +1884,6 @@ export interface paths {
                         "application/json": components["schemas"]["api.Failure"];
                     };
                 };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
                 /** @description Not Found */
                 404: {
                     headers: {
@@ -1882,7 +1919,7 @@ export interface paths {
             /** @description Update Video Stream */
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["handlers.UpdateVideoStreamBody"];
+                    "application/json": components["schemas"]["services.PartialVideoStreamContents"];
                 };
             };
             responses: {
@@ -1976,33 +2013,6 @@ export interface paths {
                 };
                 /** @description Bad Request */
                 400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -2198,86 +2208,111 @@ export interface components {
     schemas: {
         "api.Failure": {
             /** @example error message here */
-            message?: string;
-        };
-        "api.Result-handlers_CaptureSourceResult": {
-            /** @example 20 */
-            limit?: number;
-            /** @example 0 */
-            offset?: number;
-            results?: components["schemas"]["handlers.CaptureSourceResult"][];
-            /** @example 1 */
-            total?: number;
-        };
-        "api.Result-handlers_VideoStreamResult": {
-            /** @example 20 */
-            limit?: number;
-            /** @example 0 */
-            offset?: number;
-            results?: components["schemas"]["handlers.VideoStreamResult"][];
-            /** @example 1 */
-            total?: number;
+            message: string;
         };
         "api.Result-services_AnnotationWithJoins": {
             /** @example 20 */
-            limit?: number;
+            limit: number;
             /** @example 0 */
-            offset?: number;
-            results?: components["schemas"]["services.AnnotationWithJoins"][];
+            offset: number;
+            results: components["schemas"]["services.AnnotationWithJoins"][];
             /** @example 1 */
-            total?: number;
+            total: number;
+        };
+        "api.Result-services_CaptureSource": {
+            /** @example 20 */
+            limit: number;
+            /** @example 0 */
+            offset: number;
+            results: components["schemas"]["services.CaptureSource"][];
+            /** @example 1 */
+            total: number;
+        };
+        "api.Result-services_Species": {
+            /** @example 20 */
+            limit: number;
+            /** @example 0 */
+            offset: number;
+            results: components["schemas"]["services.Species"][];
+            /** @example 1 */
+            total: number;
         };
         "api.Result-services_User": {
             /** @example 20 */
-            limit?: number;
+            limit: number;
             /** @example 0 */
-            offset?: number;
-            results?: components["schemas"]["services.User"][];
+            offset: number;
+            results: components["schemas"]["services.User"][];
             /** @example 1 */
-            total?: number;
+            total: number;
         };
-        "entities.Image": {
-            /** @example Tiffany Kosch, CC BY-NC-SA 4.0 */
-            attribution?: string;
-            /** @example https://inaturalist-open-data.s3.amazonaws.com/photos/340064435/medium.jpg */
-            src?: string;
+        "api.Result-services_VideoStreamWithJoins": {
+            /** @example 20 */
+            limit: number;
+            /** @example 0 */
+            offset: number;
+            results: components["schemas"]["services.VideoStreamWithJoins"][];
+            /** @example 1 */
+            total: number;
         };
-        /** @description contains information about something that produces a video stream */
-        "handlers.CaptureSourceResult": {
-            /**
-             * @description Short description of the camera hardware.
-             * @example pi cam v2 (wide angle lens)
-             */
-            camera_hardware?: string;
-            /**
-             * @description Unique ID of the capture source.
-             * @example 1234567890
-             */
-            id?: number;
-            /**
-             * @description Where the rig or camera is located.
-             * @example -32.12345,139.12345
-             */
-            location?: string;
-            /**
-             * @description Name of rig or camera.
-             * @example Stony Point Cuttle Cam
-             */
-            name?: string;
-            /**
-             * @description Site ID is used to reference sites in OceanBench. Optional.
-             * @example 246813579
-             */
-            site_id?: number;
+        "handlers.CreateSelfBody": {
+            /** @example Coral Fischer */
+            display_name: string;
         };
-        "handlers.CreateCaptureSourceBody": {
+        "handlers.NewAnnotationBody": {
+            /** @example 1234567890 */
+            identification: number;
+            keypoints: components["schemas"]["keypoint.KeyPoint"][];
+            /** @example 1234567890 */
+            videostream_id: number;
+        };
+        "keypoint.BoundingBox": {
+            /** @example 10 */
+            x1: number;
+            /** @example 50 */
+            x2: number;
+            /** @example 25 */
+            y1: number;
+            /** @example 75 */
+            y2: number;
+        };
+        "keypoint.KeyPoint": {
+            box: components["schemas"]["keypoint.BoundingBox"];
+            /** @example 01:56:05.500 */
+            time: string;
+        };
+        "services.AnnotationWithJoins": {
+            created_by: components["schemas"]["services.PublicUser"];
+            /** @example 15 */
+            duration: number;
+            /** @example 01:56:05.500 */
+            end: string;
+            /** @example 1234567890 */
+            id: number;
+            identifications: components["schemas"]["services.Identification"][];
+            keypoints: components["schemas"]["keypoint.KeyPoint"][];
+            /** @example 01:56:05.500 */
+            start: string;
+            videostream: components["schemas"]["services.VideoStreamSummary"];
+        };
+        "services.BaseVideoStreamFields": {
+            /** @example 1234567890 */
+            capturesource: number;
+            /** @example https://www.youtube.com/watch?v=abcdefghijk */
+            stream_url: string;
+            /** @example Australia/Adelaide */
+            timezone: string;
+        };
+        "services.CaptureSource": {
             /**
              * @description Short description of the camera hardware.
              * @example pi cam v2 (wide angle lens)
              */
             camera_hardware: string;
+            /** @example 1234567890 */
+            id: number;
             /**
-             * @description Location of the rig or camera.
+             * @description Where the rig or camera is located.
              * @example -32.12345,139.12345
              */
             location: string;
@@ -2286,248 +2321,209 @@ export interface components {
              * @example Stony Point Cuttle Cam
              */
             name: string;
-            /**
-             * @description ID used to reference sites in OceanBench.
-             * @example 246813579
-             */
-            site_id?: number;
+            /** @example 246813579 */
+            site_id: number;
         };
-        "handlers.CreateSelfBody": {
-            /** @example Coral Fischer */
-            display_name?: string;
-        };
-        "handlers.CreateSpeciesBody": {
-            /**
-             * @description Common name (in English) of the species.
-             * @example Southern Reef Squid
-             */
-            common_name?: string;
-            /** @description Image or images of the species. */
-            images?: components["schemas"]["entities.Image"][];
-            /**
-             * @description Scientific name of the species.
-             * @example Sepioteuthis australis
-             */
-            species?: string;
-        };
-        "handlers.CreateVideoStreamBody": {
-            /**
-             * @description Users that are permitted to add annotations.
-             * @example [
-             *       1234567890
-             *     ]
-             */
-            annotator_list?: number[];
-            /**
-             * @description ID of the capture source that produced the stream.
-             * @example 1234567890
-             */
-            capturesource: number;
-            /**
-             * @description End time of stream.
-             * @example 2023-05-25T16:30:00Z
-             */
-            endTime: string;
-            /**
-             * @description Start time of stream.
-             * @example 2023-05-25T08:00:00Z
-             */
-            startTime: string;
-            /**
-             * @description URL of video stream.
-             * @example https://www.youtube.com/watch?v=abcdefghijk
-             */
-            stream_url: string;
-        };
-        /** @description ID of newly created entity. */
-        "handlers.EntityIDResult": {
-            /**
-             * @description Unique ID of the entity.
-             * @example 1234567890
-             */
-            id?: number;
-        };
-        "handlers.NewAnnotationBody": {
-            /** @example 1234567890 */
-            identification?: number;
-            keypoints?: components["schemas"]["keypoint.KeyPoint"][];
-            /** @example 1234567890 */
-            videostream_id?: number;
-        };
-        "handlers.SpeciesResult": {
-            /**
-             * @description Common name (in English) of the species.
-             * @example Southern Reef Squid
-             */
-            common_name?: string;
-            /**
-             * @description Unique ID of the species.
-             * @example 1234567890
-             */
-            id?: number;
-            /** @description Image or images of the species. */
-            images?: components["schemas"]["entities.Image"][];
-            /**
-             * @description Scientific name of the species.
-             * @example Sepioteuthis australis
-             */
-            species?: string;
-        };
-        "handlers.StartVideoStreamBody": {
-            /**
-             * @description Users that are permitted to add annotations.
-             * @example [
-             *       1234567890
-             *     ]
-             */
-            annotator_list?: number[];
-            /**
-             * @description ID of the capture source that produced the stream.
-             * @example 1234567890
-             */
-            capturesource: number;
-            /**
-             * @description URL of live video stream.
-             * @example https://www.youtube.com/watch?v=abcdefghijk
-             */
-            stream_url: string;
-        };
-        "handlers.UpdateCaptureSourceBody": {
+        "services.CaptureSourceContents": {
             /**
              * @description Short description of the camera hardware.
              * @example pi cam v2 (wide angle lens)
              */
-            camera_hardware?: string;
+            camera_hardware: string;
             /**
-             * @description Location of the rig or camera.
+             * @description Where the rig or camera is located.
              * @example -32.12345,139.12345
              */
-            location?: string;
+            location: string;
             /**
              * @description Name of rig or camera.
              * @example Stony Point Cuttle Cam
              */
-            name?: string;
-            /**
-             * @description ID used to reference sites in OceanBench.
-             * @example 246813579
-             */
-            site_id?: number;
+            name: string;
+            /** @example 246813579 */
+            site_id: number;
         };
-        "handlers.UpdateVideoStreamBody": {
-            /**
-             * @description Users that are permitted to add annotations.
-             * @example [
-             *       1234567890
-             *     ]
-             */
-            annotator_list?: number[];
-            /**
-             * @description ID of the capture source that produced the stream.
-             * @example 1234567890
-             */
-            capturesource?: number;
-            /**
-             * @description End time of stream.
-             * @example 2023-05-25T16:30:00Z
-             */
-            endTime?: string;
-            /**
-             * @description Start time of stream.
-             * @example 2023-05-25T08:00:00Z
-             */
-            startTime?: string;
-            /**
-             * @description URL of video stream.
-             * @example https://www.youtube.com/watch?v=abcdefghijk
-             */
-            stream_url?: string;
-        };
-        "handlers.VideoStreamResult": {
-            /** @example [
-             *       1234567890
-             *     ] */
-            annotator_list?: number[];
+        "services.CaptureSourceSummary": {
             /** @example 1234567890 */
-            capturesource?: number;
-            /** @example 2023-05-25T16:30:00Z */
-            endTime?: string;
-            /** @example 1234567890 */
-            id?: number;
-            /** @example 2023-05-25T08:00:00Z */
-            startTime?: string;
-            /** @example https://www.youtube.com/watch?v=abcdefghijk */
-            stream_url?: string;
-        };
-        "keypoint.BoundingBox": {
-            /** @example 10 */
-            x1?: number;
-            /** @example 50 */
-            x2?: number;
-            /** @example 25 */
-            y1?: number;
-            /** @example 75 */
-            y2?: number;
-        };
-        "keypoint.KeyPoint": {
-            box?: components["schemas"]["keypoint.BoundingBox"];
-            /** @example 01:56:05.500 */
-            time?: string;
-        };
-        "services.AnnotationWithJoins": {
-            created_by?: components["schemas"]["services.PublicUser"];
-            /** @example 1234567890 */
-            id?: number;
-            identifications?: components["schemas"]["services.Identification"][];
-            keypoints?: components["schemas"]["keypoint.KeyPoint"][];
-            videostream?: components["schemas"]["services.VideoStreamSummary"];
+            id: number;
+            /**
+             * @description Name of rig or camera.
+             * @example Stony Point Cuttle Cam
+             */
+            name: string;
         };
         "services.Identification": {
-            identified_by?: components["schemas"]["services.PublicUser"][];
-            species?: components["schemas"]["services.SpeciesSummary"];
+            identified_by: components["schemas"]["services.PublicUser"][];
+            species: components["schemas"]["services.SpeciesSummary"];
+        };
+        "services.PartialCaptureSourceContents": {
+            /**
+             * @description Short description of the camera hardware.
+             * @example pi cam v2 (wide angle lens)
+             */
+            camera_hardware: string;
+            /**
+             * @description Where the rig or camera is located.
+             * @example -32.12345,139.12345
+             */
+            location: string;
+            /**
+             * @description Name of rig or camera.
+             * @example Stony Point Cuttle Cam
+             */
+            name: string;
+            /** @example 246813579 */
+            site_id: number;
         };
         "services.PartialUserContents": {
             /** @example Coral Fischer */
-            display_name?: string;
+            display_name: string;
             /** @example coral.fischer@example.com */
-            email?: string;
+            email: string;
             /**
              * @example annotator
              * @enum {string}
              */
-            role?: "readonly" | "annotator" | "curator" | "admin";
+            role: "readonly" | "annotator" | "curator" | "admin";
+        };
+        "services.PartialVideoStreamContents": {
+            /** @example [
+             *       1234567890
+             *     ] */
+            annotator_list: number[];
+            /** @example 1234567890 */
+            capturesource: number;
+            /** @example 2023-05-25T16:30:00Z */
+            endTime: string;
+            /** @example 2023-05-25T08:00:00Z */
+            startTime: string;
+            /** @example https://www.youtube.com/watch?v=abcdefghijk */
+            stream_url: string;
+            /** @example Australia/Adelaide */
+            timezone: string;
         };
         "services.PublicUser": {
             /** @example Coral Fischer */
-            display_name?: string;
+            display_name: string;
             /** @example 1234567890 */
-            id?: number;
+            id: number;
             /** @example annotator */
-            role?: string;
+            role: string;
+        };
+        "services.Species": {
+            /**
+             * @description Common name (in English) of the species.
+             * @example Whale Shark
+             */
+            common_name: string;
+            /**
+             * @description Unique ID of the species.
+             * @example 1234567890
+             */
+            id: number;
+            /** @description Image or images of the species. */
+            images: components["schemas"]["services.SpeciesImage"][];
+            /** @example 1234567890 */
+            inaturalist_taxon_id: number;
+            /**
+             * @description Scientific name of the species.
+             * @example Rhincodon typus
+             */
+            scientific_name: string;
+        };
+        "services.SpeciesContents": {
+            /**
+             * @description Common name (in English) of the species.
+             * @example Whale Shark
+             */
+            common_name: string;
+            /** @description Image or images of the species. */
+            images: components["schemas"]["services.SpeciesImage"][];
+            /** @example 1234567890 */
+            inaturalist_taxon_id: number;
+            /**
+             * @description Scientific name of the species.
+             * @example Rhincodon typus
+             */
+            scientific_name: string;
+        };
+        "services.SpeciesImage": {
+            /** @example Tiffany Kosch, CC BY-NC-SA 4.0 */
+            attribution: string;
+            /** @example https://inaturalist-open-data.s3.amazonaws.com/photos/340064435/medium.jpg */
+            src: string;
         };
         "services.SpeciesSummary": {
             /** @example Whale Shark */
-            common_name?: string;
+            common_name: string;
             /** @example 1234567890 */
-            id?: number;
+            id: number;
             /** @example Rhincodon typus */
-            scientific_name?: string;
+            scientific_name: string;
         };
         "services.User": {
             /** @example Coral Fischer */
-            display_name?: string;
+            display_name: string;
             /** @example coral.fischer@example.com */
-            email?: string;
+            email: string;
             /** @example 1234567890 */
-            id?: number;
+            id: number;
             /** @example annotator */
-            role?: string;
+            role: string;
+        };
+        "services.VideoStream": {
+            /** @example [
+             *       1234567890
+             *     ] */
+            annotator_list: number[];
+            /** @example 1234567890 */
+            capturesource: number;
+            /** @example 2023-05-25T16:30:00Z */
+            endTime: string;
+            /** @example 1234567890 */
+            id: number;
+            /** @example 2023-05-25T08:00:00Z */
+            startTime: string;
+            /** @example https://www.youtube.com/watch?v=abcdefghijk */
+            stream_url: string;
+            /** @example Australia/Adelaide */
+            timezone: string;
+        };
+        "services.VideoStreamContents": {
+            /** @example [
+             *       1234567890
+             *     ] */
+            annotator_list: number[];
+            /** @example 1234567890 */
+            capturesource: number;
+            /** @example 2023-05-25T16:30:00Z */
+            endTime: string;
+            /** @example 2023-05-25T08:00:00Z */
+            startTime: string;
+            /** @example https://www.youtube.com/watch?v=abcdefghijk */
+            stream_url: string;
+            /** @example Australia/Adelaide */
+            timezone: string;
         };
         "services.VideoStreamSummary": {
             /** @example 1234567890 */
-            id?: number;
+            id: number;
             /** @example https://www.youtube.com/watch?v=abcdefghijk */
-            stream_url?: string;
+            stream_url: string;
+        };
+        "services.VideoStreamWithJoins": {
+            annotator_list: components["schemas"]["services.PublicUser"][];
+            capturesource: components["schemas"]["services.CaptureSourceSummary"];
+            /** @example 2023-05-25T16:30:00Z */
+            endTime: string;
+            /** @example 1234567890 */
+            id: number;
+            /** @example 2023-05-25T08:00:00Z */
+            startTime: string;
+            /** @example https://www.youtube.com/watch?v=abcdefghijk */
+            stream_url: string;
+            /** @example Australia/Adelaide */
+            timezone: string;
         };
     };
     responses: never;
