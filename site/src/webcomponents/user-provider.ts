@@ -1,9 +1,9 @@
 import { LitElement, css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import { User } from '../api/user'
-import { plainToInstance } from 'class-transformer'
 import { provide } from '@lit/context'
 import { userContext } from '../utils/context'
+import { client } from '../api'
+import type { User } from '@openfish/client'
 
 @customElement('user-provider')
 export class UserProvider extends LitElement {
@@ -13,17 +13,18 @@ export class UserProvider extends LitElement {
   async connectedCallback() {
     super.connectedCallback()
 
-    try {
-      const res = await fetch('/api/v1/auth/me')
-      if (res.ok) {
-        const json = await res.json()
-        this.user = plainToInstance(User, json)
-      }
-      if (res.status === 404) {
-        window.location.href = '/welcome.html'
-      }
-    } catch (error) {
+    const { data, error, response } = await client.GET('/api/v1/auth/me')
+
+    if (response.status === 404) {
+      window.location.href = '/welcome.html'
+    }
+
+    if (error !== undefined) {
       console.error(error)
+    }
+
+    if (data !== undefined) {
+      this.user = data
     }
   }
 
@@ -32,9 +33,9 @@ export class UserProvider extends LitElement {
   }
 
   static styles = css`
-  :host {
-    display: contents
-  }
+    :host {
+      display: contents;
+    }
   `
 }
 

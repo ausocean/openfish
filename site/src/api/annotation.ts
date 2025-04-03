@@ -3,26 +3,6 @@ import 'reflect-metadata'
 import { Transform, Type } from 'class-transformer'
 import { formatVideoTime, parseVideoTime } from '../utils/datetime'
 
-export class Annotation {
-  id: number
-  videostreamId: number
-
-  @Type(() => Keypoint)
-  keypoints: Keypoint[]
-
-  observer: string
-
-  // TODO: use Map instead
-  observation: Observation
-
-  get start(): number {
-    return this.keypoints.at(0)!.time
-  }
-  get end(): number {
-    return this.keypoints.at(-1)!.time
-  }
-}
-
 export class Keypoint {
   @Transform(({ value }) => parseVideoTime(value), { toClassOnly: true })
   @Transform(({ value }) => formatVideoTime(value, true), { toPlainOnly: true })
@@ -35,10 +15,6 @@ export class Keypoint {
     this.time = time
     this.box = box
   }
-}
-
-export type Observation = {
-  [key: string]: string
 }
 
 export class BoundingBox {
