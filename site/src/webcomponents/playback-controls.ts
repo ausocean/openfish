@@ -1,10 +1,9 @@
 import { TailwindElement } from './tailwind-element'
 import { css, html, svg } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import type { VideoStream } from '../api/videostream.ts'
 import { repeat } from 'lit/directives/repeat.js'
-import { formatVideoTime } from '../utils/datetime'
-import type { Annotation } from '../api/annotation'
+import { formatVideoTime, parseVideoTime } from '../utils/datetime'
+import type { AnnotationWithJoins, VideoStreamWithJoins } from '@openfish/client'
 
 export type SeekEvent = CustomEvent<number>
 
@@ -14,10 +13,10 @@ export class PlaybackControls extends TailwindElement {
   duration = 0
 
   @property({ type: Array })
-  annotations: Annotation[] = []
+  annotations: AnnotationWithJoins[] = []
 
   @property({ type: Object })
-  videostream: VideoStream | null = null
+  videostream: VideoStreamWithJoins | null = null
 
   @property({ type: Number })
   currentTime = 0
@@ -62,10 +61,8 @@ export class PlaybackControls extends TailwindElement {
 
   render() {
     const svgContents = repeat(this.annotations, (a) => {
-      const duration = a.end - a.start
-
-      const x = (a.start / this.duration) * 100
-      const width = Math.max((duration / this.duration) * 100, 0.25) // Give them a min width of 0.25% so they are legible.
+      const x = (parseVideoTime(a.start) / this.duration) * 100
+      const width = Math.max(((a.duration / this.duration) * 100) / 1000, 0.25) // Give them a min width of 0.25% so they are legible.
 
       return svg`<rect class="fill-green-500 opacity-50" x="${x}%" y="0%" width="${width}%" height="100%" />`
     })
@@ -73,39 +70,56 @@ export class PlaybackControls extends TailwindElement {
     const heatmap = this.editMode
       ? html``
       : html`
-      <svg class="absolute inset z-10 w-full h-6">
-        ${svgContents}
-      </svg>
-    `
+          <svg class="absolute inset z-10 w-full h-6">${svgContents}</svg>
+        `
 
-    return html`
-      <div class="flex w-full px-4 py-2 gap-2 bg-blue-600 text-slate-50 items-center">
-        <button class="btn size-sm variant-orange w-28 justify-center" @click="${this.togglePlayback}">${
-          this.playing ? 'Pause' : 'Play'
-        }</button>
-        
-        <div class="flex w-32 *:rounded-none *:px-0 *:w-18 rounded-md overflow-clip">
-          <button class="btn size-sm variant-blue" @click="${() => this.bwd(5)}">≪</button>
-          <button class="btn size-sm variant-blue" @click="${() => this.bwd(1)}">&lt;</button>
-          <button class="btn size-sm variant-blue" @click="${() => this.fwd(1)}">&gt;</button>
-          <button class="btn size-sm variant-blue" @click="${() => this.fwd(5)}">≫</button>
+    return html` <div
+      class="flex w-full px-4 py-2 gap-2 bg-blue-600 text-slate-50 items-center"
+    >
+      <button
+        class="btn size-sm variant-orange w-28 justify-center"
+        @click="${this.togglePlayback}"
+      >
+        ${this.playing ? 'Pause' : 'Play'}
+      </button>
+
+      <div
+        class="flex w-32 *:rounded-none *:px-0 *:w-18 rounded-md overflow-clip"
+      >
+        <button class="btn size-sm variant-blue" @click="${() => this.bwd(5)}">
+          ≪
+        </button>
+        <button class="btn size-sm variant-blue" @click="${() => this.bwd(1)}">
+          &lt;
+        </button>
+        <button class="btn size-sm variant-blue" @click="${() => this.fwd(1)}">
+          &gt;
+        </button>
+        <button class="btn size-sm variant-blue" @click="${() => this.fwd(5)}">
+          ≫
+        </button>
+      </div>
+
+      <div class="w-full h-6 px-1 bg-blue-500 rounded-md">
+        <div class="relative">
+          ${heatmap}
+          <input
+            class="absolute inset z-20 w-full h-6"
+            type="range"
+            min="0"
+            .max="${this.duration}"
+            step="1"
+            .value="${this.currentTime}"
+            @input="${this.seek}"
+          />
         </div>
+      </div>
 
-        <div class="w-full h-6 px-1 bg-blue-500 rounded-md"> 
-          <div class="relative">
-            ${heatmap}
-            <input
-              class="absolute inset z-20 w-full h-6"
-              type="range" 
-              min="0" .max="${this.duration}" step="1"
-              .value="${this.currentTime}" 
-              @input="${this.seek}" 
-            />
-          </div>
-        </div>
-
-        <span class="p-1 w-60 text-right whitespace-nowrap">${formatVideoTime(this.currentTime)} / ${formatVideoTime(this.duration)}</span>
-      </div>`
+      <span class="p-1 w-60 text-right whitespace-nowrap"
+        >${formatVideoTime(this.currentTime)} /
+        ${formatVideoTime(this.duration)}</span
+      >
+    </div>`
   }
 
   static styles = [
