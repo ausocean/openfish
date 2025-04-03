@@ -6,7 +6,6 @@ import type { VideoStream } from '../api/videostream'
 import './annotation-displayer'
 import './annotation-card'
 import './playback-controls'
-import './observation-editor'
 import './bounding-box-creator'
 
 import vidstackcss from 'vidstack/player/styles/default/theme.css?lit'
@@ -14,7 +13,6 @@ import 'vidstack/player'
 import 'vidstack/player/ui'
 
 import type { MouseoverAnnotationEvent } from './annotation-displayer'
-import type { ObservationEvent } from './observation-editor'
 import type { UpdateBoundingBoxEvent } from './bounding-box-creator'
 
 import { ref, type Ref, createRef } from 'lit/directives/ref.js'
@@ -221,11 +219,7 @@ export class WatchStream extends TailwindElement {
             this._keypoints.length === 0 || Object.keys(this._observation).length === 0
           }>Done</button>
         </header>
-        <observation-editor .observation=${this._observation} @observation=${(
-          ev: ObservationEvent
-        ) => {
-          this._observation = ev.detail
-        }}>`
+        <!-- TODO: use <species-selection> -->`
 
     const overlay =
       this._mode === 'playback'
