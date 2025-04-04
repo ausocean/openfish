@@ -1,9 +1,9 @@
 import { TailwindElement } from './tailwind-element'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import type { User } from '../api/user'
 import { consume } from '@lit/context'
 import { userContext } from '../utils/context'
+import type { User } from '@openfish/client'
 
 // We have a side-effect dependency on <user-provider> so
 // import it here to ensure it gets loaded first in the
@@ -23,7 +23,7 @@ export class SiteNav extends TailwindElement {
         <span class="uppercase bg-blue-300 text-blue-900 text-xs rounded px-2 py-1">
           ${this.user?.role}
         </span>
-        ${this.user?.display_name} 
+        ${this.user?.display_name}
       </li>
       `
     }
@@ -48,7 +48,7 @@ export class SiteNav extends TailwindElement {
               <a href="/admin/capturesources.html" class="link whitespace-nowrap">
                 Admin Settings
               </a>
-            </li> 
+            </li>
           `
               : html``
           }
