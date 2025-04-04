@@ -88,7 +88,7 @@ export class StreamList extends TailwindElement {
         class="border border-blue-300 hover:border-blue-400 shadow-sm hover:shadow-lg hover:shadow-sky-500/25 ${
           stream.first ? 'first-item' : ''
         }"
-        onclick="window.location = '/watch.html?id=${stream.id}'"
+        onclick="window.location = '/watch?id=${stream.id}'"
       >
         <div class="img-contain">
           <img
