@@ -23,10 +23,10 @@
 }
 
 @theme {
-    /* 
+    /*
     These have been generated using:
     https://uicolors.app
-    */  
+    */
     --color-blue-50: #f4f7fb;
     --color-blue-100: #e7eef7;
     --color-blue-200: #cadaed;
@@ -38,8 +38,8 @@
     --color-blue-800: #244265;
     --color-blue-900: #233a57;
     --color-blue-950: #17253a;
-  
-   
+
+
     --bg: #ffffff;
     --content: var(--color-gray-950);
 }
@@ -94,7 +94,7 @@
 
         &.variant-light-outline {
             @apply text-blue-300 border-blue-300;
-            
+
             &:hover:enabled,
             &:is(a):hover {
                 @apply text-blue-200 border-blue-200;
@@ -104,15 +104,24 @@
         &.size-sm {
             @apply h-6 px-3 rounded-md;
         }
+
+        &.with-icon {
+            @apply *:fill-current;
+            &.size-sm {
+                @apply *:w-4 *:h-4;
+            }
+        }
     }
+
+
 
     .link {
         background-image: linear-gradient(transparent 50%, var(--decoration-color, var(--color-blue-300)) 50%);
         background-size: auto 175%;
         transition: background .15s ease-in-out;
-    
+
         &:hover {
-            background-position-y: 100%;	
+            background-position-y: 100%;
         }
     }
 
@@ -166,10 +175,14 @@
     }
 
     .dialog {
-        @apply bg-slate-50 rounded-lg p-4 mx-auto shadow-lg shadow-slate-950/25 mt-8; 
-        
+        @apply bg-slate-50 rounded-lg p-4 mx-auto shadow-lg shadow-slate-950/25 mt-8;
+
         &::backdrop {
             @apply bg-slate-950 opacity-50;
         }
+    }
+
+    tooltip-elem {
+        @apply rounded-sm text-sm text-slate-50 shadow-md z-100 absolute bg-slate-900;
     }
 }
