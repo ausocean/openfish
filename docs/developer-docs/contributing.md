@@ -1,7 +1,7 @@
 # Openfish Contributing Guide
 **Authors:** Scott Barnard
 
-Hi there! 👋 We’re thrilled that you’re interested in contributing to OpenFish, our open-source project dedicated to classifying marine species. 
+Hi there! 👋 We’re thrilled that you’re interested in contributing to OpenFish, our open-source project dedicated to classifying marine species.
 
 Before diving in, please take a moment to familiarize yourself with our guidelines. These will help streamline the contribution process and ensure a smooth collaboration. Here’s what you need to know:
 
@@ -53,7 +53,7 @@ You will need installed:
    pnpm site dev
    ```
 
-5) Open the browser and visit http://localhost:5173/watch.html.
+5) Open the browser and visit http://localhost:5173/watch.
 
 6) (Optional) Serve the documentation website using:
     ```bash
@@ -74,7 +74,7 @@ pnpm site fmt
 ### Running unit tests
 ::: code-group
 ```bash [Back-end project]
-go test -v ./... -short  
+go test -v ./... -short
 ```
 ```bash [Front-end project]
 pnpm site test

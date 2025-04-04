@@ -16,7 +16,7 @@ export class UserProvider extends LitElement {
     const { data, error, response } = await client.GET('/api/v1/auth/me')
 
     if (response.status === 404) {
-      window.location.href = '/welcome.html'
+      window.location.href = '/welcome'
     }
 
     if (error !== undefined) {
