@@ -5,6 +5,13 @@ import type { VideoStream } from '../api/videostream.ts'
 import { repeat } from 'lit/directives/repeat.js'
 import { formatVideoTime } from '../utils/datetime'
 import type { Annotation } from '../api/annotation'
+import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
+import caretLeft from '../icons/caret-left.svg?raw'
+import caretRight from '../icons/caret-right.svg?raw'
+import caretDoubleLeft from '../icons/caret-double-left.svg?raw'
+import caretDoubleRight from '../icons/caret-double-right.svg?raw'
+
+import './tooltip'
 
 export type SeekEvent = CustomEvent<number>
 
@@ -83,23 +90,28 @@ export class PlaybackControls extends TailwindElement {
         <button class="btn size-sm variant-orange w-28 justify-center" @click="${this.togglePlayback}">${
           this.playing ? 'Pause' : 'Play'
         }</button>
-        
-        <div class="flex w-32 *:rounded-none *:px-0 *:w-18 rounded-md overflow-clip">
-          <button class="btn size-sm variant-blue" @click="${() => this.bwd(5)}">≪</button>
-          <button class="btn size-sm variant-blue" @click="${() => this.bwd(1)}">&lt;</button>
-          <button class="btn size-sm variant-blue" @click="${() => this.fwd(1)}">&gt;</button>
-          <button class="btn size-sm variant-blue" @click="${() => this.fwd(5)}">≫</button>
+
+        <div class="flex w-32 *:px-0 rounded-md overflow-clip">
+          <button id="bwd-5" class="btn size-sm variant-blue with-icon rounded-none w-18" @click="${() => this.bwd(5)}">${unsafeSVG(caretDoubleLeft)}</button>
+          <button id="bwd-1" class="btn size-sm variant-blue with-icon rounded-none w-18" @click="${() => this.bwd(1)}">${unsafeSVG(caretLeft)}</button>
+          <button id="fwd-1" class="btn size-sm variant-blue with-icon rounded-none w-18" @click="${() => this.fwd(1)}">${unsafeSVG(caretRight)}</button>
+          <button id="fwd-5" class="btn size-sm variant-blue with-icon rounded-none w-18" @click="${() => this.fwd(5)}">${unsafeSVG(caretDoubleRight)}</button>
+
+          <tooltip-elem for="bwd-5" trigger="hover" placement="top" class="text-nowrap">Jump back 5 seconds</tooltip-elem>
+          <tooltip-elem for="bwd-1" trigger="hover" placement="top" class="text-nowrap">Jump back 1 second</tooltip-elem>
+          <tooltip-elem for="fwd-1" trigger="hover" placement="top" class="text-nowrap">Jump forward 1 second</tooltip-elem>
+          <tooltip-elem for="fwd-5" trigger="hover" placement="top" class="text-nowrap">Jump forward 5 seconds</tooltip-elem>
         </div>
 
-        <div class="w-full h-6 px-1 bg-blue-500 rounded-md"> 
+        <div class="w-full h-6 px-1 bg-blue-500 rounded-md">
           <div class="relative">
             ${heatmap}
             <input
               class="absolute inset z-20 w-full h-6"
-              type="range" 
+              type="range"
               min="0" .max="${this.duration}" step="1"
-              .value="${this.currentTime}" 
-              @input="${this.seek}" 
+              .value="${this.currentTime}"
+              @input="${this.seek}"
             />
           </div>
         </div>
