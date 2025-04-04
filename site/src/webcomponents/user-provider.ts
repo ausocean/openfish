@@ -20,7 +20,7 @@ export class UserProvider extends LitElement {
         this.user = plainToInstance(User, json)
       }
       if (res.status === 404) {
-        window.location.href = '/welcome.html'
+        window.location.href = '/welcome'
       }
     } catch (error) {
       console.error(error)

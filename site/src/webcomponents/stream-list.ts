@@ -97,9 +97,9 @@ export class StreamList extends TailwindElement {
 
   render() {
     const streams = (stream: VideoStreamItem) => html`
-    <article 
+    <article
       class="border border-blue-300 hover:border-blue-400 shadow-sm hover:shadow-lg hover:shadow-sky-500/25 ${stream.first ? 'first-item' : ''}"
-      onclick="window.location = '/watch.html?id=${stream.id}'">
+      onclick="window.location = '/watch?id=${stream.id}'">
       <div class="img-contain">
         <img src="https://i.ytimg.com/vi/${extractVideoID(stream.stream_url)}/maxresdefault.jpg">
         <span class="duration">${formatDuration(datetimeDifference(stream.endTime, stream.startTime))}</span>
@@ -111,7 +111,7 @@ export class StreamList extends TailwindElement {
     </article>
     `
 
-    const pagination = html`   
+    const pagination = html`
     <span>Page ${this._page} of ${this._totalPages}</span>
     <span class="flex gap-1">
       <button class="btn variant-slate" @click="${this.next}" .disabled=${this._page === 1}>Prev</button>
@@ -161,7 +161,7 @@ export class StreamList extends TailwindElement {
       overflow: clip;
       transition: box-shadow;
       transition-duration: 200ms;
-      
+
       footer {
         padding: 0.5rem;
         font-size: 0.8rem;

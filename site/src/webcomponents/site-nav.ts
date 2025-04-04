@@ -23,7 +23,7 @@ export class SiteNav extends TailwindElement {
         <span class="uppercase bg-blue-300 text-blue-900 text-xs rounded px-2 py-1">
           ${this.user?.role}
         </span>
-        ${this.user?.display_name} 
+        ${this.user?.display_name}
       </li>
       `
     }
@@ -37,7 +37,7 @@ export class SiteNav extends TailwindElement {
       </h1>
       <menu class="flex justify-end gap-4 self-center">
           <li>
-            <a href="/streams.html" class="link whitespace-nowrap">
+            <a href="/streams" class="link whitespace-nowrap">
               View streams
             </a>
           </li>
@@ -45,10 +45,10 @@ export class SiteNav extends TailwindElement {
             this.user?.role === 'admin'
               ? html`
             <li>
-              <a href="/admin/capturesources.html" class="link whitespace-nowrap">
+              <a href="/admin/capturesources" class="link whitespace-nowrap">
                 Admin Settings
               </a>
-            </li> 
+            </li>
           `
               : html``
           }

@@ -1,25 +1,46 @@
-runtime: go121
+runtime: go123
 
 env_variables:
   OPENFISH_CREDENTIALS: gs://ausocean/OpenFish-a197b0443246.json
-  IAP: 'true'
-  FILESTORE: 'false'
-  JWT_AUDIENCE: '/projects/174291483773/apps/openfish'
+  IAP: "true"
+  FILESTORE: "false"
+  JWT_AUDIENCE: "/projects/174291483773/apps/openfish"
 
 main: ./cmd/openfish/main.go
 
 handlers:
-
   - url: /api/.*
     script: auto
-  
+
   # Serve index.html as /
   - url: /
-    static_files: site/dist/index.html  
+    static_files: site/dist/index.html
     upload: site/dist/index.html
 
-  # TODO: Serve watch.html and streams.html from /watch and /streams urls.
-  
+  - url: /streams
+    static_files: openfish-webapp/dist/streams.html
+    upload: openfish-webapp/dist/streams.html
+
+  - url: /watch
+    static_files: openfish-webapp/dist/watch.html
+    upload: openfish-webapp/dist/watch.html
+
+  - url: /admin/capturesources
+    static_files: openfish-webapp/dist/admin/capturesources.html
+    upload: openfish-webapp/dist/admin/capturesources.html
+
+  - url: /admin/users
+    static_files: openfish-webapp/dist/admin/users.html
+    upload: openfish-webapp/dist/admin/users.html
+
+  - url: /admin/species
+    static_files: openfish-webapp/dist/admin/species.html
+    upload: openfish-webapp/dist/admin/species.html
+
+  - url: /admin/videostreams
+    static_files: openfish-webapp/dist/admin/videostreams.html
+    upload: openfish-webapp/dist/admin/videostreams.html
+
   # Serve all files in dist.
   - url: /
     static_dir: site/dist
