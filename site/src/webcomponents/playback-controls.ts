@@ -4,6 +4,13 @@ import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import { formatVideoTime, parseVideoTime } from '../utils/datetime'
 import type { AnnotationWithJoins, VideoStreamWithJoins } from '@openfish/client'
+import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
+import caretLeft from '../icons/caret-left.svg?raw'
+import caretRight from '../icons/caret-right.svg?raw'
+import caretDoubleLeft from '../icons/caret-double-left.svg?raw'
+import caretDoubleRight from '../icons/caret-double-right.svg?raw'
+
+import './tooltip'
 
 export type SeekEvent = CustomEvent<number>
 
@@ -73,32 +80,23 @@ export class PlaybackControls extends TailwindElement {
           <svg class="absolute inset z-10 w-full h-6">${svgContents}</svg>
         `
 
-    return html` <div
-      class="flex w-full px-4 py-2 gap-2 bg-blue-600 text-slate-50 items-center"
-    >
-      <button
-        class="btn size-sm variant-orange w-28 justify-center"
-        @click="${this.togglePlayback}"
-      >
-        ${this.playing ? 'Pause' : 'Play'}
-      </button>
+    return html`
+      <div class="flex w-full px-4 py-2 gap-2 bg-blue-600 text-slate-50 items-center">
+        <button class="btn size-sm variant-orange w-28 justify-center" @click="${this.togglePlayback}">${
+          this.playing ? 'Pause' : 'Play'
+        }</button>
 
-      <div
-        class="flex w-32 *:rounded-none *:px-0 *:w-18 rounded-md overflow-clip"
-      >
-        <button class="btn size-sm variant-blue" @click="${() => this.bwd(5)}">
-          ≪
-        </button>
-        <button class="btn size-sm variant-blue" @click="${() => this.bwd(1)}">
-          &lt;
-        </button>
-        <button class="btn size-sm variant-blue" @click="${() => this.fwd(1)}">
-          &gt;
-        </button>
-        <button class="btn size-sm variant-blue" @click="${() => this.fwd(5)}">
-          ≫
-        </button>
-      </div>
+        <div class="flex w-32 *:px-0 rounded-md overflow-clip">
+          <button id="bwd-5" class="btn size-sm variant-blue with-icon rounded-none w-18" @click="${() => this.bwd(5)}">${unsafeSVG(caretDoubleLeft)}</button>
+          <button id="bwd-1" class="btn size-sm variant-blue with-icon rounded-none w-18" @click="${() => this.bwd(1)}">${unsafeSVG(caretLeft)}</button>
+          <button id="fwd-1" class="btn size-sm variant-blue with-icon rounded-none w-18" @click="${() => this.fwd(1)}">${unsafeSVG(caretRight)}</button>
+          <button id="fwd-5" class="btn size-sm variant-blue with-icon rounded-none w-18" @click="${() => this.fwd(5)}">${unsafeSVG(caretDoubleRight)}</button>
+
+          <tooltip-elem for="bwd-5" trigger="hover" placement="top" class="text-nowrap">Jump back 5 seconds</tooltip-elem>
+          <tooltip-elem for="bwd-1" trigger="hover" placement="top" class="text-nowrap">Jump back 1 second</tooltip-elem>
+          <tooltip-elem for="fwd-1" trigger="hover" placement="top" class="text-nowrap">Jump forward 1 second</tooltip-elem>
+          <tooltip-elem for="fwd-5" trigger="hover" placement="top" class="text-nowrap">Jump forward 5 seconds</tooltip-elem>
+        </div>
 
       <div class="w-full h-6 px-1 bg-blue-500 rounded-md">
         <div class="relative">
