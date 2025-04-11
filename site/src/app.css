@@ -101,6 +101,15 @@
             }
         }
 
+        &.variant-subtle {
+            @apply bg-transparent text-slate-900 border-transparent;
+
+            &:hover:enabled,
+            &:is(a):hover {
+                @apply bg-slate-200 border-slate-200;
+            }
+        }
+
         &.size-sm {
             @apply h-6 px-3 rounded-md;
         }
