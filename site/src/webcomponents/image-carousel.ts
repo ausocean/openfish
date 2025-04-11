@@ -22,6 +22,8 @@ export class ImageCarousel extends TailwindElement {
         const parentRect = this.getBoundingClientRect()
         return rect.left >= parentRect.left && rect.right <= parentRect.right
       })
+
+      this.dispatchEvent(new CustomEvent('update', { detail: this._idx }))
     }
   }
 
@@ -33,12 +35,14 @@ export class ImageCarousel extends TailwindElement {
     // Scroll next or previous into view.
     this._idx = (this._idx + direction + slottedElems.length) % slottedElems.length
     slottedElems[this._idx].scrollIntoView({ behavior: 'smooth' })
+
+    this.dispatchEvent(new CustomEvent('update', { detail: this._idx }))
   }
 
   render() {
     return html`
         <div class="relative group w-full h-full">
-            <div @scrollend=${this._handleScrollend} class="absolute inset-0 flex border border-blue-800 aspect-square w-full overflow-clip  overflow-x-scroll snap-x snap-mandatory snap-scroll-smooth">
+            <div @scrollend=${this._handleScrollend} class="absolute inset-0 flex w-full overflow-clip  overflow-x-scroll snap-x snap-mandatory snap-scroll-smooth">
                 <slot></slot>
             </div>
 
