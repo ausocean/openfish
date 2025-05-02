@@ -81,10 +81,10 @@ export class SpeciesSelection extends TailwindElement {
           @input=${this.search}
         />
       </header>
-      <div class="relative overflow-y-scroll h-[calc(100%-6rem)]">
+      <div class="relative overflow-y-scroll h-[calc(100%-3rem)]">
         <div class="absolute inset-0">
           <ul
-            class="grid overflow-y-scroll gap-4 p-4 grid-cols-2 auto-rows-auto"
+            class="grid overflow-hidden gap-4 p-4 grid-cols-2 auto-rows-auto"
           >
             ${repeat(
               this._speciesList,
