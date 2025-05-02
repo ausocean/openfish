@@ -6,7 +6,7 @@ export default {
 
         const openapi = useOpenapi({ spec })
 
-        const json = openapi.json as typeof spec
+        const json = openapi.spec as typeof spec
 
         type Params = { operationId: string }
         const results: { params: Params }[] = []

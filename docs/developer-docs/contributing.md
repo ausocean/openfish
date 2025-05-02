@@ -41,6 +41,7 @@ You will need installed:
 2) Install npm dependencies:
    ```bash
    pnpm install
+   pnpm site install
    ```
 
 3) Start the OpenFish API:
@@ -57,6 +58,7 @@ You will need installed:
 
 6) (Optional) Serve the documentation website using:
     ```bash
+    pnpm docsite install
     pnpm docsite dev
     ```
 
