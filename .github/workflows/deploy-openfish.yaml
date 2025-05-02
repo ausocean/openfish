@@ -33,7 +33,9 @@ jobs:
           run_install: true
 
       - name: Install dependencies
-        run: pnpm i
+        run: |
+          pnpm i
+          pnpm site i
 
       - name: Build with Vite
         run: pnpm site build

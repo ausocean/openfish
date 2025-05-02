@@ -5,7 +5,7 @@ export default {
     paths() {
         const openapi = useOpenapi({ spec })
 
-        const json = openapi.json as typeof spec
+        const json = openapi.spec as typeof spec
 
         return json.tags.map(tag => ({params: tag}))
 

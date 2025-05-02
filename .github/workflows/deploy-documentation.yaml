@@ -39,16 +39,18 @@ jobs:
         with:
           version: 8
           run_install: true
-  
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
       - name: Install dependencies
-        run: pnpm i
+        run: |
+          pnpm i
+          pnpm docsite i
 
       - name: Build with VitePress
         run: |
-          pnpm --filter ./docs build
+          pnpm docsite build
           touch docs/.vitepress/dist/.nojekyll
 
       - name: Upload artifact

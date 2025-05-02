@@ -18,28 +18,28 @@ handlers:
     upload: site/dist/index.html
 
   - url: /streams
-    static_files: openfish-webapp/dist/streams.html
-    upload: openfish-webapp/dist/streams.html
+    static_files: site/dist/streams.html
+    upload: site/dist/streams.html
 
   - url: /watch
-    static_files: openfish-webapp/dist/watch.html
-    upload: openfish-webapp/dist/watch.html
+    static_files: site/dist/watch.html
+    upload: site/dist/watch.html
 
   - url: /admin/capturesources
-    static_files: openfish-webapp/dist/admin/capturesources.html
-    upload: openfish-webapp/dist/admin/capturesources.html
+    static_files: site/dist/admin/capturesources.html
+    upload: site/dist/admin/capturesources.html
 
   - url: /admin/users
-    static_files: openfish-webapp/dist/admin/users.html
-    upload: openfish-webapp/dist/admin/users.html
+    static_files: site/dist/admin/users.html
+    upload: site/dist/admin/users.html
 
   - url: /admin/species
-    static_files: openfish-webapp/dist/admin/species.html
-    upload: openfish-webapp/dist/admin/species.html
+    static_files: site/dist/admin/species.html
+    upload: site/dist/admin/species.html
 
   - url: /admin/videostreams
-    static_files: openfish-webapp/dist/admin/videostreams.html
-    upload: openfish-webapp/dist/admin/videostreams.html
+    static_files: site/dist/admin/videostreams.html
+    upload: site/dist/admin/videostreams.html
 
   # Serve all files in dist.
   - url: /
