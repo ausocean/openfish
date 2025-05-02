@@ -76,7 +76,7 @@ export class AnnotationList extends AnnotationDisplayer {
     const currentIdx = this.annotations.findIndex((a) => this.currentTime < parseVideoTime(a.end))
     const renderItem = (a: AnnotationWithJoins, i: number) =>
       html` <li class="contents">
-        <div class="pt-2 flex flex-col items-center gap-2 translate-y-2.5 ">
+        <div class="pt-2 flex flex-col items-center gap-2 translate-y-2.5">
           <div
             class="rounded-full w-3 aspect-square border-2 border-blue-300 ${
               currentIdx === i ? 'bg-blue-300' : ''
@@ -101,7 +101,7 @@ export class AnnotationList extends AnnotationDisplayer {
       </li>`
 
     return html`
-      <ul ${ref(this.listcontain)} class="grid p-2 overflow-x-scroll">
+      <ul ${ref(this.listcontain)} class="grid p-2 overflow-hidden">
         ${repeat(this.annotations, (a) => a.id, renderItem)}
       </ul>
     `

@@ -60,7 +60,7 @@
             @apply bg-orange-300 text-orange-900 border-orange-300;
 
             &:hover:enabled,
-            &:is(a):hover {
+            &:not(:is(button)):hover {
                 @apply bg-orange-400 border-orange-400;
             }
         }
@@ -115,9 +115,14 @@
         }
 
         &.with-icon {
-            @apply *:fill-current;
+            svg {
+                @apply fill-current;
+            }
+
             &.size-sm {
-                @apply *:w-4 *:h-4;
+                svg {
+                    @apply w-4 h-4;
+                }
             }
         }
     }

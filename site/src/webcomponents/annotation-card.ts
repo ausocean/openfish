@@ -3,7 +3,6 @@ import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import { parseVideoTime } from '../utils/datetime.ts'
-import type { SeekEvent } from './playback-controls.ts'
 import type { AnnotationWithJoins, Identification, User } from '@openfish/client'
 import user from '../icons/user.svg?raw'
 import caretUp from '../icons/caret-up.svg?raw'
@@ -34,7 +33,7 @@ export class AnnotationCard extends TailwindElement {
         detail: time,
         bubbles: true,
         composed: true,
-      }) as SeekEvent
+      })
     )
   }
 
