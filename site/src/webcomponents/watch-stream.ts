@@ -9,6 +9,7 @@ import { instanceToPlain } from 'class-transformer'
 import { BoundingBox, Keypoint } from '../api/annotation'
 import { formatVideoTime, parseVideoTime } from '../utils/datetime'
 import { client } from '../api'
+import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
 
 import type { AnnotationWithJoins, VideoStreamWithJoins } from '@openfish/client'
 import type { MouseoverAnnotationEvent } from './annotation-displayer'
@@ -24,6 +25,8 @@ import './bounding-box-creator'
 import vidstackcss from 'vidstack/player/styles/default/theme.css?lit'
 import 'vidstack/player'
 import 'vidstack/player/ui'
+
+import x from '../icons/x.svg?raw'
 
 @customElement('watch-stream')
 export class WatchStream extends TailwindElement {
@@ -272,16 +275,21 @@ export class WatchStream extends TailwindElement {
                 this._keypoints,
                 (k: Keypoint) => html`
                   <span
-                    class="bg-slate-300 rounded-lg text-sm whitespace-nowrap w-min h-8 pl-2 gap-2 flex items-center justify-center"
+                    class="flex overflow-clip rounded-lg"
                   >
-                    ${formatVideoTime(k.time, true)}
                     <button
-                      class="btn variant-slate px-0 aspect-square"
+                      class="btn variant-slate rounded-none"
+                      @click=${() => (this._seekTo = k.time)}
+                    >
+                        ${formatVideoTime(k.time, true)}
+                    </button>
+                    <button
+                      class="btn variant-slate rounded-none with-icon p-2 aspect-square"
                       @click=${() => {
                         this._keypoints = this._keypoints.filter((v) => v.time !== k.time)
                       }}
                     >
-                      ✕
+                      ${unsafeSVG(x)}
                     </button>
                   </span>
                 `
