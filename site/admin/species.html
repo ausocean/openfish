@@ -33,20 +33,17 @@
       }
 
       function updateSearch(e) {
-        const src = new URL(dt.src, document.location.origin)
+        const params = {}
         if (e.target.value !== '') {
-          src.searchParams.set('search', e.target.value)
-        } else {
-          src.searchParams.delete('search')
+          params.search = e.target.value
         }
-        dt.src = src.toString().replace(document.location.origin, '')
-        console.log(dt.src)
+        dt.params = params
         dt.fetchData()
       }
 
       searchInput.addEventListener('input', updateSearch)
       dt.addEventListener("deleteitem", (e) => confirmDialog.show(()=> deleteSpecies(e.detail)))
-      createBtn.addEventListener("click", () => createDialog.show()) 
+      createBtn.addEventListener("click", () => createDialog.show())
       createDialog.addEventListener("formsubmit", () => dt.fetchData())
     </script>
   </head>
@@ -70,11 +67,11 @@
           </header>
 
           <main class="col-[content]">
-            <data-table src="/api/v1/species/recommended" colwidths="1fr 1fr min-content">
-              <dt-col title="Scientific Name" key="species"></dt-col>
+            <data-table src="/api/v1/species" colwidths="1fr 1fr min-content">
+              <dt-col title="Scientific Name" key="scientific_name"></dt-col>
               <dt-col title="Common Name" key="common_name"></dt-col>
               <dt-btn action="deleteitem" text="Delete"></dt-btn>
-            </data-table>  
+            </data-table>
           </main>
         </div>
       </div>
