@@ -5,7 +5,7 @@
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OpenFish | Streams</title>
-    
+
     <link rel="stylesheet" href="./src/app.css" />
 
     <script type="module" src="./src/webcomponents/user-provider.ts"></script>
@@ -30,11 +30,13 @@
     <user-provider>
       <site-nav class="text-blue-700"></site-nav>
       <div class="contain px-4">
-        <main class="card-lg grid-page-with-aside-left gap-y-4 gap-x-8">
-          <h1 class="h1 col-[fullwidth]">View streams</h1>
-          <stream-filter class="col-[aside]"></stream-filter>
-          <stream-list class="col-[content]"></stream-list>
-        </main>
+        <div class="card-lg min-h-[calc(100vh-8rem)]">
+          <main class="grid-page-with-aside-left gap-y-4 gap-x-8">
+            <h1 class="h1 col-[fullwidth]">View streams</h1>
+            <stream-filter class="col-[aside]"></stream-filter>
+            <stream-list class="col-[content]"></stream-list>
+          </main>
+        </div>
       </div>
       <site-footer class="text-blue-700"></site-footer>
     </user-provider>
