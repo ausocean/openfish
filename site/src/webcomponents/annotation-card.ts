@@ -27,6 +27,9 @@ export class AnnotationCard extends TailwindElement {
   @consume({ context: userContext, subscribe: true })
   user: User | null = null
 
+  @property({ type: Boolean })
+  simple = false
+
   dispatchSeekEvent(time: number) {
     this.dispatchEvent(
       new CustomEvent('seek', {
@@ -86,40 +89,51 @@ export class AnnotationCard extends TailwindElement {
               )}
             </ul>
           </tooltip-elem>
-
-          <button
-            id=${`btn-upvote-${iden.species.id}`}
-            class="btn variant-blue size-sm"
-            ?disabled=${isMine(iden)}
-          >
-            <div class="*:w-4 *:h-4 *:fill-slate-50 mr-1 -ml-1">
-              ${unsafeSVG(caretUp)}
-            </div>
-            <span>Upvote</span>
-          </button>
           ${
-            isMine(iden)
-              ? html`<tooltip-elem
-                for=${`btn-upvote-${iden.species.id}`}
-                type="hover"
-                placement="bottom"
-                class="bg-slate-900 max-w-48"
-              >
-                Upvotes limited to one per user per identification. You cannot
-                upvote your own identifications.
-              </tooltip-elem>`
-              : html``
+            this.simple
+              ? html``
+              : html`
+            <button
+                id=${`btn-upvote-${iden.species.id}`}
+                class="btn variant-blue size-sm"
+                ?disabled=${isMine(iden)}
+            >
+                <div class="*:w-4 *:h-4 *:fill-slate-50 mr-1 -ml-1">
+                ${unsafeSVG(caretUp)}
+                </div>
+                <span>Upvote</span>
+            </button>
+            ${
+              isMine(iden)
+                ? html`<tooltip-elem
+                    for=${`btn-upvote-${iden.species.id}`}
+                    type="hover"
+                    placement="bottom"
+                    class="bg-slate-900 max-w-48"
+                >
+                    Upvotes limited to one per user per identification. You cannot
+                    upvote your own identifications.
+                </tooltip-elem>`
+                : html``
+            }
+            `
           }
         </div>
       </li>
     `
 
     return html`
-      <div
-        id="arrow"
-        class="w-4 h-4 absolute z-20 top-4 -left-2 ${this.active ? 'bg-blue-50' : 'bg-slate-200'}""
-        style="clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);"
-      ></div>
+            ${
+              this.simple
+                ? html``
+                : html`
+                <div
+                id= "arrow"
+                class="w-4 h-4 absolute z-20 top-4 -left-2 ${this.active ? 'bg-blue-50' : 'bg-slate-200'}""
+                style = "clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);"
+                    > </div>
+                `
+            }
       <article
         class="card p-0 overflow-clip border-none ${this.active ? 'bg-blue-50' : 'bg-slate-200'}"
       >
@@ -142,7 +156,7 @@ export class AnnotationCard extends TailwindElement {
             </button>
           </span>
           <span>
-            Created by:
+            By:
             <span class="bg-blue-200 rounded-sm py-0.5 px-2">
               ${this.annotation.created_by.display_name}
             </span>

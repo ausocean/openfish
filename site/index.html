@@ -9,37 +9,86 @@
 
     <script type="module" src="./src/webcomponents/user-provider.ts"></script>
     <script type="module" src="./src/webcomponents/site-nav.ts"></script>
+    <script type="module" src="./src/webcomponents/site-footer.ts"></script>
+    <script type="module" src="./src/webcomponents/latest-streams.ts"></script>
+    <script type="module" src="./src/webcomponents/latest-annotations.ts"></script>
 
     <style>
       .intro {
-        max-width: min(50ch, 50%);
+        max-width: min(40ch, 50%);
       }
-      img {
+      .hero {
+          min-height: 60vh;
 
+          &>* {
+            min-height: 60vh;
+          }
       }
-      main {
-        clip-path: circle(100% at left center);
+
+      .hero-img {
+          background-image:
+            linear-gradient(to left, rgba(0,0,0,0) 60%, var(--color-blue-600)),
+            linear-gradient(to right, rgba(0,0,0,0) 60%, var(--color-blue-600)),
+            url('./images/P3260121.jpg');
+      }
+
+      .footer-section {
+            background-image:
+                linear-gradient(to right,
+                    var(--color-blue-100) 20%,
+                    var(--color-sky-300) 60%,
+                    rgba(0,0,0,0) 80%),
+                url('/images/P3260129-cropped-2.jpg');
       }
     </style>
 
   </head>
-  <body class="bg-blue-100">
+  <body class="bg-blue-700">
     <user-provider>
-      <div class="page-columns">
-        <img class="object-cover w-screen h-screen row-start-[header] col-start-[page-start] col-end-[fullwidth-end]" src="https://static.wixstatic.com/media/e003e9_3e2b5cf54e2347e29c8cc4167b753eb4~mv2.png/v1/fill/w_1366,h_708,al_c,q_90,enc_avif,quality_auto/e003e9_3e2b5cf54e2347e29c8cc4167b753eb4~mv2.png" alt="">
-        <main class="row-start-[header] row-end-[content] col-[page] bg-blue-100 flex items-center">
-          <div class="space-y-2">
-            <h1 class="text-6xl font-bold text-blue-600">OpenFish</h1>
-            <p role="doc-subtitle" class="ml-24 text-xl font-bold text-slate-600">A project by AusOcean</p>
-            <p class="intro text-lg">Watch our underwater streams, share what you observe and help us identify and improve our understanding of marine species!</p>
-            <menu class="flex gap-2">
-              <li><a class="btn variant-orange" href="/streams">View streams</a></li>
-              <li><a class="btn variant-slate" href="https://ausocean.github.io/openfish/project-overview.html">Learn more about the project</a></li>
-            </menu>
-          </div>
-        </main>
-      </div>
+        <header class="hero bg-blue-600">
+            <div class="contain flex flex-col justify-stretch relative">
+                <site-nav class="text-blue-50 flex-0 z-10" style="--decoration-color: var(--color-blue-400)"></site-nav>
+                <div class="px-8 flex-1 flex flex-col justify-center z-10">
+                    <h1 class="text-6xl font-bold text-blue-50">OpenFish</h1>
+                    <p role="doc-subtitle" class="ml-24 mt-2 text-xl font-bold text-blue-200">A project by AusOcean</p>
+                    <p class="intro mt-4 text-lg text-blue-100">Watch our underwater streams, share what you observe and help us identify and improve our understanding of marine species!</p>
+                    <menu class="flex gap-2 mt-4">
+                        <li><a class="btn variant-orange" href="/streams">View all streams</a></li>
+                        <li><a class="btn variant-slate" href="https://ausocean.github.io/openfish/project-overview.html">Learn more about the project</a></li>
+                    </menu>
+                </div>
+                <div class="hero-img absolute top-0 right-0 w-3/5 h-full bg-cover"></div>
+            </div>
+        </header>
+        <section class="w-full border-t border-t-blue-800">
+            <div class="contain -mt-16">
+                <latest-streams class="px-8 py-6 relative z-20  block"></latest-streams>
+            </div>
+        </section>
 
+        <section class="annotation-section w-full bg-blue-800 pb-12">
+            <div class="contain px-8 py-6 pb-12">
+                <h2 class="text-3xl font-bold text-blue-100 mb-4">Recent annotations</h2>
+                <latest-annotations></latest-annotations>
+            </div>
+        </section>
+
+        <footer class="w-full bg-blue-900 border-t border-t-blue-900">
+            <div class="contain px-8">
+                <div class="px-8 py-6 bg-sky-300 rounded-lg space-y-2 -mt-8 footer-section bg-top-right bg-no-repeat bg-contain text-blue-950">
+                    <h2 class="text-3xl font-bold text-blue-600 mb-4 w-1/2">Want to get involved?</h2>
+                    <p class="text-lg max-w-200">
+                        We’re using tech to help our oceans, and we want you to be a part of it!
+                    </p>
+                    <p class="text-lg max-w-200">
+                        Helps us understand our oceans better by <a class="link" href="/streams">annotating our underwater live streams</a>.
+                        You can also help by <a class="link" href="https://ausocean.github.io/openfish/developer-docs/contributing.html">contributing to the code</a>,
+                        or if you want to learn more about what learning more about what AusOcean does <a class="link" href="https://www.ausocean.org/about-us">visit our website</a>
+                    </p>
+                </div>
+            </div>
+            <site-footer class="text-blue-100"></site-footer>
+        </footer>
     </user-provider>
   </body>
 </html>
