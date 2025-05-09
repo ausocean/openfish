@@ -37,6 +37,9 @@ export class DataTable extends TailwindElement {
   src: PaginatedPath
 
   @property()
+  params: Record<string, any> = {}
+
+  @property()
   colwidths = ''
 
   @property()
@@ -67,6 +70,7 @@ export class DataTable extends TailwindElement {
         query: {
           limit: perPage,
           offset: (this._page - 1) * perPage,
+          ...this.params,
         },
       },
     })
