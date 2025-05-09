@@ -199,4 +199,9 @@
     tooltip-elem {
         @apply rounded-sm text-sm text-slate-50 shadow-md z-100 absolute bg-slate-900;
     }
+
+    .dbg {
+        /* helpful for debugging layout issues */
+        @apply border border-red-500
+    }
 }
