@@ -51,28 +51,29 @@
     <user-provider>
       <site-nav class="text-blue-700"></site-nav>
 
-
       <div class="contain px-4">
-        <div class="grid-page-with-aside-left card-lg gap-y-4">
-          <header class="col-[fullwidth]">
-            <h1 class="h1">Admin Settings</h1>
-          </header>
+        <div class="card-lg min-h-[calc(100vh-8rem)]">
+            <div class="grid-page-with-aside-left gap-y-4">
+            <header class="col-[fullwidth]">
+                <h1 class="h1">Admin Settings</h1>
+            </header>
 
-          <admin-menu class="col-[aside] row-start-3"></admin-menu>
+            <admin-menu class="col-[aside] row-start-3"></admin-menu>
 
-          <header class="flex col-[content] mt-4 gap-4">
-            <h2 class="text-lg font-bold text-blue-800 flex-1">Manage Species</h2>
-            <input type="search" name="filter" id="filter" class="h-8" placeholder="Filter Species">
-            <button class="btn variant-blue" id="create-btn">+ Create new species</button>
-          </header>
+            <header class="flex col-[content] mt-4 gap-4">
+                <h2 class="text-lg font-bold text-blue-800 flex-1">Manage Species</h2>
+                <input type="search" name="filter" id="filter" class="h-8" placeholder="Filter Species">
+                <button class="btn variant-blue" id="create-btn">+ Create new species</button>
+            </header>
 
-          <main class="col-[content]">
-            <data-table src="/api/v1/species" colwidths="1fr 1fr min-content">
-              <dt-col title="Scientific Name" key="scientific_name"></dt-col>
-              <dt-col title="Common Name" key="common_name"></dt-col>
-              <dt-btn action="deleteitem" text="Delete"></dt-btn>
-            </data-table>
-          </main>
+            <main class="col-[content]">
+                <data-table src="/api/v1/species" colwidths="1fr 1fr min-content">
+                <dt-col title="Scientific Name" key="scientific_name"></dt-col>
+                <dt-col title="Common Name" key="common_name"></dt-col>
+                <dt-btn action="deleteitem" text="Delete"></dt-btn>
+                </data-table>
+            </main>
+            </div>
         </div>
       </div>
 
