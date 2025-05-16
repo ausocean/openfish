@@ -1,4 +1,4 @@
-import { TailwindElement } from './tailwind-element'
+import { TailwindElement } from '@openfish/ui/components/tailwind-element.ts'
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import '@fooloomanzoo/datetime-picker/datetime-picker.js'

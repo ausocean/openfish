@@ -4,2533 +4,2533 @@
  */
 
 export interface paths {
-    "/api/v1/annotations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get annotations
-         * @description Get paginated annotations, with options to filter by video stream.
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Number of results to return. */
-                    limit?: number;
-                    /** @description Number of results to skip. */
-                    offset?: number;
-                    /** @description Name to filter by. */
-                    name?: string;
-                    /** @description Video stream to filter by. */
-                    videostream?: number;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Result-services_AnnotationWithJoins"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create annotation
-         * @description Roles required: <role-tag>Annotator</role-tag>, <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
-         *
-         *     Creates a new annotation from provided JSON body.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            /** @description New Annotation */
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["handlers.NewAnnotationBody"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["services.AnnotationWithJoins"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/annotations/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get annotation by ID
-         * @description Gets an annotation when provided with an ID.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Annotation ID
-                     * @example 1234567890
-                     */
-                    id: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["services.AnnotationWithJoins"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete annotation
-         * @description Roles required: <role-tag>Admin</role-tag>
-         *
-         *     Delete an annotation by providing the annotation ID.
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Annotation ID
-                     * @example 1234567890
-                     */
-                    id: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/annotations/{id}/identifications/{species_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Add Identification
-         * @description Roles required: <role-tag>Annotator</role-tag>, <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
-         *
-         *     Adds a new identification to an existing annotation.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Annotation ID
-                     * @example 1234567890
-                     */
-                    id: number;
-                    /**
-                     * @description Species ID
-                     * @example 1234567890
-                     */
-                    species: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["services.AnnotationWithJoins"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        /**
-         * Remove Identification
-         * @description Roles required: <role-tag>Annotator</role-tag>, <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
-         *
-         *     Removes an identification from an annotation.
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Annotation ID
-                     * @example 1234567890
-                     */
-                    id: number;
-                    /**
-                     * @description Species ID
-                     * @example 1234567890
-                     */
-                    species: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["services.AnnotationWithJoins"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get current user
-         * @description Gets information about the current user.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["services.User"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create user
-         * @description Creates a new user.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            /** @description New User */
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["handlers.CreateSelfBody"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["services.User"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Conflict */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/capturesources": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get capture sources
-         * @description Get paginated capture sources, with options to filter by name and location.
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Number of results to return. */
-                    limit?: number;
-                    /** @description Number of results to skip. */
-                    offset?: number;
-                    /** @description Name to filter by. */
-                    name?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Result-services_CaptureSource"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create capture source
-         * @description Roles required: <role-tag>Admin</role-tag>
-         *
-         *     Creates a new capture source from provided JSON body.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            /** @description New Capture Source */
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["services.CaptureSourceContents"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["services.CaptureSource"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/capturesources/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get capture source by ID
-         * @description Gets a capture source when provided with an ID.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Capture Source ID
-                     * @example 1234567890
-                     */
-                    id: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["services.CaptureSource"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete capture source
-         * @description Roles required: <role-tag>Admin</role-tag>
-         *
-         *     Delete a capture source by providing the capture source ID.
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Capture Source ID
-                     * @example 1234567890
-                     */
-                    id: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /**
-         * Update capture source
-         * @description Roles required: <role-tag>Admin</role-tag>
-         *
-         *     Partially update a capture source by specifying the properties to update.
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Capture Source ID
-                     * @example 1234567890
-                     */
-                    id: number;
-                };
-                cookie?: never;
-            };
-            /** @description Update Capture Source */
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["services.PartialCaptureSourceContents"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/api/v1/species": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get species
-         * @description Get paginated species, with options to filter by name and location.
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Number of results to return. */
-                    limit?: number;
-                    /** @description Number of results to skip. */
-                    offset?: number;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Result-services_Species"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create species
-         * @description Roles required: <role-tag>Admin</role-tag>
-         *
-         *     Creates a new species from provided JSON body.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            /** @description New Species */
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["services.SpeciesContents"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["services.Species"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/species/inaturalist-import": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Import from iNaturalist
-         * @description Roles required: <role-tag>Admin</role-tag>
-         *
-         *     Imports all species that are descendants of a Phylum/Class/Order/etc from iNaturalist's taxa API.
-         */
-        post: {
-            parameters: {
-                query: {
-                    /**
-                     * @description Phylum/Class/Order/etc to import
-                     * @example Infraorder Cetacea
-                     */
-                    descendants_of: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/species/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get species by ID
-         * @description Gets a species when provided with an ID.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Species ID
-                     * @example 1234567890
-                     */
-                    id: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["services.Species"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete species
-         * @description Roles required: <role-tag>Admin</role-tag>
-         *
-         *     Delete a species by providing the species ID.
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Species ID
-                     * @example 1234567890
-                     */
-                    id: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/tasks/{id}/status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Poll status
-         * @description Checks if a task is completed, if so, it redirects to the task's resource, otherwise returns 200.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Task ID
-                     * @example 1234567890
-                     */
-                    id: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Moved Permanently */
-                301: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get users
-         * @description Gets paginated users. When invoked by an admin, the full user object is returned, otherwise the public user only.
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Number of results to return. */
-                    limit?: number;
-                    /** @description Number of results to skip. */
-                    offset?: number;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Result-services_User"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/users/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get user by ID
-         * @description Gets a user when provided with an ID. When invoked by an admin, the full user object is returned, otherwise the public user only. When the user is yourself, the full user object is returned regardless of your permissions.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description ID
-                     * @example 1234567890
-                     */
-                    id: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["services.User"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete user
-         * @description Roles required: <role-tag>Admin</role-tag>
-         *
-         *     Delete a user by providing the user's ID.
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description ID
-                     * @example 1234567890
-                     */
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /**
-         * Update role
-         * @description Roles required: <role-tag>Admin</role-tag>
-         *
-         *     Update a user's role.
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description ID
-                     * @example 1234567890
-                     */
-                    id: string;
-                };
-                cookie?: never;
-            };
-            /** @description Update User */
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["services.PartialUserContents"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/api/v1/videostreams": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get video streams
-         * @description Get paginated video streams, with options to filter by timespan and capturesource.
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Number of results to return. */
-                    limit?: number;
-                    /** @description Number of results to skip. */
-                    offset?: number;
-                    /** @description Capture source ID to filter by. */
-                    capturesource?: number;
-                    /** @description Start time to filter by. */
-                    "timespan[start]"?: string;
-                    /** @description End time to filter by. */
-                    "timespan[end]"?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Result-services_VideoStreamWithJoins"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Register video stream
-         * @description Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
-         *
-         *     Registers a new video stream with OpenFish.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            /** @description New Video Stream */
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["services.VideoStreamContents"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["services.VideoStream"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/videostreams/live": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Register live stream
-         * @description Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
-         *
-         *     Registers a new live video stream with OpenFish. The API takes the current time as the start time of the video stream.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            /** @description New Video Stream */
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["services.BaseVideoStreamFields"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["services.VideoStream"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/videostreams/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get video stream by ID
-         * @description Gets a video stream when provided with an ID.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Video Stream ID
-                     * @example 1234567890
-                     */
-                    id: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["services.VideoStreamWithJoins"];
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete video stream
-         * @description Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
-         *
-         *     Delete a video stream by providing the video stream ID.
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Video Stream ID
-                     * @example 1234567890
-                     */
-                    id: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /**
-         * Update video stream
-         * @description Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
-         *
-         *     Partially update a video stream by specifying the properties to update.
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Video Stream ID
-                     * @example 1234567890
-                     */
-                    id: number;
-                };
-                cookie?: never;
-            };
-            /** @description Update Video Stream */
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["services.PartialVideoStreamContents"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/api/v1/videostreams/{id}/live": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Finish live stream
-         * @description Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
-         *
-         *     Notify OpenFish that a live video stream has finished. The API takes the current time as the end time.
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description Video Stream ID
-                     * @example 1234567890
-                     */
-                    id: number;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/api/v1/videostreams/{id}/media/{type}/{subtype}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get video stream media
-         * @description Roles required: <role-tag>Admin</role-tag>
-         *
-         *     Gets the image or video snippet from this video stream at the given time.
-         */
-        get: {
-            parameters: {
-                query: {
-                    /**
-                     * @description Time
-                     * @example 00:00:01.000-00:00:05.500
-                     */
-                    time: string;
-                };
-                header?: never;
-                path: {
-                    /**
-                     * @description Video Stream ID
-                     * @example 1234567890
-                     */
-                    id: number;
-                    /**
-                     * @description Type
-                     * @example image
-                     */
-                    type: string;
-                    /**
-                     * @description Subtype
-                     * @example jpeg
-                     */
-                    subtype: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete video stream media
-         * @description Roles required: <role-tag>Admin</role-tag>
-         *
-         *     Deletes the cached image or video snippet from this video stream at the given time.
-         */
-        delete: {
-            parameters: {
-                query: {
-                    /**
-                     * @description Time
-                     * @example 00:00:01.000-00:00:05.500
-                     */
-                    time: string;
-                };
-                header?: never;
-                path: {
-                    /**
-                     * @description Video Stream ID
-                     * @example 1234567890
-                     */
-                    id: number;
-                    /**
-                     * @description Type
-                     * @example image
-                     */
-                    type: string;
-                    /**
-                     * @description Subtype
-                     * @example jpeg
-                     */
-                    subtype: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["api.Failure"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
+  '/api/v1/annotations': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get annotations
+     * @description Get paginated annotations, with options to filter by video stream.
+     */
+    get: {
+      parameters: {
+        query?: {
+          /** @description Number of results to return. */
+          limit?: number
+          /** @description Number of results to skip. */
+          offset?: number
+          /** @description Name to filter by. */
+          name?: string
+          /** @description Video stream to filter by. */
+          videostream?: number
+        }
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Result-services_AnnotationWithJoins']
+          }
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    put?: never
+    /**
+     * Create annotation
+     * @description Roles required: <role-tag>Annotator</role-tag>, <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
+     *
+     *     Creates a new annotation from provided JSON body.
+     */
+    post: {
+      parameters: {
+        query?: never
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      /** @description New Annotation */
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['handlers.NewAnnotationBody']
+        }
+      }
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['services.AnnotationWithJoins']
+          }
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/annotations/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get annotation by ID
+     * @description Gets an annotation when provided with an ID.
+     */
+    get: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          /**
+           * @description Annotation ID
+           * @example 1234567890
+           */
+          id: number
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['services.AnnotationWithJoins']
+          }
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    put?: never
+    post?: never
+    /**
+     * Delete annotation
+     * @description Roles required: <role-tag>Admin</role-tag>
+     *
+     *     Delete an annotation by providing the annotation ID.
+     */
+    delete: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          /**
+           * @description Annotation ID
+           * @example 1234567890
+           */
+          id: number
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content?: never
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/annotations/{id}/identifications/{species_id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Add Identification
+     * @description Roles required: <role-tag>Annotator</role-tag>, <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
+     *
+     *     Adds a new identification to an existing annotation.
+     */
+    post: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          /**
+           * @description Annotation ID
+           * @example 1234567890
+           */
+          id: number
+          /**
+           * @description Species ID
+           * @example 1234567890
+           */
+          species: number
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['services.AnnotationWithJoins']
+          }
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    /**
+     * Remove Identification
+     * @description Roles required: <role-tag>Annotator</role-tag>, <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
+     *
+     *     Removes an identification from an annotation.
+     */
+    delete: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          /**
+           * @description Annotation ID
+           * @example 1234567890
+           */
+          id: number
+          /**
+           * @description Species ID
+           * @example 1234567890
+           */
+          species: number
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['services.AnnotationWithJoins']
+          }
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/auth/me': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get current user
+     * @description Gets information about the current user.
+     */
+    get: {
+      parameters: {
+        query?: never
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['services.User']
+          }
+        }
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    put?: never
+    /**
+     * Create user
+     * @description Creates a new user.
+     */
+    post: {
+      parameters: {
+        query?: never
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      /** @description New User */
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['handlers.CreateSelfBody']
+        }
+      }
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['services.User']
+          }
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Conflict */
+        409: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/capturesources': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get capture sources
+     * @description Get paginated capture sources, with options to filter by name and location.
+     */
+    get: {
+      parameters: {
+        query?: {
+          /** @description Number of results to return. */
+          limit?: number
+          /** @description Number of results to skip. */
+          offset?: number
+          /** @description Name to filter by. */
+          name?: string
+        }
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Result-services_CaptureSource']
+          }
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    put?: never
+    /**
+     * Create capture source
+     * @description Roles required: <role-tag>Admin</role-tag>
+     *
+     *     Creates a new capture source from provided JSON body.
+     */
+    post: {
+      parameters: {
+        query?: never
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      /** @description New Capture Source */
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['services.CaptureSourceContents']
+        }
+      }
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['services.CaptureSource']
+          }
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/capturesources/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get capture source by ID
+     * @description Gets a capture source when provided with an ID.
+     */
+    get: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          /**
+           * @description Capture Source ID
+           * @example 1234567890
+           */
+          id: number
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['services.CaptureSource']
+          }
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    put?: never
+    post?: never
+    /**
+     * Delete capture source
+     * @description Roles required: <role-tag>Admin</role-tag>
+     *
+     *     Delete a capture source by providing the capture source ID.
+     */
+    delete: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          /**
+           * @description Capture Source ID
+           * @example 1234567890
+           */
+          id: number
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content?: never
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    options?: never
+    head?: never
+    /**
+     * Update capture source
+     * @description Roles required: <role-tag>Admin</role-tag>
+     *
+     *     Partially update a capture source by specifying the properties to update.
+     */
+    patch: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          /**
+           * @description Capture Source ID
+           * @example 1234567890
+           */
+          id: number
+        }
+        cookie?: never
+      }
+      /** @description Update Capture Source */
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['services.PartialCaptureSourceContents']
+        }
+      }
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content?: never
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    trace?: never
+  }
+  '/api/v1/species': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get species
+     * @description Get paginated species, with options to filter by name and location.
+     */
+    get: {
+      parameters: {
+        query?: {
+          /** @description Number of results to return. */
+          limit?: number
+          /** @description Number of results to skip. */
+          offset?: number
+        }
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Result-services_Species']
+          }
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    put?: never
+    /**
+     * Create species
+     * @description Roles required: <role-tag>Admin</role-tag>
+     *
+     *     Creates a new species from provided JSON body.
+     */
+    post: {
+      parameters: {
+        query?: never
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      /** @description New Species */
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['services.SpeciesContents']
+        }
+      }
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['services.Species']
+          }
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/species/inaturalist-import': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Import from iNaturalist
+     * @description Roles required: <role-tag>Admin</role-tag>
+     *
+     *     Imports all species that are descendants of a Phylum/Class/Order/etc from iNaturalist's taxa API.
+     */
+    post: {
+      parameters: {
+        query: {
+          /**
+           * @description Phylum/Class/Order/etc to import
+           * @example Infraorder Cetacea
+           */
+          descendants_of: string
+        }
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content?: never
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/species/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get species by ID
+     * @description Gets a species when provided with an ID.
+     */
+    get: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          /**
+           * @description Species ID
+           * @example 1234567890
+           */
+          id: number
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['services.Species']
+          }
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    put?: never
+    post?: never
+    /**
+     * Delete species
+     * @description Roles required: <role-tag>Admin</role-tag>
+     *
+     *     Delete a species by providing the species ID.
+     */
+    delete: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          /**
+           * @description Species ID
+           * @example 1234567890
+           */
+          id: number
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content?: never
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/tasks/{id}/status': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Poll status
+     * @description Checks if a task is completed, if so, it redirects to the task's resource, otherwise returns 200.
+     */
+    get: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          /**
+           * @description Task ID
+           * @example 1234567890
+           */
+          id: number
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content?: never
+        }
+        /** @description Moved Permanently */
+        301: {
+          headers: {
+            [name: string]: unknown
+          }
+          content?: never
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/users': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get users
+     * @description Gets paginated users. When invoked by an admin, the full user object is returned, otherwise the public user only.
+     */
+    get: {
+      parameters: {
+        query?: {
+          /** @description Number of results to return. */
+          limit?: number
+          /** @description Number of results to skip. */
+          offset?: number
+        }
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Result-services_User']
+          }
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/users/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get user by ID
+     * @description Gets a user when provided with an ID. When invoked by an admin, the full user object is returned, otherwise the public user only. When the user is yourself, the full user object is returned regardless of your permissions.
+     */
+    get: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          /**
+           * @description ID
+           * @example 1234567890
+           */
+          id: number
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['services.User']
+          }
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    put?: never
+    post?: never
+    /**
+     * Delete user
+     * @description Roles required: <role-tag>Admin</role-tag>
+     *
+     *     Delete a user by providing the user's ID.
+     */
+    delete: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          /**
+           * @description ID
+           * @example 1234567890
+           */
+          id: string
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content?: never
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    options?: never
+    head?: never
+    /**
+     * Update role
+     * @description Roles required: <role-tag>Admin</role-tag>
+     *
+     *     Update a user's role.
+     */
+    patch: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          /**
+           * @description ID
+           * @example 1234567890
+           */
+          id: string
+        }
+        cookie?: never
+      }
+      /** @description Update User */
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['services.PartialUserContents']
+        }
+      }
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content?: never
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    trace?: never
+  }
+  '/api/v1/videostreams': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get video streams
+     * @description Get paginated video streams, with options to filter by timespan and capturesource.
+     */
+    get: {
+      parameters: {
+        query?: {
+          /** @description Number of results to return. */
+          limit?: number
+          /** @description Number of results to skip. */
+          offset?: number
+          /** @description Capture source ID to filter by. */
+          capturesource?: number
+          /** @description Start time to filter by. */
+          'timespan[start]'?: string
+          /** @description End time to filter by. */
+          'timespan[end]'?: string
+        }
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Result-services_VideoStreamWithJoins']
+          }
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    put?: never
+    /**
+     * Register video stream
+     * @description Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
+     *
+     *     Registers a new video stream with OpenFish.
+     */
+    post: {
+      parameters: {
+        query?: never
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      /** @description New Video Stream */
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['services.VideoStreamContents']
+        }
+      }
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['services.VideoStream']
+          }
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/videostreams/live': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Register live stream
+     * @description Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
+     *
+     *     Registers a new live video stream with OpenFish. The API takes the current time as the start time of the video stream.
+     */
+    post: {
+      parameters: {
+        query?: never
+        header?: never
+        path?: never
+        cookie?: never
+      }
+      /** @description New Video Stream */
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['services.BaseVideoStreamFields']
+        }
+      }
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['services.VideoStream']
+          }
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/videostreams/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get video stream by ID
+     * @description Gets a video stream when provided with an ID.
+     */
+    get: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          /**
+           * @description Video Stream ID
+           * @example 1234567890
+           */
+          id: number
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['services.VideoStreamWithJoins']
+          }
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    put?: never
+    post?: never
+    /**
+     * Delete video stream
+     * @description Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
+     *
+     *     Delete a video stream by providing the video stream ID.
+     */
+    delete: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          /**
+           * @description Video Stream ID
+           * @example 1234567890
+           */
+          id: number
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content?: never
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    options?: never
+    head?: never
+    /**
+     * Update video stream
+     * @description Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
+     *
+     *     Partially update a video stream by specifying the properties to update.
+     */
+    patch: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          /**
+           * @description Video Stream ID
+           * @example 1234567890
+           */
+          id: number
+        }
+        cookie?: never
+      }
+      /** @description Update Video Stream */
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['services.PartialVideoStreamContents']
+        }
+      }
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content?: never
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    trace?: never
+  }
+  '/api/v1/videostreams/{id}/live': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    /**
+     * Finish live stream
+     * @description Roles required: <role-tag>Curator</role-tag> or <role-tag>Admin</role-tag>
+     *
+     *     Notify OpenFish that a live video stream has finished. The API takes the current time as the end time.
+     */
+    patch: {
+      parameters: {
+        query?: never
+        header?: never
+        path: {
+          /**
+           * @description Video Stream ID
+           * @example 1234567890
+           */
+          id: number
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content?: never
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    trace?: never
+  }
+  '/api/v1/videostreams/{id}/media/{type}/{subtype}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get video stream media
+     * @description Roles required: <role-tag>Admin</role-tag>
+     *
+     *     Gets the image or video snippet from this video stream at the given time.
+     */
+    get: {
+      parameters: {
+        query: {
+          /**
+           * @description Time
+           * @example 00:00:01.000-00:00:05.500
+           */
+          time: string
+        }
+        header?: never
+        path: {
+          /**
+           * @description Video Stream ID
+           * @example 1234567890
+           */
+          id: number
+          /**
+           * @description Type
+           * @example image
+           */
+          type: string
+          /**
+           * @description Subtype
+           * @example jpeg
+           */
+          subtype: string
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content?: never
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    put?: never
+    post?: never
+    /**
+     * Delete video stream media
+     * @description Roles required: <role-tag>Admin</role-tag>
+     *
+     *     Deletes the cached image or video snippet from this video stream at the given time.
+     */
+    delete: {
+      parameters: {
+        query: {
+          /**
+           * @description Time
+           * @example 00:00:01.000-00:00:05.500
+           */
+          time: string
+        }
+        header?: never
+        path: {
+          /**
+           * @description Video Stream ID
+           * @example 1234567890
+           */
+          id: number
+          /**
+           * @description Type
+           * @example image
+           */
+          type: string
+          /**
+           * @description Subtype
+           * @example jpeg
+           */
+          subtype: string
+        }
+        cookie?: never
+      }
+      requestBody?: never
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown
+          }
+          content?: never
+        }
+        /** @description Bad Request */
+        400: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Forbidden */
+        403: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+        /** @description Not Found */
+        404: {
+          headers: {
+            [name: string]: unknown
+          }
+          content: {
+            'application/json': components['schemas']['api.Failure']
+          }
+        }
+      }
+    }
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
 }
-export type webhooks = Record<string, never>;
+export type webhooks = Record<string, never>
 export interface components {
-    schemas: {
-        "api.Failure": {
-            /** @example error message here */
-            message: string;
-        };
-        "api.Result-services_AnnotationWithJoins": {
-            /** @example 20 */
-            limit: number;
-            /** @example 0 */
-            offset: number;
-            results: components["schemas"]["services.AnnotationWithJoins"][];
-            /** @example 1 */
-            total: number;
-        };
-        "api.Result-services_CaptureSource": {
-            /** @example 20 */
-            limit: number;
-            /** @example 0 */
-            offset: number;
-            results: components["schemas"]["services.CaptureSource"][];
-            /** @example 1 */
-            total: number;
-        };
-        "api.Result-services_Species": {
-            /** @example 20 */
-            limit: number;
-            /** @example 0 */
-            offset: number;
-            results: components["schemas"]["services.Species"][];
-            /** @example 1 */
-            total: number;
-        };
-        "api.Result-services_User": {
-            /** @example 20 */
-            limit: number;
-            /** @example 0 */
-            offset: number;
-            results: components["schemas"]["services.User"][];
-            /** @example 1 */
-            total: number;
-        };
-        "api.Result-services_VideoStreamWithJoins": {
-            /** @example 20 */
-            limit: number;
-            /** @example 0 */
-            offset: number;
-            results: components["schemas"]["services.VideoStreamWithJoins"][];
-            /** @example 1 */
-            total: number;
-        };
-        "handlers.CreateSelfBody": {
-            /** @example Coral Fischer */
-            display_name: string;
-        };
-        "handlers.NewAnnotationBody": {
-            /** @example 1234567890 */
-            identification: number;
-            keypoints: components["schemas"]["keypoint.KeyPoint"][];
-            /** @example 1234567890 */
-            videostream_id: number;
-        };
-        "keypoint.BoundingBox": {
-            /** @example 10 */
-            x1: number;
-            /** @example 50 */
-            x2: number;
-            /** @example 25 */
-            y1: number;
-            /** @example 75 */
-            y2: number;
-        };
-        "keypoint.KeyPoint": {
-            box: components["schemas"]["keypoint.BoundingBox"];
-            /** @example 01:56:05.500 */
-            time: string;
-        };
-        "services.AnnotationWithJoins": {
-            created_by: components["schemas"]["services.PublicUser"];
-            /** @example 15 */
-            duration: number;
-            /** @example 01:56:05.500 */
-            end: string;
-            /** @example 1234567890 */
-            id: number;
-            identifications: components["schemas"]["services.Identification"][];
-            keypoints: components["schemas"]["keypoint.KeyPoint"][];
-            /** @example 01:56:05.500 */
-            start: string;
-            videostream: components["schemas"]["services.VideoStreamSummary"];
-        };
-        "services.BaseVideoStreamFields": {
-            /** @example 1234567890 */
-            capturesource: number;
-            /** @example https://www.youtube.com/watch?v=abcdefghijk */
-            stream_url: string;
-            /** @example Australia/Adelaide */
-            timezone: string;
-        };
-        "services.CaptureSource": {
-            /**
-             * @description Short description of the camera hardware.
-             * @example pi cam v2 (wide angle lens)
-             */
-            camera_hardware: string;
-            /** @example 1234567890 */
-            id: number;
-            /**
-             * @description Where the rig or camera is located.
-             * @example -32.12345,139.12345
-             */
-            location: string;
-            /**
-             * @description Name of rig or camera.
-             * @example Stony Point Cuttle Cam
-             */
-            name: string;
-            /** @example 246813579 */
-            site_id: number;
-        };
-        "services.CaptureSourceContents": {
-            /**
-             * @description Short description of the camera hardware.
-             * @example pi cam v2 (wide angle lens)
-             */
-            camera_hardware: string;
-            /**
-             * @description Where the rig or camera is located.
-             * @example -32.12345,139.12345
-             */
-            location: string;
-            /**
-             * @description Name of rig or camera.
-             * @example Stony Point Cuttle Cam
-             */
-            name: string;
-            /** @example 246813579 */
-            site_id: number;
-        };
-        "services.CaptureSourceSummary": {
-            /** @example 1234567890 */
-            id: number;
-            /**
-             * @description Name of rig or camera.
-             * @example Stony Point Cuttle Cam
-             */
-            name: string;
-        };
-        "services.Identification": {
-            identified_by: components["schemas"]["services.PublicUser"][];
-            species: components["schemas"]["services.SpeciesSummary"];
-        };
-        "services.PartialCaptureSourceContents": {
-            /**
-             * @description Short description of the camera hardware.
-             * @example pi cam v2 (wide angle lens)
-             */
-            camera_hardware: string;
-            /**
-             * @description Where the rig or camera is located.
-             * @example -32.12345,139.12345
-             */
-            location: string;
-            /**
-             * @description Name of rig or camera.
-             * @example Stony Point Cuttle Cam
-             */
-            name: string;
-            /** @example 246813579 */
-            site_id: number;
-        };
-        "services.PartialUserContents": {
-            /** @example Coral Fischer */
-            display_name: string;
-            /** @example coral.fischer@example.com */
-            email: string;
-            /**
-             * @example annotator
-             * @enum {string}
-             */
-            role: "readonly" | "annotator" | "curator" | "admin";
-        };
-        "services.PartialVideoStreamContents": {
-            /** @example [
-             *       1234567890
-             *     ] */
-            annotator_list: number[];
-            /** @example 1234567890 */
-            capturesource: number;
-            /** @example 2023-05-25T16:30:00Z */
-            endTime: string;
-            /** @example 2023-05-25T08:00:00Z */
-            startTime: string;
-            /** @example https://www.youtube.com/watch?v=abcdefghijk */
-            stream_url: string;
-            /** @example Australia/Adelaide */
-            timezone: string;
-        };
-        "services.PublicUser": {
-            /** @example Coral Fischer */
-            display_name: string;
-            /** @example 1234567890 */
-            id: number;
-            /** @example annotator */
-            role: string;
-        };
-        "services.Species": {
-            /**
-             * @description Common name (in English) of the species.
-             * @example Whale Shark
-             */
-            common_name: string;
-            /**
-             * @description Unique ID of the species.
-             * @example 1234567890
-             */
-            id: number;
-            /** @description Image or images of the species. */
-            images: components["schemas"]["services.SpeciesImage"][];
-            /** @example 1234567890 */
-            inaturalist_taxon_id: number;
-            /**
-             * @description Scientific name of the species.
-             * @example Rhincodon typus
-             */
-            scientific_name: string;
-        };
-        "services.SpeciesContents": {
-            /**
-             * @description Common name (in English) of the species.
-             * @example Whale Shark
-             */
-            common_name: string;
-            /** @description Image or images of the species. */
-            images: components["schemas"]["services.SpeciesImage"][];
-            /** @example 1234567890 */
-            inaturalist_taxon_id: number;
-            /**
-             * @description Scientific name of the species.
-             * @example Rhincodon typus
-             */
-            scientific_name: string;
-        };
-        "services.SpeciesImage": {
-            /** @example Tiffany Kosch, CC BY-NC-SA 4.0 */
-            attribution: string;
-            /** @example https://inaturalist-open-data.s3.amazonaws.com/photos/340064435/medium.jpg */
-            src: string;
-        };
-        "services.SpeciesSummary": {
-            /** @example Whale Shark */
-            common_name: string;
-            /** @example 1234567890 */
-            id: number;
-            /** @example Rhincodon typus */
-            scientific_name: string;
-        };
-        "services.User": {
-            /** @example Coral Fischer */
-            display_name: string;
-            /** @example coral.fischer@example.com */
-            email: string;
-            /** @example 1234567890 */
-            id: number;
-            /** @example annotator */
-            role: string;
-        };
-        "services.VideoStream": {
-            /** @example [
-             *       1234567890
-             *     ] */
-            annotator_list: number[];
-            /** @example 1234567890 */
-            capturesource: number;
-            /** @example 2023-05-25T16:30:00Z */
-            endTime: string;
-            /** @example 1234567890 */
-            id: number;
-            /** @example 2023-05-25T08:00:00Z */
-            startTime: string;
-            /** @example https://www.youtube.com/watch?v=abcdefghijk */
-            stream_url: string;
-            /** @example Australia/Adelaide */
-            timezone: string;
-        };
-        "services.VideoStreamContents": {
-            /** @example [
-             *       1234567890
-             *     ] */
-            annotator_list: number[];
-            /** @example 1234567890 */
-            capturesource: number;
-            /** @example 2023-05-25T16:30:00Z */
-            endTime: string;
-            /** @example 2023-05-25T08:00:00Z */
-            startTime: string;
-            /** @example https://www.youtube.com/watch?v=abcdefghijk */
-            stream_url: string;
-            /** @example Australia/Adelaide */
-            timezone: string;
-        };
-        "services.VideoStreamSummary": {
-            /** @example 1234567890 */
-            id: number;
-            /** @example https://www.youtube.com/watch?v=abcdefghijk */
-            stream_url: string;
-        };
-        "services.VideoStreamWithJoins": {
-            annotator_list: components["schemas"]["services.PublicUser"][];
-            capturesource: components["schemas"]["services.CaptureSourceSummary"];
-            /** @example 2023-05-25T16:30:00Z */
-            endTime: string;
-            /** @example 1234567890 */
-            id: number;
-            /** @example 2023-05-25T08:00:00Z */
-            startTime: string;
-            /** @example https://www.youtube.com/watch?v=abcdefghijk */
-            stream_url: string;
-            /** @example Australia/Adelaide */
-            timezone: string;
-        };
-    };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+  schemas: {
+    'api.Failure': {
+      /** @example error message here */
+      message: string
+    }
+    'api.Result-services_AnnotationWithJoins': {
+      /** @example 20 */
+      limit: number
+      /** @example 0 */
+      offset: number
+      results: components['schemas']['services.AnnotationWithJoins'][]
+      /** @example 1 */
+      total: number
+    }
+    'api.Result-services_CaptureSource': {
+      /** @example 20 */
+      limit: number
+      /** @example 0 */
+      offset: number
+      results: components['schemas']['services.CaptureSource'][]
+      /** @example 1 */
+      total: number
+    }
+    'api.Result-services_Species': {
+      /** @example 20 */
+      limit: number
+      /** @example 0 */
+      offset: number
+      results: components['schemas']['services.Species'][]
+      /** @example 1 */
+      total: number
+    }
+    'api.Result-services_User': {
+      /** @example 20 */
+      limit: number
+      /** @example 0 */
+      offset: number
+      results: components['schemas']['services.User'][]
+      /** @example 1 */
+      total: number
+    }
+    'api.Result-services_VideoStreamWithJoins': {
+      /** @example 20 */
+      limit: number
+      /** @example 0 */
+      offset: number
+      results: components['schemas']['services.VideoStreamWithJoins'][]
+      /** @example 1 */
+      total: number
+    }
+    'handlers.CreateSelfBody': {
+      /** @example Coral Fischer */
+      display_name: string
+    }
+    'handlers.NewAnnotationBody': {
+      /** @example 1234567890 */
+      identification: number
+      keypoints: components['schemas']['keypoint.KeyPoint'][]
+      /** @example 1234567890 */
+      videostream_id: number
+    }
+    'keypoint.BoundingBox': {
+      /** @example 10 */
+      x1: number
+      /** @example 50 */
+      x2: number
+      /** @example 25 */
+      y1: number
+      /** @example 75 */
+      y2: number
+    }
+    'keypoint.KeyPoint': {
+      box: components['schemas']['keypoint.BoundingBox']
+      /** @example 01:56:05.500 */
+      time: string
+    }
+    'services.AnnotationWithJoins': {
+      created_by: components['schemas']['services.PublicUser']
+      /** @example 15 */
+      duration: number
+      /** @example 01:56:05.500 */
+      end: string
+      /** @example 1234567890 */
+      id: number
+      identifications: components['schemas']['services.Identification'][]
+      keypoints: components['schemas']['keypoint.KeyPoint'][]
+      /** @example 01:56:05.500 */
+      start: string
+      videostream: components['schemas']['services.VideoStreamSummary']
+    }
+    'services.BaseVideoStreamFields': {
+      /** @example 1234567890 */
+      capturesource: number
+      /** @example https://www.youtube.com/watch?v=abcdefghijk */
+      stream_url: string
+      /** @example Australia/Adelaide */
+      timezone: string
+    }
+    'services.CaptureSource': {
+      /**
+       * @description Short description of the camera hardware.
+       * @example pi cam v2 (wide angle lens)
+       */
+      camera_hardware: string
+      /** @example 1234567890 */
+      id: number
+      /**
+       * @description Where the rig or camera is located.
+       * @example -32.12345,139.12345
+       */
+      location: string
+      /**
+       * @description Name of rig or camera.
+       * @example Stony Point Cuttle Cam
+       */
+      name: string
+      /** @example 246813579 */
+      site_id: number
+    }
+    'services.CaptureSourceContents': {
+      /**
+       * @description Short description of the camera hardware.
+       * @example pi cam v2 (wide angle lens)
+       */
+      camera_hardware: string
+      /**
+       * @description Where the rig or camera is located.
+       * @example -32.12345,139.12345
+       */
+      location: string
+      /**
+       * @description Name of rig or camera.
+       * @example Stony Point Cuttle Cam
+       */
+      name: string
+      /** @example 246813579 */
+      site_id: number
+    }
+    'services.CaptureSourceSummary': {
+      /** @example 1234567890 */
+      id: number
+      /**
+       * @description Name of rig or camera.
+       * @example Stony Point Cuttle Cam
+       */
+      name: string
+    }
+    'services.Identification': {
+      identified_by: components['schemas']['services.PublicUser'][]
+      species: components['schemas']['services.SpeciesSummary']
+    }
+    'services.PartialCaptureSourceContents': {
+      /**
+       * @description Short description of the camera hardware.
+       * @example pi cam v2 (wide angle lens)
+       */
+      camera_hardware: string
+      /**
+       * @description Where the rig or camera is located.
+       * @example -32.12345,139.12345
+       */
+      location: string
+      /**
+       * @description Name of rig or camera.
+       * @example Stony Point Cuttle Cam
+       */
+      name: string
+      /** @example 246813579 */
+      site_id: number
+    }
+    'services.PartialUserContents': {
+      /** @example Coral Fischer */
+      display_name: string
+      /** @example coral.fischer@example.com */
+      email: string
+      /**
+       * @example annotator
+       * @enum {string}
+       */
+      role: 'readonly' | 'annotator' | 'curator' | 'admin'
+    }
+    'services.PartialVideoStreamContents': {
+      /** @example [
+       *       1234567890
+       *     ] */
+      annotator_list: number[]
+      /** @example 1234567890 */
+      capturesource: number
+      /** @example 2023-05-25T16:30:00Z */
+      endTime: string
+      /** @example 2023-05-25T08:00:00Z */
+      startTime: string
+      /** @example https://www.youtube.com/watch?v=abcdefghijk */
+      stream_url: string
+      /** @example Australia/Adelaide */
+      timezone: string
+    }
+    'services.PublicUser': {
+      /** @example Coral Fischer */
+      display_name: string
+      /** @example 1234567890 */
+      id: number
+      /** @example annotator */
+      role: string
+    }
+    'services.Species': {
+      /**
+       * @description Common name (in English) of the species.
+       * @example Whale Shark
+       */
+      common_name: string
+      /**
+       * @description Unique ID of the species.
+       * @example 1234567890
+       */
+      id: number
+      /** @description Image or images of the species. */
+      images: components['schemas']['services.SpeciesImage'][]
+      /** @example 1234567890 */
+      inaturalist_taxon_id: number
+      /**
+       * @description Scientific name of the species.
+       * @example Rhincodon typus
+       */
+      scientific_name: string
+    }
+    'services.SpeciesContents': {
+      /**
+       * @description Common name (in English) of the species.
+       * @example Whale Shark
+       */
+      common_name: string
+      /** @description Image or images of the species. */
+      images: components['schemas']['services.SpeciesImage'][]
+      /** @example 1234567890 */
+      inaturalist_taxon_id: number
+      /**
+       * @description Scientific name of the species.
+       * @example Rhincodon typus
+       */
+      scientific_name: string
+    }
+    'services.SpeciesImage': {
+      /** @example Tiffany Kosch, CC BY-NC-SA 4.0 */
+      attribution: string
+      /** @example https://inaturalist-open-data.s3.amazonaws.com/photos/340064435/medium.jpg */
+      src: string
+    }
+    'services.SpeciesSummary': {
+      /** @example Whale Shark */
+      common_name: string
+      /** @example 1234567890 */
+      id: number
+      /** @example Rhincodon typus */
+      scientific_name: string
+    }
+    'services.User': {
+      /** @example Coral Fischer */
+      display_name: string
+      /** @example coral.fischer@example.com */
+      email: string
+      /** @example 1234567890 */
+      id: number
+      /** @example annotator */
+      role: string
+    }
+    'services.VideoStream': {
+      /** @example [
+       *       1234567890
+       *     ] */
+      annotator_list: number[]
+      /** @example 1234567890 */
+      capturesource: number
+      /** @example 2023-05-25T16:30:00Z */
+      endTime: string
+      /** @example 1234567890 */
+      id: number
+      /** @example 2023-05-25T08:00:00Z */
+      startTime: string
+      /** @example https://www.youtube.com/watch?v=abcdefghijk */
+      stream_url: string
+      /** @example Australia/Adelaide */
+      timezone: string
+    }
+    'services.VideoStreamContents': {
+      /** @example [
+       *       1234567890
+       *     ] */
+      annotator_list: number[]
+      /** @example 1234567890 */
+      capturesource: number
+      /** @example 2023-05-25T16:30:00Z */
+      endTime: string
+      /** @example 2023-05-25T08:00:00Z */
+      startTime: string
+      /** @example https://www.youtube.com/watch?v=abcdefghijk */
+      stream_url: string
+      /** @example Australia/Adelaide */
+      timezone: string
+    }
+    'services.VideoStreamSummary': {
+      /** @example 1234567890 */
+      id: number
+      /** @example https://www.youtube.com/watch?v=abcdefghijk */
+      stream_url: string
+    }
+    'services.VideoStreamWithJoins': {
+      annotator_list: components['schemas']['services.PublicUser'][]
+      capturesource: components['schemas']['services.CaptureSourceSummary']
+      /** @example 2023-05-25T16:30:00Z */
+      endTime: string
+      /** @example 1234567890 */
+      id: number
+      /** @example 2023-05-25T08:00:00Z */
+      startTime: string
+      /** @example https://www.youtube.com/watch?v=abcdefghijk */
+      stream_url: string
+      /** @example Australia/Adelaide */
+      timezone: string
+    }
+  }
+  responses: never
+  parameters: never
+  requestBodies: never
+  headers: never
+  pathItems: never
 }
-export type $defs = Record<string, never>;
-export type operations = Record<string, never>;
+export type $defs = Record<string, never>
+export type operations = Record<string, never>

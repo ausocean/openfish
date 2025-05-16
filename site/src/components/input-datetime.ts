@@ -1,7 +1,7 @@
-import { TailwindElement } from './tailwind-element'
+import { TailwindElement } from '@openfish/ui/components/tailwind-element'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { toDatetimeLocal } from '../utils/datetime'
+import { toDatetimeLocal } from '@openfish/ui/utils/datetime'
 
 // An input element that wraps an <input type="datetime-local">
 // but returns a date in RFC 3339 format, using the client's default

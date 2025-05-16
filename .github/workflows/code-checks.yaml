@@ -35,15 +35,27 @@ jobs:
       with:
         version: 8
         run_install: true
-      
-    - name: Build
-      run: pnpm site build
-    
-    - name: Check formatting
+
+    - name: Check site formatting
       run: pnpm site ci:fmt
 
-    - name: Lint
+    - name: Lint site
       run: pnpm site ci:check
 
-    - name: Test
+    - name: Check ui formatting
+      run: pnpm ui ci:fmt
+
+    - name: Lint ui
+      run: pnpm ui ci:check
+
+    - name: Check client formatting
+      run: pnpm client ci:fmt
+
+    - name: Lint client
+      run: pnpm client ci:check
+
+    - name: Build site
+      run: pnpm site build
+
+    - name: Test site
       run: pnpm site ci:test

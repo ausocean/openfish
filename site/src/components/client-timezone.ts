@@ -1,4 +1,4 @@
-import { TailwindElement } from './tailwind-element'
+import { TailwindElement } from '@openfish/ui/components/tailwind-element'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
@@ -14,7 +14,7 @@ export class ClientTimezone extends TailwindElement {
   :host {
     display: contents;
     color: var(--gray-800);
-  }      
+  }
   `
 }
 

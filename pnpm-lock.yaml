@@ -89,6 +89,15 @@ importers:
       '@openfish/client':
         specifier: workspace:^
         version: link:../client
+      '@openfish/ui':
+        specifier: workspace:^
+        version: link:../ui
+
+  ui:
+    dependencies:
+      '@openfish/client':
+        specifier: workspace:^
+        version: link:../client
 
 packages:
 

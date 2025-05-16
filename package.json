@@ -28,6 +28,7 @@
   "scripts": {
     "site": "pnpm --filter site",
     "docsite": "pnpm --filter docs",
-    "client": "pnpm --filter client"
+    "client": "pnpm --filter client",
+    "ui": "pnpm --filter ui"
   }
 }

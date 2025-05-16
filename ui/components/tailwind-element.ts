@@ -2,7 +2,7 @@
 
 import { LitElement, unsafeCSS } from 'lit'
 
-import globalStyles from '../app.css?inline'
+import globalStyles from '../theme.css?inline'
 
 export class TailwindElement extends LitElement {
   static styles: typeof LitElement.styles = unsafeCSS(globalStyles)
