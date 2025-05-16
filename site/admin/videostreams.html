@@ -8,6 +8,11 @@
 
     <link rel="stylesheet" href="../src/app.css" />
 
+    <script type="module">
+        import { client } from "../src/api"
+        import { useApiProvider } from "../src/webcomponents/api-provider.ts"
+        useApiProvider(client)
+    </script>
     <script type="module" src="../src/webcomponents/user-provider.ts"></script>
     <script type="module" src="../src/webcomponents/site-nav.ts"></script>
     <script type="module" src="../src/webcomponents/admin-menu.ts"></script>
@@ -34,7 +39,7 @@
           console.error(error)
         }
       }
-  
+
       createBtn.addEventListener("click", () => createDialog.show())
       createDialog.addEventListener("formsubmit", () => dt.fetchData())
       dt.addEventListener("deleteitem", (e) => confirmDialog.show(()=> deleteCaptureSource(e.detail)))
@@ -43,72 +48,74 @@
         editDialog.action=`/api/v1/videostreams/${e.detail.id}`
         editDialog.show()
       })
-      editDialog.addEventListener("formsubmit", () => dt.fetchData())    
+      editDialog.addEventListener("formsubmit", () => dt.fetchData())
     </script>
   </head>
   <body class="bg-blue-200">
-    <user-provider>
-      <site-nav class="text-blue-700"></site-nav>
+    <api-provider>
+        <user-provider>
+        <site-nav class="text-blue-700"></site-nav>
 
-      <div class="contain px-4">
-        <div class="grid-page-with-aside-left card-lg gap-y-4">
-          <header class="col-[fullwidth]">
-            <h1 class="h1">Admin Settings</h1>
-          </header>
-          <admin-menu class="col-[aside] row-start-3"></admin-menu>
-          <header class="flex col-[content] mt-4">
-            <h2 class="text-lg font-bold text-blue-800 flex-1">Manage video streams</h2>
-            <button class="btn variant-blue" id="create-btn">+ Register video stream</button>
-          </header>
-          <main class="col-[content]">
-            <data-table src="/api/v1/videostreams" colwidths="1fr 3fr 3fr min-content min-content">
-              <dt-col title="Capture source" key="capturesource"></dt-col>
-              <dt-daterange-col title="Stream Time" startKey="startTime" endKey="endTime"></dt-daterange-col>
-              <dt-col title="Stream URL" key="stream_url"></dt-col>
-              <dt-btn action="edititem" text="Edit"></dt-btn>
-              <dt-btn action="deleteitem" text="Delete"></dt-btn>
-            </data-table>
-          </main>
+        <div class="contain px-4">
+            <div class="grid-page-with-aside-left card-lg gap-y-4">
+            <header class="col-[fullwidth]">
+                <h1 class="h1">Admin Settings</h1>
+            </header>
+            <admin-menu class="col-[aside] row-start-3"></admin-menu>
+            <header class="flex col-[content] mt-4">
+                <h2 class="text-lg font-bold text-blue-800 flex-1">Manage video streams</h2>
+                <button class="btn variant-blue" id="create-btn">+ Register video stream</button>
+            </header>
+            <main class="col-[content]">
+                <data-table src="/api/v1/videostreams" colwidths="1fr 3fr 3fr min-content min-content">
+                <dt-col title="Capture source" key="capturesource"></dt-col>
+                <dt-daterange-col title="Stream Time" startKey="startTime" endKey="endTime"></dt-daterange-col>
+                <dt-col title="Stream URL" key="stream_url"></dt-col>
+                <dt-btn action="edititem" text="Edit"></dt-btn>
+                <dt-btn action="deleteitem" text="Delete"></dt-btn>
+                </data-table>
+            </main>
+            </div>
         </div>
-      </div>
 
-      <site-footer class="text-blue-700"></site-footer>
+        <site-footer class="text-blue-700"></site-footer>
 
 
-    
 
-        <confirm-dialog>Are you sure you want to delete this video stream?</confirm-dialog>
-        <form-dialog class="create" action="/api/v1/videostreams" title="Register a new video stream" btntext="Register" >
-          
-          <label for="capturesource">Capture Source</label>
-          <data-select name="capturesource" id="capturesource" src="/api/v1/capturesources"></data-select>
 
-          <label for="stream_url">Stream URL</label>
-          <input type="url" id="stream_url" name="stream_url" placeholder="Enter the URL of the video stream" required/>
+            <confirm-dialog>Are you sure you want to delete this video stream?</confirm-dialog>
+            <form-dialog class="create" action="/api/v1/videostreams" title="Register a new video stream" btntext="Register" >
 
-          <label for="startTime">Start Time <client-timezone></client-timezone></label>
-          <input-datetime name="startTime" id="startTime" required></input-datetime>
-          
-          <label for="endTime">End Time <client-timezone></client-timezone></label>
-          <input-datetime name="endTime" id="endTime" required></input-datetime>
-          
-        </form-dialog>
-        <form-dialog class="edit" method="PATCH" action="/api/v1/videostreams" title="Edit video stream" btntext="Save changes" >
-          
-          <label for="capturesource">Capture Source</label>
-          <data-select name="capturesource" id="capturesource" src="/api/v1/capturesources"></data-select>
+            <label for="capturesource">Capture Source</label>
+            <data-select name="capturesource" id="capturesource" src="/api/v1/capturesources"></data-select>
 
-          <label for="stream_url">Stream URL</label>
-          <input type="url" id="stream_url" name="stream_url" placeholder="Enter the URL of the video stream" required/>
+            <label for="stream_url">Stream URL</label>
+            <input type="url" id="stream_url" name="stream_url" placeholder="Enter the URL of the video stream" required/>
 
-          <label for="startTime">Start Time <client-timezone></client-timezone></label>
-          <input-datetime name="startTime" id="startTime" required></input-datetime>
-          
-          <label for="endTime">End Time <client-timezone></client-timezone></label>
-          <input-datetime name="endTime" id="endTime" required></input-datetime>
-          
-        </form-dialog>
-      </main>
-    </user-provider>
+            <label for="startTime">Start Time <client-timezone></client-timezone></label>
+            <input-datetime name="startTime" id="startTime" required></input-datetime>
+
+            <label for="endTime">End Time <client-timezone></client-timezone></label>
+            <input-datetime name="endTime" id="endTime" required></input-datetime>
+
+            </form-dialog>
+            <form-dialog class="edit" method="PATCH" action="/api/v1/videostreams" title="Edit video stream" btntext="Save changes" >
+
+            <label for="capturesource">Capture Source</label>
+            <data-select name="capturesource" id="capturesource" src="/api/v1/capturesources"></data-select>
+
+            <label for="stream_url">Stream URL</label>
+            <input type="url" id="stream_url" name="stream_url" placeholder="Enter the URL of the video stream" required/>
+
+            <label for="startTime">Start Time <client-timezone></client-timezone></label>
+            <input-datetime name="startTime" id="startTime" required></input-datetime>
+
+            <label for="endTime">End Time <client-timezone></client-timezone></label>
+            <input-datetime name="endTime" id="endTime" required></input-datetime>
+
+            </form-dialog>
+        </main>
+        </user-provider>
+    </api-provider>
   </body>
 </html>

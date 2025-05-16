@@ -5,8 +5,10 @@ import { repeat } from 'lit/directives/repeat.js'
 import { datetimeDifference, formatAsDate, formatDuration } from '../utils/datetime.ts'
 import type { Filter } from './stream-filter.ts'
 import { extractVideoID } from '../utils/youtube.ts'
-import { client } from '../api'
 import type { components } from '@openfish/client/schema.ts'
+import type { OpenfishClient } from '@openfish/client'
+import { clientContext } from '../utils/context.ts'
+import { consume } from '@lit/context'
 
 type VideoStreamItem = components['schemas']['services.VideoStreamWithJoins'] & {
   first?: boolean
@@ -14,6 +16,9 @@ type VideoStreamItem = components['schemas']['services.VideoStreamWithJoins'] & 
 
 @customElement('stream-list')
 export class StreamList extends TailwindElement {
+  @consume({ context: clientContext, subscribe: true })
+  client!: OpenfishClient
+
   @property({ type: Object })
   set filter(val: Filter) {
     this._filter = val
@@ -49,7 +54,7 @@ export class StreamList extends TailwindElement {
       offset = (this._page - 2) * perPage + perPageFirst
     }
 
-    const { data, error } = await client.GET('/api/v1/videostreams', {
+    const { data, error } = await this.client.GET('/api/v1/videostreams', {
       params: {
         query: {
           limit,

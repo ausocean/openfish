@@ -8,19 +8,24 @@
 
     <link rel="stylesheet" href="../src/app.css" />
 
+    <script type="module">
+        import { client } from "../src/api"
+        import { useApiProvider } from "../src/webcomponents/api-provider.ts"
+        useApiProvider(client)
+    </script>
     <script type="module" src="../src/webcomponents/user-provider.ts"></script>
     <script type="module" src="../src/webcomponents/site-nav.ts"></script>
     <script type="module" src="../src/webcomponents/admin-menu.ts"></script>
     <script type="module" src="../src/webcomponents/data-table.ts"></script>
     <script type="module" src="../src/webcomponents/confirm-dialog.ts"></script>
     <script type="module" src="../src/webcomponents/form-dialog.ts"></script>
-    
-   
+
+
     <script type="module" >
       const confirmDialog = document.querySelector("confirm-dialog")
       const editDialog = document.querySelector("form-dialog")
       const dt = document.querySelector("data-table")
-  
+
       async function deleteUser(item) {
         try {
           await dt.deleteItem(item)
@@ -29,7 +34,7 @@
           console.error(error)
         }
       }
-  
+
       dt.addEventListener("deleteitem", (e) => confirmDialog.show(()=> deleteUser(e.detail)))
       dt.addEventListener("edititem", (e) => {
         editDialog.set(e.detail)
@@ -40,46 +45,48 @@
     </script>
   </head>
   <body class="bg-blue-200">
-    <user-provider>
-      <site-nav class="text-blue-700"></site-nav>
+    <api-provider>
+        <user-provider>
+        <site-nav class="text-blue-700"></site-nav>
 
-      <div class="contain px-4">
-        <div class="grid-page-with-aside-left card-lg gap-y-4">
-          <header class="col-[fullwidth]">
-            <h1 class="h1">Admin Settings</h1>
-          </header>
-          <admin-menu class="col-[aside] row-start-3"></admin-menu>
-          <header class="col-[content] mt-4">
-            <h2 class="text-lg font-bold text-blue-800">Manage Users</h2>
-          </header>
-          <main class="col-[content]">
-            <data-table src="/api/v1/users" colwidths="1fr 1fr 12rem min-content min-content">
-              <dt-col title="Display name" key="display_name"></dt-col>
-              <dt-col title="Email" key="email"></dt-col>
-              <dt-col title="Role" key="role"></dt-col>
-              <dt-btn action="edititem" text="Edit"></dt-btn>
-              <dt-btn action="deleteitem" text="Delete"></dt-btn>
-            </data-table>  
-          </main>
+        <div class="contain px-4">
+            <div class="grid-page-with-aside-left card-lg gap-y-4">
+            <header class="col-[fullwidth]">
+                <h1 class="h1">Admin Settings</h1>
+            </header>
+            <admin-menu class="col-[aside] row-start-3"></admin-menu>
+            <header class="col-[content] mt-4">
+                <h2 class="text-lg font-bold text-blue-800">Manage Users</h2>
+            </header>
+            <main class="col-[content]">
+                <data-table src="/api/v1/users" colwidths="1fr 1fr 12rem min-content min-content">
+                <dt-col title="Display name" key="display_name"></dt-col>
+                <dt-col title="Email" key="email"></dt-col>
+                <dt-col title="Role" key="role"></dt-col>
+                <dt-btn action="edititem" text="Edit"></dt-btn>
+                <dt-btn action="deleteitem" text="Delete"></dt-btn>
+                </data-table>
+            </main>
+            </div>
         </div>
-      </div>
 
-      <site-footer class="text-blue-700"></site-footer>
+        <site-footer class="text-blue-700"></site-footer>
 
 
-      <confirm-dialog>Are you sure you want to delete this user?</confirm-dialog>
-      <form-dialog method="PATCH" title="Edit user" btntext="Save changes" >
-        <label for="display_name">Display name</label>
-        <input type="text" id="display_name" name="display_name" placeholder="Enter display name" required />
+        <confirm-dialog>Are you sure you want to delete this user?</confirm-dialog>
+        <form-dialog method="PATCH" title="Edit user" btntext="Save changes" >
+            <label for="display_name">Display name</label>
+            <input type="text" id="display_name" name="display_name" placeholder="Enter display name" required />
 
-        <label for="role">Role</label>
-        <select name="role" id="role">
-          <option value="annotator">Annotator</option>
-          <option value="admin">Admin</option>
-          <option value="readonly">Read-only</option>
-          <option value="curator">Curator</option>
-        </select>
-      </form-dialog>
-    </user-provider>
+            <label for="role">Role</label>
+            <select name="role" id="role">
+            <option value="annotator">Annotator</option>
+            <option value="admin">Admin</option>
+            <option value="readonly">Read-only</option>
+            <option value="curator">Curator</option>
+            </select>
+        </form-dialog>
+        </user-provider>
+    </api-provider>
   </body>
 </html>

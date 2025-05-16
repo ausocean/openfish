@@ -8,10 +8,9 @@ import { repeat } from 'lit/directives/repeat.js'
 import { instanceToPlain } from 'class-transformer'
 import { BoundingBox, Keypoint } from '../api/annotation'
 import { formatVideoTime, parseVideoTime } from '../utils/datetime'
-import { client } from '../api'
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
 
-import type { AnnotationWithJoins, VideoStreamWithJoins } from '@openfish/client'
+import type { AnnotationWithJoins, OpenfishClient, VideoStreamWithJoins } from '@openfish/client'
 import type { MouseoverAnnotationEvent } from './annotation-displayer'
 import type { SpeciesSelectionEvent } from './species-selection'
 import type { UpdateBoundingBoxEvent } from './bounding-box-creator'
@@ -34,9 +33,14 @@ import play from '../icons/play.svg?raw'
 import pause from '../icons/pause.svg?raw'
 import replay from '../icons/replay.svg?raw'
 import x from '../icons/x.svg?raw'
+import { clientContext } from '../utils/context'
+import { consume } from '@lit/context'
 
 @customElement('watch-stream')
 export class WatchStream extends TailwindElement {
+  @consume({ context: clientContext, subscribe: true })
+  client!: OpenfishClient
+
   @property({ type: Number })
   set streamID(val: number) {
     this.fetchVideoStream(val)
@@ -111,7 +115,7 @@ export class WatchStream extends TailwindElement {
     }
 
     // Make annotation.
-    await client.POST('/api/v1/annotations', {
+    await this.client.POST('/api/v1/annotations', {
       body: {
         videostream_id: this._videostream!.id,
         keypoints: instanceToPlain(this._keypoints) as any[],
@@ -146,7 +150,7 @@ export class WatchStream extends TailwindElement {
 
   async fetchVideoStream(id: number) {
     // Fetch video stream with ID.
-    const { data, error } = await client.GET('/api/v1/videostreams/{id}', {
+    const { data, error } = await this.client.GET('/api/v1/videostreams/{id}', {
       params: {
         path: { id },
       },
@@ -164,7 +168,7 @@ export class WatchStream extends TailwindElement {
     // Fetch annotations for this video stream.
     // TODO: We should only fetch a small portion of the annotations near the current playback position.
     //       When the user plays the video we can fetch in more as needed.
-    const { data, error } = await client.GET('/api/v1/annotations', {
+    const { data, error } = await this.client.GET('/api/v1/annotations', {
       params: {
         query: {
           videostream: id,

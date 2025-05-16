@@ -5,9 +5,14 @@
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OpenFish | Manage capture sources</title>
-    
+
     <link rel="stylesheet" href="../src/app.css" />
 
+    <script type="module">
+        import { client } from "../src/api"
+        import { useApiProvider } from "../src/webcomponents/api-provider.ts"
+        useApiProvider(client)
+    </script>
     <script type="module" src="../src/webcomponents/user-provider.ts"></script>
     <script type="module" src="../src/webcomponents/site-nav.ts"></script>
     <script type="module" src="../src/webcomponents/site-footer.ts"></script>
@@ -16,7 +21,7 @@
     <script type="module" src="../src/webcomponents/admin-menu.ts"></script>
     <script type="module" src="../src/webcomponents/form-dialog.ts"></script>
     <script type="module" src="../src/webcomponents/location-picker.ts"></script>
-  
+
 
     <script type="module" >
     const createDialog = document.querySelector("form-dialog.create")
@@ -42,67 +47,69 @@
         editDialog.action=`/api/v1/capturesources/${e.detail.id}`
         editDialog.show()
       })
-      editDialog.addEventListener("formsubmit", () => dt.fetchData())    
+      editDialog.addEventListener("formsubmit", () => dt.fetchData())
     </script>
   </head>
   <body class="bg-blue-200">
-    <user-provider>
-      <site-nav class="text-blue-700"></site-nav>
+    <api-provider>
+        <user-provider>
+        <site-nav class="text-blue-700"></site-nav>
 
-      <div class="contain px-4">
-        <div class="grid-page-with-aside-left card-lg gap-y-4">
-          <header class="col-[fullwidth]">
-            <h1 class="h1">Admin Settings</h1>
-          </header>
-          <admin-menu class="col-[aside] row-start-3"></admin-menu>
-          <header class="flex col-[content] mt-4">
-            <h2 class="text-lg font-bold text-blue-800 flex-1">Manage Capture Sources</h2>
-            <button class="btn variant-blue" id="create-btn">+ Create new capture source</button>
-          </header>
-          <main class="col-[content]">
-            <data-table src="/api/v1/capturesources" colwidths="2fr 3fr 2fr 2fr min-content min-content">
-              <dt-col title="Name" key="name"></dt-col>
-              <dt-col title="Camera Hardware" key="camera_hardware"></dt-col>
-              <dt-col title="Site ID" key="site_id"></dt-col>
-              <dt-col title="Location" key="location"></dt-col>
-              <dt-btn action="edititem" text="Edit"></dt-btn>
-              <dt-btn action="deleteitem" text="Delete"></dt-btn>
-            </data-table>  
-          </main>
+        <div class="contain px-4">
+            <div class="grid-page-with-aside-left card-lg gap-y-4">
+            <header class="col-[fullwidth]">
+                <h1 class="h1">Admin Settings</h1>
+            </header>
+            <admin-menu class="col-[aside] row-start-3"></admin-menu>
+            <header class="flex col-[content] mt-4">
+                <h2 class="text-lg font-bold text-blue-800 flex-1">Manage Capture Sources</h2>
+                <button class="btn variant-blue" id="create-btn">+ Create new capture source</button>
+            </header>
+            <main class="col-[content]">
+                <data-table src="/api/v1/capturesources" colwidths="2fr 3fr 2fr 2fr min-content min-content">
+                <dt-col title="Name" key="name"></dt-col>
+                <dt-col title="Camera Hardware" key="camera_hardware"></dt-col>
+                <dt-col title="Site ID" key="site_id"></dt-col>
+                <dt-col title="Location" key="location"></dt-col>
+                <dt-btn action="edititem" text="Edit"></dt-btn>
+                <dt-btn action="deleteitem" text="Delete"></dt-btn>
+                </data-table>
+            </main>
+            </div>
         </div>
-      </div>
 
-      <site-footer class="text-blue-700"></site-footer>
+        <site-footer class="text-blue-700"></site-footer>
 
-      <confirm-dialog>Are you sure you want to delete this capture source?</confirm-dialog>
-      <form-dialog class="create" action="/api/v1/capturesources" title="Create new capture source" btntext="Create" >
-        <label for="name">Name</label>
-        <input type="text" id="name" name="name" placeholder="Enter name of the capture source" required />
+        <confirm-dialog>Are you sure you want to delete this capture source?</confirm-dialog>
+        <form-dialog class="create" action="/api/v1/capturesources" title="Create new capture source" btntext="Create" >
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" placeholder="Enter name of the capture source" required />
 
-        <label for="camera_hardware">Camera Hardware</label>
-        <input type="text" id="camera_hardware" name="camera_hardware" placeholder="Enter description of camera hardware" required />
+            <label for="camera_hardware">Camera Hardware</label>
+            <input type="text" id="camera_hardware" name="camera_hardware" placeholder="Enter description of camera hardware" required />
 
-        <label for="site_id">Site ID</label>
-        <input type="text" id="site_id" name="site_id" placeholder="Enter site ID (optional)"  />
+            <label for="site_id">Site ID</label>
+            <input type="text" id="site_id" name="site_id" placeholder="Enter site ID (optional)"  />
 
-        <label for="location">Location</label>
-        <location-picker id="location" name="location" ></location-picker>
-      </form-dialog>
+            <label for="location">Location</label>
+            <location-picker id="location" name="location" ></location-picker>
+        </form-dialog>
 
-      <form-dialog class="edit" method="PATCH" action="/api/v1/capturesources" title="Edit capture source" btntext="Save changes" >
-        <label for="name">Name</label>
-        <input type="text" id="name" name="name" placeholder="Enter name of the capture source" required />
+        <form-dialog class="edit" method="PATCH" action="/api/v1/capturesources" title="Edit capture source" btntext="Save changes" >
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" placeholder="Enter name of the capture source" required />
 
-        <label for="camera_hardware">Camera Hardware</label>
-        <input type="text" id="camera_hardware" name="camera_hardware" placeholder="Enter description of camera hardware" required />
+            <label for="camera_hardware">Camera Hardware</label>
+            <input type="text" id="camera_hardware" name="camera_hardware" placeholder="Enter description of camera hardware" required />
 
-        <label for="site_id">Site ID</label>
-        <input type="text" id="site_id" name="site_id" placeholder="Enter site ID (optional)"  />
+            <label for="site_id">Site ID</label>
+            <input type="text" id="site_id" name="site_id" placeholder="Enter site ID (optional)"  />
 
-        <label for="location">Location</label>
-        <location-picker id="location" name="location" ></location-picker>
-      </form-dialog>
+            <label for="location">Location</label>
+            <location-picker id="location" name="location" ></location-picker>
+        </form-dialog>
 
-    </user-provider>
+        </user-provider>
+    </api-provider>
   </body>
 </html>

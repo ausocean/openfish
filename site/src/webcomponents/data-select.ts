@@ -1,9 +1,10 @@
 import { TailwindElement } from './tailwind-element'
 import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { client } from '../api'
 import { repeat } from 'lit/directives/repeat.js'
-import type { PaginatedPath } from '@openfish/client'
+import type { OpenfishClient, PaginatedPath } from '@openfish/client'
+import { consume } from '@lit/context'
+import { clientContext } from '../utils/context'
 
 type NamedItem = { name: string } & Record<string, any>
 
@@ -13,6 +14,9 @@ type NamedItem = { name: string } & Record<string, any>
 @customElement('data-select')
 export class DataSelect extends TailwindElement {
   static formAssociated = true
+
+  @consume({ context: clientContext, subscribe: true })
+  client!: OpenfishClient
 
   @property()
   name: string
@@ -43,7 +47,7 @@ export class DataSelect extends TailwindElement {
   async connectedCallback() {
     super.connectedCallback()
 
-    const { data, error } = await client.GET(this.src, {
+    const { data, error } = await this.client.GET(this.src, {
       params: { query: { limit: 100 } },
     })
 

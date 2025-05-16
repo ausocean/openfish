@@ -17,7 +17,7 @@
 
       const formData = new FormData(e.target)
 
-      const { response } = await client.POST("/api/v1/auth/me", {
+      const { response } = await this.client.POST("/api/v1/auth/me", {
         params: {
           body: {
             display_name: formData.get("display_name"),
