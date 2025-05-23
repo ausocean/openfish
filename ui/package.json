@@ -29,6 +29,7 @@
   },
   "exports": {
     "./components/*": "./components/*.ts",
+    "./components/*.ts": "./components/*.ts",
     "./utils/*": "./utils/*.ts",
     "./icons/*": "./icons/*",
     "./theme.css": "./theme.css",
