@@ -6,5 +6,11 @@
   "scripts": {
     "generate:openapi": "swag init --dir ../cmd/openfish --output . --outputTypes json --v3.1",
     "generate:ts": "openapi-typescript swagger.json -o schema.ts --properties-required-by-default"
+  },
+  "dependencies": {
+    "openapi-fetch": "^0.13.5"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.6.1"
   }
 }
