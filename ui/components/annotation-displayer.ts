@@ -7,7 +7,7 @@ import { findClosestKeypointPair, interpolateKeypoints } from '../utils/keypoint
 import type { AnnotationWithJoins } from '@openfish/client'
 import { parseVideoTime } from '../utils/datetime.ts'
 import { plainToInstance } from 'class-transformer'
-import { Keypoint } from '../api/annotation.ts'
+import { Keypoint } from '../utils/keypoints.ts'
 
 export type MouseoverAnnotationEvent = CustomEvent<number | null>
 

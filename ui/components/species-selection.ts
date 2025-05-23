@@ -2,16 +2,20 @@ import { TailwindElement } from './tailwind-element'
 import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
-import { client } from '../api'
-import type { Species } from '@openfish/client'
+import type { OpenfishClient, Species } from '@openfish/client'
 
 import './species-thumb'
+import { consume } from '@lit/context'
+import { clientContext } from '../utils/context'
 
 export type SpeciesSelectionEvent = CustomEvent<number | null>
 type TextInputEvent = InputEvent & { target: HTMLInputElement }
 
 @customElement('species-selection')
 export class SpeciesSelection extends TailwindElement {
+  @consume({ context: clientContext, subscribe: true })
+  client!: OpenfishClient
+
   @state()
   protected _keys: string[] = []
 
@@ -41,7 +45,7 @@ export class SpeciesSelection extends TailwindElement {
   }
 
   private async fetchMore() {
-    const { data, error } = await client.GET('/api/v1/species', {
+    const { data, error } = await this.client.GET('/api/v1/species', {
       params: {
         query: {
           limit: 20,

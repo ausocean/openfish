@@ -1,7 +1,12 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
   "files": {
-    "ignore": ["dist/*"]
+    "ignore": [
+      "site/dist/*",
+      "client/swagger.json",
+      "docs/.vitepress/cache/*",
+      "docs/.vitepress/dist/*"
+    ]
   },
   "organizeImports": {
     "enabled": false

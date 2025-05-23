@@ -1,13 +1,17 @@
-import { TailwindElement } from './tailwind-element'
+import { TailwindElement } from '@openfish/ui/components/tailwind-element'
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
-import { client } from '../api'
-import type { VideoStreamWithJoins } from '@openfish/client'
-import './stream-thumb'
+import type { OpenfishClient, VideoStreamWithJoins } from '@openfish/client'
+import '@openfish/ui/components/stream-thumb'
+import { consume } from '@lit/context'
+import { clientContext } from '@openfish/ui/utils/context'
 
 @customElement('latest-streams')
 export class LatestStreams extends TailwindElement {
+  @consume({ context: clientContext, subscribe: true })
+  client!: OpenfishClient
+
   @state()
   protected _items: VideoStreamWithJoins[] = []
 
@@ -17,7 +21,7 @@ export class LatestStreams extends TailwindElement {
   }
 
   async fetchData() {
-    const { data, error } = await client.GET('/api/v1/videostreams', {
+    const { data, error } = await this.client.GET('/api/v1/videostreams', {
       params: {
         query: {
           limit: 7,

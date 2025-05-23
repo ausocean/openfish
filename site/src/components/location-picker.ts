@@ -1,4 +1,4 @@
-import { TailwindElement } from './tailwind-element'
+import { TailwindElement } from '@openfish/ui/components/tailwind-element'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
@@ -98,12 +98,12 @@ export class LocationPicker extends TailwindElement {
   render() {
     return html`
     <div><small>Click to pick location or paste lat-long coordinates</small></div>
-    <input 
+    <input
         type="text"
         class="w-full mb-2"
         placeholder="Lat-long coordinates"
         name="location"
-        .value=${this.value} 
+        .value=${this.value}
         @input=${(e: TextInputEvent) => this.setLocation(parseLatLng(e.target.value))} />
     ${this._element}
     `

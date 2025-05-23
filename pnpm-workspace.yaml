@@ -2,3 +2,4 @@ packages:
   - 'site'
   - 'client'
   - 'docs'
+  - 'ui'

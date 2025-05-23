@@ -1,11 +1,11 @@
-import { TailwindElement } from './tailwind-element'
+import { TailwindElement } from '@openfish/ui/components/tailwind-element'
 import { type TemplateResult, css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import { provide, consume, createContext } from '@lit/context'
-import { formatAsDatetimeRange } from '../utils/datetime'
-import type { PaginatedPath } from '@openfish/client'
-import { client } from '../api'
+import { formatAsDatetimeRange } from '@openfish/ui/utils/datetime'
+import type { OpenfishClient, PaginatedPath } from '@openfish/client'
+import { clientContext } from '@openfish/ui/utils/context'
 
 export type ClickRowEvent<T> = CustomEvent<T>
 
@@ -19,6 +19,9 @@ type Item = Record<string, any> & { id: number }
 
 @customElement('data-table')
 export class DataTable extends TailwindElement {
+  @consume({ context: clientContext, subscribe: true })
+  client!: OpenfishClient
+
   @state()
   protected _page = 1
 
@@ -51,7 +54,7 @@ export class DataTable extends TailwindElement {
   }
 
   async deleteItem(item: Item) {
-    await client.DELETE(`${this.src}/{id}`, {
+    await this.client.DELETE(`${this.src}/{id}`, {
       params: { path: { id: item.id } },
     })
     await this.fetchData()
@@ -65,7 +68,7 @@ export class DataTable extends TailwindElement {
   async fetchData() {
     const perPage = 10
 
-    const { data, error } = await client.GET(this.src, {
+    const { data, error } = await this.client.GET(this.src, {
       params: {
         query: {
           limit: perPage,
