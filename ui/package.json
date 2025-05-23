@@ -26,5 +26,12 @@
   "peerDependencies": {
     "typescript": "^5.8.2",
     "vite": "^6.2.5"
+  },
+  "exports": {
+    "./components/*": "./components/*.ts",
+    "./utils/*": "./utils/*.ts",
+    "./icons/*": "./icons/*",
+    "./theme.css": "./theme.css",
+    "./vite.config": "./vite.config.js"
   }
 }
