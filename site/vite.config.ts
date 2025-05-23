@@ -1,10 +1,8 @@
+import config from "@openfish/ui/vite.config"
 import { defineConfig } from 'vite'
-import { vite as vidstack } from 'vidstack/plugins'
-import litcss from 'vite-plugin-lit-css'
 import { globSync } from 'glob'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import tailwindcss from '@tailwindcss/vite'
 
 const input = Object.fromEntries(
   globSync('{admin/*,*}.html').map((file) => [
@@ -14,13 +12,7 @@ const input = Object.fromEntries(
 )
 
 export default defineConfig({
-  plugins: [
-    tailwindcss(),
-    vidstack(),
-    litcss({
-      include: /[?&]lit\b/,
-    }),
-  ],
+  ...config,
   build: {
     rollupOptions: {
       input,
