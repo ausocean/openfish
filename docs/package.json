@@ -9,6 +9,10 @@
     "preview": "vitepress preview ."
   },
   "dependencies": {
+    "vitepress-openapi": "0.0.3-alpha.69",
     "@openfish/client": "github:ausocean/openfish#tmp-branch&path:/client"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.3"
   }
 }

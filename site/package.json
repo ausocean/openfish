@@ -13,6 +13,11 @@
     "ci:check": "biome ci --linter-enabled=true --reporter=github ."
   },
   "dependencies": {
+    "leaflet": "^1.9.4",
+    "@fooloomanzoo/datetime-picker": "^3.0.9",
+    "@lit/context": "^1.1.4",
+    "vite-plugin-lit-css": "^2.1.0",
+    "lit": "^3.2.1",
     "@openfish/client": "github:ausocean/openfish#tmp-branch&path:/client",
     "@openfish/ui": "github:ausocean/openfish#tmp-branch&path:/ui"
   }
