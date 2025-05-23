@@ -72,6 +72,9 @@ importers:
       vitepress:
         specifier: ^1.6.3
         version: 1.6.3(@algolia/client-search@5.20.3)(@types/node@20.14.11)(axios@1.7.2)(change-case@5.4.4)(lightningcss@1.29.2)(postcss@8.5.3)(search-insights@2.14.0)(typescript@5.8.2)
+      vitepress-demo-plugin:
+        specifier: ^1.4.2
+        version: 1.4.2(shiki@2.5.0)(vitepress@1.6.3(@algolia/client-search@5.20.3)(@types/node@20.14.11)(axios@1.7.2)(change-case@5.4.4)(lightningcss@1.29.2)(postcss@8.5.3)(search-insights@2.14.0)(typescript@5.8.2))(vue@3.5.13(typescript@5.8.2))
       vitest:
         specifier: ^3.1.1
         version: 3.1.1(@types/node@20.14.11)(jiti@2.4.2)(lightningcss@1.29.2)
@@ -1852,6 +1855,13 @@ packages:
         optional: true
       yaml:
         optional: true
+
+  vitepress-demo-plugin@1.4.2:
+    resolution: {integrity: sha512-426F3ggd1xnxioD/Z8cDDdHABAhi/+3D5ir0CK/1MJ+ZY8LCi0VjLa54++NQ6GrX1g2TALUJc77JbC/qQjT5OA==}
+    peerDependencies:
+      shiki: '*'
+      vitepress: '*'
+      vue: ^3.2.0
 
   vitepress-openapi@0.0.3-alpha.69:
     resolution: {integrity: sha512-TIg9JIT1RP92XjXhR7daunILpmsQPJi6BvGeeWYWl+oJSykh1sPW3ZMtN7ziMD4yXvEteYycfJDytISGuyq+PA==}
@@ -3635,6 +3645,12 @@ snapshots:
       fsevents: 2.3.3
       jiti: 2.4.2
       lightningcss: 1.29.2
+
+  vitepress-demo-plugin@1.4.2(shiki@2.5.0)(vitepress@1.6.3(@algolia/client-search@5.20.3)(@types/node@20.14.11)(axios@1.7.2)(change-case@5.4.4)(lightningcss@1.29.2)(postcss@8.5.3)(search-insights@2.14.0)(typescript@5.8.2))(vue@3.5.13(typescript@5.8.2)):
+    dependencies:
+      shiki: 2.5.0
+      vitepress: 1.6.3(@algolia/client-search@5.20.3)(@types/node@20.14.11)(axios@1.7.2)(change-case@5.4.4)(lightningcss@1.29.2)(postcss@8.5.3)(search-insights@2.14.0)(typescript@5.8.2)
+      vue: 3.5.13(typescript@5.8.2)
 
   vitepress-openapi@0.0.3-alpha.69(typescript@5.8.2)(vitepress@1.6.3(@algolia/client-search@5.20.3)(@types/node@20.14.11)(axios@1.7.2)(change-case@5.4.4)(lightningcss@1.29.2)(postcss@8.5.3)(search-insights@2.14.0)(typescript@5.8.2))(vue@3.5.13(typescript@5.8.2)):
     dependencies:
