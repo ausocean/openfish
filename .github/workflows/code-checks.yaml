@@ -3,7 +3,7 @@ name: Code checks
 on: [push]
 
 jobs:
-  api:
+  go:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -22,7 +22,7 @@ jobs:
     - name: Test
       run: go test -v ./... -short
 
-  site:
+  typescript:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -35,15 +35,18 @@ jobs:
       with:
         version: 8
         run_install: true
-      
-    - name: Build
-      run: pnpm site build
-    
+
     - name: Check formatting
-      run: pnpm site ci:fmt
+      run: pnpm ci:fmt
 
-    - name: Lint
-      run: pnpm site ci:check
+    - name: Lint code
+      run: pnpm ci:check
 
-    - name: Test
-      run: pnpm site ci:test
+    - name: Run unit tests
+      run: pnpm ci:test
+
+    - name: Build site
+      run: pnpm site build
+
+    - name: Build documentation
+      run: pnpm docsite build
