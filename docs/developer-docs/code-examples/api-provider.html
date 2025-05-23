@@ -1,0 +1,11 @@
+<script type="module">
+import { useApiProvider } from '@openfish/ui/components/api-provider.ts'
+import { createClient } from '@openfish/client'
+
+export const client = createClient()
+useApiProvider(client)
+</script>
+
+<api-provider>
+    <watch-stream streamID="123456"></watch-stream>
+</api-provider>
