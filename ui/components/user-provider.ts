@@ -1,19 +1,21 @@
 import { LitElement, css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import { provide } from '@lit/context'
-import { userContext } from '../utils/context'
-import { client } from '../api'
-import type { User } from '@openfish/client'
+import { consume, provide } from '@lit/context'
+import { clientContext, userContext } from '../utils/context'
+import type { OpenfishClient, User } from '@openfish/client'
 
 @customElement('user-provider')
 export class UserProvider extends LitElement {
   @provide({ context: userContext })
   user: User | null = null
 
+  @consume({ context: clientContext, subscribe: true })
+  client!: OpenfishClient
+
   async connectedCallback() {
     super.connectedCallback()
 
-    const { data, error, response } = await client.GET('/api/v1/auth/me')
+    const { data, error, response } = await this.client.GET('/api/v1/auth/me')
 
     if (response.status === 404) {
       window.location.href = '/welcome'

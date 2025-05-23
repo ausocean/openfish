@@ -1,14 +1,14 @@
-import { TailwindElement } from './tailwind-element'
+import { TailwindElement } from '@openfish/ui/components/tailwind-element'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import { consume } from '@lit/context'
-import { userContext } from '../utils/context'
+import { userContext } from '@openfish/ui/utils/context'
 import type { User } from '@openfish/client'
 
 // We have a side-effect dependency on <user-provider> so
 // import it here to ensure it gets loaded first in the
 // created JavaScript bundle.
-import './user-provider.ts'
+import '@openfish/ui/components/user-provider.ts'
 
 @customElement('site-nav')
 export class SiteNav extends TailwindElement {

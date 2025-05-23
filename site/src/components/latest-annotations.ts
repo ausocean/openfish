@@ -1,13 +1,17 @@
-import { TailwindElement } from './tailwind-element'
+import { TailwindElement } from '@openfish/ui/components/tailwind-element'
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
-import { client } from '../api'
-import type { AnnotationWithJoins } from '@openfish/client'
-import './annotation-card'
+import type { AnnotationWithJoins, OpenfishClient } from '@openfish/client'
+import '@openfish/ui/components/annotation-card'
+import { clientContext } from '@openfish/ui/utils/context'
+import { consume } from '@lit/context'
 
 @customElement('latest-annotations')
 export class LatestAnnotations extends TailwindElement {
+  @consume({ context: clientContext, subscribe: true })
+  client!: OpenfishClient
+
   @state()
   protected _items: AnnotationWithJoins[] = []
 
@@ -17,7 +21,7 @@ export class LatestAnnotations extends TailwindElement {
   }
 
   async fetchData() {
-    const { data, error } = await client.GET('/api/v1/annotations', {
+    const { data, error } = await this.client.GET('/api/v1/annotations', {
       params: {
         query: {
           limit: 8,

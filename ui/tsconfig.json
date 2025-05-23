@@ -21,8 +21,5 @@
     "noFallthroughCasesInSwitch": true,
     "strictPropertyInitialization": false
   },
-  "paths": {
-    "@openfish/site/*": ["src/*"]
-  },
-  "include": ["src"]
+  "include": [".", "../site/src/utils/geo.ts"]
 }

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { zip } from '../src/utils/array-utils'
+import { zip } from './array-utils'
 
 test('zip', () => {
   const a = [1, 2, 3, 4]
