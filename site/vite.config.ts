@@ -1,4 +1,4 @@
-import config from "@openfish/ui/vite.config"
+import config from "@openfish/ui/vite.config.js"
 import { defineConfig } from 'vite'
 import { globSync } from 'glob'
 import path from 'node:path'
