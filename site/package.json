@@ -13,7 +13,7 @@
     "ci:check": "biome ci --linter-enabled=true --reporter=github ."
   },
   "dependencies": {
-    "@openfish/client": "workspace:^",
-    "@openfish/ui": "workspace:^"
+    "@openfish/client": "github:ausocean/openfish#tmp-branch&path:/client",
+    "@openfish/ui": "github:ausocean/openfish#tmp-branch&path:/ui"
   }
 }
