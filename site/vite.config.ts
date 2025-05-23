@@ -1,4 +1,3 @@
-// vite.config.js
 import { defineConfig } from 'vite'
 import { vite as vidstack } from 'vidstack/plugins'
 import litcss from 'vite-plugin-lit-css'
@@ -25,6 +24,11 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input,
+    },
+  },
+  resolve: {
+    alias: {
+      '@openfish/site': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
   server: {

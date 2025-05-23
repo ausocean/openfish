@@ -65,31 +65,31 @@ You will need installed:
 ## Common tasks
 ### Formatting code
 ::: code-group
-```bash [Back-end project]
+```bash [Go packages]
 go fmt ./... && swag fmt
 ```
-```bash [Front-end project]
-pnpm site fmt
+```bash [TypeScript packages]
+pnpm fmt
 ```
 :::
 
 ### Running unit tests
 ::: code-group
-```bash [Back-end project]
+```bash [Go packages]
 go test -v ./... -short
 ```
-```bash [Front-end project]
-pnpm site test
+```bash [TypeScript packages]
+pnpm test
 ```
 :::
 
-### Linting (Front-end only)
+### Linting (TypeScript packages only)
 ::: code-group
 ```bash [Checking code]
-pnpm site check
+pnpm check
 ```
 ```bash [Applying fixes automatically]
-pnpm site check --fix
+pnpm check --fix
 ```
 :::
 

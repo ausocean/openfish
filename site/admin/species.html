@@ -5,18 +5,18 @@
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OpenFish | Manage species</title>
-
     <link rel="stylesheet" href="../src/app.css" />
 
-    <script type="module" src="../src/webcomponents/user-provider.ts"></script>
-    <script type="module" src="../src/webcomponents/site-nav.ts"></script>
-    <script type="module" src="../src/webcomponents/site-footer.ts"></script>
-    <script type="module" src="../src/webcomponents/admin-menu.ts"></script>
-    <script type="module" src="../src/webcomponents/data-table.ts"></script>
-    <script type="module" src="../src/webcomponents/confirm-dialog.ts"></script>
-    <script type="module" src="../src/webcomponents/form-dialog.ts"></script>
+    <script type="module">
+      import "@openfish/site/components/api-provider.ts"
+      import "@openfish/ui/components/user-provider.ts"
+      import "@openfish/site/components/site-nav.ts"
+      import "@openfish/site/components/site-footer.ts"
+      import "@openfish/site/components/admin-menu.ts"
+      import "@openfish/site/components/data-table.ts"
+      import "@openfish/site/components/confirm-dialog.ts"
+      import "@openfish/site/components/form-dialog.ts"
 
-    <script type="module" >
       const confirmDialog= document.querySelector("confirm-dialog")
       const dt = document.querySelector("data-table")
       const searchInput = document.querySelector("input[name=filter]")
@@ -48,45 +48,45 @@
     </script>
   </head>
   <body class="bg-blue-200">
-    <user-provider>
-      <site-nav class="text-blue-700"></site-nav>
+    <api-provider>
+        <user-provider>
+        <site-nav class="text-blue-700"></site-nav>
 
       <div class="contain px-4">
-        <div class="card-lg min-h-[calc(100vh-8rem)]">
-            <div class="grid-page-with-aside-left gap-y-4">
-            <header class="col-[fullwidth]">
-                <h1 class="h1">Admin Settings</h1>
-            </header>
+          <div class="card-lg min-h-[calc(100vh-8rem)]">
+              <div class="grid-page-with-aside-left gap-y-4">
+              <header class="col-[fullwidth]">
+                  <h1 class="h1">Admin Settings</h1>
+              </header>
 
-            <admin-menu class="col-[aside] row-start-3"></admin-menu>
+              <admin-menu class="col-[aside] row-start-3"></admin-menu>
 
-            <header class="flex col-[content] mt-4 gap-4">
-                <h2 class="text-lg font-bold text-blue-800 flex-1">Manage Species</h2>
-                <input type="search" name="filter" id="filter" class="h-8" placeholder="Filter Species">
-                <button class="btn variant-blue" id="create-btn">+ Create new species</button>
-            </header>
+              <header class="flex col-[content] mt-4 gap-4">
+                  <h2 class="text-lg font-bold text-blue-800 flex-1">Manage Species</h2>
+                  <input type="search" name="filter" id="filter" class="h-8" placeholder="Filter Species">
+                  <button class="btn variant-blue" id="create-btn">+ Create new species</button>
+              </header>
 
-            <main class="col-[content]">
-                <data-table src="/api/v1/species" colwidths="1fr 1fr min-content">
-                <dt-col title="Scientific Name" key="scientific_name"></dt-col>
-                <dt-col title="Common Name" key="common_name"></dt-col>
-                <dt-btn action="deleteitem" text="Delete"></dt-btn>
-                </data-table>
-            </main>
-            </div>
-        </div>
-      </div>
+              <main class="col-[content]">
+                  <data-table src="/api/v1/species" colwidths="1fr 1fr min-content">
+                  <dt-col title="Scientific Name" key="scientific_name"></dt-col>
+                  <dt-col title="Common Name" key="common_name"></dt-col>
+                  <dt-btn action="deleteitem" text="Delete"></dt-btn>
+                  </data-table>
+              </main>
+              </div>
+          </div>
 
-      <site-footer class="text-blue-700"></site-footer>
+          <site-footer class="text-blue-700"></site-footer>
 
-      <confirm-dialog>Are you sure you want to delete this species?</confirm-dialog>
-      <form-dialog action="/api/v1/species" title="Create a new species" btntext="Create" >
-        <label for="common_name">Common Name</label>
-        <input type="text" id="common_name" name="common_name" placeholder="Enter common name of the species" required />
+          <confirm-dialog>Are you sure you want to delete this species?</confirm-dialog>
+          <form-dialog action="/api/v1/species" title="Create a new species" btntext="Create" >
+              <label for="common_name">Common Name</label>
+              <input type="text" id="common_name" name="common_name" placeholder="Enter common name of the species" required />
 
-        <label for="species">Scientific Name</label>
-        <input type="text" id="species" name="species" placeholder="Enter the scientific name of the species" required />
-      </form-dialog>
-    </user-provider>
+              <label for="species">Scientific Name</label>
+              <input type="text" id="species" name="species" placeholder="Enter the scientific name of the species" required />
+          </form-dialog></user-provider>
+    </api-provider>
   </body>
 </html>

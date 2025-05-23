@@ -8,19 +8,18 @@
 
     <link rel="stylesheet" href="../src/app.css" />
 
-    <script type="module" src="../src/webcomponents/user-provider.ts"></script>
-    <script type="module" src="../src/webcomponents/site-nav.ts"></script>
-    <script type="module" src="../src/webcomponents/site-footer.ts"></script>
-    <script type="module" src="../src/webcomponents/admin-menu.ts"></script>
-    <script type="module" src="../src/webcomponents/data-table.ts"></script>
-    <script type="module" src="../src/webcomponents/confirm-dialog.ts"></script>
-    <script type="module" src="../src/webcomponents/form-dialog.ts"></script>
-    <script type="module" src="../src/webcomponents/client-timezone.ts"></script>
-    <script type="module" src="../src/webcomponents/input-datetime.ts"></script>
-    <script type="module" src="../src/webcomponents/data-select.ts"></script>
+    <script type="module">
+      import "@openfish/site/components/api-provider.ts"
+      import "@openfish/ui/components/user-provider.ts"
+      import "@openfish/site/components/site-nav.ts"
+      import "@openfish/site/components/admin-menu.ts"
+      import "@openfish/site/components/data-table.ts"
+      import "@openfish/site/components/confirm-dialog.ts"
+      import "@openfish/site/components/form-dialog.ts"
+      import "@openfish/site/components/client-timezone.ts"
+      import "@openfish/site/components/input-datetime.ts"
+      import "@openfish/site/components/data-select.ts"
 
-
-    <script type="module" >
       const createDialog = document.querySelector("form-dialog.create")
       const editDialog = document.querySelector("form-dialog.edit")
       const confirmDialog= document.querySelector("confirm-dialog")
@@ -48,12 +47,13 @@
     </script>
   </head>
   <body class="bg-blue-200">
-    <user-provider>
-      <site-nav class="text-blue-700"></site-nav>
+    <api-provider>
+        <user-provider>
+        <site-nav class="text-blue-700"></site-nav>
 
-      <div class="contain px-4">
-        <div class="card-lg min-h-[calc(100vh-8rem)]">
-          <div class="grid-page-with-aside-left gap-y-4">
+        <div class="contain px-4">
+          <div class="card-lg min-h-[calc(100vh-8rem)]">
+            <div class="grid-page-with-aside-left gap-y-4">
             <header class="col-[fullwidth]">
                 <h1 class="h1">Admin Settings</h1>
             </header>
@@ -71,47 +71,48 @@
                 <dt-btn action="deleteitem" text="Delete"></dt-btn>
                 </data-table>
             </main>
+            </div>
           </div>
         </div>
-      </div>
 
-      <site-footer class="text-blue-700"></site-footer>
-
+        <site-footer class="text-blue-700"></site-footer>
 
 
 
-        <confirm-dialog>Are you sure you want to delete this video stream?</confirm-dialog>
-        <form-dialog class="create" action="/api/v1/videostreams" title="Register a new video stream" btntext="Register" >
 
-          <label for="capturesource">Capture Source</label>
-          <data-select name="capturesource" id="capturesource" src="/api/v1/capturesources"></data-select>
+            <confirm-dialog>Are you sure you want to delete this video stream?</confirm-dialog>
+            <form-dialog class="create" action="/api/v1/videostreams" title="Register a new video stream" btntext="Register" >
 
-          <label for="stream_url">Stream URL</label>
-          <input type="url" id="stream_url" name="stream_url" placeholder="Enter the URL of the video stream" required/>
+              <label for="capturesource">Capture Source</label>
+              <data-select name="capturesource" id="capturesource" src="/api/v1/capturesources"></data-select>
 
-          <label for="startTime">Start Time <client-timezone></client-timezone></label>
-          <input-datetime name="startTime" id="startTime" required></input-datetime>
+              <label for="stream_url">Stream URL</label>
+              <input type="url" id="stream_url" name="stream_url" placeholder="Enter the URL of the video stream" required/>
 
-          <label for="endTime">End Time <client-timezone></client-timezone></label>
-          <input-datetime name="endTime" id="endTime" required></input-datetime>
+              <label for="startTime">Start Time <client-timezone></client-timezone></label>
+              <input-datetime name="startTime" id="startTime" required></input-datetime>
 
-        </form-dialog>
-        <form-dialog class="edit" method="PATCH" action="/api/v1/videostreams" title="Edit video stream" btntext="Save changes" >
+              <label for="endTime">End Time <client-timezone></client-timezone></label>
+              <input-datetime name="endTime" id="endTime" required></input-datetime>
 
-          <label for="capturesource">Capture Source</label>
-          <data-select name="capturesource" id="capturesource" src="/api/v1/capturesources"></data-select>
+            </form-dialog>
+            <form-dialog class="edit" method="PATCH" action="/api/v1/videostreams" title="Edit video stream" btntext="Save changes" >
 
-          <label for="stream_url">Stream URL</label>
-          <input type="url" id="stream_url" name="stream_url" placeholder="Enter the URL of the video stream" required/>
+              <label for="capturesource">Capture Source</label>
+              <data-select name="capturesource" id="capturesource" src="/api/v1/capturesources"></data-select>
 
-          <label for="startTime">Start Time <client-timezone></client-timezone></label>
-          <input-datetime name="startTime" id="startTime" required></input-datetime>
+              <label for="stream_url">Stream URL</label>
+              <input type="url" id="stream_url" name="stream_url" placeholder="Enter the URL of the video stream" required/>
 
-          <label for="endTime">End Time <client-timezone></client-timezone></label>
-          <input-datetime name="endTime" id="endTime" required></input-datetime>
+              <label for="startTime">Start Time <client-timezone></client-timezone></label>
+              <input-datetime name="startTime" id="startTime" required></input-datetime>
 
-        </form-dialog>
-      </main>
-    </user-provider>
+              <label for="endTime">End Time <client-timezone></client-timezone></label>
+              <input-datetime name="endTime" id="endTime" required></input-datetime>
+
+            </form-dialog>
+        </main>
+        </user-provider>
+    </api-provider>
   </body>
 </html>
