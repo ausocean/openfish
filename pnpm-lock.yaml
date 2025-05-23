@@ -87,11 +87,11 @@ importers:
   site:
     dependencies:
       '@openfish/client':
-        specifier: workspace:^
-        version: link:../client
+        specifier: github:ausocean/openfish#tmp-branch&path:/client
+        version: https://codeload.github.com/ausocean/openfish/tar.gz/7cb70c2be6473dada841d4c5fd40ae11062b7b1e#path:/client
       '@openfish/ui':
-        specifier: workspace:^
-        version: link:../ui
+        specifier: github:ausocean/openfish#tmp-branch&path:/ui
+        version: https://codeload.github.com/ausocean/openfish/tar.gz/7cb70c2be6473dada841d4c5fd40ae11062b7b1e#path:/ui
 
   ui:
     dependencies:
@@ -615,6 +615,14 @@ packages:
 
   '@lit/reactive-element@2.0.4':
     resolution: {integrity: sha512-GFn91inaUa2oHLak8awSIigYz0cU0Payr1rcFsrkf5OJ5eSPxElyZfKh0f2p9FsTiZWXQdWGJeXZICEfXXYSXQ==}
+
+  '@openfish/client@https://codeload.github.com/ausocean/openfish/tar.gz/7cb70c2be6473dada841d4c5fd40ae11062b7b1e#path:/client':
+    resolution: {path: /client, tarball: https://codeload.github.com/ausocean/openfish/tar.gz/7cb70c2be6473dada841d4c5fd40ae11062b7b1e}
+    version: 0.0.0
+
+  '@openfish/ui@https://codeload.github.com/ausocean/openfish/tar.gz/7cb70c2be6473dada841d4c5fd40ae11062b7b1e#path:/ui':
+    resolution: {path: /ui, tarball: https://codeload.github.com/ausocean/openfish/tar.gz/7cb70c2be6473dada841d4c5fd40ae11062b7b1e}
+    version: 0.0.0
 
   '@polymer/iron-a11y-keys-behavior@3.0.1':
     resolution: {integrity: sha512-lnrjKq3ysbBPT/74l0Fj0U9H9C35Tpw2C/tpJ8a+5g8Y3YJs1WSZYnEl1yOkw6sEyaxOq/1DkzH0+60gGu5/PQ==}
@@ -2373,6 +2381,12 @@ snapshots:
   '@lit/reactive-element@2.0.4':
     dependencies:
       '@lit-labs/ssr-dom-shim': 1.3.0
+
+  '@openfish/client@https://codeload.github.com/ausocean/openfish/tar.gz/7cb70c2be6473dada841d4c5fd40ae11062b7b1e#path:/client': {}
+
+  '@openfish/ui@https://codeload.github.com/ausocean/openfish/tar.gz/7cb70c2be6473dada841d4c5fd40ae11062b7b1e#path:/ui':
+    dependencies:
+      '@openfish/client': link:client
 
   '@polymer/iron-a11y-keys-behavior@3.0.1':
     dependencies:
