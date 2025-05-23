@@ -10,6 +10,30 @@
     "ci:check": "biome ci --linter-enabled=true --reporter=github ."
   },
   "dependencies": {
-    "@openfish/client": "workspace:^"
+    "@floating-ui/dom": "^1.6.13",
+    "@lit/context": "^1.1.4",
+    "class-transformer": "^0.5.1",
+    "lit": "^3.2.1",
+    "reflect-metadata": "^0.2.2",
+    "vidstack": "1.12.13",
+    "glob": "^11.0.1",
+    "vite-plugin-lit-css": "^2.1.0",
+    "tailwindcss": "^4.1.2",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/vite": "^4.1.2",
+    "@openfish/client": "github:ausocean/openfish#ui-components-tmp&path:/client"
+  },
+  "peerDependencies": {
+    "typescript": "^5.8.2",
+    "vite": "^6.2.5"
+  },
+  "exports": {
+    "./components/*": "./components/*.ts",
+    "./components/*.ts": "./components/*.ts",
+    "./utils/*": "./utils/*.ts",
+    "./utils/*.ts": "./utils/*.ts",
+    "./icons/*": "./icons/*",
+    "./theme.css": "./theme.css",
+    "./vite.config": "./vite.config.js"
   }
 }
