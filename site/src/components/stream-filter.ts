@@ -16,13 +16,13 @@ export type FilterUpdateEvent = CustomEvent<Filter>
 @customElement('stream-filter')
 export class StreamFilter extends TailwindElement {
   @state()
-  protected _captureSource: number | null = null
+  protected accessor _captureSource: number | null = null
 
   @state()
-  protected _startTime: string | undefined
+  protected accessor _startTime: string | undefined
 
   @state()
-  protected _endTime: string | undefined
+  protected accessor _endTime: string | undefined
 
   dispatchFilterUpdateEvent() {
     const detail: Filter = {}

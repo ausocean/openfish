@@ -10,10 +10,10 @@ import { clientContext } from '@openfish/ui/utils/context'
 @customElement('latest-streams')
 export class LatestStreams extends TailwindElement {
   @consume({ context: clientContext, subscribe: true })
-  client!: OpenfishClient
+  accessor client!: OpenfishClient
 
   @state()
-  protected _items: VideoStreamWithJoins[] = []
+  protected accessor _items: VideoStreamWithJoins[] = []
 
   connectedCallback() {
     super.connectedCallback()

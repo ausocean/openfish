@@ -29,7 +29,7 @@ export class LocationPicker extends TailwindElement {
   private _map: L.Map | null = null
 
   @property({ type: String })
-  value = ''
+  accessor value = ''
 
   setLocation(location: L.LatLng | null) {
     console.log(location)

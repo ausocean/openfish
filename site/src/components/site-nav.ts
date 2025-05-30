@@ -13,7 +13,7 @@ import '@openfish/ui/components/user-provider.ts'
 @customElement('site-nav')
 export class SiteNav extends TailwindElement {
   @consume({ context: userContext, subscribe: true })
-  user: User | null = null
+  accessor user: User | null = null
 
   render() {
     let user = html``

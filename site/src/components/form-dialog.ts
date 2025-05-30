@@ -10,16 +10,16 @@ export class FormDialog extends TailwindElement {
   dialogRef: Ref<HTMLDialogElement> = createRef()
 
   @property()
-  action = ''
+  accessor action = ''
 
   @property()
-  method: HTTPMethod = 'POST'
+  accessor method: HTTPMethod = 'POST'
 
   @property()
-  title = ''
+  accessor title = ''
 
   @property()
-  btntext = ''
+  accessor btntext = ''
 
   show() {
     this.dialogRef.value?.showModal()

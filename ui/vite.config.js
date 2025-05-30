@@ -4,6 +4,9 @@ import litcss from 'vite-plugin-lit-css'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
+  esbuild: {
+    target: 'es2022',
+  },
   plugins: [
     tailwindcss(),
     vidstack(),

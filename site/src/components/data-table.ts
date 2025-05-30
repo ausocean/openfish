@@ -20,34 +20,34 @@ type Item = Record<string, any> & { id: number }
 @customElement('data-table')
 export class DataTable extends TailwindElement {
   @consume({ context: clientContext, subscribe: true })
-  client!: OpenfishClient
+  accessor client!: OpenfishClient
 
   @state()
-  protected _page = 1
+  protected accessor _page = 1
 
   @state()
   @provide({ context: dataContext })
-  protected _items: Item[] = []
+  protected accessor _items: Item[] = []
 
   @state()
   @provide({ context: hoverContext })
-  protected _hover: string | undefined
+  protected accessor _hover: string | undefined
 
   @state()
-  protected _totalPages = 0
+  protected accessor _totalPages = 0
 
   @property()
-  src: PaginatedPath
+  accessor src: PaginatedPath
 
   @property()
-  params: Record<string, any> = {}
+  accessor params: Record<string, any> = {}
 
   @property()
-  colwidths = ''
+  accessor colwidths = ''
 
   @property()
   @provide({ context: pkeyContext })
-  pkey = 'id'
+  accessor pkey = 'id'
 
   onHoverItem(e: HoverItemEvent) {
     this._hover = e.detail
@@ -155,18 +155,18 @@ export class DataTable extends TailwindElement {
 abstract class DataTableColumn extends TailwindElement {
   @consume({ context: dataContext, subscribe: true })
   @state()
-  protected _items: Item[] = []
+  protected accessor _items: Item[] = []
 
   @consume({ context: hoverContext, subscribe: true })
   @state()
-  protected _hover: string | undefined
+  protected accessor _hover: string | undefined
 
   @consume({ context: pkeyContext, subscribe: true })
   @state()
-  protected _pkey: string
+  protected accessor _pkey: string
 
   @property()
-  align: 'left' | 'right' | 'center' = 'left'
+  accessor align: 'left' | 'right' | 'center' = 'left'
 
   hoverItem(key: string | undefined) {
     this.dispatchEvent(
@@ -236,13 +236,13 @@ abstract class DataTableColumn extends TailwindElement {
 @customElement('dt-col')
 export class DataTableTextColumn extends DataTableColumn {
   @property()
-  title: string
+  accessor title: string
 
   @property()
-  key: string
+  accessor key: string
 
   @property()
-  align: 'left' | 'right' | 'center' = 'left'
+  accessor align: 'left' | 'right' | 'center' = 'left'
 
   renderTitle(): TemplateResult {
     return html`${this.title}`
@@ -261,16 +261,16 @@ export class DataTableTextColumn extends DataTableColumn {
 @customElement('dt-daterange-col')
 export class DataTableDateColumn extends DataTableColumn {
   @property()
-  title: string
+  accessor title: string
 
   @property()
-  startKey: keyof Item
+  accessor startKey: keyof Item
 
   @property()
-  endKey: keyof Item
+  accessor endKey: keyof Item
 
   @property()
-  align: 'left' | 'right' | 'center' = 'left'
+  accessor align: 'left' | 'right' | 'center' = 'left'
 
   renderTitle(): TemplateResult {
     return html`${this.title}`
@@ -284,10 +284,10 @@ export class DataTableDateColumn extends DataTableColumn {
 @customElement('dt-btn')
 export class DataTableButton extends DataTableColumn {
   @property()
-  text: string
+  accessor text: string
 
   @property()
-  action: string
+  accessor action: string
 
   clickButton(item: Item) {
     this.dispatchEvent(
