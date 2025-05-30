@@ -16,25 +16,25 @@ export class DataSelect extends TailwindElement {
   static formAssociated = true
 
   @consume({ context: clientContext, subscribe: true })
-  client!: OpenfishClient
+  accessor client!: OpenfishClient
 
   @property()
-  name: string
+  accessor name: string
 
   @property()
-  src: PaginatedPath
+  accessor src: PaginatedPath
 
   @property()
-  pkey = 'id'
+  accessor pkey = 'id'
 
   @property()
-  value: string
+  accessor value: string
 
   @property()
-  defaultText = 'Please select'
+  accessor defaultText = 'Please select'
 
   @state()
-  private _items: NamedItem[] = []
+  private accessor _items: NamedItem[] = []
 
   private _internals: ElementInternals
 

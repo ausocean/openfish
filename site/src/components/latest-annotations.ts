@@ -10,10 +10,10 @@ import { consume } from '@lit/context'
 @customElement('latest-annotations')
 export class LatestAnnotations extends TailwindElement {
   @consume({ context: clientContext, subscribe: true })
-  client!: OpenfishClient
+  accessor client!: OpenfishClient
 
   @state()
-  protected _items: AnnotationWithJoins[] = []
+  protected accessor _items: AnnotationWithJoins[] = []
 
   connectedCallback() {
     super.connectedCallback()

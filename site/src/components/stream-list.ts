@@ -17,7 +17,7 @@ type VideoStreamItem = components['schemas']['services.VideoStreamWithJoins'] & 
 @customElement('stream-list')
 export class StreamList extends TailwindElement {
   @consume({ context: clientContext, subscribe: true })
-  client!: OpenfishClient
+  accessor client!: OpenfishClient
 
   @property({ type: Object })
   set filter(val: Filter) {
@@ -26,16 +26,16 @@ export class StreamList extends TailwindElement {
   }
 
   @state()
-  protected _page = 1
+  protected accessor _page = 1
 
   @state()
-  protected _items: VideoStreamItem[] = []
+  protected accessor _items: VideoStreamItem[] = []
 
   @state()
-  protected _totalPages = 0
+  protected accessor _totalPages = 0
 
   @state()
-  protected _filter: Filter = {}
+  protected accessor _filter: Filter = {}
 
   connectedCallback() {
     super.connectedCallback()

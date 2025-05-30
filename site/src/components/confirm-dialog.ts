@@ -6,10 +6,10 @@ import { type Ref, createRef, ref } from 'lit/directives/ref.js'
 @customElement('confirm-dialog')
 export class ConfirmDialog extends TailwindElement {
   @property({ type: String })
-  confirmMessage = 'Yes'
+  accessor confirmMessage = 'Yes'
 
   @property({ type: String })
-  cancelMessage = 'No'
+  accessor cancelMessage = 'No'
 
   callback: () => void = () => {}
 

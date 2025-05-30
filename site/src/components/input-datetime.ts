@@ -12,13 +12,13 @@ export class InputDatetime extends TailwindElement {
   static formAssociated = true
 
   @property()
-  name: string
+  accessor name: string
 
   @property()
-  value = ''
+  accessor value = ''
 
   @property()
-  required: boolean
+  accessor required: boolean
 
   private _internals: ElementInternals
 
