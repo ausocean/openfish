@@ -13,13 +13,13 @@ export type MouseoverAnnotationEvent = CustomEvent<number | null>
 
 abstract class AnnotationDisplayer extends TailwindElement {
   @property({ type: Array })
-  annotations: AnnotationWithJoins[] = []
+  accessor annotations: AnnotationWithJoins[] = []
 
   @property({ type: Number })
-  activeAnnotation: number | null = null
+  accessor activeAnnotation: number | null = null
 
   @property({ type: Number })
-  currentTime = 0
+  accessor currentTime = 0
 
   dispatchMouseOverAnnotation(id: number | null) {
     this.dispatchEvent(new CustomEvent('mouseover-annotation', { detail: id }))

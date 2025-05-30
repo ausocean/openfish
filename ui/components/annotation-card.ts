@@ -19,16 +19,16 @@ import { userContext } from '../utils/context.ts'
 @customElement('annotation-card')
 export class AnnotationCard extends TailwindElement {
   @property({ type: Object })
-  annotation: AnnotationWithJoins | undefined
+  accessor annotation: AnnotationWithJoins | undefined
 
   @property({ type: Boolean })
-  active = false
+  accessor active = false
 
   @consume({ context: userContext, subscribe: true })
-  user: User | null = null
+  accessor user: User | null = null
 
   @property({ type: Boolean })
-  simple = false
+  accessor simple = false
 
   dispatchSeekEvent(time: number) {
     this.dispatchEvent(

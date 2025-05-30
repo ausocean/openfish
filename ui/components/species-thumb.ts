@@ -9,7 +9,7 @@ import './tooltip'
 @customElement('species-thumb')
 export class SpeciesThumb extends TailwindElement {
   @property({ type: Object })
-  species: Species
+  accessor species: Species
 
   @state()
   private _idx = 0

@@ -8,7 +8,7 @@ import type { VideoStreamWithJoins } from '@openfish/client'
 @customElement('stream-thumb')
 export class StreamThumb extends TailwindElement {
   @property()
-  stream: VideoStreamWithJoins
+  accessor stream: VideoStreamWithJoins
 
   render() {
     return html`
