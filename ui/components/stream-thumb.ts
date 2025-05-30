@@ -1,4 +1,4 @@
-import { TailwindElement } from './tailwind-element.ts'
+import { TailwindElement } from '@openfish/ui/components/tailwind-element.ts'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { datetimeDifference, formatAsDate, formatDuration } from '../utils/datetime.ts'
