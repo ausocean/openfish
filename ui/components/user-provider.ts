@@ -7,10 +7,10 @@ import type { OpenfishClient, User } from '@openfish/client'
 @customElement('user-provider')
 export class UserProvider extends LitElement {
   @provide({ context: userContext })
-  user: User | null = null
+  accessor user: User | null = null
 
   @consume({ context: clientContext, subscribe: true })
-  client!: OpenfishClient
+  accessor client!: OpenfishClient
 
   async connectedCallback() {
     super.connectedCallback()

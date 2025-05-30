@@ -39,7 +39,7 @@ import { consume } from '@lit/context'
 @customElement('watch-stream')
 export class WatchStream extends TailwindElement {
   @consume({ context: clientContext, subscribe: true })
-  client!: OpenfishClient
+  accessor client!: OpenfishClient
 
   @property({ type: Number })
   set streamID(val: number) {
@@ -48,25 +48,25 @@ export class WatchStream extends TailwindElement {
   }
 
   @state()
-  private _videostream: VideoStreamWithJoins | null = null
+  private accessor _videostream: VideoStreamWithJoins | null = null
 
   @state()
-  private _annotations: AnnotationWithJoins[] = []
+  private accessor _annotations: AnnotationWithJoins[] = []
 
   @state()
-  private _activeId: number | null = null
+  private accessor _activeId: number | null = null
 
   @state()
-  private _currentTime = 0
+  private accessor _currentTime = 0
 
   @state()
-  private _duration = 0
+  private accessor _duration = 0
 
   @state()
-  private _seekTo: number | null = null
+  private accessor _seekTo: number | null = null
 
   @state()
-  private _mode: 'playback' | 'editor' = 'playback'
+  private accessor _mode: 'playback' | 'editor' = 'playback'
 
   private play() {
     this.playerRef.value?.play()
@@ -77,13 +77,13 @@ export class WatchStream extends TailwindElement {
   }
 
   @state()
-  private _identification: number | null = null
+  private accessor _identification: number | null = null
 
   @state()
-  private _keypoints: Keypoint[] = []
+  private accessor _keypoints: Keypoint[] = []
 
   @state()
-  private _boundingBox: [number, number, number, number] | null = null
+  private accessor _boundingBox: [number, number, number, number] | null = null
 
   private addKeyPoint() {
     if (this._boundingBox === null) {

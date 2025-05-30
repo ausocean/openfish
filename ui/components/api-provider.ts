@@ -6,7 +6,7 @@ import type { OpenfishClient } from '@openfish/client'
 export function useApiProvider(client: OpenfishClient) {
   class ApiProvider extends LitElement {
     @provide({ context: clientContext })
-    client: OpenfishClient = client
+    accessor client: OpenfishClient = client
 
     render() {
       return html`<slot></slot>`

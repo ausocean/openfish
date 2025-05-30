@@ -14,25 +14,25 @@ type TextInputEvent = InputEvent & { target: HTMLInputElement }
 @customElement('species-selection')
 export class SpeciesSelection extends TailwindElement {
   @consume({ context: clientContext, subscribe: true })
-  client!: OpenfishClient
+  accessor client!: OpenfishClient
 
   @state()
-  protected _keys: string[] = []
+  protected accessor _keys: string[] = []
 
   @state()
-  protected _vals: string[] = []
+  protected accessor _vals: string[] = []
 
   @property({ type: Object })
   accessor selection: Species | null = null
 
   @state()
-  private _speciesList: Species[] = []
+  private accessor _speciesList: Species[] = []
 
   @state()
-  offset = 0
+  accessor offset = 0
 
   @state()
-  _search = ''
+  accessor _search = ''
 
   private selectSpecies(species: Species) {
     this.selection = species
