@@ -6,10 +6,10 @@ import { formatVideoTime, parseVideoTime } from '../utils/datetime'
 export class Keypoint {
   @Transform(({ value }) => parseVideoTime(value), { toClassOnly: true })
   @Transform(({ value }) => formatVideoTime(value, true), { toPlainOnly: true })
-  time: number
+  accessor time: number
 
   @Type(() => BoundingBox)
-  box: BoundingBox
+  accessor box: BoundingBox
 
   constructor(time: number, box: BoundingBox) {
     this.time = time
