@@ -8,10 +8,10 @@ import type { AnnotationWithJoins } from '@openfish/client'
 @customElement('timeline-heatmap')
 export class TimelineHeatmap extends TailwindElement {
   @property({ type: Number })
-  duration = 0
+  accessor duration = 0
 
   @property({ type: Array })
-  annotations: AnnotationWithJoins[] = []
+  accessor annotations: AnnotationWithJoins[] = []
 
   render() {
     const svgContents = repeat(this.annotations, (a) => {

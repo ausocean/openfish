@@ -90,7 +90,7 @@ importers:
         specifier: ^1.1.4
         version: 1.1.5
       '@openfish/client':
-        specifier: github:ausocean/openfish#ui-components-tmp&path:/client
+        specifier: github:ausocean/openfish#path:/client
         version: https://codeload.github.com/ausocean/openfish/tar.gz/56f375b272a9ad388f8d301fb9db09e65ee3c6ff#path:/client
       '@tailwindcss/forms':
         specifier: ^0.5.10
