@@ -12,7 +12,7 @@ export class SpeciesThumb extends TailwindElement {
   accessor species: Species
 
   @state()
-  private _idx = 0
+  private accessor _idx = 0
 
   render() {
     const carousel = () => html`

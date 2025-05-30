@@ -7,19 +7,19 @@ export type UpdateBoundingBoxEvent = CustomEvent<[number, number, number, number
 @customElement('bounding-box-creator')
 export class BoundingBoxCreator extends TailwindElement {
   @state()
-  private _box: [number, number, number, number] | null = null
+  private accessor _box: [number, number, number, number] | null = null
 
   @state()
-  private _isDrawing = false
+  private accessor _isDrawing = false
 
   @state()
-  private _editCorner: number | null = null
+  private accessor _editCorner: number | null = null
 
   @state()
-  private _editEdge: number | null = null
+  private accessor _editEdge: number | null = null
 
   @state()
-  private _drag = false
+  private accessor _drag = false
 
   startDrawBox(ev: MouseEvent) {
     const x = (ev.offsetX / this.offsetWidth) * 100
@@ -136,55 +136,55 @@ export class BoundingBoxCreator extends TailwindElement {
 
     if (this._box !== null) {
       rect = svg`
-        <g> 
-          <line 
-            x1="${this._box[0]}%" x2="${this._box[0]}%" 
-            y1="${this._box[1]}%" y2="${this._box[3]}%" 
-            stroke-width="2" class="stroke-sky-400 hover:stroke-sky-600 cursor-ew-resize" 
+        <g>
+          <line
+            x1="${this._box[0]}%" x2="${this._box[0]}%"
+            y1="${this._box[1]}%" y2="${this._box[3]}%"
+            stroke-width="2" class="stroke-sky-400 hover:stroke-sky-600 cursor-ew-resize"
             @mousedown=${(e: MouseEvent) => this.startEditEdge(0, e)}
           />
-          <line 
-            x1="${this._box[0]}%" x2="${this._box[2]}%" 
-            y1="${this._box[1]}%" y2="${this._box[1]}%" 
+          <line
+            x1="${this._box[0]}%" x2="${this._box[2]}%"
+            y1="${this._box[1]}%" y2="${this._box[1]}%"
             stroke-width="2" class="stroke-sky-400 hover:stroke-sky-600 cursor-ns-resize"
             @mousedown=${(e: MouseEvent) => this.startEditEdge(1, e)}
           />
           <line
-            x1="${this._box[2]}%" x2="${this._box[2]}%" 
+            x1="${this._box[2]}%" x2="${this._box[2]}%"
             y1="${this._box[1]}%" y2="${this._box[3]}%"
             stroke-width="2" class="stroke-sky-400 hover:stroke-sky-600 cursor-ew-resize"
             @mousedown=${(e: MouseEvent) => this.startEditEdge(2, e)}
           />
-          <line x1="${this._box[0]}%" x2="${this._box[2]}%" 
+          <line x1="${this._box[0]}%" x2="${this._box[2]}%"
             y1="${this._box[3]}%" y2="${this._box[3]}%"
             stroke-width="2" class="stroke-sky-400 hover:stroke-sky-600 cursor-ns-resize"
             @mousedown=${(e: MouseEvent) => this.startEditEdge(3, e)}
           />
           <rect
             class="cursor-move"
-            x="${this._box[0]}%" y="${this._box[1]}%" 
+            x="${this._box[0]}%" y="${this._box[1]}%"
             width="${this._box[2] - this._box[0]}%"
-            height="${this._box[3] - this._box[1]}%" 
-            fill="#00000000" 
+            height="${this._box[3] - this._box[1]}%"
+            fill="#00000000"
             @mousedown=${this.startDrag}
           />
 
-          <circle 
-            cx="${this._box[0]}%" cy="${this._box[1]}%" r="5" 
-            class="fill-blue-800 cursor-nwse-resize" 
+          <circle
+            cx="${this._box[0]}%" cy="${this._box[1]}%" r="5"
+            class="fill-blue-800 cursor-nwse-resize"
             @mousedown=${(e: MouseEvent) => this.startEditCorner(0, e)}
           />
-          <circle 
-            cx="${this._box[0]}%" cy="${this._box[3]}%" r="5" 
-            class="fill-blue-800 cursor-nesw-resize" 
+          <circle
+            cx="${this._box[0]}%" cy="${this._box[3]}%" r="5"
+            class="fill-blue-800 cursor-nesw-resize"
             @mousedown=${(e: MouseEvent) => this.startEditCorner(1, e)}
           />
-          <circle 
+          <circle
             cx="${this._box[2]}%" cy="${this._box[1]}%" r="5"
-            class="fill-blue-800 cursor-nesw-resize" 
+            class="fill-blue-800 cursor-nesw-resize"
             @mousedown=${(e: MouseEvent) => this.startEditCorner(2, e)}
           />
-          <circle 
+          <circle
             cx="${this._box[2]}%" cy="${this._box[3]}%" r="5"
             class="fill-blue-800 cursor-nwse-resize"
             @mousedown=${(e: MouseEvent) => this.startEditCorner(3, e)}
@@ -193,9 +193,9 @@ export class BoundingBoxCreator extends TailwindElement {
     }
 
     return html`
-      <svg 
+      <svg
         class="cursor-crosshair"
-        width="100%" height="100%" 
+        width="100%" height="100%"
         @mousedown=${this.startDrawBox} @mouseup=${this.endBox} @mousemove=${this.updateBox}
       >
         ${rect}
