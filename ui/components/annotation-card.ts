@@ -7,12 +7,12 @@ import type { AnnotationWithJoins, Identification, User } from '@openfish/client
 import user from '../icons/user.svg?raw'
 import caretUp from '../icons/caret-up.svg?raw'
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
-import './tooltip'
+import '@openfish/ui/components/tooltip'
 
 // We have a side-effect dependency on <user-provider> so
 // import it here to ensure it gets loaded first in the
 // created JavaScript bundle.
-import './user-provider.ts'
+import '@openfish/ui/components/user-provider.ts'
 import { consume } from '@lit/context'
 import { userContext } from '../utils/context.ts'
 

@@ -1,4 +1,4 @@
-import { TailwindElement } from './tailwind-element'
+import { TailwindElement } from '@openfish/ui/components/tailwind-element'
 import { html, svg } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'

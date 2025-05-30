@@ -1,10 +1,10 @@
-import { TailwindElement } from './tailwind-element'
+import { TailwindElement } from '@openfish/ui/components/tailwind-element'
 import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import type { OpenfishClient, Species } from '@openfish/client'
 
-import './species-thumb'
+import '@openfish/ui/components/species-thumb'
 import { consume } from '@lit/context'
 import { clientContext } from '../utils/context'
 

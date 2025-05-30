@@ -2,7 +2,7 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { arrow, computePosition, offset, shift } from '@floating-ui/dom'
-import { TailwindElement } from './tailwind-element'
+import { TailwindElement } from '@openfish/ui/components/tailwind-element'
 
 @customElement('tooltip-elem')
 export class Tooltip extends TailwindElement {

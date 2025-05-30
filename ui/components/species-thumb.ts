@@ -1,10 +1,10 @@
-import { TailwindElement } from './tailwind-element'
+import { TailwindElement } from '@openfish/ui/components/tailwind-element'
 import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import type { Species } from '@openfish/client'
-import './image-carousel'
-import './tooltip'
+import '@openfish/ui/components/image-carousel'
+import '@openfish/ui/components/tooltip'
 
 @customElement('species-thumb')
 export class SpeciesThumb extends TailwindElement {
