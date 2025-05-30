@@ -23,7 +23,7 @@ export class SpeciesSelection extends TailwindElement {
   protected _vals: string[] = []
 
   @property({ type: Object })
-  selection: Species | null = null
+  accessor selection: Species | null = null
 
   @state()
   private _speciesList: Species[] = []

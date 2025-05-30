@@ -7,13 +7,13 @@ import { TailwindElement } from './tailwind-element'
 @customElement('tooltip-elem')
 export class Tooltip extends TailwindElement {
   @property({ type: String })
-  placement: 'top' | 'left' | 'bottom' | 'right'
+  accessor placement: 'top' | 'left' | 'bottom' | 'right'
 
   @property({ type: String })
-  for = ''
+  accessor for = ''
 
   @property({ type: String })
-  trigger: 'click' | 'hover' = 'hover'
+  accessor trigger: 'click' | 'hover' = 'hover'
 
   target: Element | null = null
 
