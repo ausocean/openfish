@@ -17,6 +17,9 @@ importers:
       vite:
         specifier: ^6.2.5
         version: 6.3.5(jiti@2.4.2)(lightningcss@1.30.1)
+      vitepress-demo-plugin:
+        specifier: ^1.4.2
+        version: 1.4.4(shiki@2.5.0)(vitepress@1.6.3(@algolia/client-search@5.25.0)(change-case@5.4.4)(lightningcss@1.30.1)(postcss@8.5.3)(search-insights@2.17.3)(typescript@5.8.3))(vue@3.5.14(typescript@5.8.3))
       vitest:
         specifier: ^3.1.1
         version: 3.1.4(jiti@2.4.2)(lightningcss@1.30.1)
@@ -36,6 +39,15 @@ importers:
       '@openfish/client':
         specifier: workspace:^
         version: link:../client
+      '@openfish/ui':
+        specifier: workspace:^
+        version: link:../ui
+      tailwindcss:
+        specifier: ^4.1.2
+        version: 4.1.7
+      vitepress-demo-plugin:
+        specifier: ^1.4.2
+        version: 1.4.4(shiki@2.5.0)(vitepress@1.6.3(@algolia/client-search@5.25.0)(change-case@5.4.4)(lightningcss@1.30.1)(postcss@8.5.3)(search-insights@2.17.3)(typescript@5.8.3))(vue@3.5.14(typescript@5.8.3))
       vitepress-openapi:
         specifier: 0.0.3-alpha.69
         version: 0.0.3-alpha.69(typescript@5.8.3)(vitepress@1.6.3(@algolia/client-search@5.25.0)(change-case@5.4.4)(lightningcss@1.30.1)(postcss@8.5.3)(search-insights@2.17.3)(typescript@5.8.3))(vue@3.5.14(typescript@5.8.3))
@@ -1850,6 +1862,13 @@ packages:
       yaml:
         optional: true
 
+  vitepress-demo-plugin@1.4.4:
+    resolution: {integrity: sha512-dF+9EttkRwXwbTLQjAbTFv8I0NQMQn6MGXX+OdVzV3ZrmAToAQUY6lNpsq2Ygtpt5CKz7qgO8UulstQPDgwm6A==}
+    peerDependencies:
+      shiki: '*'
+      vitepress: '*'
+      vue: ^3.2.0
+
   vitepress-openapi@0.0.3-alpha.69:
     resolution: {integrity: sha512-TIg9JIT1RP92XjXhR7daunILpmsQPJi6BvGeeWYWl+oJSykh1sPW3ZMtN7ziMD4yXvEteYycfJDytISGuyq+PA==}
     peerDependencies:
@@ -3559,6 +3578,12 @@ snapshots:
       fsevents: 2.3.3
       jiti: 2.4.2
       lightningcss: 1.30.1
+
+  vitepress-demo-plugin@1.4.4(shiki@2.5.0)(vitepress@1.6.3(@algolia/client-search@5.25.0)(change-case@5.4.4)(lightningcss@1.30.1)(postcss@8.5.3)(search-insights@2.17.3)(typescript@5.8.3))(vue@3.5.14(typescript@5.8.3)):
+    dependencies:
+      shiki: 2.5.0
+      vitepress: 1.6.3(@algolia/client-search@5.25.0)(change-case@5.4.4)(lightningcss@1.30.1)(postcss@8.5.3)(search-insights@2.17.3)(typescript@5.8.3)
+      vue: 3.5.14(typescript@5.8.3)
 
   vitepress-openapi@0.0.3-alpha.69(typescript@5.8.3)(vitepress@1.6.3(@algolia/client-search@5.25.0)(change-case@5.4.4)(lightningcss@1.30.1)(postcss@8.5.3)(search-insights@2.17.3)(typescript@5.8.3))(vue@3.5.14(typescript@5.8.3)):
     dependencies:

@@ -9,7 +9,6 @@
     "preview": "vitepress preview ."
   },
   "dependencies": {
-    "@openfish/client": "workspace:^",
     "vitepress-openapi": "0.0.3-alpha.69"
   },
   "devDependencies": {
