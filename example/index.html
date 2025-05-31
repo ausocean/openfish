@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenFish player example</title>
+    <link rel="stylesheet" href="./src/app.css" />
+    <script type="module">
+    import "./src/api-provider.ts"
+
+    import "@openfish/ui/components/user-provider.ts"
+    import "@openfish/ui/components/watch-stream.ts"
+
+    const el = document.querySelector('watch-stream')
+    if (el) {
+      el.streamID = 5723003237171200
+    }
+    </script>
+
+
+  </head>
+  <body class="bg-blue-800 p-12">
+    <api-provider>
+        <user-provider>
+            <div class="max-w-320 w-full mx-auto">
+                <watch-stream></watch-stream>
+            </div>
+        </user-provider>
+    </api-provider>
+  </body>
+</html>
