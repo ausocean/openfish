@@ -4,7 +4,6 @@
     "@biomejs/biome": "^1.9.4",
     "typescript": "^5.8.2",
     "vite": "^6.2.5",
-    "vitepress-demo-plugin": "^1.4.2",
     "vitest": "^3.1.1"
   },
   "scripts": {
