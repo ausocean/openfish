@@ -187,11 +187,6 @@ func TestAnnotationAddIdentification(t *testing.T) {
 }
 
 func TestAnnotationAddNonExistingSpeciesIdentification(t *testing.T) {
-	// TODO: Run test in CI when issue is fixed.
-	if testing.Short() {
-		t.Skip("skipping testing in short mode")
-	}
-
 	setup()
 	original := createTestAnnotation()
 	uid, _ := services.CreateUser(services.UserContents{
