@@ -21,7 +21,7 @@
     "tailwindcss": "^4.1.2",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/vite": "^4.1.2",
-    "@openfish/client": "github:ausocean/openfish#path:/client"
+    "@openfish/client": "workspace:*"
   },
   "peerDependencies": {
     "typescript": "^5.8.2",
