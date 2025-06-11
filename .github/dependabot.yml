@@ -14,7 +14,7 @@ updates:
     labels:
       - "chore"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     groups:
       npm:
         patterns:
@@ -29,7 +29,7 @@ updates:
     labels:
       - "chore"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     groups:
       docker:
         patterns:
@@ -44,7 +44,7 @@ updates:
     labels:
       - "chore"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     groups:
       gomod:
         patterns:
@@ -61,7 +61,7 @@ updates:
       - "chore"
       - "ci"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     groups:
       gh-actions:
         patterns:
