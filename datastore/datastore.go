@@ -421,15 +421,15 @@ func (q *CloudQuery) Offset(offset int) {
 // FileStore implements a simple form of indexing based on the
 // period-separated parts of key names. For example, a User has the
 // key structure <Skey>.<Email>. Filestore queries that utilize
-// indexes must specify the optional key parts when constructing the
-// query.
+// key-based indexes must specify the optional key parts when
+// constructing the query.
 //
 //	q = store.NewQuery(ctx, "User", "Skey", "Email")
 //
 // All but the last part of the key must not contain periods. In this
 // example, only Email may contain periods.
 //
-// The key "671314941988.test@ausocean.org" would match 67131494198 or
+// The key "671314941988.test@ausocean.org" would match 671314941988 or
 // "test@ausocean.org" or both.
 //
 // To match both Skey and Email:
@@ -448,21 +448,28 @@ func (q *CloudQuery) Offset(offset int) {
 //	q.Filter("Email =", nil)
 //
 // Using nil is most useful however when ignoring a key part which has
-// key parts before and after that much be matched.
+// key parts before and after that must be matched.
 //
-// To match just Email, i.e., return all entities for a given user.
+// To match just Email, i.e., return all entities for a given user:
 //
-//	q.Filter("Email =", "test@ausocean.org)
+//	q.Filter("Email =", "test@ausocean.org")
 //
 // The following query would however fail due to the wrong order:
 //
-//	q.Filter("Email =", "test@ausocean.org)
+//	q.Filter("Email =", "test@ausocean.org")
 //	q.Filter("Skey =", 671314941988)
 //
-// FileStore represents all keys as strings. To faciliate substring
+// FileStore represents all keys as strings. To facilitate substring
 // comparisons, 64-bit ID keys are represented as two 32-bit integers
 // separated by a period and the keyParts in NewQuery must reflect
 // this.
+//
+// In addition to key-based filtering, FileStore supports content-based
+// filtering using FilterField. If the field name matches a key part,
+// the query is evaluated efficiently using the file name. Otherwise,
+// the entity file is read, parsed, and the field is evaluated using
+// reflection. This allows for flexible filtering even on fields not
+// encoded in the key.
 type FileStore struct {
 	mu  sync.Mutex
 	id  string
@@ -650,16 +657,97 @@ func (s *FileStore) GetAll(ctx context.Context, query Query, dst interface{}) ([
 			return nil, err
 		}
 		// The underlying entity type is a pointer, so we need its indirect type.
+
+		// Apply field filters if needed.
+		if len(q.fieldFilters) > 0 && !matchesFieldFilters(e, q.fieldFilters) {
+			continue
+		}
+
 		ev := reflect.Indirect(reflect.ValueOf(e))
 		// As with the Cloud datastore, if the Key field is present we populate it.
 		fld := ev.FieldByName("Key")
 		if fld.IsValid() {
 			fld.Set(reflect.ValueOf(k))
 		}
+
 		dv.Set(reflect.Append(dv, ev))
 	}
 
 	return keys, nil
+}
+
+// matchesFieldFilters returns true if the given entity matches all the specified fieldFilters.
+// It uses reflection to extract struct fields by name and compares their values based on the
+// provided operator (e.g., "=", "<=", ">"). If any filter does not match, it returns false.
+func matchesFieldFilters(e Entity, filters []fieldFilter) bool {
+	v := reflect.Indirect(reflect.ValueOf(e))
+	for _, f := range filters {
+		field := v.FieldByName(f.Field)
+		if !field.IsValid() {
+			return false
+		}
+
+		switch f.Operator {
+		case "=":
+			if field.Interface() != f.Value {
+				return false
+			}
+		case "<":
+			if !compare(field.Interface(), f.Value, "<") {
+				return false
+			}
+		case ">":
+			if !compare(field.Interface(), f.Value, ">") {
+				return false
+			}
+		case "<=":
+			if !compare(field.Interface(), f.Value, "<=") {
+				return false
+			}
+		case ">=":
+			if !compare(field.Interface(), f.Value, ">=") {
+				return false
+			}
+		default:
+			return false
+		}
+	}
+	return true
+}
+
+func compare(a, b interface{}, op string) bool {
+	ai, aok := toInt64Safe(a)
+	bi, bok := toInt64Safe(b)
+	if !aok || !bok {
+		return false
+	}
+	switch op {
+	case "<":
+		return ai < bi
+	case ">":
+		return ai > bi
+	case "<=":
+		return ai <= bi
+	case ">=":
+		return ai >= bi
+	default:
+		return false
+	}
+}
+
+func toInt64Safe(x interface{}) (int64, bool) {
+	switch v := x.(type) {
+	case int:
+		return int64(v), true
+	case int64:
+		return v, true
+	case uint64:
+		return int64(v), true
+	case float64:
+		return int64(v), true
+	default:
+		return 0, false
+	}
 }
 
 // extractID attempts to extract an integer ID from a key name,
@@ -736,17 +824,24 @@ func (s *FileStore) DeleteMulti(ctx context.Context, keys []*Key) error {
 	return nil
 }
 
+type fieldFilter struct {
+	Field    string
+	Operator string
+	Value    interface{}
+}
+
 // FileQuery implements Query for FileStore.
 type FileQuery struct {
-	kind     string                        // Our datastore type.
-	keysOnly bool                          // True if this is a keys only query.
-	order    bool                          // True if results are ordered.
-	filter   bool                          // True if a filter is defined.
-	keyParts []string                      // Defines the parts of the key.
-	value    [][]string                    // Filter value(s).
-	cmp      [][]func(string, string) bool // Filter comparison function(s).
-	limit    int                           // Limits the number of results returned.
-	offset   int                           // How many keys to skip before returning results.
+	kind         string                        // Our datastore type.
+	keysOnly     bool                          // True if this is a keys only query.
+	order        bool                          // True if results are ordered.
+	filter       bool                          // True if a filter is defined.
+	keyParts     []string                      // Defines the parts of the key.
+	value        [][]string                    // Filter value(s).
+	cmp          [][]func(string, string) bool // Filter comparison function(s).
+	limit        int                           // Limits the number of results returned.
+	offset       int                           // How many keys to skip before returning results.
+	fieldFilters []fieldFilter                 // Filters on entity fields in the file.
 }
 
 // Filter implements FileQuery matching against key parts.
@@ -841,9 +936,23 @@ func (q *FileQuery) Filter(filterStr string, value interface{}) error {
 	return ErrInvalidValue
 }
 
-// FilterField filters a query.
+// FilterField filters a query by field name and value using the specified operator.
+// If the field name matches one of the declared keyParts, the query is handled efficiently
+// using filename-based key filtering via Filter. Otherwise, the query falls back to
+// reflection-based entity field filtering, which reads and inspects each entity file.
 func (q *FileQuery) FilterField(fieldName string, operator string, value interface{}) error {
-	return q.Filter(fieldName+" "+operator, value)
+	for _, part := range q.keyParts {
+		if part == fieldName {
+			return q.Filter(fieldName+" "+operator, value)
+		}
+	}
+	// Fallback to reflection-based filtering.
+	q.fieldFilters = append(q.fieldFilters, fieldFilter{
+		Field:    fieldName,
+		Operator: operator,
+		Value:    value,
+	})
+	return nil
 }
 
 // toInt64 converts a string to an int64, or returns 0.
