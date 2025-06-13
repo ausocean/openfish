@@ -4,7 +4,7 @@
     "@biomejs/biome": "^1.9.4",
     "typescript": "^5.8.2",
     "vite": "^6.2.5",
-    "vitest": "^3.1.1"
+    "vitest": "^3.2.3"
   },
   "scripts": {
     "site": "pnpm --filter site",
