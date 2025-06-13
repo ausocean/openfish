@@ -36,6 +36,7 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/globals"
@@ -288,6 +289,13 @@ func CreateAnnotation(contents AnnotationContents) (*Annotation, error) {
 func AddIdentification(id int64, userID int64, speciesID int64) error {
 	// Update data in the datastore.
 	store := globals.GetStore()
+
+	// Check if speciesID exists.
+	if !SpeciesExists(speciesID) {
+		return fmt.Errorf("species ID %d does not exist", speciesID)
+	}
+
+	// Proceed with adding identification.
 	key := store.IDKey(entities.ANNOTATION_KIND, id)
 	var annotation entities.Annotation
 

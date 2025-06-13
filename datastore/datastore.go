@@ -669,7 +669,6 @@ func (s *FileStore) GetAll(ctx context.Context, query Query, dst interface{}) ([
 		if fld.IsValid() {
 			fld.Set(reflect.ValueOf(k))
 		}
-
 		dv.Set(reflect.Append(dv, ev))
 	}
 
