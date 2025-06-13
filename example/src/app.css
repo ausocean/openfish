@@ -1,4 +1,0 @@
-@import '@openfish/ui/theme.css';
-@source "@openfish/ui/components/**/*.ts";
-
-@source "../node_modules/@openfish/ui/components/**/*.ts";
