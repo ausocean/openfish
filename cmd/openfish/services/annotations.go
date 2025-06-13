@@ -291,9 +291,7 @@ func AddIdentification(id int64, userID int64, speciesID int64) error {
 	store := globals.GetStore()
 
 	// Check if speciesID exists.
-	speciesKey := store.IDKey(entities.SPECIES_KIND, speciesID)
-	var species entities.Species
-	if err := store.Get(context.Background(), speciesKey, &species); err != nil {
+	if !SpeciesExists(speciesID) {
 		return fmt.Errorf("species ID %d does not exist", speciesID)
 	}
 
