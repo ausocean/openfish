@@ -111,4 +111,4 @@ useApiProvider(client)
 ```
 
 ## Example
-See `/example` directory in the openfish repo
+See https://github.com/scott97/openfish-example
