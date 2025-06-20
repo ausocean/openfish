@@ -305,3 +305,54 @@ func TestFileDirect(t *testing.T) {
 		t.Errorf("GetAll by value returned %d entities, expected 1", len(entities))
 	}
 }
+
+// TestFileFilterField tests filestore filtering by a field that is not part of the key.
+func TestFileFilterField(t *testing.T) {
+	ctx := context.Background()
+	store, err := NewStore(ctx, "file", "test", "store")
+	if err != nil {
+		t.Fatalf("could not create file store: %v", err)
+	}
+
+	// Clear store dir for clean test (optional in your setup).
+	_ = os.RemoveAll("store/test/NameValue")
+
+	// Insert test data.
+	values := []NameValue{
+		{Name: "A", Value: "abalone"},
+		{Name: "B", Value: "bullseye"},
+		{Name: "C", Value: "abalone"},
+	}
+	for _, nv := range values {
+		_, err := store.Put(ctx, store.NameKey(typeNameValue, nv.Name), &nv)
+		if err != nil {
+			t.Fatalf("failed to insert test entity %s: %v", nv.Name, err)
+		}
+	}
+
+	// Filter by Value using FilterField (not part of key name).
+	q := store.NewQuery(typeNameValue, false, "Name") // keyParts only include Name.
+	q.FilterField("Value", "=", "abalone")
+
+	var results []NameValue
+	_, err = store.GetAll(ctx, q, &results)
+	if err != nil {
+		t.Fatalf("FilterField query failed: %v", err)
+	}
+	if len(results) != 2 {
+		t.Errorf("expected 2 results for Value = 'abalone', got %d", len(results))
+	}
+
+	// Filter by Name using FilterField (should fall back to Filter for efficiency).
+	q = store.NewQuery(typeNameValue, false, "Name")
+	q.FilterField("Name", "=", "B")
+
+	results = nil
+	_, err = store.GetAll(ctx, q, &results)
+	if err != nil {
+		t.Fatalf("FilterField fallback-to-key query failed: %v", err)
+	}
+	if len(results) != 1 || results[0].Name != "B" {
+		t.Errorf("expected 1 result for Name = 'B', got %+v", results)
+	}
+}
