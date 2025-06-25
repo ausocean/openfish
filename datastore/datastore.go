@@ -53,6 +53,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"cloud.google.com/go/datastore"
 	"cloud.google.com/go/storage"
@@ -691,20 +692,8 @@ func matchesFieldFilters(e Entity, filters []fieldFilter) bool {
 			if field.Interface() != f.Value {
 				return false
 			}
-		case "<":
-			if !compare(field.Interface(), f.Value, "<") {
-				return false
-			}
-		case ">":
-			if !compare(field.Interface(), f.Value, ">") {
-				return false
-			}
-		case "<=":
-			if !compare(field.Interface(), f.Value, "<=") {
-				return false
-			}
-		case ">=":
-			if !compare(field.Interface(), f.Value, ">=") {
+		case "<", ">", "<=", ">=":
+			if !compare(field.Interface(), f.Value, f.Operator) {
 				return false
 			}
 		default:
@@ -715,35 +704,113 @@ func matchesFieldFilters(e Entity, filters []fieldFilter) bool {
 }
 
 func compare(a, b interface{}, op string) bool {
-	ai, aok := toInt64Safe(a)
-	bi, bok := toInt64Safe(b)
+	// Try string comparison first.
+	as, aok := a.(string)
+	bs, bok := b.(string)
+	if aok && bok {
+		switch op {
+		case "=":
+			return as == bs
+		case "<":
+			return as < bs
+		case ">":
+			return as > bs
+		case "<=":
+			return as <= bs
+		case ">=":
+			return as >= bs
+		}
+		return false
+	}
+
+	// Try time.Time comparison.
+	at, aok := a.(time.Time)
+	bt, bok := b.(time.Time)
+	if aok && bok {
+		switch op {
+		case "=":
+			return at.Equal(bt)
+		case "<":
+			return at.Before(bt)
+		case ">":
+			return at.After(bt)
+		case "<=":
+			return at.Before(bt) || at.Equal(bt)
+		case ">=":
+			return at.After(bt) || at.Equal(bt)
+		}
+		return false
+	}
+
+	// Compare as integers if both values are int-compatible.
+	ai, aok := toInt64Strict(a)
+	bi, bok := toInt64Strict(b)
+	if aok && bok {
+		switch op {
+		case "=":
+			return ai == bi
+		case "<":
+			return ai < bi
+		case ">":
+			return ai > bi
+		case "<=":
+			return ai <= bi
+		case ">=":
+			return ai >= bi
+		}
+		return false
+	}
+
+	// Fallback to float64 comparison.
+	af, aok := toFloat64Safe(a)
+	bf, bok := toFloat64Safe(b)
 	if !aok || !bok {
 		return false
 	}
 	switch op {
+	case "=":
+		return af == bf
 	case "<":
-		return ai < bi
+		return af < bf
 	case ">":
-		return ai > bi
+		return af > bf
 	case "<=":
-		return ai <= bi
+		return af <= bf
 	case ">=":
-		return ai >= bi
+		return af >= bf
 	default:
 		return false
 	}
 }
 
-func toInt64Safe(x interface{}) (int64, bool) {
+func toFloat64Safe(x interface{}) (float64, bool) {
+	switch v := x.(type) {
+	case int:
+		return float64(v), true
+	case int64:
+		return float64(v), true
+	case uint64:
+		return float64(v), true
+	case float32:
+		return float64(v), true
+	case float64:
+		return v, true
+	default:
+		return 0, false
+	}
+}
+
+func toInt64Strict(x interface{}) (int64, bool) {
 	switch v := x.(type) {
 	case int:
 		return int64(v), true
 	case int64:
 		return v, true
 	case uint64:
-		return int64(v), true
-	case float64:
-		return int64(v), true
+		if v <= math.MaxInt64 {
+			return int64(v), true
+		}
+		return 0, false // Value too large to fit in int64.
 	default:
 		return 0, false
 	}
