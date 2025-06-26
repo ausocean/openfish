@@ -40,9 +40,11 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 )
 
 const typeNameValue = "NameValue" // NameValue datastore type.
+const typeMixed = "Mixed"         // Mixed datastore type.
 
 // NameValue represents a key/value pair.
 type NameValue struct {
@@ -88,6 +90,37 @@ func (v *NameValue) GetCache() Cache {
 	return v.cache
 }
 
+// Mixed represents a mixed entity for testing various comparisons.
+type Mixed struct {
+	ID      string    // primary key
+	Str     string    // test string comparisons
+	Int     int64     // test integer comparisons
+	Float   float64   // test float comparisons
+	Created time.Time // test time comparisons if needed
+	cache   Cache
+}
+
+// Copy copies a Mixed to dst, or returns a copy of the Mixed when dst is nil.
+func (m *Mixed) Copy(dst Entity) (Entity, error) {
+	var mix *Mixed
+	if dst == nil {
+		mix = new(Mixed)
+	} else {
+		var ok bool
+		mix, ok = dst.(*Mixed)
+		if !ok {
+			return nil, ErrWrongType
+		}
+	}
+	*mix = *m
+	return mix, nil
+}
+
+// GetCache returns the Mixed cache.
+func (m *Mixed) GetCache() Cache {
+	return m.cache
+}
+
 // CreateNameValue creates a NameValue.
 func CreateNameValue(ctx context.Context, store Store, key, value string) error {
 	k := store.NameKey(typeNameValue, key)
@@ -126,6 +159,7 @@ func DeleteNameValue(ctx context.Context, store Store, key string) error {
 // init registers the NameValue entitity.
 func init() {
 	RegisterEntity(typeNameValue, func() Entity { return new(NameValue) })
+	RegisterEntity(typeMixed, func() Entity { return new(Mixed) })
 }
 
 // TestFile tests the file store.
@@ -304,4 +338,291 @@ func TestFileDirect(t *testing.T) {
 	if len(entities) != 1 {
 		t.Errorf("GetAll by value returned %d entities, expected 1", len(entities))
 	}
+}
+
+// TestFileFilterField tests filestore filtering by a field that is not part of the key.
+func TestFileFilterField(t *testing.T) {
+	ctx := context.Background()
+	store, err := NewStore(ctx, "file", "test", "store")
+	if err != nil {
+		t.Fatalf("could not create file store: %v", err)
+	}
+
+	// Clear store dir for clean test (optional in your setup).
+	_ = os.RemoveAll("store/test/NameValue")
+
+	// Insert test data.
+	values := []NameValue{
+		{Name: "A", Value: "abalone"},
+		{Name: "B", Value: "bullseye"},
+		{Name: "C", Value: "abalone"},
+	}
+	for _, nv := range values {
+		_, err := store.Put(ctx, store.NameKey(typeNameValue, nv.Name), &nv)
+		if err != nil {
+			t.Fatalf("failed to insert test entity %s: %v", nv.Name, err)
+		}
+	}
+
+	// Filter by Value using FilterField (not part of key name).
+	q := store.NewQuery(typeNameValue, false, "Name") // keyParts only include Name.
+	q.FilterField("Value", "=", "abalone")
+
+	var results []NameValue
+	_, err = store.GetAll(ctx, q, &results)
+	if err != nil {
+		t.Fatalf("FilterField query failed: %v", err)
+	}
+	if len(results) != 2 {
+		t.Errorf("expected 2 results for Value = 'abalone', got %d", len(results))
+	}
+
+	// Filter by Name using FilterField (should fall back to Filter for efficiency).
+	q = store.NewQuery(typeNameValue, false, "Name")
+	q.FilterField("Name", "=", "B")
+
+	results = nil
+	_, err = store.GetAll(ctx, q, &results)
+	if err != nil {
+		t.Fatalf("FilterField fallback-to-key query failed: %v", err)
+	}
+	if len(results) != 1 || results[0].Name != "B" {
+		t.Errorf("expected 1 result for Name = 'B', got %+v", results)
+	}
+}
+
+func TestFileFilterFieldVariants(t *testing.T) {
+	ctx := context.Background()
+	store, err := NewStore(ctx, "file", "test", "store")
+	if err != nil {
+		t.Fatalf("could not create file store: %v", err)
+	}
+
+	// Reset the directory for a clean run.
+	_ = os.RemoveAll("store/test/NameValue")
+
+	// Insert test data.
+	data := []NameValue{
+		{Name: "a", Value: "apple"},
+		{Name: "b", Value: "banana"},
+		{Name: "c", Value: "carrot"},
+		{Name: "d", Value: "apple"},
+		{Name: "e", Value: "eggplant"},
+		{Name: "f", Value: ""},
+		{Name: "g", Value: "ápple"}, // Unicode variant
+		{Name: "h", Value: "appl"},  // Prefix of "apple"
+		{Name: "i", Value: "Apple"}, // Capitalized
+		{Name: "j", Value: "zucchini"},
+	}
+	for _, nv := range data {
+		_, err := store.Put(ctx, store.NameKey(typeNameValue, nv.Name), &nv)
+		if err != nil {
+			t.Fatalf("failed to insert test entity %s: %v", nv.Name, err)
+		}
+	}
+
+	tests := []struct {
+		name        string
+		field       string
+		operator    string
+		value       interface{}
+		keyParts    []string
+		limit       int
+		offset      int
+		expectNames []string
+	}{
+		{
+			name:        "Value = apple",
+			field:       "Value",
+			operator:    "=",
+			value:       "apple",
+			keyParts:    []string{"Name"},
+			expectNames: []string{"a", "d"},
+		},
+		{
+			name:        "Value < banana",
+			field:       "Value",
+			operator:    "<",
+			value:       "banana",
+			keyParts:    []string{"Name"},
+			expectNames: []string{"a", "d", "f", "h", "i"},
+		},
+		{
+			name:        "Value >= carrot",
+			field:       "Value",
+			operator:    ">=",
+			value:       "carrot",
+			keyParts:    []string{"Name"},
+			expectNames: []string{"c", "e", "g", "j"},
+		},
+		{
+			name:        "Value = '' (empty string)",
+			field:       "Value",
+			operator:    "=",
+			value:       "",
+			keyParts:    []string{"Name"},
+			expectNames: []string{"f"},
+		},
+		{
+			name:        "Unicode comparison (Value > apple)",
+			field:       "Value",
+			operator:    ">",
+			value:       "apple",
+			keyParts:    []string{"Name"},
+			expectNames: []string{"b", "c", "e", "g", "j"},
+		},
+		{
+			name:        "Name = h (uses key path)",
+			field:       "Name",
+			operator:    "=",
+			value:       "h",
+			keyParts:    []string{"Name"},
+			expectNames: []string{"h"},
+		},
+		{
+			name:        "Limit and offset combo",
+			field:       "Value",
+			operator:    ">",
+			value:       "a",
+			keyParts:    []string{"Name"},
+			limit:       2,
+			offset:      1,
+			expectNames: []string{"b", "c"},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			q := store.NewQuery(typeNameValue, false, tc.keyParts...)
+			q.FilterField(tc.field, tc.operator, tc.value)
+			q.Order(tc.field)
+			if tc.limit > 0 {
+				q.Limit(tc.limit)
+			}
+			if tc.offset > 0 {
+				q.Offset(tc.offset)
+			}
+
+			var results []NameValue
+			_, err := store.GetAll(ctx, q, &results)
+			if err != nil {
+				t.Fatalf("GetAll failed: %v", err)
+			}
+
+			var gotNames []string
+			for _, r := range results {
+				gotNames = append(gotNames, r.Name)
+			}
+
+			if !equalUnordered(gotNames, tc.expectNames) {
+				t.Errorf("unexpected result names: got %v, want %v", gotNames, tc.expectNames)
+			}
+		})
+	}
+}
+
+func TestFileFilterFieldMixedTypes(t *testing.T) {
+	ctx := context.Background()
+	store, err := NewStore(ctx, "file", "test", "store")
+	if err != nil {
+		t.Fatalf("could not create file store: %v", err)
+	}
+	_ = os.RemoveAll("store/test/Mixed")
+
+	now := time.Now().UTC()
+	entities := []Mixed{
+		{ID: "1", Str: "alpha", Int: 10, Float: 1.1, Created: now.Add(-10 * time.Hour)},
+		{ID: "2", Str: "bravo", Int: 20, Float: 2.2, Created: now.Add(-5 * time.Hour)},
+		{ID: "3", Str: "charlie", Int: 30, Float: 3.3, Created: now.Add(-1 * time.Hour)},
+		{ID: "4", Str: "delta", Int: 40, Float: 4.4, Created: now},
+	}
+
+	for _, e := range entities {
+		_, err := store.Put(ctx, store.NameKey(typeMixed, e.ID), &e)
+		if err != nil {
+			t.Fatalf("failed to insert test Mixed entity %s: %v", e.ID, err)
+		}
+	}
+
+	tests := []struct {
+		name      string
+		field     string
+		operator  string
+		value     interface{}
+		keyParts  []string
+		expectIDs []string
+	}{
+		{
+			name:      "Int >= 30",
+			field:     "Int",
+			operator:  ">=",
+			value:     int64(30),
+			keyParts:  []string{"ID"},
+			expectIDs: []string{"3", "4"},
+		},
+		{
+			name:      "Float < 3.0",
+			field:     "Float",
+			operator:  "<",
+			value:     3.0,
+			keyParts:  []string{"ID"},
+			expectIDs: []string{"1", "2"},
+		},
+		{
+			name:      "Str > 'bravo'",
+			field:     "Str",
+			operator:  ">",
+			value:     "bravo",
+			keyParts:  []string{"ID"},
+			expectIDs: []string{"3", "4"},
+		},
+		{
+			name:      "Created < now",
+			field:     "Created",
+			operator:  "<",
+			value:     now,
+			keyParts:  []string{"ID"},
+			expectIDs: []string{"1", "2", "3"},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			q := store.NewQuery(typeMixed, false, tc.keyParts...)
+			q.FilterField(tc.field, tc.operator, tc.value)
+			q.Order(tc.field)
+
+			var results []Mixed
+			_, err := store.GetAll(ctx, q, &results)
+			if err != nil {
+				t.Fatalf("GetAll failed: %v", err)
+			}
+
+			var gotIDs []string
+			for _, r := range results {
+				gotIDs = append(gotIDs, r.ID)
+			}
+			if !equalUnordered(gotIDs, tc.expectIDs) {
+				t.Errorf("unexpected result IDs: got %v, want %v", gotIDs, tc.expectIDs)
+			}
+		})
+	}
+}
+
+// equalUnordered checks that two string slices have the same elements, regardless of order.
+func equalUnordered(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	counts := make(map[string]int)
+	for _, x := range a {
+		counts[x]++
+	}
+	for _, x := range b {
+		if counts[x] == 0 {
+			return false
+		}
+		counts[x]--
+	}
+	return true
 }

@@ -130,8 +130,8 @@ func GetUserByEmail(email string) (*User, error) {
 		return nil, err
 	}
 
-	if len(keys) == 0 {
-		return nil, nil
+	if len(keys) == 0 || len(users) == 0 {
+		return nil, datastore.ErrNoSuchEntity
 	}
 
 	return &User{
