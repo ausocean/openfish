@@ -1,10 +1,10 @@
 {
   "dependencies": {},
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.0.6",
     "typescript": "^5.8.2",
-    "vite": "^6.2.5",
-    "vitest": "^3.2.3"
+    "vite": "^7.0.0",
+    "vitest": "^3.2.4"
   },
   "scripts": {
     "site": "pnpm --filter site",
