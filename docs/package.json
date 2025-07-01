@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@openfish/client": "workspace:^",
-    "vitepress-openapi": "0.0.3-alpha.81"
+    "vitepress-openapi": "0.1.0"
   },
   "devDependencies": {
     "vitepress": "^1.6.3"

@@ -10,7 +10,7 @@
     "ci:check": "biome ci --linter-enabled=true --reporter=github ."
   },
   "dependencies": {
-    "@floating-ui/dom": "^1.7.1",
+    "@floating-ui/dom": "^1.7.2",
     "@lit/context": "^1.1.4",
     "class-transformer": "^0.5.1",
     "lit": "^3.2.1",
@@ -18,9 +18,9 @@
     "vidstack": "1.12.13",
     "glob": "^11.0.3",
     "vite-plugin-lit-css": "^2.1.0",
-    "tailwindcss": "^4.1.10",
+    "tailwindcss": "^4.1.11",
     "@tailwindcss/forms": "^0.5.10",
-    "@tailwindcss/vite": "^4.1.10",
+    "@tailwindcss/vite": "^4.1.11",
     "@openfish/client": "workspace:*"
   },
   "peerDependencies": {
