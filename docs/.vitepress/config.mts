@@ -35,6 +35,7 @@ export default defineConfig({
         { text: 'Getting Started', link: '/developer-docs/getting-started' },
         { text: 'Contributing', link: '/developer-docs/contributing' },
         { text: 'OpenFish CLI', link: '/developer-docs/openfish-cli' },
+        { text: 'Openfish Player Integration', link: '/developer-docs/player-integration' },
         {
           text: 'API Documentation',
           base: '/developer-docs/api',
