@@ -16,14 +16,14 @@
     "@openfish/client": "workspace:^",
     "@openfish/ui": "workspace:^",
     "@fooloomanzoo/datetime-picker": "^3.0.9",
-    "@lit/context": "^1.1.4",
+    "@lit/context": "^1.1.6",
     "leaflet": "^1.9.4",
-    "lit": "^3.2.1",
+    "lit": "^3.3.1",
     "reflect-metadata": "^0.2.2",
-    "tailwindcss": "^4.1.10"
+    "tailwindcss": "^4.1.11"
   },
   "devDependencies": {
-    "@types/leaflet": "^1.9.17",
+    "@types/leaflet": "^1.9.20",
     "glob": "^11.0.3",
     "vite-plugin-lit-css": "^2.1.0"
   }
