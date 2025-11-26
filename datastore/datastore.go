@@ -85,6 +85,7 @@ var (
 	ErrEntityExists    = errors.New("entity exists")
 	ErrWrongType       = errors.New("wrong type")
 	ErrInvalidType     = datastore.ErrInvalidEntityType
+	ErrInvalidStoreID  = errors.New("invalid datastore id")
 )
 
 // We reuse some Google Datastore types.
@@ -202,12 +203,26 @@ type CloudStore struct {
 }
 
 // newCloudStore returns a new CloudStore, using the given URL to
-// retrieve credentials and authenticate. To obtain credentials from a
-// Google storage bucket, URL takes the form gs://bucket_name/creds. A
-// URL without a scheme is interpreted as a file. If the environment
-// variable <ID>_CREDENTIALS is defined it overrides the supplied URL.
+// retrieve credentials and authenticate.
+// The ID can be passed with an optional database name in the format
+// <ID>/<Database_Name>, if there is no database name given, the default
+// database will be used.
+// To obtain credentials from a Google storage bucket, URL takes the
+// form gs://bucket_name/creds. A URL without a scheme is interpreted
+// as a file. If the environment variable <ID>_CREDENTIALS is defined
+// it overrides the supplied URL.
 func newCloudStore(ctx context.Context, id, url string) (*CloudStore, error) {
 	s := new(CloudStore)
+
+	var db string
+	parts := strings.Split(id, "/")
+	if len(parts) == 2 {
+		db = parts[1]
+	} else if len(parts) != 1 {
+		return nil, ErrInvalidStoreID
+	}
+
+	id = parts[0]
 
 	ev := strings.ToUpper(id) + "_CREDENTIALS"
 	if os.Getenv(ev) != "" {
@@ -217,7 +232,7 @@ func newCloudStore(ctx context.Context, id, url string) (*CloudStore, error) {
 	var err error
 	if url == "" {
 		// Attempt authentication using the default credentials.
-		s.client, err = datastore.NewClient(ctx, id)
+		s.client, err = datastore.NewClientWithDatabase(ctx, id, db)
 		if err != nil {
 			log.Printf("datastore.NewCient failed: %v ", err)
 			return nil, err
@@ -262,7 +277,7 @@ func newCloudStore(ctx context.Context, id, url string) (*CloudStore, error) {
 		}
 	}
 
-	s.client, err = datastore.NewClient(ctx, id, option.WithCredentialsJSON(creds))
+	s.client, err = datastore.NewClientWithDatabase(ctx, id, db, option.WithCredentialsJSON(creds))
 	return s, err
 }
 
