@@ -110,3 +110,10 @@ func (c *EntityCache) Reset() {
 func NilCache() Cache {
 	return nil
 }
+
+type NoCache struct{}
+
+// GetCache returns nil, indicating no caching.
+func (NoCache) GetCache() Cache {
+	return nil
+}

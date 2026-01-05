@@ -97,6 +97,25 @@ type EntityDecoder interface {
 	Decode([]byte) error // Decode bytes into an entity.
 }
 
+// CopyEntity copies src into dst (if non-nil) or allocates a new *T.
+// It also enforces that dst is of the correct concrete type.
+func CopyEntity[T any, PT interface {
+	*T
+	Entity
+}](src PT, dst Entity) (Entity, error) {
+	if dst == nil {
+		dst = PT(new(T))
+	}
+
+	v, ok := dst.(PT)
+	if !ok {
+		return nil, ErrWrongType
+	}
+
+	*v = *src
+	return v, nil
+}
+
 // encode encodes an entity into bytes, by default using json.Marshal.
 func encode(e Entity) []byte {
 	encodable, ok := e.(EntityEncoder)
