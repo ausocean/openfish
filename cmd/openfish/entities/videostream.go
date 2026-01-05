@@ -52,27 +52,12 @@ type VideoStream struct {
 	StreamURL     string
 	CaptureSource int64
 	AnnotatorList []int64
+	datastore.NoCache
 }
 
 // Implements Copy from the Entity interface.
 func (vs *VideoStream) Copy(dst datastore.Entity) (datastore.Entity, error) {
-	var v *VideoStream
-	if dst == nil {
-		v = new(VideoStream)
-	} else {
-		var ok bool
-		v, ok = dst.(*VideoStream)
-		if !ok {
-			return nil, datastore.ErrWrongType
-		}
-	}
-	*v = *vs
-	return v, nil
-}
-
-// GetCache returns nil, because no caching is used.
-func (vs *VideoStream) GetCache() datastore.Cache {
-	return nil
+	return datastore.CopyEntity(vs, dst)
 }
 
 // NewVideoStream returns a new VideoStream entity.

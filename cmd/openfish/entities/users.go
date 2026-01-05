@@ -46,27 +46,12 @@ type User struct {
 	DisplayName string
 	Email       string
 	Role        role.Role
+	datastore.NoCache
 }
 
 // Implements Copy from the Entity interface.
 func (vs *User) Copy(dst datastore.Entity) (datastore.Entity, error) {
-	var v *User
-	if dst == nil {
-		v = new(User)
-	} else {
-		var ok bool
-		v, ok = dst.(*User)
-		if !ok {
-			return nil, datastore.ErrWrongType
-		}
-	}
-	*v = *vs
-	return v, nil
-}
-
-// GetCache returns nil, because no caching is used.
-func (vs *User) GetCache() datastore.Cache {
-	return nil
+	return datastore.CopyEntity(vs, dst)
 }
 
 // NewUser returns a new User entity.

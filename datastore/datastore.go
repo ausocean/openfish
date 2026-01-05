@@ -99,6 +99,10 @@ type EntityDecoder interface {
 
 // CopyEntity copies src into dst (if non-nil) or allocates a new *T.
 // It also enforces that dst is of the correct concrete type.
+//
+// It is a generic helper function to reduce boilerplate code when implementing the Entity interface.
+// T is the concrete struct type (e.g. Plan), and PT is a pointer to T (e.g. *Plan).
+// PT must implement the Entity interface.
 func CopyEntity[T any, PT interface {
 	*T
 	Entity

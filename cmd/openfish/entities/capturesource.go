@@ -50,27 +50,12 @@ type CaptureSource struct {
 	Location       googlestore.GeoPoint
 	CameraHardware string
 	SiteID         *int64 // Optional.
+	datastore.NoCache
 }
 
 // Implements Copy from the Entity interface.
 func (cs *CaptureSource) Copy(dst datastore.Entity) (datastore.Entity, error) {
-	var c *CaptureSource
-	if dst == nil {
-		c = new(CaptureSource)
-	} else {
-		var ok bool
-		c, ok = dst.(*CaptureSource)
-		if !ok {
-			return nil, datastore.ErrWrongType
-		}
-	}
-	*c = *cs
-	return c, nil
-}
-
-// GetCache returns nil, because no caching is used.
-func (cs *CaptureSource) GetCache() datastore.Cache {
-	return nil
+	return datastore.CopyEntity(cs, dst)
 }
 
 // NewCaptureSource returns a new CaptureSource entity.
