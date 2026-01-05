@@ -110,3 +110,11 @@ func (c *EntityCache) Reset() {
 func NilCache() Cache {
 	return nil
 }
+
+// NoCache is a helper struct to reduce boilerplate code when implementing the Entity interface for entities that do not require caching.
+type NoCache struct{}
+
+// GetCache returns nil, indicating no caching.
+func (NoCache) GetCache() Cache {
+	return nil
+}

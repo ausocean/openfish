@@ -71,18 +71,7 @@ func (v *NameValue) Decode(b []byte) error {
 
 // Copy copies a NameValue to dst, or returns a copy of the NameValue when dst is nil.
 func (v *NameValue) Copy(dst Entity) (Entity, error) {
-	var kv *NameValue
-	if dst == nil {
-		kv = new(NameValue)
-	} else {
-		var ok bool
-		kv, ok = dst.(*NameValue)
-		if !ok {
-			return nil, ErrWrongType
-		}
-	}
-	*kv = *v
-	return kv, nil
+	return CopyEntity(v, dst)
 }
 
 // GetCache returns the NameValue cache.
@@ -102,18 +91,7 @@ type Mixed struct {
 
 // Copy copies a Mixed to dst, or returns a copy of the Mixed when dst is nil.
 func (m *Mixed) Copy(dst Entity) (Entity, error) {
-	var mix *Mixed
-	if dst == nil {
-		mix = new(Mixed)
-	} else {
-		var ok bool
-		mix, ok = dst.(*Mixed)
-		if !ok {
-			return nil, ErrWrongType
-		}
-	}
-	*mix = *m
-	return mix, nil
+	return CopyEntity(m, dst)
 }
 
 // GetCache returns the Mixed cache.

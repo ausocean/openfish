@@ -48,27 +48,12 @@ type Species struct {
 	ImageAttributions  []string
 	INaturalistTaxonID *int // Optional.
 	SearchIndex        []string
+	datastore.NoCache
 }
 
 // Implements Copy from the Entity interface.
 func (vs *Species) Copy(dst datastore.Entity) (datastore.Entity, error) {
-	var v *Species
-	if dst == nil {
-		v = new(Species)
-	} else {
-		var ok bool
-		v, ok = dst.(*Species)
-		if !ok {
-			return nil, datastore.ErrWrongType
-		}
-	}
-	*v = *vs
-	return v, nil
-}
-
-// GetCache returns nil, because no caching is used.
-func (vs *Species) GetCache() datastore.Cache {
-	return nil
+	return datastore.CopyEntity(vs, dst)
 }
 
 // NewSpecies returns a new Species entity.

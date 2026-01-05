@@ -57,27 +57,12 @@ type Annotation struct {
 	// multiple times if it is identified by many users.
 	IdentificationUserID    []int64
 	IdentificationSpeciesID []int64
+	datastore.NoCache
 }
 
 // Implements Copy from the Entity interface.
 func (an *Annotation) Copy(dst datastore.Entity) (datastore.Entity, error) {
-	var a *Annotation
-	if dst == nil {
-		a = new(Annotation)
-	} else {
-		var ok bool
-		a, ok = dst.(*Annotation)
-		if !ok {
-			return nil, datastore.ErrWrongType
-		}
-	}
-	*a = *an
-	return a, nil
-}
-
-// GetCache returns nil, because no caching is used.
-func (an *Annotation) GetCache() datastore.Cache {
-	return nil
+	return datastore.CopyEntity(an, dst)
 }
 
 // NewAnnotation returns a new Annotation entity.

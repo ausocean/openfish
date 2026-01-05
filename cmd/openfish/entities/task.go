@@ -45,27 +45,12 @@ type Task struct {
 	Status   int
 	Resource string
 	Error    string
+	datastore.NoCache
 }
 
 // Implements Copy from the Entity interface.
 func (t *Task) Copy(dst datastore.Entity) (datastore.Entity, error) {
-	var v *Task
-	if dst == nil {
-		v = new(Task)
-	} else {
-		var ok bool
-		v, ok = dst.(*Task)
-		if !ok {
-			return nil, datastore.ErrWrongType
-		}
-	}
-	*v = *t
-	return v, nil
-}
-
-// GetCache returns nil, because no caching is used.
-func (t *Task) GetCache() datastore.Cache {
-	return nil
+	return datastore.CopyEntity(t, dst)
 }
 
 // NewTask returns a new Task entity.
