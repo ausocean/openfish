@@ -1,19 +1,20 @@
-import 'reflect-metadata'
-
-import { Transform, Type } from 'class-transformer'
-import { formatVideoTime, parseVideoTime } from '../utils/datetime'
+import { formatVideoTime } from '../utils/datetime'
 
 export class Keypoint {
-  @Transform(({ value }) => parseVideoTime(value), { toClassOnly: true })
-  @Transform(({ value }) => formatVideoTime(value, true), { toPlainOnly: true })
   accessor time: number
 
-  @Type(() => BoundingBox)
   accessor box: BoundingBox
 
   constructor(time: number, box: BoundingBox) {
     this.time = time
     this.box = box
+  }
+
+  toJSON() {
+    return {
+      time: formatVideoTime(this.time, true),
+      box: this.box
+    }
   }
 }
 

@@ -5,7 +5,6 @@ import { ref, type Ref, createRef } from "lit/directives/ref.js";
 import type { MediaPlayerElement } from "vidstack/elements";
 import { extractVideoID } from "../utils/youtube";
 import { repeat } from "lit/directives/repeat.js";
-import { instanceToPlain } from "class-transformer";
 import { BoundingBox, Keypoint } from "../utils/keypoints.ts";
 import { formatVideoTime, parseVideoTime } from "../utils/datetime";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
@@ -122,7 +121,7 @@ export class WatchStream extends TailwindElement {
     await this.client.POST("/api/v1/annotations", {
       body: {
         videostream_id: this._videostream!.id,
-        keypoints: instanceToPlain(this._keypoints) as any[],
+        keypoints: this._keypoints as any[],
         identification: this._identification,
       },
     });
