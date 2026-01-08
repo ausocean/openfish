@@ -69,24 +69,24 @@ export class SpeciesSelection extends TailwindElement {
     if (data !== undefined) {
       this._speciesList.push(...data.results)
       this.offset += 20
-      this._loading = false;
-      this._isMore = data.total == data.limit;
+      this._loading = false
+      this._isMore = data.total == data.limit
       this.requestUpdate()
     }
   }
 
-  private debouncedFetch = debounce(this.fetchMore, 300);
+  private debouncedFetch = debounce(this.fetchMore, 300)
 
   private async search(e: TextInputEvent) {
     this._search = e.target.value
     this.offset = 0
     this._speciesList = []
-    this._loading = true;
+    this._loading = true
     this.debouncedFetch()
   }
 
   render() {
-    let results : TemplateResult | typeof nothing = nothing;
+    let results: TemplateResult | typeof nothing = nothing
     if (!this._loading) {
       if (this._speciesList.length > 0) {
         results = html`
@@ -129,10 +129,14 @@ export class SpeciesSelection extends TailwindElement {
           ${results}
           <footer class="w-full pb-4">
             ${this._loading ? html`<p class="text-2xl text-center text-white mt-5">Loading...</p>` : nothing}
-            ${!this._loading && this._isMore ? html`
+            ${
+              !this._loading && this._isMore
+                ? html`
             <button class="mx-auto btn variant-slate" @click=${this.fetchMore}>
               Load more
-            </button>` : nothing}
+            </button>`
+                : nothing
+            }
           </footer>
         </div>
       </div>

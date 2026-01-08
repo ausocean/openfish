@@ -1,207 +1,202 @@
-import { TailwindElement } from "@openfish/ui/components/tailwind-element";
-import { html } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
-import { ref, type Ref, createRef } from "lit/directives/ref.js";
-import type { MediaPlayerElement } from "vidstack/elements";
-import { extractVideoID } from "../utils/youtube";
-import { repeat } from "lit/directives/repeat.js";
-import { BoundingBox, Keypoint } from "../utils/keypoints.ts";
-import { formatVideoTime, parseVideoTime } from "../utils/datetime";
-import { unsafeSVG } from "lit/directives/unsafe-svg.js";
+import { TailwindElement } from '@openfish/ui/components/tailwind-element'
+import { html } from 'lit'
+import { customElement, property, state } from 'lit/decorators.js'
+import { ref, type Ref, createRef } from 'lit/directives/ref.js'
+import type { MediaPlayerElement } from 'vidstack/elements'
+import { extractVideoID } from '../utils/youtube'
+import { repeat } from 'lit/directives/repeat.js'
+import { BoundingBox, Keypoint } from '../utils/keypoints.ts'
+import { formatVideoTime, parseVideoTime } from '../utils/datetime'
+import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
 
-import type {
-  AnnotationWithJoins,
-  OpenfishClient,
-  VideoStreamWithJoins,
-} from "@openfish/client";
-import type { MouseoverAnnotationEvent } from "./annotation-displayer";
-import type { SpeciesSelectionEvent } from "./species-selection";
-import type { UpdateBoundingBoxEvent } from "./bounding-box-creator";
+import type { AnnotationWithJoins, OpenfishClient, VideoStreamWithJoins } from '@openfish/client'
+import type { MouseoverAnnotationEvent } from './annotation-displayer'
+import type { SpeciesSelectionEvent } from './species-selection'
+import type { UpdateBoundingBoxEvent } from './bounding-box-creator'
 
-import "./annotation-displayer";
-import "./annotation-card";
-import "./timeline-heatmap";
-import "./species-selection";
-import "./bounding-box-creator";
+import './annotation-displayer'
+import './annotation-card'
+import './timeline-heatmap'
+import './species-selection'
+import './bounding-box-creator'
 
-import vidstackcss from "vidstack/player/styles/default/theme.css?lit";
-import "vidstack/player";
-import "vidstack/player/ui";
+import vidstackcss from 'vidstack/player/styles/default/theme.css?lit'
+import 'vidstack/player'
+import 'vidstack/player/ui'
 
-import caretLeft from "../icons/caret-left.svg?raw";
-import caretRight from "../icons/caret-right.svg?raw";
-import caretDoubleLeft from "../icons/caret-double-left.svg?raw";
-import caretDoubleRight from "../icons/caret-double-right.svg?raw";
-import play from "../icons/play.svg?raw";
-import pause from "../icons/pause.svg?raw";
-import replay from "../icons/replay.svg?raw";
-import x from "../icons/x.svg?raw";
-import { clientContext } from "../utils/context";
-import { consume } from "@lit/context";
+import caretLeft from '../icons/caret-left.svg?raw'
+import caretRight from '../icons/caret-right.svg?raw'
+import caretDoubleLeft from '../icons/caret-double-left.svg?raw'
+import caretDoubleRight from '../icons/caret-double-right.svg?raw'
+import play from '../icons/play.svg?raw'
+import pause from '../icons/pause.svg?raw'
+import replay from '../icons/replay.svg?raw'
+import x from '../icons/x.svg?raw'
+import { clientContext } from '../utils/context'
+import { consume } from '@lit/context'
 
-@customElement("watch-stream")
+@customElement('watch-stream')
 export class WatchStream extends TailwindElement {
   @consume({ context: clientContext, subscribe: true })
-  accessor client!: OpenfishClient;
+  accessor client!: OpenfishClient
 
   @property({ type: Number })
   set streamID(val: number) {
-    this.fetchVideoStream(val);
-    this.fetchAnnotations(val);
+    this.fetchVideoStream(val)
+    this.fetchAnnotations(val)
   }
 
   @state()
-  private accessor _videostream: VideoStreamWithJoins | null = null;
+  private accessor _videostream: VideoStreamWithJoins | null = null
 
   @state()
-  private accessor _annotations: AnnotationWithJoins[] = [];
+  private accessor _annotations: AnnotationWithJoins[] = []
 
   @state()
-  private accessor _activeId: number | null = null;
+  private accessor _activeId: number | null = null
 
   @state()
-  private accessor _currentTime = 0;
+  private accessor _currentTime = 0
 
   @state()
-  private accessor _duration = 0;
+  private accessor _duration = 0
 
   @state()
-  private accessor _seekTo: number | null = null;
+  private accessor _seekTo: number | null = null
 
   @state()
-  private accessor _mode: "playback" | "editor" = "playback";
+  private accessor _mode: 'playback' | 'editor' = 'playback'
 
   private play() {
-    this.playerRef.value?.play();
+    this.playerRef.value?.play()
   }
 
   private pause() {
-    this.playerRef.value?.pause();
+    this.playerRef.value?.pause()
   }
 
   @state()
-  private accessor _identification: number | null = null;
+  private accessor _identification: number | null = null
 
   @state()
-  private accessor _keypoints: Keypoint[] = [];
+  private accessor _keypoints: Keypoint[] = []
 
   @state()
-  private accessor _boundingBox: [number, number, number, number] | null = null;
+  private accessor _boundingBox: [number, number, number, number] | null = null
 
   private addKeyPoint() {
     if (this._boundingBox === null) {
-      return;
+      return
     }
     const box = new BoundingBox(
       this._boundingBox[0],
       this._boundingBox[1],
       this._boundingBox[2],
-      this._boundingBox[3],
-    );
-    this._keypoints.push(new Keypoint(this._currentTime, box));
+      this._boundingBox[3]
+    )
+    this._keypoints.push(new Keypoint(this._currentTime, box))
 
-    this.requestUpdate();
+    this.requestUpdate()
   }
 
   private addAnnotation() {
-    this._mode = "editor";
-    this.pause();
-    this._keypoints = [];
+    this._mode = 'editor'
+    this.pause()
+    this._keypoints = []
   }
 
-  playerRef: Ref<MediaPlayerElement> = createRef();
+  playerRef: Ref<MediaPlayerElement> = createRef()
 
   private async confirmAnnotation() {
     if (this._identification === null) {
-      console.error("attempted to create annotation without identification");
-      return;
+      console.error('attempted to create annotation without identification')
+      return
     }
 
     // Make annotation.
-    await this.client.POST("/api/v1/annotations", {
+    await this.client.POST('/api/v1/annotations', {
       body: {
         videostream_id: this._videostream!.id,
         keypoints: this._keypoints as any[],
         identification: this._identification,
       },
-    });
+    })
 
     // Refetch annotations.
-    await this.fetchAnnotations(this._videostream!.id);
+    await this.fetchAnnotations(this._videostream!.id)
 
     // Start playing.
-    this._mode = "playback";
-    this.play();
+    this._mode = 'playback'
+    this.play()
   }
 
   private cancelAnnotation() {
-    this._mode = "playback";
-    this._identification = null;
+    this._mode = 'playback'
+    this._identification = null
   }
 
   private onSeek(e: CustomEvent) {
-    this._seekTo = e.detail;
+    this._seekTo = e.detail
   }
 
   private fwd(seconds: number) {
-    this._seekTo = Math.min(this._duration, this._currentTime + seconds);
+    this._seekTo = Math.min(this._duration, this._currentTime + seconds)
   }
 
   private bwd(seconds: number) {
-    this._seekTo = Math.max(0, this._currentTime - seconds);
+    this._seekTo = Math.max(0, this._currentTime - seconds)
   }
 
   async fetchVideoStream(id: number) {
     // Fetch video stream with ID.
-    const { data, error } = await this.client.GET("/api/v1/videostreams/{id}", {
+    const { data, error } = await this.client.GET('/api/v1/videostreams/{id}', {
       params: {
         path: { id },
       },
-    });
+    })
 
     if (error !== undefined) {
-      console.error(error);
+      console.error(error)
     }
 
     if (data !== undefined) {
-      this._videostream = data;
+      this._videostream = data
     }
   }
   async fetchAnnotations(id: number) {
     // Fetch annotations for this video stream.
     // TODO: We should only fetch a small portion of the annotations near the current playback position.
     //       When the user plays the video we can fetch in more as needed.
-    const { data, error } = await this.client.GET("/api/v1/annotations", {
+    const { data, error } = await this.client.GET('/api/v1/annotations', {
       params: {
         query: {
           videostream: id,
-          order: "StartTime",
+          order: 'StartTime',
         },
       },
-    });
+    })
 
     if (error !== undefined) {
-      console.error(error);
+      console.error(error)
     }
 
     if (data !== undefined) {
-      this._annotations = data.results;
+      this._annotations = data.results
     }
   }
 
   render() {
-    let filteredAnnotations: AnnotationWithJoins[] = [];
+    let filteredAnnotations: AnnotationWithJoins[] = []
     if (this._videostream != null) {
       // Filter annotations to only show those spanning the current playback time/position.
       filteredAnnotations = this._annotations.filter(
         (a) =>
-          parseVideoTime(a.start) <= this._currentTime &&
-          this._currentTime <= parseVideoTime(a.end),
-      );
+          parseVideoTime(a.start) <= this._currentTime && this._currentTime <= parseVideoTime(a.end)
+      )
     }
 
     // Render video.
-    const videoID = extractVideoID(this._videostream?.stream_url);
+    const videoID = extractVideoID(this._videostream?.stream_url)
 
     const playbackControls = html` <div
       class="flex w-full px-4 py-1 gap-2 bg-blue-600 text-slate-50 items-center"
@@ -328,10 +323,10 @@ export class WatchStream extends TailwindElement {
         <span class="mx-1 text-blue-200">/</span>
         <media-time class="inline" type="duration"></media-time>
       </span>
-    </div>`;
+    </div>`
 
     const asideContents =
-      this._mode === "playback"
+      this._mode === 'playback'
         ? html`
             <header
               class="bg-blue-600 flex p-4 align-center shadow-sm border-b border-b-blue-500"
@@ -346,8 +341,7 @@ export class WatchStream extends TailwindElement {
               .annotations=${this._annotations}
               .currentTime=${this._currentTime}
               .activeAnnotation=${this._activeId}
-              @mouseover-annotation=${(e: MouseoverAnnotationEvent) =>
-                (this._activeId = e.detail)}
+              @mouseover-annotation=${(e: MouseoverAnnotationEvent) => (this._activeId = e.detail)}
               @seek=${this.onSeek}
             >
             </annotation-list>
@@ -369,28 +363,26 @@ export class WatchStream extends TailwindElement {
             <species-selection
               class="h-full w-full"
               @selection=${(e: SpeciesSelectionEvent) => {
-                this._identification = e.detail;
-                console.log(e.detail);
+                this._identification = e.detail
+                console.log(e.detail)
               }}
             >
             </species-selection>
-          `;
+          `
 
     const overlay =
-      this._mode === "playback"
+      this._mode === 'playback'
         ? html`
             <annotation-overlay
               .annotations=${filteredAnnotations}
               .activeAnnotation=${this._activeId}
               .currentTime=${this._currentTime}
-              @mouseover-annotation=${(e: MouseoverAnnotationEvent) =>
-                (this._activeId = e.detail)}
+              @mouseover-annotation=${(e: MouseoverAnnotationEvent) => (this._activeId = e.detail)}
             ></annotation-overlay>
           `
         : html`
             <bounding-box-creator
-              @updateboundingbox=${(e: UpdateBoundingBoxEvent) =>
-                (this._boundingBox = e.detail)}
+              @updateboundingbox=${(e: UpdateBoundingBoxEvent) => (this._boundingBox = e.detail)}
             ></bounding-box-creator>
             <div
               class="keypoint-contain absolute h-min-content flex gap-4 p-4 pt-0 left-0 right-0 bottom-0"
@@ -398,8 +390,10 @@ export class WatchStream extends TailwindElement {
               <button
                 class="btn variant-slate"
                 @click=${this.addKeyPoint}
-                .disabled=${this._boundingBox === null ||
-                this._keypoints.map((k) => k.time).includes(this._currentTime)}
+                .disabled=${
+                  this._boundingBox === null ||
+                  this._keypoints.map((k) => k.time).includes(this._currentTime)
+                }
               >
                 Add keypoint
               </button>
@@ -416,18 +410,16 @@ export class WatchStream extends TailwindElement {
                     <button
                       class="btn variant-slate rounded-none with-icon p-2 aspect-square"
                       @click=${() => {
-                        this._keypoints = this._keypoints.filter(
-                          (v) => v.time !== k.time,
-                        );
+                        this._keypoints = this._keypoints.filter((v) => v.time !== k.time)
                       }}
                     >
                       ${unsafeSVG(x)}
                     </button>
                   </span>
-                `,
+                `
               )}
             </div>
-          `;
+          `
 
     return html`
       <main class="bg-blue-700 overflow-clip rounded-lg h-full">
@@ -440,8 +432,7 @@ export class WatchStream extends TailwindElement {
           .keyDisabled=${true}
           @time-update=${(e: CustomEvent<{ currentTime: number }>) =>
             (this._currentTime = e.detail.currentTime)}
-          @duration-change=${(e: CustomEvent<number>) =>
-            (this._duration = e.detail)}
+          @duration-change=${(e: CustomEvent<number>) => (this._duration = e.detail)}
           .muted=${true}
         >
           <div class="flex h-[calc(100%-3rem)] w-full">
@@ -449,9 +440,9 @@ export class WatchStream extends TailwindElement {
               <media-provider>
                 <media-poster
                   class="blur-xl absolute inset-0 block h-full w-full bg-blue-950 opacity-0 transition-opacity data-[visible]:opacity-100 [&>img]:h-full [&>img]:w-full [&>img]:object-cover"
-                  ?src=${videoID !== null
-                    ? `https://i.ytimg.com/vi/${videoID}/maxresdefault.jpg`
-                    : null}
+                  ?src=${
+                    videoID !== null ? `https://i.ytimg.com/vi/${videoID}/maxresdefault.jpg` : null
+                  }
                 ></media-poster>
               </media-provider>
               <media-video-layout></media-video-layout>
@@ -465,14 +456,14 @@ export class WatchStream extends TailwindElement {
           ${playbackControls}
         </media-player>
       </main>
-    `;
+    `
   }
 
-  static styles = [TailwindElement.styles!, vidstackcss];
+  static styles = [TailwindElement.styles!, vidstackcss]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "watch-stream": WatchStream;
+    'watch-stream': WatchStream
   }
 }
