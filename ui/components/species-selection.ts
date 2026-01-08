@@ -1,5 +1,5 @@
 import { TailwindElement } from '@openfish/ui/components/tailwind-element'
-import { html, nothing, TemplateResult } from 'lit'
+import { html, nothing } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import type { OpenfishClient, Species } from '@openfish/client'
@@ -70,7 +70,7 @@ export class SpeciesSelection extends TailwindElement {
       this._speciesList.push(...data.results)
       this.offset += 20
       this._loading = false
-      this._isMore = data.total == data.limit
+      this._isMore = data.total === data.limit
       this.requestUpdate()
     }
   }

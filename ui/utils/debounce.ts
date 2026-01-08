@@ -6,10 +6,9 @@ export function debounce<T extends (...args: any[]) => any>(
   let timer: ReturnType<typeof setTimeout>
 
   return function (this: any, ...args: Parameters<T>) {
-    const context = this
     clearTimeout(timer)
     timer = setTimeout(() => {
-      func.apply(context, args)
+      func.apply(this, args)
     }, delay)
   }
 }
