@@ -39,11 +39,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ausocean/cloud/datastore"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/cmd/openfish/types/timespan"
 	"github.com/ausocean/openfish/cmd/openfish/types/timezone"
-	"github.com/ausocean/openfish/datastore"
 )
 
 // VideoStream is a video stream registered to OpenFish, for annotation and playback.

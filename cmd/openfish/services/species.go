@@ -38,10 +38,10 @@ import (
 	"context"
 	"strings"
 
+	"github.com/ausocean/cloud/datastore"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/cmd/openfish/sliceutils"
-	"github.com/ausocean/openfish/datastore"
 )
 
 // Species describes a species that can be chosen in identifications on a stream.

@@ -50,7 +50,7 @@ func TestCreateUser(t *testing.T) {
 		Role:        role.Default,
 	})
 	if err != nil {
-		t.Errorf("Could not create user entity %s", err)
+		t.Fatalf("Could not create user entity %s", err)
 	}
 }
 
@@ -98,7 +98,7 @@ func TestGetUserByID(t *testing.T) {
 
 	user, err := services.GetUserByID(id)
 	if err != nil {
-		t.Errorf("Could not get user entity %s", err)
+		t.Fatalf("Could not get user entity %s", err)
 	}
 
 	if user.ID != id {
@@ -129,7 +129,7 @@ func TestGetUserByEmail(t *testing.T) {
 
 	user, err := services.GetUserByEmail("coral.fischer@example.com")
 	if err != nil {
-		t.Errorf("Could not get user entity: %s", err)
+		t.Fatalf("Could not get user entity: %s", err)
 	}
 
 	if user.DisplayName != contents.DisplayName {
@@ -164,7 +164,7 @@ func TestUpdateUser(t *testing.T) {
 		Role: &role,
 	})
 	if err != nil {
-		t.Errorf("Could not update user entity %s", err)
+		t.Fatalf("Could not update user entity %s", err)
 	}
 
 	user, _ := services.GetUserByID(id)
@@ -178,7 +178,7 @@ func TestUpdateUser(t *testing.T) {
 		DisplayName: &displayName,
 	})
 	if err != nil {
-		t.Errorf("Could not update user entity %s", err)
+		t.Fatalf("Could not update user entity %s", err)
 	}
 
 	user, _ = services.GetUserByID(id)
@@ -215,7 +215,7 @@ func TestDeleteUser(t *testing.T) {
 	// Delete the capture source entity.
 	err = services.DeleteUser(id)
 	if err != nil {
-		t.Errorf("Could not delete user entity")
+		t.Fatalf("Could not delete user entity: %s", err)
 	}
 
 	// Check if the capture source exists.

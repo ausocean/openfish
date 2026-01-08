@@ -37,7 +37,7 @@ package entities
 import (
 	googlestore "cloud.google.com/go/datastore"
 
-	"github.com/ausocean/openfish/datastore"
+	"github.com/ausocean/cloud/datastore"
 )
 
 // Kind of entity to store / fetch from the datastore.

@@ -37,10 +37,10 @@ package services
 import (
 	"context"
 
+	"github.com/ausocean/cloud/datastore"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/cmd/openfish/types/role"
-	"github.com/ausocean/openfish/datastore"
 )
 
 // PublicUser is a user without private information, for public display, e.g. on annotations.

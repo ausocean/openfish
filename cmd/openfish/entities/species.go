@@ -34,7 +34,7 @@ LICENSE
 package entities
 
 import (
-	"github.com/ausocean/openfish/datastore"
+	"github.com/ausocean/cloud/datastore"
 )
 
 // Kind of entity to store / fetch from the datastore.

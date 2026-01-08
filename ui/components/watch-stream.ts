@@ -5,7 +5,6 @@ import { ref, type Ref, createRef } from 'lit/directives/ref.js'
 import type { MediaPlayerElement } from 'vidstack/elements'
 import { extractVideoID } from '../utils/youtube'
 import { repeat } from 'lit/directives/repeat.js'
-import { instanceToPlain } from 'class-transformer'
 import { BoundingBox, Keypoint } from '../utils/keypoints.ts'
 import { formatVideoTime, parseVideoTime } from '../utils/datetime'
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
@@ -118,7 +117,7 @@ export class WatchStream extends TailwindElement {
     await this.client.POST('/api/v1/annotations', {
       body: {
         videostream_id: this._videostream!.id,
-        keypoints: instanceToPlain(this._keypoints) as any[],
+        keypoints: this._keypoints as any[],
         identification: this._identification,
       },
     })
@@ -199,75 +198,139 @@ export class WatchStream extends TailwindElement {
     // Render video.
     const videoID = extractVideoID(this._videostream?.stream_url)
 
-    const playbackControls = html`
-		<div class="flex w-full px-4 py-1 gap-2 bg-blue-600 text-slate-50 items-center">
-        <media-play-button class="btn size-sm variant-orange w-28 justify-center group with-icon gap-2">
-          <span class="contents not-group-data-[paused]:hidden group-data-[ended]:hidden whitespace-nowrap">${unsafeSVG(play)} Play</span>
-          <span class="contents not-group-data-[ended]:hidden whitespace-nowrap">${unsafeSVG(replay)} Replay</span>
-          <span class="contents group-data-[paused]:hidden whitespace-nowrap">${unsafeSVG(pause)} Pause</span>
-        </media-play-button>
+    const playbackControls = html` <div
+      class="flex w-full px-4 py-1 gap-2 bg-blue-600 text-slate-50 items-center"
+    >
+      <media-play-button
+        class="btn size-sm variant-orange w-28 justify-center group with-icon gap-2"
+      >
+        <span
+          class="contents not-group-data-[paused]:hidden group-data-[ended]:hidden whitespace-nowrap"
+          >${unsafeSVG(play)} Play</span
+        >
+        <span class="contents not-group-data-[ended]:hidden whitespace-nowrap"
+          >${unsafeSVG(replay)} Replay</span
+        >
+        <span class="contents group-data-[paused]:hidden whitespace-nowrap"
+          >${unsafeSVG(pause)} Pause</span
+        >
+      </media-play-button>
 
-        <div class="flex w-32 *:px-0 rounded-md overflow-clip">
-          <button id="bwd-5" class="btn size-sm variant-blue with-icon rounded-none w-18" @click="${() => this.bwd(5)}">${unsafeSVG(caretDoubleLeft)}</button>
-          <button id="bwd-1" class="btn size-sm variant-blue with-icon rounded-none w-18" @click="${() => this.bwd(1)}">${unsafeSVG(caretLeft)}</button>
-          <button id="fwd-1" class="btn size-sm variant-blue with-icon rounded-none w-18" @click="${() => this.fwd(1)}">${unsafeSVG(caretRight)}</button>
-          <button id="fwd-5" class="btn size-sm variant-blue with-icon rounded-none w-18" @click="${() => this.fwd(5)}">${unsafeSVG(caretDoubleRight)}</button>
+      <div class="flex w-32 *:px-0 rounded-md overflow-clip">
+        <button
+          id="bwd-5"
+          class="btn size-sm variant-blue with-icon rounded-none w-18"
+          @click="${() => this.bwd(5)}"
+        >
+          ${unsafeSVG(caretDoubleLeft)}
+        </button>
+        <button
+          id="bwd-1"
+          class="btn size-sm variant-blue with-icon rounded-none w-18"
+          @click="${() => this.bwd(1)}"
+        >
+          ${unsafeSVG(caretLeft)}
+        </button>
+        <button
+          id="fwd-1"
+          class="btn size-sm variant-blue with-icon rounded-none w-18"
+          @click="${() => this.fwd(1)}"
+        >
+          ${unsafeSVG(caretRight)}
+        </button>
+        <button
+          id="fwd-5"
+          class="btn size-sm variant-blue with-icon rounded-none w-18"
+          @click="${() => this.fwd(5)}"
+        >
+          ${unsafeSVG(caretDoubleRight)}
+        </button>
 
-          <tooltip-elem for="bwd-5" trigger="hover" placement="top" class="text-nowrap">Jump back 5 seconds</tooltip-elem>
-          <tooltip-elem for="bwd-1" trigger="hover" placement="top" class="text-nowrap">Jump back 1 second</tooltip-elem>
-          <tooltip-elem for="fwd-1" trigger="hover" placement="top" class="text-nowrap">Jump forward 1 second</tooltip-elem>
-          <tooltip-elem for="fwd-5" trigger="hover" placement="top" class="text-nowrap">Jump forward 5 seconds</tooltip-elem>
-        </div>
+        <tooltip-elem
+          for="bwd-5"
+          trigger="hover"
+          placement="top"
+          class="text-nowrap"
+          >Jump back 5 seconds</tooltip-elem
+        >
+        <tooltip-elem
+          for="bwd-1"
+          trigger="hover"
+          placement="top"
+          class="text-nowrap"
+          >Jump back 1 second</tooltip-elem
+        >
+        <tooltip-elem
+          for="fwd-1"
+          trigger="hover"
+          placement="top"
+          class="text-nowrap"
+          >Jump forward 1 second</tooltip-elem
+        >
+        <tooltip-elem
+          for="fwd-5"
+          trigger="hover"
+          placement="top"
+          class="text-nowrap"
+          >Jump forward 5 seconds</tooltip-elem
+        >
+      </div>
 
-
-        <div class="w-full">
-            <media-time-slider
-                class="group relative inline-flex h-10 w-full cursor-pointer touch-none select-none items-center outline-none aria-hidden:hidden"
-                >
-                <!-- Track -->
-                <div
-                    class="relative h-6 w-full rounded-sm bg-blue-500 group-data-[focus]:ring-[3px] overflow-clip"
-                >
-                    <div
-                        class="absolute z-0 h-full w-[var(--slider-progress)] bg-blue-400 will-change-[width]"
-                    ></div>
-                    <div
-                      class="absolute z-10 h-full w-[var(--slider-fill)] bg-blue-300/50 will-change-[width]"
-                    ></div>
-                    <timeline-heatmap class="absolute z-20 h-full w-full" .annotations=${this._annotations} .duration=${this._duration}/>
-                </div>
-
-                <!-- Preview -->
-                <media-slider-preview
-                    class="pointer-events-none flex flex-col items-center opacity-0 transition-opacity duration-200 data-[visible]:opacity-100"
-                    noClamp
-                >
-                    <media-slider-thumbnail
-                    class="block h-[var(--thumbnail-height)] max-h-[160px] min-h-[80px] w-[var(--thumbnail-width)] min-w-[120px] max-w-[180px] overflow-hidden border border-white bg-black"
-                    src="/your_thumbnails.vtt"
-                    ></media-slider-thumbnail>
-                    <media-slider-value
-                    class="rounded-sm bg-black px-2 py-px text-[13px] font-medium text-white"
-                    ></media-slider-value>
-                </media-slider-preview>
-
-            <!-- Thumb -->
+      <div class="w-full">
+        <media-time-slider
+          class="group relative inline-flex h-10 w-full cursor-pointer touch-none select-none items-center outline-none aria-hidden:hidden"
+        >
+          <!-- Track -->
+          <div
+            class="relative h-6 w-full rounded-sm bg-blue-500 group-data-[focus]:ring-[3px] overflow-clip"
+          >
             <div
-                class="absolute left-[var(--slider-fill)] top-1/2 z-30 h-8 w-1 -translate-x-1/2 -translate-y-1/2 bg-red-400 ring-white/40 opacity-75 transition-opacity group-data-[active]:opacity-100  will-change-[left]  group-data-[dragging]:ring-4"
+              class="absolute z-0 h-full w-[var(--slider-progress)] bg-blue-400 will-change-[width]"
             ></div>
-            </media-time-slider>
-        </div>
+            <div
+              class="absolute z-10 h-full w-[var(--slider-fill)] bg-blue-300/50 will-change-[width]"
+            ></div>
+            <timeline-heatmap
+              class="absolute z-20 h-full w-full"
+              .annotations=${this._annotations}
+              .duration=${this._duration}
+            />
+          </div>
 
-        <span class="p-1 w-48 whitespace-nowrap text-right text-blue-50">
-            <media-time class="inline" type="current"></media-time>
-            <span class="mx-1 text-blue-200">/</span>
-            <media-time class="inline" type="duration"></media-time>
-        </span>
+          <!-- Preview -->
+          <media-slider-preview
+            class="pointer-events-none flex flex-col items-center opacity-0 transition-opacity duration-200 data-[visible]:opacity-100"
+            noClamp
+          >
+            <media-slider-thumbnail
+              class="block h-[var(--thumbnail-height)] max-h-[160px] min-h-[80px] w-[var(--thumbnail-width)] min-w-[120px] max-w-[180px] overflow-hidden border border-white bg-black"
+              src="/your_thumbnails.vtt"
+            ></media-slider-thumbnail>
+            <media-slider-value
+              class="rounded-sm bg-black px-2 py-px text-[13px] font-medium text-white"
+            ></media-slider-value>
+          </media-slider-preview>
+
+          <!-- Thumb -->
+          <div
+            class="absolute left-[var(--slider-fill)] top-1/2 z-30 h-8 w-1 -translate-x-1/2 -translate-y-1/2 bg-red-400 ring-white/40 opacity-75 transition-opacity group-data-[active]:opacity-100  will-change-[left]  group-data-[dragging]:ring-4"
+          ></div>
+        </media-time-slider>
+      </div>
+
+      <span class="p-1 w-48 whitespace-nowrap text-right text-blue-50">
+        <media-time class="inline" type="current"></media-time>
+        <span class="mx-1 text-blue-200">/</span>
+        <media-time class="inline" type="duration"></media-time>
+      </span>
     </div>`
 
     const asideContents =
       this._mode === 'playback'
-        ? html` <header class="bg-blue-600 flex p-4 align-center shadow-sm border-b border-b-blue-500">
+        ? html`
+            <header
+              class="bg-blue-600 flex p-4 align-center shadow-sm border-b border-b-blue-500"
+            >
               <h3 class="text-blue-50 text-lg flex-1">Annotations</h3>
               <button class="btn variant-orange" @click=${this.addAnnotation}>
                 + Add annotation
@@ -282,21 +345,29 @@ export class WatchStream extends TailwindElement {
               @seek=${this.onSeek}
             >
             </annotation-list>
-            `
+          `
         : html`
-          <header class="bg-blue-600 flex p-4 align-center gap-2">
-            <h3 class="text-blue-50 text-lg flex-1">Add Annotation</h3>
-            <button class="btn variant-slate" @click=${this.cancelAnnotation}>Cancel</button>
-            <button class="btn variant-orange" @click=${this.confirmAnnotation} .disabled=${this._keypoints.length === 0}>Done</button>
-          </header>
-          <species-selection
-            class="h-full w-full"
-            @selection=${(e: SpeciesSelectionEvent) => {
-              this._identification = e.detail
-              console.log(e.detail)
-            }}
-          >
-          </species-selection>
+            <header class="bg-blue-600 flex p-4 align-center gap-2">
+              <h3 class="text-blue-50 text-lg flex-1">Add Annotation</h3>
+              <button class="btn variant-slate" @click=${this.cancelAnnotation}>
+                Cancel
+              </button>
+              <button
+                class="btn variant-orange"
+                @click=${this.confirmAnnotation}
+                .disabled=${this._keypoints.length === 0}
+              >
+                Done
+              </button>
+            </header>
+            <species-selection
+              class="h-full w-full"
+              @selection=${(e: SpeciesSelectionEvent) => {
+                this._identification = e.detail
+                console.log(e.detail)
+              }}
+            >
+            </species-selection>
           `
 
     const overlay =
@@ -313,7 +384,9 @@ export class WatchStream extends TailwindElement {
             <bounding-box-creator
               @updateboundingbox=${(e: UpdateBoundingBoxEvent) => (this._boundingBox = e.detail)}
             ></bounding-box-creator>
-            <div class="keypoint-contain absolute h-min-content flex gap-4 p-4 pt-0 left-0 right-0 bottom-0">
+            <div
+              class="keypoint-contain absolute h-min-content flex gap-4 p-4 pt-0 left-0 right-0 bottom-0"
+            >
               <button
                 class="btn variant-slate"
                 @click=${this.addKeyPoint}
@@ -327,14 +400,12 @@ export class WatchStream extends TailwindElement {
               ${repeat(
                 this._keypoints,
                 (k: Keypoint) => html`
-                  <span
-                    class="flex overflow-clip rounded-lg"
-                  >
+                  <span class="flex overflow-clip rounded-lg">
                     <button
                       class="btn variant-slate rounded-none"
                       @click=${() => (this._seekTo = k.time)}
                     >
-                        ${formatVideoTime(k.time, true)}
+                      ${formatVideoTime(k.time, true)}
                     </button>
                     <button
                       class="btn variant-slate rounded-none with-icon p-2 aspect-square"
@@ -351,40 +422,40 @@ export class WatchStream extends TailwindElement {
           `
 
     return html`
-		<main class="bg-blue-700 overflow-clip rounded-lg h-full">
-  		<media-player
-        class="h-full flex flex-col"
-        ${ref(this.playerRef)}
-        title="Openfish Video"
-        src="youtube/${videoID}"
-        .currentTime="${this._seekTo}"
-        @time-update=${(e: CustomEvent<{ currentTime: number }>) =>
-          (this._currentTime = e.detail.currentTime)}
-        @duration-change=${(e: CustomEvent<number>) => (this._duration = e.detail)}
-        .muted=${true}
+      <main class="bg-blue-700 overflow-clip rounded-lg h-full">
+        <media-player
+          class="h-full flex flex-col"
+          ${ref(this.playerRef)}
+          title="Openfish Video"
+          src="youtube/${videoID}"
+          .currentTime="${this._seekTo}"
+          .keyDisabled=${true}
+          @time-update=${(e: CustomEvent<{ currentTime: number }>) =>
+            (this._currentTime = e.detail.currentTime)}
+          @duration-change=${(e: CustomEvent<number>) => (this._duration = e.detail)}
+          .muted=${true}
         >
-        <div class="flex h-[calc(100%-3rem)] w-full">
-
+          <div class="flex h-[calc(100%-3rem)] w-full">
             <div class="aspect-[4/3] relative">
-                <media-provider>
-                    <media-poster
-                        class="blur-xl absolute inset-0 block h-full w-full bg-blue-950 opacity-0 transition-opacity data-[visible]:opacity-100 [&>img]:h-full [&>img]:w-full [&>img]:object-cover"
-                        ?src=${videoID !== null ? `https://i.ytimg.com/vi/${videoID}/maxresdefault.jpg` : null}
-                    ></media-poster>
-                </media-provider>
-                <media-video-layout ></media-video-layout>
-                <div class="absolute inset-0 z-10">
-                    ${overlay}
-                </div>
+              <media-provider>
+                <media-poster
+                  class="blur-xl absolute inset-0 block h-full w-full bg-blue-950 opacity-0 transition-opacity data-[visible]:opacity-100 [&>img]:h-full [&>img]:w-full [&>img]:object-cover"
+                  ?src=${
+                    videoID !== null ? `https://i.ytimg.com/vi/${videoID}/maxresdefault.jpg` : null
+                  }
+                ></media-poster>
+              </media-provider>
+              <media-video-layout></media-video-layout>
+              <div class="absolute inset-0 z-10">${overlay}</div>
             </div>
 
             <aside class="flex flex-col bg-blue-700 overflow-y-hidden w-full">
               ${asideContents}
             </aside>
-        </div>
-        ${playbackControls}
-    </media-player>
-		</main>
+          </div>
+          ${playbackControls}
+        </media-player>
+      </main>
     `
   }
 

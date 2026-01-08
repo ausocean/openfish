@@ -38,11 +38,11 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/ausocean/cloud/datastore"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/cmd/openfish/types/keypoint"
 	"github.com/ausocean/openfish/cmd/openfish/types/videotime"
-	"github.com/ausocean/openfish/datastore"
 )
 
 // Identification is a species suggestion made by users.
