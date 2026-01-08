@@ -38,9 +38,9 @@ import (
 	"context"
 	"net/url"
 
+	"github.com/ausocean/cloud/datastore"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/globals"
-	"github.com/ausocean/openfish/datastore"
 )
 
 // TaskStatus represents the status of a task.

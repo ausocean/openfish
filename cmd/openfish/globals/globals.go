@@ -37,8 +37,8 @@ package globals
 import (
 	"context"
 
+	"github.com/ausocean/cloud/datastore"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
-	"github.com/ausocean/openfish/datastore"
 	"github.com/ausocean/openfish/storage"
 )
 

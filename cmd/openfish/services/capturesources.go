@@ -37,10 +37,10 @@ package services
 import (
 	"context"
 
+	"github.com/ausocean/cloud/datastore"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
 	"github.com/ausocean/openfish/cmd/openfish/globals"
 	"github.com/ausocean/openfish/cmd/openfish/types/latlong"
-	"github.com/ausocean/openfish/datastore"
 )
 
 // CaptureSource stores information about the camera that produces video streams.
