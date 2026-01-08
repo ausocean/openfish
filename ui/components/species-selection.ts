@@ -1,5 +1,5 @@
 import { TailwindElement } from '@openfish/ui/components/tailwind-element'
-import { html } from 'lit'
+import { html, nothing, TemplateResult } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import type { OpenfishClient, Species } from '@openfish/client'
@@ -38,6 +38,9 @@ export class SpeciesSelection extends TailwindElement {
   @state()
   accessor _loading = true
 
+  @state()
+  accessor _isMore = false
+
   private selectSpecies(species: Species) {
     this.selection = species
     this.dispatchEvent(new CustomEvent('selection', { detail: this.selection?.id }))
@@ -66,6 +69,8 @@ export class SpeciesSelection extends TailwindElement {
     if (data !== undefined) {
       this._speciesList.push(...data.results)
       this.offset += 20
+      this._loading = false;
+      this._isMore = data.total == data.limit;
       this.requestUpdate()
     }
   }
@@ -76,23 +81,15 @@ export class SpeciesSelection extends TailwindElement {
     this._search = e.target.value
     this.offset = 0
     this._speciesList = []
+    this._loading = true;
     this.debouncedFetch()
   }
 
   render() {
-    return html`
-      <header
-        class="bg-blue-600 px-3 py-2 border-b border-b-blue-500 shadow-sm"
-      >
-        <input
-          type="search"
-          class="bg-blue-700 border border-blue-800 text-blue-50 w-full rounded-md placeholder:text-blue-300"
-          placeholder="Search species"
-          @input=${this.search}
-        />
-      </header>
-      <div class="relative overflow-y-scroll h-[calc(100%-3rem)]">
-        <div class="absolute inset-0">
+    let results : TemplateResult | typeof nothing = nothing;
+    if (!this._loading) {
+      if (this._speciesList.length > 0) {
+        results = html`
           <ul
             class="grid overflow-hidden gap-4 p-4 grid-cols-2 auto-rows-auto"
           >
@@ -109,10 +106,33 @@ export class SpeciesSelection extends TailwindElement {
             `
             )}
           </ul>
+        `
+      } else {
+        results = html`
+          <p class="text-2xl text-center text-white mt-5">No Results</p>
+        `
+      }
+    }
+    return html`
+      <header
+        class="bg-blue-600 px-3 py-2 border-b border-b-blue-500 shadow-sm"
+      >
+        <input
+          type="search"
+          class="bg-blue-700 border border-blue-800 text-blue-50 w-full rounded-md placeholder:text-blue-300"
+          placeholder="Search species"
+          @input=${this.search}
+        />
+      </header>
+      <div class="relative overflow-y-scroll h-[calc(100%-3rem)]">
+        <div class="absolute inset-0">
+          ${results}
           <footer class="w-full pb-4">
+            ${this._loading ? html`<p class="text-2xl text-center text-white mt-5">Loading...</p>` : nothing}
+            ${!this._loading && this._isMore ? html`
             <button class="mx-auto btn variant-slate" @click=${this.fetchMore}>
               Load more
-            </button>
+            </button>` : nothing}
           </footer>
         </div>
       </div>
