@@ -3,10 +3,9 @@ import { css, html, svg } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import { createRef, ref, type Ref } from 'lit/directives/ref.js'
-import { findClosestKeypointPair, interpolateKeypoints } from '../utils/keypoints.ts'
+import { BoundingBox, findClosestKeypointPair, interpolateKeypoints } from '../utils/keypoints.ts'
 import type { AnnotationWithJoins } from '@openfish/client'
 import { parseVideoTime } from '../utils/datetime.ts'
-import { plainToInstance } from 'class-transformer'
 import { Keypoint } from '../utils/keypoints.ts'
 
 export type MouseoverAnnotationEvent = CustomEvent<number | null>
@@ -31,7 +30,7 @@ export class AnnotationOverlay extends AnnotationDisplayer {
   render() {
     const rects = repeat(this.annotations, (annotation: AnnotationWithJoins) => {
       // Interpolate between keypoints.
-      const keypoints = annotation.keypoints.map((k) => plainToInstance(Keypoint, k))
+      const keypoints = annotation.keypoints.map((k) => new Keypoint(parseVideoTime(k.time), new BoundingBox(k.box.x1, k.box.y1, k.box.x2, k.box.y2)))
       const kpPair = findClosestKeypointPair(keypoints, this.currentTime)
       const box = interpolateKeypoints(kpPair, this.currentTime)
 
