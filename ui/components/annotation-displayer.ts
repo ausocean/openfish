@@ -30,7 +30,13 @@ export class AnnotationOverlay extends AnnotationDisplayer {
   render() {
     const rects = repeat(this.annotations, (annotation: AnnotationWithJoins) => {
       // Interpolate between keypoints.
-      const keypoints = annotation.keypoints.map((k) => new Keypoint(parseVideoTime(k.time), new BoundingBox(k.box.x1, k.box.y1, k.box.x2, k.box.y2)))
+      const keypoints = annotation.keypoints.map(
+        (k) =>
+          new Keypoint(
+            parseVideoTime(k.time),
+            new BoundingBox(k.box.x1, k.box.y1, k.box.x2, k.box.y2)
+          )
+      )
       const kpPair = findClosestKeypointPair(keypoints, this.currentTime)
       const box = interpolateKeypoints(kpPair, this.currentTime)
 

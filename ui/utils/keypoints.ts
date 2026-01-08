@@ -13,7 +13,7 @@ export class Keypoint {
   toJSON() {
     return {
       time: formatVideoTime(this.time, true),
-      box: this.box
+      box: this.box,
     }
   }
 }
