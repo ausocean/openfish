@@ -7,6 +7,7 @@ import type { OpenfishClient, Species } from '@openfish/client'
 import '@openfish/ui/components/species-thumb'
 import { consume } from '@lit/context'
 import { clientContext } from '../utils/context'
+import { debounce } from '../utils/debounce'
 
 export type SpeciesSelectionEvent = CustomEvent<number | null>
 type TextInputEvent = InputEvent & { target: HTMLInputElement }
@@ -33,6 +34,9 @@ export class SpeciesSelection extends TailwindElement {
 
   @state()
   accessor _search = ''
+
+  @state()
+  accessor _loading = true
 
   private selectSpecies(species: Species) {
     this.selection = species
@@ -66,11 +70,13 @@ export class SpeciesSelection extends TailwindElement {
     }
   }
 
+  private debouncedFetch = debounce(this.fetchMore, 300);
+
   private async search(e: TextInputEvent) {
     this._search = e.target.value
     this.offset = 0
     this._speciesList = []
-    this.fetchMore()
+    this.debouncedFetch()
   }
 
   render() {
@@ -79,7 +85,7 @@ export class SpeciesSelection extends TailwindElement {
         class="bg-blue-600 px-3 py-2 border-b border-b-blue-500 shadow-sm"
       >
         <input
-          type="text"
+          type="search"
           class="bg-blue-700 border border-blue-800 text-blue-50 w-full rounded-md placeholder:text-blue-300"
           placeholder="Search species"
           @input=${this.search}
