@@ -9,7 +9,7 @@ COPY go.mod go.sum ./
 RUN go build ./cmd/openfish
 
 # Production container.
-FROM alpine:3.22 as production-stage
+FROM alpine:3.23 as production-stage
 WORKDIR /app
 COPY --from=build-stage /src/openfish ./
 EXPOSE 8080
