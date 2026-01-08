@@ -1,5 +1,5 @@
 # Build stage.
-FROM golang:1.24-alpine as build-stage
+FROM golang:1.25-alpine as build-stage
 WORKDIR /src
 
 COPY cmd/openfish ./cmd/openfish
@@ -9,7 +9,7 @@ COPY go.mod go.sum ./
 RUN go build ./cmd/openfish
 
 # Production container.
-FROM alpine:3.21 as production-stage
+FROM alpine:3.22 as production-stage
 WORKDIR /app
 COPY --from=build-stage /src/openfish ./
 EXPOSE 8080
