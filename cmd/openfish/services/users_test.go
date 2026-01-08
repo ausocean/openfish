@@ -58,11 +58,14 @@ func TestUserExists(t *testing.T) {
 	setup()
 
 	// Create a new user entity.
-	id, _ := services.CreateUser(services.UserContents{
+	id, err := services.CreateUser(services.UserContents{
 		DisplayName: "Coral Fischer",
 		Email:       "coral.fischer@example.com",
 		Role:        role.Default,
 	})
+	if err != nil {
+		t.Errorf("Could not create user: %s", err)
+	}
 
 	// Check if the user exists.
 	if !services.UserExists(id) {
@@ -88,7 +91,10 @@ func TestGetUserByID(t *testing.T) {
 		Email:       "coral.fischer@example.com",
 		Role:        role.Default,
 	}
-	id, _ := services.CreateUser(contents)
+	id, err := services.CreateUser(contents)
+	if err != nil {
+		t.Errorf("Could not create user: %s", err)
+	}
 
 	user, err := services.GetUserByID(id)
 	if err != nil {
@@ -116,11 +122,14 @@ func TestGetUserByEmail(t *testing.T) {
 		Email:       "coral.fischer@example.com",
 		Role:        role.Default,
 	}
-	services.CreateUser(contents)
+	_, err := services.CreateUser(contents)
+	if err != nil {
+		t.Errorf("Could not create user: %s", err)
+	}
 
 	user, err := services.GetUserByEmail("coral.fischer@example.com")
 	if err != nil {
-		t.Fatalf("Could not get user entity %s", err)
+		t.Fatalf("Could not get user entity: %s", err)
 	}
 
 	if user.DisplayName != contents.DisplayName {
@@ -140,15 +149,18 @@ func TestUpdateUser(t *testing.T) {
 	setup()
 
 	// Create a new user entity.
-	id, _ := services.CreateUser(services.UserContents{
+	id, err := services.CreateUser(services.UserContents{
 		DisplayName: "Coral Fischer",
 		Email:       "coral.fischer@example.com",
 		Role:        role.Default,
 	})
+	if err != nil {
+		t.Errorf("Could not create user: %s", err)
+	}
 
 	// Update the role.
 	role := role.Admin
-	err := services.UpdateUser(id, services.PartialUserContents{
+	err = services.UpdateUser(id, services.PartialUserContents{
 		Role: &role,
 	})
 	if err != nil {
@@ -191,14 +203,17 @@ func TestDeleteUser(t *testing.T) {
 	setup()
 
 	// Create a new user entity.
-	id, _ := services.CreateUser(services.UserContents{
+	id, err := services.CreateUser(services.UserContents{
 		DisplayName: "Coral Fischer",
 		Email:       "coral.fischer@example.com",
 		Role:        role.Default,
 	})
+	if err != nil {
+		t.Errorf("Could not create user: %s", err)
+	}
 
 	// Delete the capture source entity.
-	err := services.DeleteUser(id)
+	err = services.DeleteUser(id)
 	if err != nil {
 		t.Fatalf("Could not delete user entity: %s", err)
 	}
