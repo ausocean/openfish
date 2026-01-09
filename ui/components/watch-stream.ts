@@ -84,6 +84,9 @@ export class WatchStream extends TailwindElement {
   @state()
   private accessor _boundingBox: [number, number, number, number] | null = null
 
+  @state()
+  private accessor isSquare: bool = false
+
   private addKeyPoint() {
     if (this._boundingBox === null) {
       return
@@ -157,7 +160,9 @@ export class WatchStream extends TailwindElement {
     if (data !== undefined) {
       this._videostream = data
     }
+    this.fetchAspectRatio()
   }
+
   async fetchAnnotations(id: number) {
     // Fetch annotations for this video stream.
     // TODO: We should only fetch a small portion of the annotations near the current playback position.
@@ -177,6 +182,20 @@ export class WatchStream extends TailwindElement {
 
     if (data !== undefined) {
       this._annotations = data.results
+    }
+  }
+
+  async fetchAspectRatio() {
+    const url = `https://www.youtube.com/oembed?url=${this._videostream?.stream_url}`
+    const response = await fetch(url)
+    if (!response.ok) {
+      throw new Error('OEmbed API call failed')
+    }
+    const data = await response.json()
+    const ratio = data.width / data.height
+    // There is a bit of tolerence here as the ratio may not match exactly 1.333
+    if (ratio >= 1.2 && ratio <= 1.4) {
+      this.isSquare = true
     }
   }
 
@@ -417,9 +436,9 @@ export class WatchStream extends TailwindElement {
           `
 
     return html`
-      <main class="bg-blue-700 overflow-clip rounded-lg h-full">
+      <main class="bg-blue-700 overflow-clip rounded-lg h-full w-auto flex">
         <media-player
-          class="h-full flex flex-col"
+          class="h-full flex flex-col !aspect-auto !w-auto"
           ${ref(this.playerRef)}
           title="Openfish Video"
           src="youtube/${videoID}"
@@ -430,8 +449,8 @@ export class WatchStream extends TailwindElement {
           @duration-change=${(e: CustomEvent<number>) => (this._duration = e.detail)}
           .muted=${true}
         >
-          <div class="flex h-[calc(100%-3rem)] w-full">
-            <div class="aspect-[4/3] relative">
+          <div class="flex h-[calc(100%-3rem)] w-fit">
+            <div class="${this.isSquare ? 'aspect-[4/3]' : 'aspect-video'} relative h-full w-auto">
               <media-provider>
                 <media-poster
                   class="blur-xl absolute inset-0 block h-full w-full bg-blue-950 opacity-0 transition-opacity data-[visible]:opacity-100 [&>img]:h-full [&>img]:w-full [&>img]:object-cover"
@@ -444,7 +463,7 @@ export class WatchStream extends TailwindElement {
               <div class="absolute inset-0 z-10">${overlay}</div>
             </div>
 
-            <aside class="flex flex-col bg-blue-700 overflow-y-hidden w-full">
+            <aside class="flex flex-col bg-blue-700 overflow-y-hidden w-lg shrink-0">
               ${asideContents}
             </aside>
           </div>
