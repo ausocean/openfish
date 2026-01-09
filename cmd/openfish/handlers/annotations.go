@@ -196,9 +196,9 @@ func CreateAnnotation(ctx *fiber.Ctx) error {
 
 	// Write data to the datastore.
 	annotation := services.AnnotationContents{
-		KeyPoints:     body.KeyPoints,
-		VideostreamID: body.VideostreamID,
-		CreatedByID:   annotator.ID,
+		KeyPoints:       body.KeyPoints,
+		VideostreamID:   body.VideostreamID,
+		CreatedByID:     annotator.ID,
 		Identifications: ids,
 	}
 
