@@ -184,14 +184,22 @@ func CreateAnnotation(ctx *fiber.Ctx) error {
 		return api.Forbidden(fmt.Errorf("logged in user is not within annotator list for this videostream (%d)", body.VideostreamID))
 	}
 
+	// Check if we have any identifications.
+	var ids map[int64][]int64
+	if body.Identification != nil {
+		ids = map[int64][]int64{
+			*body.Identification: {annotator.ID},
+		}
+	} else {
+		ids = nil
+	}
+
 	// Write data to the datastore.
 	annotation := services.AnnotationContents{
 		KeyPoints:     body.KeyPoints,
 		VideostreamID: body.VideostreamID,
 		CreatedByID:   annotator.ID,
-		Identifications: map[int64][]int64{
-			*body.Identification: {annotator.ID},
-		},
+		Identifications: ids,
 	}
 
 	created, err := services.CreateAnnotation(annotation)
