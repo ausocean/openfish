@@ -121,6 +121,14 @@ export class AnnotationCard extends TailwindElement {
         </div>
       </li>
     `
+    const unknownSpecies = html`
+      <li class="flex justify-between items-center">
+        <div>
+          <p class="font-bold">Unknown</p>
+          <p class="text-sm text-slate-700">Please identify me!</p>
+        </div>
+      </li>
+    `
 
     return html`
             ${
@@ -163,7 +171,7 @@ export class AnnotationCard extends TailwindElement {
           </span>
         </header>
         <ul class="space-y-2 px-4 py-2 ${!this.active ? 'pb-4' : ''}">
-          ${repeat(this.annotation.identifications, renderIdentification)}
+          ${this.annotation.identifications.length === 0 ? unknownSpecies : repeat(this.annotation.identifications, renderIdentification)}
         </ul>
         ${
           this.active

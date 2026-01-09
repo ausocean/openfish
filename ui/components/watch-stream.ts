@@ -108,11 +108,6 @@ export class WatchStream extends TailwindElement {
   playerRef: Ref<MediaPlayerElement> = createRef()
 
   private async confirmAnnotation() {
-    if (this._identification === null) {
-      console.error('attempted to create annotation without identification')
-      return
-    }
-
     // Make annotation.
     await this.client.POST('/api/v1/annotations', {
       body: {
