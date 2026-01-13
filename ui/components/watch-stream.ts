@@ -5,7 +5,12 @@ import { ref, type Ref, createRef } from 'lit/directives/ref.js'
 import type { MediaPlayerElement } from 'vidstack/elements'
 import { extractVideoID } from '../utils/youtube'
 import { repeat } from 'lit/directives/repeat.js'
-import { BoundingBox, Keypoint } from '../utils/keypoints.ts'
+import {
+  BoundingBox,
+  findClosestKeypointPair,
+  interpolateKeypoints,
+  Keypoint,
+} from '../utils/keypoints.ts'
 import { formatVideoTime, parseVideoTime } from '../utils/datetime'
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
 
@@ -102,6 +107,21 @@ export class WatchStream extends TailwindElement {
     this._keypoints.push(new Keypoint(this._currentTime, box))
 
     this.requestUpdate()
+  }
+
+  private updateBoundingBox(e: UpdateBoundingBoxEvent) {
+    this._boundingBox = e.detail
+    const keypoint = this._keypoints.filter((v) => v.time === this._currentTime, this)
+    if (keypoint.length > 0) {
+      keypoint[0].box = new BoundingBox(
+        this._boundingBox[0],
+        this._boundingBox[1],
+        this._boundingBox[2],
+        this._boundingBox[3]
+      )
+    } else {
+      this.addKeyPoint()
+    }
   }
 
   private addAnnotation() {
@@ -444,6 +464,16 @@ export class WatchStream extends TailwindElement {
         `
     }
 
+    if (
+      this._mode === 'editor' &&
+      this._keypoints.length > 1 &&
+      this._currentTime >= this._keypoints[0].time &&
+      this._currentTime <= this._keypoints[this._keypoints.length - 1].time
+    ) {
+      const kpPair = findClosestKeypointPair(this._keypoints, this._currentTime)
+      const box = interpolateKeypoints(kpPair, this._currentTime)
+      this._boundingBox = [box.x1, box.y1, box.x2, box.y2]
+    }
     const overlay =
       this._mode === 'playback' || this._mode === 'identification'
         ? html`
@@ -456,21 +486,12 @@ export class WatchStream extends TailwindElement {
           `
         : html`
             <bounding-box-creator
-              @updateboundingbox=${(e: UpdateBoundingBoxEvent) => (this._boundingBox = e.detail)}
+              @updateboundingbox=${this.updateBoundingBox}
+              .box=${this._boundingBox}
             ></bounding-box-creator>
             <div
               class="keypoint-contain absolute h-min-content flex gap-4 p-4 pt-0 left-0 right-0 bottom-0"
             >
-              <button
-                class="btn variant-slate"
-                @click=${this.addKeyPoint}
-                .disabled=${
-                  this._boundingBox === null ||
-                  this._keypoints.map((k) => k.time).includes(this._currentTime)
-                }
-              >
-                Add keypoint
-              </button>
               ${repeat(
                 this._keypoints,
                 (k: Keypoint) => html`
@@ -510,7 +531,9 @@ export class WatchStream extends TailwindElement {
           .muted=${true}
         >
           <div class="flex h-[calc(100%-3rem)] w-fit">
-            <div class="${this.isSquare ? 'aspect-[4/3]' : 'aspect-video'} relative h-full w-auto">
+            <div
+              class="${this.isSquare ? 'aspect-[4/3]' : 'aspect-video'} relative h-full w-auto"
+            >
               <media-provider>
                 <media-poster
                   class="blur-xl absolute inset-0 block h-full w-full bg-blue-950 opacity-0 transition-opacity data-[visible]:opacity-100 [&>img]:h-full [&>img]:w-full [&>img]:object-cover"
