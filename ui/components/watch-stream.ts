@@ -1,13 +1,18 @@
-import { TailwindElement } from "@openfish/ui/components/tailwind-element";
-import { html } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
-import { ref, type Ref, createRef } from "lit/directives/ref.js";
-import type { MediaPlayerElement } from "vidstack/elements";
-import { extractVideoID } from "../utils/youtube";
-import { repeat } from "lit/directives/repeat.js";
-import { BoundingBox, findClosestKeypointPair, interpolateKeypoints, Keypoint } from "../utils/keypoints.ts";
-import { formatVideoTime, parseVideoTime } from "../utils/datetime";
-import { unsafeSVG } from "lit/directives/unsafe-svg.js";
+import { TailwindElement } from '@openfish/ui/components/tailwind-element'
+import { html } from 'lit'
+import { customElement, property, state } from 'lit/decorators.js'
+import { ref, type Ref, createRef } from 'lit/directives/ref.js'
+import type { MediaPlayerElement } from 'vidstack/elements'
+import { extractVideoID } from '../utils/youtube'
+import { repeat } from 'lit/directives/repeat.js'
+import {
+  BoundingBox,
+  findClosestKeypointPair,
+  interpolateKeypoints,
+  Keypoint,
+} from '../utils/keypoints.ts'
+import { formatVideoTime, parseVideoTime } from '../utils/datetime'
+import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
 
 import type {
   AnnotationWithJoins,
@@ -107,11 +112,8 @@ export class WatchStream extends TailwindElement {
   }
 
   private updateBoundingBox(e: UpdateBoundingBoxEvent) {
-    this._boundingBox = e.detail;
-    const keypoint = this._keypoints.filter(
-      (v) => v.time == this._currentTime,
-      this,
-    );
+    this._boundingBox = e.detail
+    const keypoint = this._keypoints.filter((v) => v.time === this._currentTime, this)
     if (keypoint.length > 0) {
       keypoint[0].box = new BoundingBox(
         this._boundingBox[0],
@@ -408,11 +410,13 @@ export class WatchStream extends TailwindElement {
             </species-selection>
           `;
 
-    if (this._mode === "editor" && this._keypoints.length > 1 && this._currentTime >= this._keypoints[0].time && this._currentTime <= this._keypoints[this._keypoints.length - 1].time) {
-      const kpPair = findClosestKeypointPair(
-        this._keypoints,
-        this._currentTime,
-      )
+    if (
+      this._mode === 'editor' &&
+      this._keypoints.length > 1 &&
+      this._currentTime >= this._keypoints[0].time &&
+      this._currentTime <= this._keypoints[this._keypoints.length - 1].time
+    ) {
+      const kpPair = findClosestKeypointPair(this._keypoints, this._currentTime)
       const box = interpolateKeypoints(kpPair, this._currentTime)
       this._boundingBox = [box.x1, box.y1, box.x2, box.y2]
     }
@@ -478,9 +482,7 @@ export class WatchStream extends TailwindElement {
         >
           <div class="flex h-[calc(100%-3rem)] w-fit">
             <div
-              class="${this.isSquare
-                ? "aspect-[4/3]"
-                : "aspect-video"} relative h-full w-auto"
+              class="${this.isSquare ? 'aspect-[4/3]' : 'aspect-video'} relative h-full w-auto"
             >
               <media-provider>
                 <media-poster
