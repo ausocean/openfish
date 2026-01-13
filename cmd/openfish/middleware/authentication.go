@@ -88,7 +88,7 @@ func ValidateJWT(aud string) func(*fiber.Ctx) error {
 		user, err := services.GetUserByEmail(email)
 		if err != nil {
 			if errors.Is(err, datastore.ErrNoSuchEntity) {
-				userContents := services.UserContents{DisplayName: strings.Split(email, "@")[0], Email: email}
+				userContents := services.UserContents{DisplayName: strings.Split(email, "@")[0], Email: email, Role: role.Readonly}
 				userId, err := services.CreateUser(userContents)
 				if err != nil {
 					return err
