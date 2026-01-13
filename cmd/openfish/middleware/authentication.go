@@ -35,8 +35,11 @@ package middleware
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"strings"
 
+	"github.com/ausocean/cloud/datastore"
 	"github.com/ausocean/openfish/cmd/openfish/api"
 	"github.com/ausocean/openfish/cmd/openfish/services"
 	"github.com/ausocean/openfish/cmd/openfish/types/role"
@@ -81,10 +84,22 @@ func ValidateJWT(aud string) func(*fiber.Ctx) error {
 		email := payload.Claims["email"].(string)
 		ctx.Locals("email", email)
 
-		// Fetch user from datastore if they exist.
+		// Fetch user from datastore if they exist, otherwise create the user.
 		user, err := services.GetUserByEmail(email)
 		if err != nil {
-			return err
+			if errors.Is(err, datastore.ErrNoSuchEntity) {
+				userContents := services.UserContents{DisplayName: strings.Split(email, "@")[0], Email: email}
+				userId, err := services.CreateUser(userContents)
+				if err != nil {
+					return err
+				}
+				user, err = services.GetUserByID(userId)
+				if err != nil {
+					return err
+				}
+			} else {
+				return err
+			}
 		}
 		ctx.Locals("user", user)
 
