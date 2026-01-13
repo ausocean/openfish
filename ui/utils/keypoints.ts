@@ -51,13 +51,13 @@ export function findClosestKeypointPair(
   keypoints: Keypoint[],
   currentTime: number
 ): [Keypoint, Keypoint] {
-  for (let i = 0; i < keypoints.length - 1; i++) {
+  for (let i = 0; i < keypoints.length; i++) {
     const kp = keypoints[i]
-    const kpNext = keypoints[i + 1]
 
     if (kp.time === currentTime) {
       return [kp, kp]
     }
+    const kpNext = keypoints[i + 1]
     if (kpNext.time > currentTime) {
       return [kp, kpNext]
     }
@@ -67,7 +67,7 @@ export function findClosestKeypointPair(
 }
 
 export function lerp(t: number, t0: number, t1: number, v0: number, v1: number) {
-  return (v0 * (t1 - t) + v1 * (t - t0)) / (t1 - t0)
+  return (v0 * (t1 - t) + v1 * (t - t0)) / (t1 - t0) || v0
 }
 
 export function interpolateKeypoints(
