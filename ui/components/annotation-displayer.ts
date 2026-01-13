@@ -48,7 +48,7 @@ export class AnnotationOverlay extends AnnotationDisplayer {
 
           <foreignobject x="${box.xmin}%" y="${box.ymin}%" width="${box.w}%" height="${box.h}%" class="relative">
             <span class="px-1 py-0.5 text-xs bg-slate-900/50 text-white w-full absolute top-0 right-0 text-center text-nowrap">
-              ${annotation.identifications[0].species.common_name}
+              ${annotation.identifications[0] ? annotation.identifications[0].species.common_name : "Unknown"}
             </span>
           </foreignobject>
           <rect
