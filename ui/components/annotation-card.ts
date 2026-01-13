@@ -40,6 +40,16 @@ export class AnnotationCard extends TailwindElement {
     )
   }
 
+  dispatchIdentifyEvent(species: number | null) {
+    this.dispatchEvent(
+      new CustomEvent('identify', {
+        detail: { annotationId: this.annotation?.id, speciesId: species },
+        bubbles: true,
+        composed: true,
+      })
+    )
+  }
+
   render() {
     if (this.annotation === undefined) {
       return html`<div class="card"></div>`
@@ -97,6 +107,7 @@ export class AnnotationCard extends TailwindElement {
                 id=${`btn-upvote-${iden.species.id}`}
                 class="btn variant-blue size-sm"
                 ?disabled=${isMine(iden)}
+                @click=${() => this.dispatchIdentifyEvent(iden.species.id)}
             >
                 <div class="*:w-4 *:h-4 *:fill-slate-50 mr-1 -ml-1">
                 ${unsafeSVG(caretUp)}
@@ -179,7 +190,7 @@ export class AnnotationCard extends TailwindElement {
                 class="flex justify-between items-baseline px-4 py-3 bg-slate-200"
               >
                 <span class="text-sm">Not correct?</span>
-                <button class="btn variant-blue size-sm">
+                <button class="btn variant-blue size-sm" @click=${() => this.dispatchIdentifyEvent(null)}>
                   Add identification
                 </button>
               </footer>`
