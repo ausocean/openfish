@@ -70,7 +70,7 @@ export class WatchStream extends TailwindElement {
   private accessor _seekTo: number | null = null
 
   @state()
-  private accessor _mode: 'playback' | 'editor' = 'playback'
+  private accessor _mode: 'playback' | 'editor' | 'identification' = 'playback'
 
   private play() {
     this.playerRef.value?.play()
@@ -90,6 +90,8 @@ export class WatchStream extends TailwindElement {
   private accessor _boundingBox: [number, number, number, number] | null = null
 
   @state()
+  private accessor _annotationId: number | null = null
+
   private accessor isSquare: bool = false
 
   private addKeyPoint() {
@@ -148,6 +150,24 @@ export class WatchStream extends TailwindElement {
     this.play()
   }
 
+  private async confirmIdentification() {
+    // Submit identification.
+    await this.client.POST('/api/v1/annotations/{id}/identifications/{species_id}', {
+      params: {
+        path: {
+          id: this._annotationId,
+          species_id: this._identification,
+        },
+      },
+    })
+
+    // Refetch annotations.
+    await this.fetchAnnotations(this._videostream!.id)
+    this._annotationId = null
+    this._identification = null
+    this._mode = 'playback'
+  }
+
   private cancelAnnotation() {
     this._mode = 'playback'
     this._identification = null
@@ -155,6 +175,19 @@ export class WatchStream extends TailwindElement {
 
   private onSeek(e: CustomEvent) {
     this._seekTo = e.detail
+  }
+
+  private onIdentify(e: CustomEvent) {
+    this._annotationId = e.detail.annotationId
+    if (e.detail.speciesId === null) {
+      // No species specified, so we want to choose one.
+      this._identification = null
+      this._mode = 'identification'
+    } else {
+      // Species specified (upvote).
+      this._identification = e.detail.speciesId
+      this.confirmIdentification()
+    }
   }
 
   private fwd(seconds: number) {
@@ -359,50 +392,77 @@ export class WatchStream extends TailwindElement {
       </span>
     </div>`
 
-    const asideContents =
-      this._mode === 'playback'
-        ? html`
-            <header
-              class="bg-blue-600 flex p-4 align-center shadow-sm border-b border-b-blue-500"
+    const asideContents = () => {
+      if (this._mode === 'playback')
+        return html`
+          <header
+            class="bg-blue-600 flex p-4 align-center shadow-sm border-b border-b-blue-500"
+          >
+            <h3 class="text-blue-50 text-lg flex-1">Annotations</h3>
+            <button class="btn variant-orange" @click=${this.addAnnotation}>
+              + Add annotation
+            </button>
+          </header>
+          <annotation-list
+            class="h-full w-full overflow-y-scroll"
+            .annotations=${this._annotations}
+            .currentTime=${this._currentTime}
+            .activeAnnotation=${this._activeId}
+            @mouseover-annotation=${(e: MouseoverAnnotationEvent) => (this._activeId = e.detail)}
+            @seek=${this.onSeek}
+            @identify=${this.onIdentify}
+          >
+          </annotation-list>
+        `
+      if (this._mode === 'editor')
+        return html`
+          <header class="bg-blue-600 flex p-4 align-center gap-2">
+            <h3 class="text-blue-50 text-lg flex-1">Add Annotation</h3>
+            <button class="btn variant-slate" @click=${this.cancelAnnotation}>
+              Cancel
+            </button>
+            <button
+              class="btn variant-orange"
+              @click=${this.confirmAnnotation}
+              .disabled=${this._keypoints.length === 0}
             >
-              <h3 class="text-blue-50 text-lg flex-1">Annotations</h3>
-              <button class="btn variant-orange" @click=${this.addAnnotation}>
-                + Add annotation
-              </button>
-            </header>
-            <annotation-list
-              class="h-full w-full overflow-y-scroll"
-              .annotations=${this._annotations}
-              .currentTime=${this._currentTime}
-              .activeAnnotation=${this._activeId}
-              @mouseover-annotation=${(e: MouseoverAnnotationEvent) => (this._activeId = e.detail)}
-              @seek=${this.onSeek}
+              Done
+            </button>
+          </header>
+          <species-selection
+            class="h-full w-full"
+            @selection=${(e: SpeciesSelectionEvent) => {
+              this._identification = e.detail
+              console.log(e.detail)
+            }}
+          >
+          </species-selection>
+        `
+      if (this._mode === 'identification')
+        return html`
+          <header class="bg-blue-600 flex p-4 align-center gap-2">
+            <h3 class="text-blue-50 text-lg flex-1">Add Identification</h3>
+            <button class="btn variant-slate" @click=${this.cancelAnnotation}>
+              Cancel
+            </button>
+            <button
+              class="btn variant-orange"
+              @click=${this.confirmIdentification}
+              .disabled=${this._identification === null}
             >
-            </annotation-list>
-          `
-        : html`
-            <header class="bg-blue-600 flex p-4 align-center gap-2">
-              <h3 class="text-blue-50 text-lg flex-1">Add Annotation</h3>
-              <button class="btn variant-slate" @click=${this.cancelAnnotation}>
-                Cancel
-              </button>
-              <button
-                class="btn variant-orange"
-                @click=${this.confirmAnnotation}
-                .disabled=${this._keypoints.length === 0}
-              >
-                Done
-              </button>
-            </header>
-            <species-selection
-              class="h-full w-full"
-              @selection=${(e: SpeciesSelectionEvent) => {
-                this._identification = e.detail
-                console.log(e.detail)
-              }}
-            >
-            </species-selection>
-          `
+              Done
+            </button>
+          </header>
+          <species-selection
+            class="h-full w-full"
+            @selection=${(e: SpeciesSelectionEvent) => {
+              this._identification = e.detail
+              console.log(e.detail)
+            }}
+          >
+          </species-selection>
+        `
+    }
 
     if (
       this._mode === 'editor' &&
@@ -415,7 +475,7 @@ export class WatchStream extends TailwindElement {
       this._boundingBox = [box.x1, box.y1, box.x2, box.y2]
     }
     const overlay =
-      this._mode === 'playback'
+      this._mode === 'playback' || this._mode === 'identification'
         ? html`
             <annotation-overlay
               .annotations=${filteredAnnotations}
@@ -486,10 +546,8 @@ export class WatchStream extends TailwindElement {
               <div class="absolute inset-0 z-10">${overlay}</div>
             </div>
 
-            <aside
-              class="flex flex-col bg-blue-700 overflow-y-hidden w-lg shrink-0"
-            >
-              ${asideContents}
+            <aside class="flex flex-col bg-blue-700 overflow-y-hidden w-lg shrink-0">
+              ${asideContents()}
             </aside>
           </div>
           ${playbackControls}
