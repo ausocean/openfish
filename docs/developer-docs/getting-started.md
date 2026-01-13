@@ -13,7 +13,7 @@ You will need installed:
 1) Setup google cloud credentials so your application can access the datastore:
    ```bash
    gcloud auth login
-   gcloud config set project openfish-dev
+   gcloud config set project openfish
    gcloud auth application-default login
    ```
    if the environment variable `$GOOGLE_APPLICATION_CREDENTIALS` is not set:

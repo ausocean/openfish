@@ -64,6 +64,10 @@ In this step, artificial intelligence algorithms will be used to automatically c
 #### Step 8 - Species Statistics and Analysis Tools
 In this step, statistics and analysis tools will be developed to enable the analysis of the data collected on marine species, and to provide trends and other insights into the distribution and diversity of species in the ocean. 
 
+### Useful Links
+
+(OpenFish User Guide and Developer Docs)[https://ausocean.github.io/openfish/]
+
 
 ### Related Projects
 **Classification using images**
