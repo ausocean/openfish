@@ -40,6 +40,7 @@ import (
 	"strings"
 
 	"github.com/ausocean/cloud/datastore"
+	"github.com/ausocean/cloud/gauth"
 	"github.com/ausocean/openfish/cmd/openfish/api"
 	"github.com/ausocean/openfish/cmd/openfish/services"
 	"github.com/ausocean/openfish/cmd/openfish/types/role"
@@ -62,10 +63,10 @@ func NoAuth() func(*fiber.Ctx) error {
 	}
 }
 
-// ValidateJWT creates a validator middleware that validate JWT tokens returned from Google IAP.
+// ValidateIAPJWT creates a validator middleware that validate JWT tokens returned from Google IAP.
 // Otherwise, it returns a 401 Unauthorized http error.
 // See more: https://cloud.google.com/iap/docs/signed-headers-howto#iap_validate_jwt-go
-func ValidateJWT(aud string) func(*fiber.Ctx) error {
+func ValidateIAPJWT(aud string) func(*fiber.Ctx) error {
 
 	fmt.Println("jwt audience: ", aud)
 
@@ -89,6 +90,64 @@ func ValidateJWT(aud string) func(*fiber.Ctx) error {
 		if err != nil {
 			if errors.Is(err, datastore.ErrNoSuchEntity) {
 				userContents := services.UserContents{DisplayName: strings.Split(email, "@")[0], Email: email, Role: role.Readonly}
+				userId, err := services.CreateUser(userContents)
+				if err != nil {
+					return err
+				}
+				user, err = services.GetUserByID(userId)
+				if err != nil {
+					return err
+				}
+			} else {
+				return err
+			}
+		}
+		ctx.Locals("user", user)
+
+		return ctx.Next()
+	}
+}
+
+// ValidateJWT creates a validator middleware that validates JWT tokens returned from another service.
+// Otherwise, it returns a 401 Unauthorized http error.
+// The token must have an audience, subject (which should be the email), display name, and issuer.
+func ValidateJWT(aud, validIssuer string, secret []byte) func(*fiber.Ctx) error {
+
+	fmt.Println("jwt audience: ", aud)
+
+	return func(ctx *fiber.Ctx) error {
+
+		// Get JWT from header.
+		token := ctx.Get("Authorization")
+
+		// Validate JWT token.
+		claims, err := gauth.GetClaims(token, secret)
+		if err != nil {
+			return api.Unauthorized(err)
+		}
+
+		if claims["aud"] != aud {
+			return api.Unauthorized(fmt.Errorf("Invalid Audience"))
+		}
+
+		if claims["iss"] != validIssuer {
+			return api.Unauthorized(fmt.Errorf("Invalid Issuer"))
+		}
+
+		_, expExists := claims["exp"]
+		if !expExists {
+			return api.Unauthorized(fmt.Errorf("Token does not contain an expiry time"))
+		}
+
+		// Extract email.
+		email := claims["sub"].(string)
+		ctx.Locals("email", email)
+
+		// Fetch user from datastore if they exist, otherwise create the user.
+		user, err := services.GetUserByEmail(email)
+		if err != nil {
+			if errors.Is(err, datastore.ErrNoSuchEntity) {
+				userContents := services.UserContents{DisplayName: claims["name"].(string), Email: email, Role: role.Annotator}
 				userId, err := services.CreateUser(userContents)
 				if err != nil {
 					return err

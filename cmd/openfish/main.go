@@ -34,11 +34,13 @@ LICENSE
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
 	"strconv"
 
+	"github.com/ausocean/cloud/gauth"
 	"github.com/ausocean/openfish/cmd/openfish/api"
 	"github.com/ausocean/openfish/cmd/openfish/features"
 	"github.com/ausocean/openfish/cmd/openfish/globals"
@@ -198,7 +200,9 @@ func main() {
 	useFilestore := envOrFlag("filestore", "FILESTORE", "Use local datastore", false, strconv.ParseBool, flag.Bool)
 	useCloudStorage := envOrFlag("cloud-storage", "CLOUD-STORAGE", "Use Cloud Buckets for storage of large data", false, strconv.ParseBool, flag.Bool)
 	useIAP := envOrFlag("iap", "IAP", "Use Google's Identity Aware Proxy for authentication", false, strconv.ParseBool, flag.Bool)
+	useJWT := envOrFlag("jwt", "JWT", "Use JWT for authentication", false, strconv.ParseBool, flag.Bool)
 	jwtAudience := envOrFlag("jwt-audience", "JWT_AUDIENCE", "Audience to use to validate JWT token", "", parseString, flag.String)
+	jwtIssuer := envOrFlag("jwt-issuer", "JWT_ISSUER", "Issuer to use to validate JWT token", "", parseString, flag.String)
 
 	flag.Parse()
 
@@ -222,10 +226,18 @@ func main() {
 		AllowOrigins: "*",
 	}))
 
+	ctx := context.Background()
+
 	// IAP middleware.
 	if *useIAP {
 		fmt.Println("using IAP for authentication")
-		app.Use(middleware.ValidateJWT(*jwtAudience))
+		app.Use(middleware.ValidateIAPJWT(*jwtAudience))
+	} else if *useJWT {
+		secret, err := gauth.GetHexSecret(ctx, "openfish", "jwtSecret")
+		if err != nil {
+			panic(err.Error())
+		}
+		app.Use(middleware.ValidateJWT(*jwtAudience, *jwtIssuer, secret))
 	} else {
 		app.Use(middleware.NoAuth())
 	}
