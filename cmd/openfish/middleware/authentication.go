@@ -40,6 +40,7 @@ import (
 	"strings"
 
 	"github.com/ausocean/cloud/datastore"
+	"github.com/ausocean/cloud/gauth"
 	"github.com/ausocean/openfish/cmd/openfish/api"
 	"github.com/ausocean/openfish/cmd/openfish/services"
 	"github.com/ausocean/openfish/cmd/openfish/types/role"
@@ -62,10 +63,10 @@ func NoAuth() func(*fiber.Ctx) error {
 	}
 }
 
-// ValidateJWT creates a validator middleware that validate JWT tokens returned from Google IAP.
+// ValidateIAPJWT creates a validator middleware that validate JWT tokens returned from Google IAP.
 // Otherwise, it returns a 401 Unauthorized http error.
 // See more: https://cloud.google.com/iap/docs/signed-headers-howto#iap_validate_jwt-go
-func ValidateJWT(aud string) func(*fiber.Ctx) error {
+func ValidateIAPJWT(aud string) func(*fiber.Ctx) error {
 
 	fmt.Println("jwt audience: ", aud)
 
@@ -100,6 +101,58 @@ func ValidateJWT(aud string) func(*fiber.Ctx) error {
 			} else {
 				return err
 			}
+		}
+		ctx.Locals("user", user)
+
+		return ctx.Next()
+	}
+}
+
+// ValidateJWT creates a validator middleware that validates JWT tokens returned from another service.
+// Otherwise, it returns a 401 Unauthorized http error.
+// The token must have an audience, subject (which should be the email), and issuer.
+func ValidateJWT(validAud, validIssuer string, secret []byte) func(*fiber.Ctx) error {
+	return func(ctx *fiber.Ctx) error {
+
+		// Get JWT from header.
+		token := ctx.Get("Authorization")
+
+		// Validate JWT token.
+		claims, err := gauth.GetClaims(token, secret)
+		if err != nil {
+			return api.Unauthorized(err)
+		}
+
+		if claims["aud"] != validAud {
+			return api.Unauthorized(fmt.Errorf("Invalid Audience"))
+		}
+
+		if claims["iss"] != validIssuer {
+			return api.Unauthorized(fmt.Errorf("Invalid Issuer"))
+		}
+
+		// The expiry time is checked by gauth.GetClaims if it exists, so we just need to check for the absence of the expiry.
+		_, expExists := claims["exp"]
+		if !expExists {
+			return api.Unauthorized(fmt.Errorf("Token does not contain an expiry time"))
+		}
+
+		// Extract email.
+		email, emailExists := claims["sub"].(string)
+		if !emailExists {
+			return api.Unauthorized(fmt.Errorf("Token does not contain a subject"))
+		}
+		ctx.Locals("email", email)
+
+		// Fetch user from datastore if they exist.
+		user, err := services.GetUserByEmail(email)
+		if errors.Is(err, datastore.ErrNoSuchEntity) {
+			// If the user doesn't exist, only allow creating a new user.
+			if ctx.Path() != "/api/v1/auth/me" && ctx.Method() != "POST" {
+				return api.Unauthorized(fmt.Errorf("User does not exist"))
+			}
+		} else if err != nil {
+			return err
 		}
 		ctx.Locals("user", user)
 

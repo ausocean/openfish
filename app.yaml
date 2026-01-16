@@ -2,9 +2,12 @@ runtime: go123
 
 env_variables:
   OPENFISH_CREDENTIALS: gs://ausocean/OpenFish-a197b0443246.json
-  IAP: "true"
+  OPENFISH_SECRETS: gs://ausocean/OpenFish-secrets.txt
+  JWT: "true"
+  IAP: "false"
   FILESTORE: "false"
-  JWT_AUDIENCE: "/projects/174291483773/apps/openfish"
+  JWT_AUDIENCE: "openfish"
+  JWT_ISSUER: "oceantv@appspot.gserviceaccount.com"
 
 main: ./cmd/openfish/main.go
 
