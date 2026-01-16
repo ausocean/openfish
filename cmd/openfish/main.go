@@ -37,9 +37,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
-	"log"
 
 	"github.com/ausocean/cloud/gauth"
 	"github.com/ausocean/openfish/cmd/openfish/api"
