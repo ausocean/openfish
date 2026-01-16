@@ -39,6 +39,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"log"
 
 	"github.com/ausocean/cloud/gauth"
 	"github.com/ausocean/openfish/cmd/openfish/api"
@@ -235,7 +236,7 @@ func main() {
 	} else if *useJWT {
 		secret, err := gauth.GetHexSecret(ctx, "openfish", "jwtSecret")
 		if err != nil {
-			panic(err.Error())
+			log.Panicf("Failed to get JWT secret: %v", err)
 		}
 		app.Use(middleware.ValidateJWT(*jwtAudience, *jwtIssuer, secret))
 	} else {

@@ -110,11 +110,8 @@ func ValidateIAPJWT(aud string) func(*fiber.Ctx) error {
 
 // ValidateJWT creates a validator middleware that validates JWT tokens returned from another service.
 // Otherwise, it returns a 401 Unauthorized http error.
-// The token must have an audience, subject (which should be the email), display name, and issuer.
-func ValidateJWT(aud, validIssuer string, secret []byte) func(*fiber.Ctx) error {
-
-	fmt.Println("jwt audience: ", aud)
-
+// The token must have an audience, subject (which should be the email), and issuer.
+func ValidateJWT(validAud, validIssuer string, secret []byte) func(*fiber.Ctx) error {
 	return func(ctx *fiber.Ctx) error {
 
 		// Get JWT from header.
@@ -126,7 +123,7 @@ func ValidateJWT(aud, validIssuer string, secret []byte) func(*fiber.Ctx) error 
 			return api.Unauthorized(err)
 		}
 
-		if claims["aud"] != aud {
+		if claims["aud"] != validAud {
 			return api.Unauthorized(fmt.Errorf("Invalid Audience"))
 		}
 
@@ -134,31 +131,28 @@ func ValidateJWT(aud, validIssuer string, secret []byte) func(*fiber.Ctx) error 
 			return api.Unauthorized(fmt.Errorf("Invalid Issuer"))
 		}
 
+		// The expiry time is checked by gauth.GetClaims if it exists, so we just need to check for the absence of the expiry.
 		_, expExists := claims["exp"]
 		if !expExists {
 			return api.Unauthorized(fmt.Errorf("Token does not contain an expiry time"))
 		}
 
 		// Extract email.
-		email := claims["sub"].(string)
+		email, emailExists := claims["sub"].(string)
+		if !emailExists {
+			return api.Unauthorized(fmt.Errorf("Token does not contain a subject"))
+		}
 		ctx.Locals("email", email)
 
-		// Fetch user from datastore if they exist, otherwise create the user.
+		// Fetch user from datastore if they exist.
 		user, err := services.GetUserByEmail(email)
-		if err != nil {
-			if errors.Is(err, datastore.ErrNoSuchEntity) {
-				userContents := services.UserContents{DisplayName: claims["name"].(string), Email: email, Role: role.Annotator}
-				userId, err := services.CreateUser(userContents)
-				if err != nil {
-					return err
-				}
-				user, err = services.GetUserByID(userId)
-				if err != nil {
-					return err
-				}
-			} else {
-				return err
+		if errors.Is(err, datastore.ErrNoSuchEntity) {
+			// If the user doesn't exist, only allow creating a new user.
+			if ctx.Path() != "/api/v1/auth/me" && ctx.Method() != "POST" {
+				return api.Unauthorized(fmt.Errorf("User does not exist"))
 			}
+		} else if err != nil {
+			return err
 		}
 		ctx.Locals("user", user)
 
