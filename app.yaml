@@ -7,7 +7,7 @@ env_variables:
   IAP: "false"
   FILESTORE: "false"
   JWT_AUDIENCE: "openfish"
-  JWT_ISSUER: "ausoceantv@appspot.gserviceaccount.com"
+  JWT_ISSUER: "oceantv@appspot.gserviceaccount.com"
 
 main: ./cmd/openfish/main.go
 
