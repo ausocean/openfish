@@ -84,8 +84,7 @@ export class AnnotationCard extends TailwindElement {
           <button
             id=${`btn-upvote-${iden.species.id}`}
             class="btn variant-blue size-sm"
-            @click=${() =>
-              this.dispatchUpvoteIdentificationEvent(iden.species.id, true)}
+            @click=${() => this.dispatchUpvoteIdentificationEvent(iden.species.id, true)}
           >
             <div class="*:w-4 *:h-4 *:fill-slate-50 mr-1 -ml-1">
               ${unsafeSVG(caretUp)}
@@ -99,8 +98,7 @@ export class AnnotationCard extends TailwindElement {
         <button
           id=${`btn-upvote-${iden.species.id}`}
           class="btn variant-blue size-sm"
-          @click=${() =>
-            this.dispatchUpvoteIdentificationEvent(iden.species.id, false)}
+          @click=${() => this.dispatchUpvoteIdentificationEvent(iden.species.id, false)}
         >
           <div class="*:w-4 *:h-4 *:fill-slate-50 mr-1 -ml-1 rotate-180">
             ${unsafeSVG(caretUp)}
@@ -145,7 +143,7 @@ export class AnnotationCard extends TailwindElement {
                     </span>
                     <span>${u.display_name}</span>
                   </li>
-                `,
+                `
               )}
             </ul>
           </tooltip-elem>
@@ -163,27 +161,25 @@ export class AnnotationCard extends TailwindElement {
     `
 
     return html`
-      ${this.simple
-        ? html``
-        : html`
+      ${
+        this.simple
+          ? html``
+          : html`
                 <div
                 id="arrow"
                 class="w-4 h-4 absolute z-20 top-4 -left-2 ${this.active ? 'bg-blue-50' : 'bg-slate-200'}"
                 style="clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);"> </div>
-                `}
+                `
+      }
       <article
-        class="card p-0 overflow-clip border-none ${this.active
-          ? "bg-blue-50"
-          : "bg-slate-200"}"
+        class="card p-0 overflow-clip border-none ${this.active ? 'bg-blue-50' : 'bg-slate-200'}"
       >
         <header class="flex justify-between items-baseline text-sm px-4 py-3">
           <span class="text-nowrap">
             <button
               class="link cursor-pointer"
               @click=${() =>
-                this.dispatchSeekEvent(
-                  this.annotation ? parseVideoTime(this.annotation.start) : 0,
-                )}
+                this.dispatchSeekEvent(this.annotation ? parseVideoTime(this.annotation.start) : 0)}
             >
               ${start}
             </button>
@@ -191,9 +187,7 @@ export class AnnotationCard extends TailwindElement {
             <button
               class="link cursor-pointer"
               @click=${() =>
-                this.dispatchSeekEvent(
-                  this.annotation ? parseVideoTime(this.annotation.end) : 0,
-                )}
+                this.dispatchSeekEvent(this.annotation ? parseVideoTime(this.annotation.end) : 0)}
             >
               ${end}
             </button>
@@ -205,13 +199,16 @@ export class AnnotationCard extends TailwindElement {
             </span>
           </span>
         </header>
-        <ul class="space-y-2 px-4 py-2 ${!this.active ? "pb-4" : ""}">
-          ${this.annotation.identifications.length === 0
-            ? unknownSpecies
-            : repeat(this.annotation.identifications, renderIdentification)}
+        <ul class="space-y-2 px-4 py-2 ${!this.active ? 'pb-4' : ''}">
+          ${
+            this.annotation.identifications.length === 0
+              ? unknownSpecies
+              : repeat(this.annotation.identifications, renderIdentification)
+          }
         </ul>
-        ${this.active
-          ? html`<footer
+        ${
+          this.active
+            ? html`<footer
               class="flex justify-between items-baseline px-4 py-3 bg-slate-200"
             >
               <span class="text-sm">Not correct?</span>
@@ -222,7 +219,8 @@ export class AnnotationCard extends TailwindElement {
                 Add identification
               </button>
             </footer>`
-          : html``}
+            : html``
+        }
       </article>
     `
   }
