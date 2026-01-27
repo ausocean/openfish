@@ -150,9 +150,29 @@ export class WatchStream extends TailwindElement {
     this.play()
   }
 
-  private async confirmIdentification() {
+  // createIdentification creates a new identification.
+  private async createIdentification() {
     // Submit identification.
     await this.client.POST('/api/v1/annotations/{id}/identifications/{species_id}', {
+      params: {
+        path: {
+          id: this._annotationId,
+          species_id: this._identification,
+        },
+      },
+    })
+
+    // Refetch annotations.
+    await this.fetchAnnotations(this._videostream!.id)
+    this._annotationId = null
+    this._identification = null
+    this._mode = 'playback'
+  }
+
+  // deleteIdentification deletes an identification.
+  private async deleteIdentification() {
+    // Submit identification.
+    await this.client.DELETE('/api/v1/annotations/{id}/identifications/{species_id}', {
       params: {
         path: {
           id: this._annotationId,
@@ -177,17 +197,17 @@ export class WatchStream extends TailwindElement {
     this._seekTo = e.detail
   }
 
-  private onIdentify(e: CustomEvent) {
+  private onUpvoteIdentification(e: CustomEvent) {
     this._annotationId = e.detail.annotationId
-    if (e.detail.speciesId === null) {
-      // No species specified, so we want to choose one.
-      this._identification = null
-      this._mode = 'identification'
-    } else {
-      // Species specified (upvote).
-      this._identification = e.detail.speciesId
-      this.confirmIdentification()
-    }
+    this._identification = e.detail.speciesId
+    if (e.detail.create) this.createIdentification()
+    else this.deleteIdentification()
+  }
+
+  private onNewIdentification(e: CustomEvent) {
+    this._annotationId = e.detail.annotationId
+    this._identification = null
+    this._mode = 'identification'
   }
 
   private fwd(seconds: number) {
@@ -410,7 +430,8 @@ export class WatchStream extends TailwindElement {
             .activeAnnotation=${this._activeId}
             @mouseover-annotation=${(e: MouseoverAnnotationEvent) => (this._activeId = e.detail)}
             @seek=${this.onSeek}
-            @identify=${this.onIdentify}
+            @upvote-identification=${this.onUpvoteIdentification}
+            @new-identification=${this.onNewIdentification}
           >
           </annotation-list>
         `
@@ -447,7 +468,7 @@ export class WatchStream extends TailwindElement {
             </button>
             <button
               class="btn variant-orange"
-              @click=${this.confirmIdentification}
+              @click=${this.createIdentification}
               .disabled=${this._identification === null}
             >
               Done

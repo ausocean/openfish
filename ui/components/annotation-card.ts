@@ -40,10 +40,26 @@ export class AnnotationCard extends TailwindElement {
     )
   }
 
-  dispatchIdentifyEvent(species: number | null) {
+  // upvote-identification adds or removes an identification based on a species id (ie upvotes or un-upvotes).
+  dispatchUpvoteIdentificationEvent(species: number, create: boolean) {
     this.dispatchEvent(
-      new CustomEvent('identify', {
-        detail: { annotationId: this.annotation?.id, speciesId: species },
+      new CustomEvent('upvote-identification', {
+        detail: {
+          annotationId: this.annotation?.id,
+          speciesId: species,
+          create: create,
+        },
+        bubbles: true,
+        composed: true,
+      })
+    )
+  }
+
+  // new-identification opens the species picker to add an entirely new identification.
+  dispatchNewIdentificationEvent() {
+    this.dispatchEvent(
+      new CustomEvent('new-identification', {
+        detail: { annotationId: this.annotation?.id },
         bubbles: true,
         composed: true,
       })
@@ -59,6 +75,40 @@ export class AnnotationCard extends TailwindElement {
     const end = this.annotation.end
 
     const isMine = (iden: Identification) => iden.identified_by.some((u) => u.id === this.user?.id)
+
+    const renderUpvoteButton = (iden: Identification) => {
+      if (this.simple) return html``
+      // If we haven't upvoted this species, display the upvote button.
+      if (!isMine(iden)) {
+        return html`
+          <button
+            id=${`btn-upvote-${iden.species.id}`}
+            class="btn variant-blue size-sm"
+            @click=${() =>
+              this.dispatchUpvoteIdentificationEvent(iden.species.id, true)}
+          >
+            <div class="*:w-4 *:h-4 *:fill-slate-50 mr-1 -ml-1">
+              ${unsafeSVG(caretUp)}
+            </div>
+            <span>Upvote</span>
+          </button>
+        `
+      }
+      // Otherwise, display the un-upvote button.
+      return html`
+        <button
+          id=${`btn-upvote-${iden.species.id}`}
+          class="btn variant-blue size-sm"
+          @click=${() =>
+            this.dispatchUpvoteIdentificationEvent(iden.species.id, false)}
+        >
+          <div class="*:w-4 *:h-4 *:fill-slate-50 mr-1 -ml-1 rotate-180">
+            ${unsafeSVG(caretUp)}
+          </div>
+          <span>Un-Upvote</span>
+        </button>
+      `
+    }
 
     const renderIdentification = (iden: Identification) => html`
       <li class="flex justify-between items-center">
@@ -95,40 +145,11 @@ export class AnnotationCard extends TailwindElement {
                     </span>
                     <span>${u.display_name}</span>
                   </li>
-                `
+                `,
               )}
             </ul>
           </tooltip-elem>
-          ${
-            this.simple
-              ? html``
-              : html`
-            <button
-                id=${`btn-upvote-${iden.species.id}`}
-                class="btn variant-blue size-sm"
-                ?disabled=${isMine(iden)}
-                @click=${() => this.dispatchIdentifyEvent(iden.species.id)}
-            >
-                <div class="*:w-4 *:h-4 *:fill-slate-50 mr-1 -ml-1">
-                ${unsafeSVG(caretUp)}
-                </div>
-                <span>Upvote</span>
-            </button>
-            ${
-              isMine(iden)
-                ? html`<tooltip-elem
-                    for=${`btn-upvote-${iden.species.id}`}
-                    type="hover"
-                    placement="bottom"
-                    class="bg-slate-900 max-w-48"
-                >
-                    Upvotes limited to one per user per identification. You cannot
-                    upvote your own identifications.
-                </tooltip-elem>`
-                : html``
-            }
-            `
-          }
+          ${renderUpvoteButton(iden)}
         </div>
       </li>
     `
@@ -142,26 +163,27 @@ export class AnnotationCard extends TailwindElement {
     `
 
     return html`
-            ${
-              this.simple
-                ? html``
-                : html`
+      ${this.simple
+        ? html``
+        : html`
                 <div
-                id= "arrow"
-                class="w-4 h-4 absolute z-20 top-4 -left-2 ${this.active ? 'bg-blue-50' : 'bg-slate-200'}""
-                style = "clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);"
-                    > </div>
-                `
-            }
+                id="arrow"
+                class="w-4 h-4 absolute z-20 top-4 -left-2 ${this.active ? 'bg-blue-50' : 'bg-slate-200'}"
+                style="clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);"> </div>
+                `}
       <article
-        class="card p-0 overflow-clip border-none ${this.active ? 'bg-blue-50' : 'bg-slate-200'}"
+        class="card p-0 overflow-clip border-none ${this.active
+          ? "bg-blue-50"
+          : "bg-slate-200"}"
       >
         <header class="flex justify-between items-baseline text-sm px-4 py-3">
           <span class="text-nowrap">
             <button
               class="link cursor-pointer"
               @click=${() =>
-                this.dispatchSeekEvent(this.annotation ? parseVideoTime(this.annotation.start) : 0)}
+                this.dispatchSeekEvent(
+                  this.annotation ? parseVideoTime(this.annotation.start) : 0,
+                )}
             >
               ${start}
             </button>
@@ -169,7 +191,9 @@ export class AnnotationCard extends TailwindElement {
             <button
               class="link cursor-pointer"
               @click=${() =>
-                this.dispatchSeekEvent(this.annotation ? parseVideoTime(this.annotation.end) : 0)}
+                this.dispatchSeekEvent(
+                  this.annotation ? parseVideoTime(this.annotation.end) : 0,
+                )}
             >
               ${end}
             </button>
@@ -181,22 +205,24 @@ export class AnnotationCard extends TailwindElement {
             </span>
           </span>
         </header>
-        <ul class="space-y-2 px-4 py-2 ${!this.active ? 'pb-4' : ''}">
-          ${this.annotation.identifications.length === 0 ? unknownSpecies : repeat(this.annotation.identifications, renderIdentification)}
+        <ul class="space-y-2 px-4 py-2 ${!this.active ? "pb-4" : ""}">
+          ${this.annotation.identifications.length === 0
+            ? unknownSpecies
+            : repeat(this.annotation.identifications, renderIdentification)}
         </ul>
-        ${
-          this.active
-            ? html`<footer
-                class="flex justify-between items-baseline px-4 py-3 bg-slate-200"
+        ${this.active
+          ? html`<footer
+              class="flex justify-between items-baseline px-4 py-3 bg-slate-200"
+            >
+              <span class="text-sm">Not correct?</span>
+              <button
+                class="btn variant-blue size-sm"
+                @click=${() => this.dispatchNewIdentificationEvent()}
               >
-                <span class="text-sm">Not correct?</span>
-                <button class="btn variant-blue size-sm" @click=${() => this.dispatchIdentifyEvent(null)}>
-                  Add identification
-                </button>
-              </footer>`
-            : html``
-        }
-
+                Add identification
+              </button>
+            </footer>`
+          : html``}
       </article>
     `
   }
