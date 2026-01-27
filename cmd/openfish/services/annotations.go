@@ -37,6 +37,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 
 	"github.com/ausocean/cloud/datastore"
 	"github.com/ausocean/openfish/cmd/openfish/entities"
@@ -303,10 +304,10 @@ func AddIdentification(id int64, userID int64, speciesID int64) error {
 		ent, ok := e.(*entities.Annotation)
 		if ok {
 			a := AnnotationContentsFromEntity(*ent)
-			if _, exists := a.Identifications[speciesID]; exists {
-				a.Identifications[speciesID] = append(a.Identifications[speciesID], userID)
-			} else {
-				a.Identifications[speciesID] = []int64{userID}
+			ids := a.Identifications[speciesID]
+			// Add an identification only if the user hasn't already identified the species.
+			if !slices.Contains(ids, userID) {
+				a.Identifications[speciesID] = append(ids, userID)
 			}
 			*ent = a.ToEntity()
 		}
@@ -324,7 +325,8 @@ func DeleteIdentification(id int64, userID int64, speciesID int64) error {
 		ent, ok := e.(*entities.Annotation)
 		if ok {
 			a := AnnotationContentsFromEntity(*ent)
-			if len(a.Identifications[speciesID]) == 1 {
+			// If there is only one identification and it is by the calling user, remove the species identification from the map.
+			if len(a.Identifications[speciesID]) == 1 && a.Identifications[speciesID][0] == userID {
 				delete(a.Identifications, speciesID)
 			} else {
 				for i, id := range a.Identifications[speciesID] {

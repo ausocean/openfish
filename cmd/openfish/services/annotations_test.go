@@ -186,6 +186,31 @@ func TestAnnotationAddIdentification(t *testing.T) {
 	}
 }
 
+func TestAnnotationAddDuplicateIdentification(t *testing.T) {
+	setup()
+	original := createTestAnnotation()
+	uid, _ := services.CreateUser(services.UserContents{
+		Email:       "sandy.whiting@example.com",
+		DisplayName: "Sandy Whiting",
+		Role:        role.Annotator,
+	})
+	sp, _ := services.CreateSpecies(services.SpeciesContents{
+		ScientificName: "Rhincodon typus",
+		CommonName:     "Rhincodon typus",
+	})
+
+	services.AddIdentification(original.ID, uid, sp.ID)
+	services.AddIdentification(original.ID, uid, sp.ID)
+
+	modified, _ := services.GetAnnotationByID(original.ID)
+	if len(modified.Identifications) > len(original.Identifications)+1 {
+		t.Errorf("Expected no additional identifications to be added")
+	}
+	if len(modified.Identifications) < len(original.Identifications)+1 {
+		t.Errorf("Expected an additional identification to be added")
+	}
+}
+
 func TestAnnotationAddNonExistingSpeciesIdentification(t *testing.T) {
 	setup()
 	original := createTestAnnotation()
@@ -219,6 +244,33 @@ func TestAnnotationRemoveIdentification(t *testing.T) {
 	modified, _ := services.GetAnnotationByID(original.ID)
 	if len(modified.Identifications) != len(original.Identifications) {
 		t.Errorf("Expected identification to be removed")
+	}
+}
+
+// Tests that calling delete identification doesn't remove someone else's identification if there is only one identification.
+func TestAnnotationRemoveOtherUserIdentifications(t *testing.T) {
+	setup()
+	original := createTestAnnotation()
+	uid1, _ := services.CreateUser(services.UserContents{
+		Email:       "sandy.whiting@example.com",
+		DisplayName: "Sandy Whiting",
+		Role:        role.Annotator,
+	})
+	uid2, _ := services.CreateUser(services.UserContents{
+		Email:       "sandy.whiting2@example.com",
+		DisplayName: "Sandy Whiting 2",
+		Role:        role.Annotator,
+	})
+	sp, _ := services.CreateSpecies(services.SpeciesContents{
+		ScientificName: "Rhincodon typus",
+		CommonName:     "Rhincodon typus",
+	})
+	services.AddIdentification(original.ID, uid1, sp.ID)
+	services.DeleteIdentification(original.ID, uid2, sp.ID)
+
+	modified, _ := services.GetAnnotationByID(original.ID)
+	if len(modified.Identifications) != len(original.Identifications)+1 {
+		t.Errorf("Expected identification to not be deleted")
 	}
 }
 
