@@ -9,24 +9,6 @@ import caretRight from '../icons/caret-right.svg?raw'
 export class ImageCarousel extends TailwindElement {
   private _idx = 0
 
-  _handleScrollend() {
-    console.log('handle scroll end')
-    // Get slotted elements.
-    const slot = this.shadowRoot?.querySelector('slot')
-    if (slot !== undefined && slot !== null) {
-      const slottedElems = slot.assignedElements({ flatten: true })
-
-      // Find element currently in view.
-      this._idx = slottedElems.findIndex((elem) => {
-        const rect = elem.getBoundingClientRect()
-        const parentRect = this.getBoundingClientRect()
-        return rect.left >= parentRect.left && rect.right <= parentRect.right
-      })
-
-      this.dispatchEvent(new CustomEvent('update', { detail: this._idx }))
-    }
-  }
-
   goto(direction: 1 | -1) {
     // Get slotted elements.
     const slot = this.shadowRoot?.querySelector('slot')!
@@ -34,7 +16,7 @@ export class ImageCarousel extends TailwindElement {
 
     // Scroll next or previous into view.
     this._idx = (this._idx + direction + slottedElems.length) % slottedElems.length
-    slottedElems[this._idx].scrollIntoView({ behavior: 'smooth' })
+    slottedElems[this._idx].scrollIntoView({ behavior: 'smooth', block: 'nearest' })
 
     this.dispatchEvent(new CustomEvent('update', { detail: this._idx }))
   }
@@ -42,7 +24,7 @@ export class ImageCarousel extends TailwindElement {
   render() {
     return html`
         <div class="relative group w-full h-full">
-            <div @scrollend=${this._handleScrollend} class="absolute inset-0 flex w-full overflow-clip  overflow-x-scroll snap-x snap-mandatory snap-scroll-smooth">
+            <div class="absolute inset-0 flex w-full overflow-clip  overflow-x-scroll snap-x snap-mandatory snap-scroll-smooth">
                 <slot></slot>
             </div>
 
