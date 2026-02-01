@@ -1,5 +1,5 @@
 # Build stage.
-FROM node:25.2-alpine as build-stage
+FROM node:25.5-alpine as build-stage
 WORKDIR /src
 RUN npm install -g pnpm
 
