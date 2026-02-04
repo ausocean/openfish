@@ -10,12 +10,12 @@
     "ci:check": "biome ci --linter-enabled=true --reporter=github ."
   },
   "dependencies": {
-    "@floating-ui/dom": "^1.7.4",
+    "@floating-ui/dom": "^1.7.5",
     "@lit/context": "^1.1.6",
     "@openfish/client": "workspace:*",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/vite": "^4.1.18",
-    "glob": "^13.0.0",
+    "glob": "^13.0.1",
     "lit": "^3.3.2",
     "reflect-metadata": "^0.2.2",
     "tailwindcss": "^4.1.18",
