@@ -1,5 +1,5 @@
 # Build stage.
-FROM golang:1.25-alpine as build-stage
+FROM golang:1.26-alpine as build-stage
 WORKDIR /src
 
 COPY cmd/openfish ./cmd/openfish
