@@ -8,9 +8,9 @@
     "generate:ts": "openapi-typescript swagger.json -o schema.ts --properties-required-by-default"
   },
   "dependencies": {
-    "openapi-fetch": "^0.15.0"
+    "openapi-fetch": "^0.17.0"
   },
   "devDependencies": {
-    "openapi-typescript": "^7.10.1"
+    "openapi-typescript": "^7.13.0"
   }
 }
