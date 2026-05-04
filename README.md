@@ -1,3 +1,5 @@
+**Note** Repo archived since functionality has moved to ausoceantv. The datastore package has moved to cloud.
+
 **Authors:** Trek Hopton, Alan Noble
 
 **Page Contents**
